@@ -19,15 +19,19 @@ NULL
 #'
 #' @param fn The objective.
 #' @param gr An optional gradient.
+#' @param he An optional Hessian. Only Newton uses one; the other methods
+#'   accept it and ignore it, so calling code need not branch on the method.
 #' @param ... Passed to methods.
 #'
 #' @return A list describing the objective to the C++ side: \code{kind}, the
-#'   pieces belonging to that kind, and \code{has_gradient}.
+#'   pieces belonging to that kind, and flags saying which derivatives were
+#'   supplied rather than differenced.
 #'
 #' @seealso \code{\link{finite_sum}}, \code{\link{cpp_objective}}
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
-                                function(fn, gr = NULL, ...) S7::S7_dispatch())
+                                function(fn, gr = NULL, he = NULL, ...)
+                                  S7::S7_dispatch())
 
 
 #' @title An Ordinary R Function as an Objective
@@ -40,12 +44,17 @@ as_objective <- S7::new_generic("as_objective", "fn",
 #' @param ... Unused.
 #' @return An objective handle; see \code{\link{as_objective}}.
 #' @keywords internal
-S7::method(as_objective, S7::class_function) <- function(fn, gr = NULL, ...) {
-  if (!is.null(gr) && !is.function(gr)) {
-    stop("'gr' must be a function or NULL.", call. = FALSE)
+S7::method(as_objective, S7::class_function) <-
+  function(fn, gr = NULL, he = NULL, ...) {
+    if (!is.null(gr) && !is.function(gr)) {
+      stop("'gr' must be a function or NULL.", call. = FALSE)
+    }
+    if (!is.null(he) && !is.function(he)) {
+      stop("'he' must be a function or NULL.", call. = FALSE)
+    }
+    list(kind = "r", fn = fn, gr = gr, he = he,
+         has_gradient = !is.null(gr), has_hessian = !is.null(he))
   }
-  list(kind = "r", fn = fn, gr = gr, has_gradient = !is.null(gr))
-}
 
 
 # --- finite sums ------------------------------------------------------------
@@ -136,7 +145,7 @@ finite_sum <- function(fn, gr = NULL, n) {
 #' @param ... Unused.
 #' @return An objective handle; see \code{\link{as_objective}}.
 #' @keywords internal
-S7::method(as_objective, FiniteSum) <- function(fn, gr = NULL, ...) {
+S7::method(as_objective, FiniteSum) <- function(fn, gr = NULL, he = NULL, ...) {
   obj <- fn
   n <- obj@n
   all_idx <- seq_len(n)
@@ -148,7 +157,9 @@ S7::method(as_objective, FiniteSum) <- function(fn, gr = NULL, ...) {
     fn_idx = obj@fn,
     gr_idx = gr_obj,
     n = n,
-    has_gradient = !is.null(gr_obj)
+    he = NULL,
+    has_gradient = !is.null(gr_obj),
+    has_hessian = FALSE
   )
 }
 
@@ -207,7 +218,7 @@ cpp_objective <- function(fn, gr = NULL) {
 #' @return An objective handle; see \code{\link{as_objective}}.
 #' @keywords internal
 S7::method(as_objective, S7::new_S3_class("cpp_objective")) <-
-  function(fn, gr = NULL, ...) {
+  function(fn, gr = NULL, he = NULL, ...) {
     list(kind = "cpp", fn_ptr = fn$fn, gr_ptr = fn$gr,
-         has_gradient = !is.null(fn$gr))
+         has_gradient = !is.null(fn$gr), has_hessian = FALSE)
   }

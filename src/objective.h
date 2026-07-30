@@ -39,10 +39,17 @@ public:
   // caller uses fd_gradient() below.
   virtual arma::vec gradient(const arma::vec& x) = 0;
 
+  // The Hessian at x. Only called when has_hessian() is true.
+  virtual arma::mat hessian(const arma::vec& x) {
+    Rcpp::stop("This objective supplies no Hessian.");
+  }
+
   virtual bool has_gradient() const = 0;
+  virtual bool has_hessian() const { return false; }
 
   int n_value = 0;
   int n_grad  = 0;
+  int n_hess  = 0;
 
   // Central-difference gradient, for an objective that supplies none. One
   // differentiation, never nested: the same rule the rest of the toolkit
@@ -71,6 +78,37 @@ public:
   arma::vec grad(const arma::vec& x) {
     return has_gradient() ? gradient(x) : fd_gradient(x);
   }
+
+  // Central-difference Hessian, obtained by differentiating grad() ONCE. When
+  // the objective supplies an analytic gradient that is a single numerical
+  // differentiation and the result is good; when it does not, grad() is itself
+  // a difference and this is the one place in the package where two are
+  // composed. It is unavoidable -- a Hessian from values alone has to be -- but
+  // it is why newton() warns that a density-only objective is better served by
+  // bfgs(), which never needs one.
+  arma::mat fd_hessian(const arma::vec& x) {
+    const arma::uword p = x.n_elem;
+    arma::mat H(p, p, arma::fill::zeros);
+    const double eps = std::pow(std::numeric_limits<double>::epsilon(), 1.0 / 3.0);
+    arma::vec xp = x, xm = x;
+    for (arma::uword j = 0; j < p; ++j) {
+      const double h = eps * std::max(1.0, std::abs(x[j]));
+      xp[j] = x[j] + h;
+      xm[j] = x[j] - h;
+      const arma::vec gp = grad(xp);
+      const arma::vec gm = grad(xm);
+      xp[j] = x[j];
+      xm[j] = x[j];
+      H.col(j) = (gp - gm) / (2.0 * h);
+    }
+    // Symmetrise: the two triangles differ by the differencing error, and a
+    // Hessian that is not exactly symmetric breaks eig_sym further on.
+    return 0.5 * (H + H.t());
+  }
+
+  arma::mat hess(const arma::vec& x) {
+    return has_hessian() ? hessian(x) : fd_hessian(x);
+  }
 };
 
 
@@ -81,7 +119,9 @@ public:
 
 class RObjective : public Objective {
 public:
-  RObjective(SEXP fn, SEXP gr) : fn_(fn), gr_(gr), has_gr_(gr != R_NilValue) {}
+  RObjective(SEXP fn, SEXP gr, SEXP he)
+    : fn_(fn), gr_(gr), he_(he),
+      has_gr_(gr != R_NilValue), has_he_(he != R_NilValue) {}
 
   double value(const arma::vec& x) {
     ++n_value;
@@ -98,12 +138,21 @@ public:
     return Rcpp::as<arma::vec>(out);
   }
 
+  arma::mat hessian(const arma::vec& x) {
+    ++n_hess;
+    Rcpp::NumericMatrix out = Rcpp::Function(he_)(as_r_vector(x));
+    return Rcpp::as<arma::mat>(out);
+  }
+
   bool has_gradient() const { return has_gr_; }
+  bool has_hessian() const { return has_he_; }
 
 private:
   SEXP fn_;
   SEXP gr_;
+  SEXP he_;
   bool has_gr_;
+  bool has_he_;
 };
 
 
@@ -211,7 +260,7 @@ private:
 inline Objective* make_objective(Rcpp::List spec) {
   std::string kind = Rcpp::as<std::string>(spec["kind"]);
   if (kind == "r") {
-    return new RObjective(spec["fn"], spec["gr"]);
+    return new RObjective(spec["fn"], spec["gr"], spec["he"]);
   } else if (kind == "cpp") {
     return new CppObjective(spec["fn_ptr"], spec["gr_ptr"]);
   } else if (kind == "finite_sum") {

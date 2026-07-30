@@ -22,17 +22,17 @@ NULL
 #' check that cannot be evaluated must say so rather than pass or fail silently.
 #'
 #' @param optimizer The \code{\link{optimizer}}.
-#' @param fn,gr The objective and optional gradient as the user supplied them.
+#' @param fn,gr,he The objective and its optional derivatives, as supplied.
 #' @param par The starting value.
 #'
 #' @return The objective handle from \code{\link{as_objective}}.
 #'
 #' @keywords internal
-prepare_objective <- function(optimizer, fn, par, gr = NULL) {
+prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
   if (!is.numeric(par) || !length(par) || anyNA(par)) {
     stop("'par' must be a numeric vector of starting values.", call. = FALSE)
   }
-  spec <- as_objective(fn, gr)
+  spec <- as_objective(fn, gr, he)
 
   needs <- crit_needs(optimizer@criterion)
   provides <- optimizer_provides(optimizer)
@@ -114,7 +114,7 @@ build_result <- function(out, optimizer, spec, elapsed) {
     par = as.numeric(out$par),
     value = out$value,
     gradient = as.numeric(out$gradient),
-    counts = c(f = out$n_value, g = out$n_grad),
+    counts = c(f = out$n_value, g = out$n_grad, h = out$n_hess),
     iterations = out$iterations,
     converged = isTRUE(out$converged),
     criterion_met = stopped,
@@ -123,4 +123,71 @@ build_result <- function(out, optimizer, spec, elapsed) {
     optimizer = optimizer,
     elapsed = elapsed
   )
+}
+
+
+#' Run the Shared Descent Loop
+#'
+#' @description
+#' The body of every method that has a direction: prepares the objective, hands
+#' the compiled loop the optimiser's settings and the description of its
+#' direction, and assembles the result.
+#'
+#' @details
+#' Newton, BFGS, L-BFGS and gradient descent differ only in the \code{method}
+#' list, which names the direction and carries its parameters. Everything
+#' else — the line search, the stopping rule, the budgets, the trace, the
+#' reporting — is the same code for all of them, which is what makes adding a
+#' fifth method a Direction in C++ and a constructor in R.
+#'
+#' @param optimizer The \code{\link{optimizer}}.
+#' @param fn,par,gr,he The problem, as the user supplied it.
+#' @param method A list describing the direction to the compiled loop.
+#'
+#' @return An \code{\link{optimizer_result}}.
+#'
+#' @keywords internal
+run_descent <- function(optimizer, fn, par, gr, he, method) {
+  spec <- prepare_objective(optimizer, fn, par, gr, he)
+
+  t0 <- proc.time()[["elapsed"]]
+  out <- descent_run(
+    spec = spec, par = as.numeric(par),
+    criterion = optimizer@criterion, crit_fn = crit_met,
+    method = method,
+    line_search = line_search_spec(optimizer@line_search),
+    maxit = as.integer(optimizer@maxit),
+    max_eval = as.integer(optimizer@max_eval),
+    verbose = optimizer@verbose,
+    refresh = as.integer(optimizer@refresh),
+    keep_trace = optimizer@keep_trace,
+    step = optimizer@step
+  )
+  elapsed <- proc.time()[["elapsed"]] - t0
+
+  build_result(out, optimizer, spec, elapsed)
+}
+
+
+#' Validate an Initial Step Length
+#' @param step The value supplied.
+#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#' @keywords internal
+check_step <- function(step) {
+  if (length(step) != 1L || !is.numeric(step) || is.na(step) || step <= 0) {
+    stop("'step' must be a single positive number.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+#' Validate a Line Search
+#' @param x The value supplied.
+#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#' @keywords internal
+check_line_search <- function(x) {
+  if (!S7::S7_inherits(x, line_search_class())) {
+    stop("'line_search' must be a line_search object, e.g. armijo().",
+         call. = FALSE)
+  }
+  invisible(TRUE)
 }

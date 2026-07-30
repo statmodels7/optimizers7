@@ -89,21 +89,5 @@ gradient_descent <- function(criterion = crit_any(crit_grad(1e-8),
 #' @keywords internal
 S7::method(minimize, GradientDescent) <-
   function(optimizer, fn, par, gr = NULL, he = NULL, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr)
-
-    t0 <- proc.time()[["elapsed"]]
-    out <- gd_run(
-      spec = spec, par = as.numeric(par),
-      criterion = optimizer@criterion, crit_fn = crit_met,
-      maxit = as.integer(optimizer@maxit),
-      max_eval = as.integer(optimizer@max_eval),
-      verbose = optimizer@verbose,
-      refresh = as.integer(optimizer@refresh),
-      keep_trace = optimizer@keep_trace,
-      step = optimizer@step,
-      line_search = line_search_spec(optimizer@line_search)
-    )
-    elapsed <- proc.time()[["elapsed"]] - t0
-
-    build_result(out, optimizer, spec, elapsed)
+    run_descent(optimizer, fn, par, gr, he, list(type = "gradient_descent"))
   }

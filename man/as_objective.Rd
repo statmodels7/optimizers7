@@ -4,18 +4,22 @@
 \alias{as_objective}
 \title{Normalise an Objective for the Optimisers}
 \usage{
-as_objective(fn, gr = NULL, ...)
+as_objective(fn, gr = NULL, he = NULL, ...)
 }
 \arguments{
 \item{fn}{The objective.}
 
 \item{gr}{An optional gradient.}
 
+\item{he}{An optional Hessian. Only Newton uses one; the other methods
+accept it and ignore it, so calling code need not branch on the method.}
+
 \item{...}{Passed to methods.}
 }
 \value{
 A list describing the objective to the C++ side: \code{kind}, the
-pieces belonging to that kind, and \code{has_gradient}.
+pieces belonging to that kind, and flags saying which derivatives were
+supplied rather than differenced.
 }
 \description{
 Turns whatever the user supplied — an R function, a finite sum over

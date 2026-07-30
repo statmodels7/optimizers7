@@ -34,6 +34,7 @@ Collate:
     'line_search.R'
     'methods.R'
     'optimizers7-package.R'
+    'second_order.R'
     'zzz.R'
 Suggests:
     testthat (>= 3.0.0),

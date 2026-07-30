@@ -42,14 +42,18 @@ test_that("the two searches cost what they are supposed to cost", {
   a <- minimize(o(armijo()), rosen, x0, gr = rosen_gr)
   w <- minimize(o(wolfe()),  rosen, x0, gr = rosen_gr)
 
-  # Armijo evaluates no gradient of its own: one for the direction, one for the
-  # stopping rule, and the final one after the loop. That is an exact invariant,
-  # and it breaking means something started asking for gradients it should not.
-  expect_equal(a@counts[["g"]], 2 * a@iterations + 1)
+  # Armijo evaluates no gradient of its own, and the loop computes exactly one
+  # per iteration: the gradient at the accepted point serves both the stopping
+  # rule and the next iteration's direction. One more is spent before the loop
+  # starts. That is an exact invariant, and it breaking means something began
+  # recomputing a gradient it already had -- which is precisely the waste the
+  # shared loop was written to remove.
+  expect_equal(a@counts[["g"]], a@iterations + 1)
 
-  # Wolfe does evaluate gradients inside the search, so it costs slightly more
-  # per iteration -- and needs fewer of them, which is the whole trade.
-  expect_gt(w@counts[["g"]] / w@iterations, 2)
+  # Wolfe evaluates gradients inside the search, so it costs slightly more per
+  # iteration -- and needs fewer of them, which is the whole trade.
+  expect_gt(w@counts[["g"]] / w@iterations, 1)
+  expect_lt(w@counts[["g"]] / w@iterations, 2)
   expect_lt(w@iterations, a@iterations)
 
   # measured 0.86 on this problem; the assertion is only that the trade is

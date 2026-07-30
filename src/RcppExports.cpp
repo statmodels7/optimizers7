@@ -11,9 +11,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// gd_run
-Rcpp::List gd_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, double step, Rcpp::List line_search);
-RcppExport SEXP _optimizers7_gd_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP stepSEXP, SEXP line_searchSEXP) {
+// descent_run
+Rcpp::List descent_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, Rcpp::List method, Rcpp::List line_search, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, double step);
+RcppExport SEXP _optimizers7_descent_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP methodSEXP, SEXP line_searchSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP stepSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,20 +21,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec >::type par(parSEXP);
     Rcpp::traits::input_parameter< SEXP >::type criterion(criterionSEXP);
     Rcpp::traits::input_parameter< SEXP >::type crit_fn(crit_fnSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type line_search(line_searchSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type line_search(line_searchSEXP);
-    rcpp_result_gen = Rcpp::wrap(gd_run(spec, par, criterion, crit_fn, maxit, max_eval, verbose, refresh, keep_trace, step, line_search));
+    rcpp_result_gen = Rcpp::wrap(descent_run(spec, par, criterion, crit_fn, method, line_search, maxit, max_eval, verbose, refresh, keep_trace, step));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_optimizers7_gd_run", (DL_FUNC) &_optimizers7_gd_run, 11},
+    {"_optimizers7_descent_run", (DL_FUNC) &_optimizers7_descent_run, 12},
     {NULL, NULL, 0}
 };
 
