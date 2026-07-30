@@ -1,0 +1,171 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file, then
+     regenerate with devtools::build_readme(). Do not use knitr::knit(): it
+     processes the code but leaves this YAML header in the output as literal
+     text, which GitHub and pkgdown both render verbatim. -->
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/statmodels7/optimizers7/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/statmodels7/optimizers7/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/statmodels7/optimizers7/graph/badge.svg)](https://app.codecov.io/gh/statmodels7/optimizers7)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+library(optimizers7)
+set.seed(1)
+```
+
+# optimizers7
+
+Almost every R package that fits a model carries its own optimiser, written
+inside the function that needs it: a loop, a `while (!converged)`, a tolerance
+compared against whatever quantity the author had to hand. Nothing outside can
+reuse it, extend it, or ask it for anything its author did not happen to need —
+and the stopping rule, which decides what the whole thing means by *finished*,
+is usually a number buried three levels down.
+
+`{optimizers7}` writes them once, as objects. An optimiser carries its algorithm
+and every setting that algorithm obeys; a stopping rule is a separate object you
+can replace, combine, or write yourself; and the objective may be an R function,
+a sum over observations, or compiled C++ reached through a pointer, with the
+algorithms written once against all three.
+
+It is the optimisation layer of [statmodels7](https://statmodels7.github.io),
+alongside [linkfunctions7](https://statmodels7.github.io/linkfunctions7) and
+[distributions7](https://statmodels7.github.io/distributions7).
+
+## Installation
+
+```r
+# install.packages("pak")
+pak::pak("statmodels7/optimizers7")
+```
+
+## The shape of it
+
+Everything minimises, always, through one generic:
+
+```{r}
+f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
+gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
+                    200 * (p[2] - p[1]^2))
+
+minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
+```
+
+Swapping the algorithm changes one word, because every optimiser carries the
+same settings:
+
+```{r}
+minimize(lbfgs(), f, c(-1.2, 1), gr = gr)@par
+minimize(newton(), f, c(-1.2, 1), gr = gr)@par
+minimize(nelder_mead(), f, c(-1.2, 1))@par
+```
+
+## The stopping rule is an object
+
+This is the part that is not a convenience. A rule buried inside an algorithm
+fixes, at the moment the package is written, what everyone downstream is allowed
+to mean by convergence. Here it is a value:
+
+```{r}
+crit_any(crit_grad(1e-10), crit_rel_obj(1e-14))
+```
+
+Rules compose, and a rule the authors never thought of is a first-class citizen —
+one class, one method:
+
+```{r}
+CritTiny <- S7::new_class("CritTiny", parent = criterion,
+                          properties = list(tol = S7::class_numeric))
+S7::method(crit_met, CritTiny) <- function(criterion, state)
+  state$f_new < criterion@tol
+
+minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
+         f, c(-1.2, 1), gr = gr)@criterion_met
+```
+
+A rule an optimiser cannot evaluate is **refused**, by name, rather than
+accepted and left never to fire:
+
+```{r, error = TRUE}
+minimize(nelder_mead(criterion = crit_grad()), f, c(-1.2, 1))
+```
+
+## Bounds are removed, not enforced
+
+Each bounded coordinate is reparametrised onto the whole real line, so every
+point proposed is admissible by construction — no rejection step, no boundary for
+a line search to trip over, and any method gets bounds without knowing they
+exist:
+
+```{r}
+y <- rnorm(200, mean = 0, sd = 2)
+nll <- function(p) length(y) * log(p) + sum(y^2) / (2 * p^2)
+
+minimize(bfgs(), nll, par = 1, bounds = list(c(0, Inf)))@par
+sqrt(mean(y^2))
+```
+
+## When the derivative does not exist
+
+A descent method walks to the minimum of a sum of absolute deviations and then
+reports that it did not converge — correctly, because the subgradient it
+evaluates there has norm 1 and never becomes small. `bundle()` keeps a
+*collection* of subgradients and tests whether zero lies in their convex hull,
+which is the statement that actually holds:
+
+```{r}
+z <- rnorm(101)
+sad <- function(p) sum(abs(z - p))
+sub <- function(p) -sum(sign(z - p))
+
+c(bfgs   = minimize(bfgs(), sad, par = 0, gr = sub)@converged,
+  bundle = minimize(bundle(), sad, par = 0, gr = sub)@converged)
+
+c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
+```
+
+## What is here
+
+| | |
+|---|---|
+| smooth, with derivatives | `newton()`, `bfgs()`, `lbfgs()`, `gradient_descent()` |
+| stochastic, and for long parameter vectors | `adam()`, with minibatches over a `finite_sum()` |
+| no derivative at all | `nelder_mead()`, `compass()` |
+| non-smooth, with subgradients | `bundle()` |
+| wrapping any of them | `multistart()` |
+| line searches | `armijo()`, `wolfe()` |
+| stopping rules | `crit_grad()`, `crit_abs_obj()`, `crit_rel_obj()`, `crit_abs_par()`, `crit_rel_par()`, `crit_stationary()`, `crit_never()`, and `crit_any()` / `crit_all()` to combine them |
+
+Every method reports which safeguards fired, counts its own evaluations, and
+sets `converged` only when the stopping rule was satisfied — never because the
+iteration budget ran out.
+
+## Checking an optimiser of your own
+
+`check_optimizer()` verifies the contract — that `value` is the objective at
+`par`, that a reported gradient is the gradient there, that bounds hold
+*strictly*, that a run repeats — and then reports how the method did on the
+standard test problems, separately, because those are different questions:
+
+```{r}
+check_optimizer(bfgs())
+```
+
+## Related
+
+- [linkfunctions7](https://statmodels7.github.io/linkfunctions7) — link functions
+  with exact derivatives to fourth order
+- [distributions7](https://statmodels7.github.io/distributions7) — distributions
+  carrying exact derivatives of the log-likelihood
+- [the book](https://statmodels7.github.io/book/) — the mathematics, derived

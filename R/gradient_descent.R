@@ -8,6 +8,8 @@ NULL
 #' @param line_search A \code{\link{line_search}} object.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{gradient_descent}}
+#' @name GradientDescent-class
+#' @aliases GradientDescent
 #' @keywords internal
 GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
   properties = list(

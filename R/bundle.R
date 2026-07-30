@@ -13,6 +13,8 @@ NULL
 #' @param qp_iters,qp_tol Effort spent on the subproblem.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{bundle}}
+#' @name Bundle-class
+#' @aliases Bundle
 #' @keywords internal
 Bundle <- S7::new_class("Bundle", parent = optimizer,
   properties = list(

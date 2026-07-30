@@ -26,6 +26,12 @@ Turns whatever the user supplied — an R function, a finite sum over
 observations, or a compiled C++ function behind an external pointer — into the
 single handle the algorithms are written against.
 }
+\examples{
+# a plain function, with and without a gradient
+str(as_objective(function(p) sum(p^2)))
+str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
+
+}
 \seealso{
 \code{\link{finite_sum}}, \code{\link{cpp_objective}}
 }

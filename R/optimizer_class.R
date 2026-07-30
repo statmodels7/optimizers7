@@ -31,6 +31,15 @@ NULL
 #'
 #' @return An S7 object of class \code{optimizer}.
 #'
+#' @examples
+#' # Abstract: use one of the constructors.
+#' try(optimizer(name = "mine"))
+#'
+#' # Every algorithm carries the same settings, which is what lets one be
+#' # swapped for another without changing anything else.
+#' names(S7::props(bfgs()))
+#' bfgs()@maxit
+#'
 #' @seealso \code{\link{minimize}}, \code{\link{gradient_descent}}
 #' @export
 optimizer <- S7::new_class(
@@ -100,15 +109,40 @@ check_optimizer_args <- function(criterion, maxit, max_eval, verbose, refresh,
   invisible(TRUE)
 }
 
-# The `criterion` class object, fetched rather than captured, so that the check
-# above cannot be fooled by the class being re-created -- the trap recorded in
-# linkfunctions7, where comparing S7 classes with identical() silently degraded
-# a numerical fallback.
+#' The criterion Class Object
+#'
+#' @description
+#' Fetched rather than captured, so that the check above cannot be fooled by the
+#' class being re-created.
+#'
+#' @details
+#' This is the trap recorded in \pkg{linkfunctions7}: comparing S7 classes with
+#' \code{identical()} is object identity, and a class rebuilt from the same
+#' definition is not identical to the original. Under \pkg{covr}, which
+#' re-evaluates the code instead of loading it, that turned every numerical
+#' fallback into the chain of first differences the design exists to forbid --
+#' and the local suite, \code{R CMD check --as-cran} and a five-platform
+#' matrix all passed. Only the coverage job failed.
+#'
+#' @return The \code{\link{criterion}} class object.
+#'
+#' @keywords internal
 criterion_class <- function() criterion
 
-# ...and the same for the optimizer class itself, wanted by multistart() and by
-# check_optimizer(), both of which accept an arbitrary optimiser and must be
-# able to say whether that is what they were given.
+
+#' The optimizer Class Object
+#'
+#' @description
+#' The same, for the optimiser class itself.
+#'
+#' @details
+#' Wanted by \code{\link{multistart}} and \code{\link{check_optimizer}},
+#' both of which accept an arbitrary optimiser and must be able to say whether
+#' that is what they were given.
+#'
+#' @return The \code{\link{optimizer}} class object.
+#'
+#' @keywords internal
 optimizer_class <- function() optimizer
 
 

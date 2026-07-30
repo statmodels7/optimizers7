@@ -44,6 +44,14 @@ NULL
 #'
 #' @return An S7 object of class \code{optimizer_result}.
 #'
+#' @examples
+#' res <- minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0, 0),
+#'                 gr = function(p) 2 * (p - c(1, 2)))
+#' res@par
+#' res@converged
+#' res@criterion_met
+#' res@counts
+#'
 #' @seealso \code{\link{minimize}}
 #' @export
 optimizer_result <- S7::new_class(

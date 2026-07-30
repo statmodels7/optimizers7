@@ -23,6 +23,20 @@ its own, and what lets a user change the answer without touching the method.
 
 The class is abstract; use \code{\link{armijo}} or \code{\link{wolfe}}.
 }
+\examples{
+# Abstract: use one of the constructors.
+try(line_search(label = "mine"))
+
+armijo()
+wolfe()
+
+# A method takes whichever it is given, and the choice shows in the result.
+f <- function(p) sum((p - c(1, 2))^2)
+g <- function(p) 2 * (p - c(1, 2))
+minimize(bfgs(line_search = armijo()), f, c(0, 0), gr = g)@counts
+minimize(bfgs(line_search = wolfe()), f, c(0, 0), gr = g)@counts
+
+}
 \seealso{
 \code{\link{armijo}}, \code{\link{wolfe}}
 }

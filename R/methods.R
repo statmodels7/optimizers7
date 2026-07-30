@@ -37,6 +37,41 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
   }
   spec <- as_objective(fn, gr, he)
 
+  check_criterion(optimizer, note)
+  spec
+}
+
+
+#' @title Refuse a Stopping Rule an Optimiser Cannot Evaluate
+#'
+#' @description
+#' Compares what the optimiser's criterion reads against what the optimiser can
+#' supply, and stops if the rule asks for something absent.
+#'
+#' @param optimizer An \code{\link{optimizer}}.
+#' @param note An optional extra sentence, for a method whose reason is not
+#'   simply that it computes no such quantity.
+#'
+#' @details
+#' Call this at the top of a \code{\link{minimize}} method of your own. A rule
+#' needing a gradient, handed to a method that computes none, would sit testing
+#' \code{NULL} at every iteration and never fire; the run would then end on its
+#' iteration budget and report a reason nowhere near the truth. Refusing it here,
+#' by name, is what \code{\link{check_optimizer}} tests for.
+#'
+#' What an optimiser can supply is declared by
+#' \code{\link{optimizer_provides}}, whose default says a gradient and an
+#' objective. Override that if your method has neither.
+#'
+#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#'
+#' @examples
+#' check_criterion(bfgs())
+#' try(check_criterion(nelder_mead(criterion = crit_grad())))
+#'
+#' @seealso \code{\link{optimizer_provides}}, \code{\link{crit_needs}}
+#' @export
+check_criterion <- function(optimizer, note = NULL) {
   needs <- crit_needs(optimizer@criterion)
   provides <- optimizer_provides(optimizer)
   missing <- setdiff(needs, provides)
@@ -49,27 +84,38 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
     if (!is.null(note)) msg <- paste0(msg, "\n  ", note)
     stop(msg, call. = FALSE)
   }
-  spec
+  invisible(TRUE)
 }
 
 
-#' What an Optimiser Can Offer a Stopping Rule
+#' @title What an Optimiser Can Offer a Stopping Rule
 #'
 #' @description
 #' The names of the \code{state} components an optimiser is able to fill in, so
-#' that \code{\link{prepare_objective}} can refuse a rule it could never satisfy.
+#' that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
 #'
 #' @details
-#' Gradient-based methods provide a gradient and a reproducible objective value;
-#' the derivative-free ones to come will not provide the first, and a stochastic
-#' method provides neither, since both are then estimates whose noise a
-#' tolerance would be measuring instead of the progress.
+#' Gradient-based methods provide a gradient and a reproducible objective value.
+#' The derivative-free ones provide neither a gradient nor anything a gradient
+#' rule could read, and a subsampling \code{\link{adam}} provides nothing at
+#' all, since both its objective and its gradient are then estimates whose noise
+#' a tolerance would be measuring instead of the progress.
+#'
+#' A method of your own inherits the default, which claims a gradient and an
+#' objective. If that is not true of it, say so: the whole refusal machinery
+#' rests on this being honest.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
 #'
-#' @return A character vector.
+#' @return A character vector. The names the shipped criteria read are
+#'   \code{"gradient"}, \code{"objective"} and \code{"stationarity"}.
 #'
-#' @keywords internal
+#' @examples
+#' optimizer_provides(bfgs())
+#' optimizer_provides(nelder_mead())
+#'
+#' @seealso \code{\link{check_criterion}}, \code{\link{crit_needs}}
+#' @export
 optimizer_provides <- S7::new_generic("optimizer_provides", "optimizer",
                                       function(optimizer) S7::S7_dispatch())
 
@@ -261,40 +307,74 @@ check_bounds <- function(bounds, par) {
 }
 
 
-#' The Bound Transform, for Checking Against linkfunctions7
+#' @title The Bound Transform, and Its First Two Derivatives
 #'
 #' @description
-#' Evaluates the reparametrisation a set of bounds implies, together with its
-#' first two derivatives.
+#' Evaluates the reparametrisation a set of bounds implies. This is how the
+#' package removes a box, and it is exported so that a \code{\link{minimize}}
+#' method of your own can remove one the same way.
 #'
-#' @details
-#' Not part of the interface. It exists because the transforms are written out
-#' in C++ rather than called through \pkg{linkfunctions7} — the transform is
-#' applied on every objective evaluation, and a callback into R there would undo
-#' the reason for compiling the loop — so something has to hold the copy against
-#' the original. The test suite does, on every run.
-#'
-#' @param b A length-2 numeric vector, \code{c(lower, upper)}.
+#' @param b A length-2 numeric vector, \code{c(lower, upper)}, using
+#'   \code{-Inf} and \code{Inf} for a side that is unbounded.
 #' @param eta A numeric vector on the unconstrained scale.
 #'
-#' @return A list with \code{h}, \code{d1} and \code{d2}, matching
-#'   \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} of the
-#'   corresponding \code{bounded_link()}.
+#' @details
+#' Bounds are not enforced here, they are removed: a shifted log for a one-sided
+#' bound, a scaled logit for two, and the identity for neither. Optimise in
+#' \eqn{\eta} and every point you propose is admissible by construction.
 #'
-#' @keywords internal
+#' To honour \code{bounds} in a method of your own: map the starting value with
+#' \code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
+#' that it maps back before evaluating. The Jacobian is diagonal, so the chain
+#' rule is short —
+#' \eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'} —
+#' and \code{d2} is needed only if you transform a Hessian, where it appears on
+#' the diagonal alone. Report \code{par} on the user's scale.
+#'
+#' These are \pkg{linkfunctions7}'s \code{bounded_link()}, written out in C++
+#' because the transform is applied on every objective evaluation and a callback
+#' into R there would undo the reason for compiling the loop. The test suite
+#' pins them to \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} on
+#' every run, so the copy cannot drift from the original.
+#'
+#' @return A list with \code{h} (the parameter), \code{d1} and \code{d2}.
+#'
+#' @examples
+#' # a variance: the whole line maps onto the positive half
+#' bounded_transform(c(0, Inf), c(-2, 0, 2))$h
+#'
+#' # a probability, and the derivative that carries a gradient across
+#' str(bounded_transform(c(0, 1), c(-1, 0, 1)))
+#'
+#' # the round trip
+#' bounded_transform(c(0, 1), bounded_forward(c(0, 1), c(0.1, 0.5, 0.9)))$h
+#'
+#' @seealso \code{\link{bounded_forward}}, \code{\link{minimize}}
+#' @export
 bounded_transform <- function(b, eta) bounded_transform_cpp(b, as.numeric(eta))
 
 
-#' The Forward Bound Transform
+#' @title The Forward Bound Transform
 #'
 #' @description
-#' Maps a parameter inside its bounds to the unconstrained scale; the inverse of
-#' \code{\link{bounded_transform}}'s \code{h}.
+#' Maps a parameter from inside its bounds to the unconstrained scale: the
+#' inverse of \code{\link{bounded_transform}}'s \code{h}, and what a starting
+#' value goes through before an unconstrained run.
 #'
 #' @param b A length-2 numeric vector, \code{c(lower, upper)}.
 #' @param theta A numeric vector strictly inside the bounds.
 #'
+#' @details
+#' Strictly inside. A value on a bound maps to an infinite \eqn{\eta}, so a run
+#' started there begins at infinity and fails far from its cause; that is why
+#' \code{\link{minimize}} refuses such a starting value by name.
+#'
 #' @return A numeric vector on the unconstrained scale.
 #'
-#' @keywords internal
+#' @examples
+#' bounded_forward(c(0, Inf), c(0.5, 1, 8))
+#' bounded_forward(c(0, 1), 0.5)
+#'
+#' @seealso \code{\link{bounded_transform}}
+#' @export
 bounded_forward <- function(b, theta) bounded_forward_cpp(b, as.numeric(theta))

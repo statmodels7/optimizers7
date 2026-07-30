@@ -13,6 +13,8 @@ NULL
 #' @param resample Fraction of the observations used at each iteration.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{adam}}
+#' @name Adam-class
+#' @aliases Adam
 #' @keywords internal
 Adam <- S7::new_class("Adam", parent = optimizer,
   properties = list(

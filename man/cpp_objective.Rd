@@ -32,6 +32,14 @@ to an unrelated object — and calling through the wrong one is not an R error
 but a crash of the process. Requiring a tag means the package only calls
 pointers that something deliberately marked as callable.
 }
+\examples{
+# The pointers come from compiled code, so the example shows the guard
+# rather than the happy path: anything that is not an external pointer is
+# refused, because calling through the wrong one crashes the process
+# instead of raising an error.
+try(cpp_objective(function(p) sum(p^2)))
+
+}
 \seealso{
 \code{\link{as_objective}}, \code{\link{minimize}}
 }

@@ -28,6 +28,19 @@ first-class citizen.
 Criteria are combined with \code{\link{crit_any}} and \code{\link{crit_all}},
 which are themselves criteria, so combinations nest.
 }
+\examples{
+# The class is abstract, so it cannot be instantiated directly...
+try(criterion(label = "mine"))
+
+# ...but anything inheriting from it is a criterion, including a rule the
+# package never anticipated.
+Tiny <- S7::new_class("Tiny", parent = criterion,
+                      properties = list(tol = S7::class_numeric))
+S7::method(crit_met, Tiny) <- function(criterion, state)
+  state$f_new < criterion@tol
+crit_met(Tiny(label = "f < 1e-6", tol = 1e-6), list(f_new = 1e-9))
+
+}
 \seealso{
 \code{\link{crit_grad}}, \code{\link{crit_rel_obj}},
 \code{\link{crit_any}}, \code{\link{crit_met}}

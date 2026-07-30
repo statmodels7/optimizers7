@@ -15,6 +15,8 @@ NULL
 #' @param step,line_search As in \code{\link{newton}}.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{newton}}
+#' @name Newton-class
+#' @aliases Newton
 #' @keywords internal
 Newton <- S7::new_class("Newton", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
@@ -115,6 +117,8 @@ newton <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 #' @param step,line_search As in \code{\link{bfgs}}.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{bfgs}}
+#' @name Bfgs-class
+#' @aliases Bfgs
 #' @keywords internal
 Bfgs <- S7::new_class("Bfgs", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
@@ -193,6 +197,8 @@ bfgs <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 #' @param step,line_search As in \code{\link{lbfgs}}.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{lbfgs}}
+#' @name Lbfgs-class
+#' @aliases Lbfgs
 #' @keywords internal
 Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,

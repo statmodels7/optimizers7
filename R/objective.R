@@ -27,6 +27,11 @@ NULL
 #'   pieces belonging to that kind, and flags saying which derivatives were
 #'   supplied rather than differenced.
 #'
+#' @examples
+#' # a plain function, with and without a gradient
+#' str(as_objective(function(p) sum(p^2)))
+#' str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
+#'
 #' @seealso \code{\link{finite_sum}}, \code{\link{cpp_objective}}
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
@@ -190,6 +195,13 @@ S7::method(as_objective, FiniteSum) <- function(fn, gr = NULL, he = NULL, ...) {
 #' pointers that something deliberately marked as callable.
 #'
 #' @return An object of class \code{cpp_objective}.
+#'
+#' @examples
+#' # The pointers come from compiled code, so the example shows the guard
+#' # rather than the happy path: anything that is not an external pointer is
+#' # refused, because calling through the wrong one crashes the process
+#' # instead of raising an error.
+#' try(cpp_objective(function(p) sum(p^2)))
 #'
 #' @seealso \code{\link{as_objective}}, \code{\link{minimize}}
 #' @export

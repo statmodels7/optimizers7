@@ -18,6 +18,19 @@ NULL
 #'
 #' @return An S7 object of class \code{line_search}.
 #'
+#' @examples
+#' # Abstract: use one of the constructors.
+#' try(line_search(label = "mine"))
+#'
+#' armijo()
+#' wolfe()
+#'
+#' # A method takes whichever it is given, and the choice shows in the result.
+#' f <- function(p) sum((p - c(1, 2))^2)
+#' g <- function(p) 2 * (p - c(1, 2))
+#' minimize(bfgs(line_search = armijo()), f, c(0, 0), gr = g)@counts
+#' minimize(bfgs(line_search = wolfe()), f, c(0, 0), gr = g)@counts
+#'
 #' @seealso \code{\link{armijo}}, \code{\link{wolfe}}
 #' @export
 line_search <- S7::new_class(
@@ -229,4 +242,21 @@ check_count <- function(v, nm) {
 
 # Fetched rather than captured, for the reason recorded in linkfunctions7:
 # comparing S7 classes by identity breaks when the class object is re-created.
+#' The line_search Class Object
+#'
+#' @description
+#' Fetched rather than captured, so that a check cannot be fooled by the class
+#' being re-created.
+#'
+#' @details
+#' Comparing S7 classes by identity is object identity, so it is \code{FALSE}
+#' for a class rebuilt from the same definition -- which is what happens under
+#' any loader that re-evaluates the code rather than loading it, \pkg{covr}
+#' among them. The same trap in \pkg{linkfunctions7} silently turned every
+#' numerical fallback into a chain of first differences, and only the coverage
+#' job noticed.
+#'
+#' @return The \code{\link{line_search}} class object.
+#'
+#' @keywords internal
 line_search_class <- function() line_search

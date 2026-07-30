@@ -73,6 +73,15 @@ exactly. A stochastic method that cannot be repeated is very hard to debug,
 and remembering to call \code{set.seed()} beforehand is not something anyone
 does until the second time they need it.
 }
+\examples{
+res <- minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0, 0),
+                gr = function(p) 2 * (p - c(1, 2)))
+res@par
+res@converged
+res@criterion_met
+res@counts
+
+}
 \seealso{
 \code{\link{minimize}}
 }

@@ -21,6 +21,18 @@
 #' @return An S7 object of class \code{criterion}. The class is abstract: use one
 #'   of the constructors, or write your own subclass.
 #'
+#' @examples
+#' # The class is abstract, so it cannot be instantiated directly...
+#' try(criterion(label = "mine"))
+#'
+#' # ...but anything inheriting from it is a criterion, including a rule the
+#' # package never anticipated.
+#' Tiny <- S7::new_class("Tiny", parent = criterion,
+#'                       properties = list(tol = S7::class_numeric))
+#' S7::method(crit_met, Tiny) <- function(criterion, state)
+#'   state$f_new < criterion@tol
+#' crit_met(Tiny(label = "f < 1e-6", tol = 1e-6), list(f_new = 1e-9))
+#'
 #' @seealso \code{\link{crit_grad}}, \code{\link{crit_rel_obj}},
 #'   \code{\link{crit_any}}, \code{\link{crit_met}}
 #' @export
@@ -440,7 +452,19 @@ S7::method(crit_met, CritCombine) <- function(criterion, state) {
   if (identical(criterion@how, "all")) all(met) else any(met)
 }
 
-# Shared body of the two combinators.
+#' The Shared Body of the Two Combinators
+#'
+#' @description
+#' Validates the arguments and builds the combined criterion, so that
+#' \code{\link{crit_any}} and \code{\link{crit_all}} refuse the same nonsense
+#' in the same words.
+#'
+#' @param dots A list of \code{\link{criterion}} objects.
+#' @param how Either \code{"any"} or \code{"all"}.
+#'
+#' @return A \code{\link{criterion}} object.
+#'
+#' @keywords internal
 combine_criteria <- function(dots, how) {
   if (!length(dots)) {
     stop("At least one criterion is required.", call. = FALSE)

@@ -1,0 +1,335 @@
+---
+title: "Extending optimizers7"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Extending optimizers7}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(optimizers7)
+set.seed(1)
+```
+
+A toolkit that only worked for the algorithms it ships with would have solved
+nothing. This is the other half: what you can add, and what the package
+guarantees about the pieces you add.
+
+There are three things you might want to replace — the stopping rule, the
+objective, and the algorithm — and they are separate on purpose, so that
+replacing one costs nothing in the other two.
+
+## A stopping rule of your own
+
+The alternative to an object here would be an argument taking a string and a
+`switch` inside every algorithm. That arrangement fixes, at the moment the
+package is written, what everyone downstream is allowed to mean by *finished* —
+and convergence is not a detail, it is the definition of the answer.
+
+A criterion is one class and one method. The method receives the whole state of
+the iteration and returns a single logical:
+
+```{r}
+CritTiny <- S7::new_class("CritTiny", parent = criterion,
+                          properties = list(tol = S7::class_numeric))
+
+S7::method(crit_met, CritTiny) <- function(criterion, state) {
+  state$f_new < criterion@tol
+}
+
+tiny <- CritTiny(label = "objective below 1e-8", tol = 1e-8)
+```
+
+It is then usable by every algorithm in the package, with no further ceremony:
+
+```{r}
+f  <- function(p) sum((p - c(1, 2))^2)
+gr <- function(p) 2 * (p - c(1, 2))
+
+minimize(bfgs(criterion = tiny), f, c(0, 0), gr = gr)@criterion_met
+```
+
+`state` carries `iter`, `f_new`, `f_old`, `x_new`, `x_old`, `gradient` and
+`stationarity`. The last two are not always there, and that matters.
+
+### Saying what your rule needs
+
+A rule that reads the gradient, handed to a method that computes none, would sit
+testing `NULL` at every iteration and quietly never fire; the run would end on
+its iteration budget and report a reason nowhere near the truth. So a rule
+declares what it reads, and an optimiser that cannot supply it refuses the rule
+by name:
+
+```{r, error = TRUE}
+minimize(nelder_mead(criterion = crit_grad()), f, c(0, 0))
+```
+
+If your rule reads something optional, say so:
+
+```{r}
+S7::method(crit_needs, CritTiny) <- function(criterion) character()
+crit_needs(crit_grad())
+crit_needs(crit_stationary())
+```
+
+Rules combine, and the combination is itself a rule, so combinations nest:
+
+```{r}
+crit_any(tiny, crit_grad(1e-10))
+```
+
+## The objective, in whichever shape you have it
+
+`minimize()` dispatches on the optimiser, so an algorithm is written once.
+Which of three shapes the objective arrived in is settled separately, by
+`as_objective()`, which dispatches on the objective. Each generic dispatches
+where there is real variation; dispatching `minimize()` on both would need one
+method per algorithm per shape.
+
+### An ordinary function
+
+The common case, and the one that costs the most: every evaluation is a callback
+into R.
+
+```{r}
+minimize(bfgs(), f, c(0, 0), gr = gr)@counts
+```
+
+With no gradient supplied, one is obtained by central differences — and the
+result says so, so a run is never silently less exact than it appears:
+
+```{r}
+minimize(bfgs(), f, c(0, 0))@message
+```
+
+### A sum over observations
+
+Subsampling is a property of the objective, not of an algorithm. A black-box
+`f(par)` has no terms to draw from: the optimiser does not know what an
+observation is and must not guess. `finite_sum()` is how an objective declares
+that it has terms and may be evaluated on some of them.
+
+```{r}
+y <- rnorm(2000, mean = 3)
+
+obj <- finite_sum(
+  fn = function(par, idx) sum((y[idx] - par)^2) / 2,
+  gr = function(par, idx) -sum(y[idx] - par),
+  n  = length(y)
+)
+
+minimize(adam(alpha = 0.05, resample = 0.05, decay = 0.005, maxit = 3000),
+         obj, par = 0)@par
+mean(y)
+```
+
+The full-sample value is `fn(par, seq_len(n))`, so an ordinary evaluation is a
+special case and nothing is duplicated — every other method takes the same
+object without knowing it could have been subsampled:
+
+```{r}
+minimize(bfgs(), obj, par = 0)@par
+```
+
+### Compiled C++
+
+The reason the algorithms are written in C++ at all. Two external pointers, and
+the iteration never returns to R:
+
+```r
+Rcpp::cppFunction(depends = "RcppArmadillo", '
+  Rcpp::XPtr<double(*)(const arma::vec&)> make_fn() {
+    return Rcpp::XPtr<double(*)(const arma::vec&)>(
+      new double(*)(const arma::vec&)(&my_objective));
+  }')
+
+minimize(bfgs(), cpp_objective(fn = make_fn(), gr = make_gr()), par = c(0, 0))
+```
+
+The pointers are **tagged** rather than passed bare, and that is a safety
+measure rather than a formality: a bare external pointer may be anything at all,
+and calling through the wrong one is not an R error but a crash of the process.
+
+```{r, error = TRUE}
+cpp_objective(function(p) sum(p^2))
+```
+
+## An algorithm of your own
+
+An optimiser is a subclass of `optimizer` carrying its own settings, plus a
+method on `minimize()`. Here is one — Barzilai–Borwein, a first-order method
+whose step length comes from the previous secant pair rather than from a line
+search:
+
+```{r}
+BarzilaiBorwein <- S7::new_class("BarzilaiBorwein", parent = optimizer,
+                                 properties = list(step = S7::class_numeric))
+
+barzilai <- function(criterion = crit_grad(1e-8), step = 1e-3, maxit = 1000,
+                     max_eval = 10000, verbose = FALSE, refresh = 50,
+                     keep_trace = FALSE) {
+  BarzilaiBorwein(name = "barzilai-borwein", criterion = criterion,
+                  maxit = maxit, max_eval = max_eval, verbose = verbose,
+                  refresh = refresh, keep_trace = keep_trace, step = step)
+}
+
+bb_run <- function(optimizer, fn, par, gr) {
+  x <- as.numeric(par); g <- gr(x); a <- optimizer@step
+  nf <- 0L; ng <- 1L; converged <- FALSE; it <- 0L
+
+  for (it in seq_len(optimizer@maxit)) {
+    x_new <- x - a * g
+    g_new <- gr(x_new); ng <- ng + 1L
+    s <- x_new - x; yv <- g_new - g
+    denom <- sum(s * yv)
+    # The safeguard, and it is not optional: a non-positive or vanishing
+    # denominator means the secant pair carries no curvature, and dividing by
+    # it produces a step of any size at all.
+    a <- if (is.finite(denom) && denom > 0) sum(s * s) / denom else optimizer@step
+    x <- x_new; g <- g_new
+
+    state <- list(iter = it, f_new = fn(x), f_old = NULL, x_new = x,
+                  x_old = x_new - s, gradient = g)
+    nf <- nf + 1L
+    if (crit_met(optimizer@criterion, state)) { converged <- TRUE; break }
+  }
+
+  optimizer_result(
+    par = x, value = fn(x), gradient = g,
+    counts = c(f = nf + 1L, g = ng, h = 0L), iterations = it,
+    converged = converged,
+    criterion_met = if (converged) optimizer@criterion@label
+                    else "iteration budget reached",
+    message = "", trace = NULL, optimizer = optimizer, elapsed = NA_real_
+  )
+}
+
+S7::method(minimize, BarzilaiBorwein) <-
+  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    if (is.null(gr)) stop("barzilai() needs a gradient.", call. = FALSE)
+    bb_run(optimizer, fn, par, gr)
+  }
+```
+
+Note the thing the method is responsible for and that nothing can do for it:
+`converged` is set from whether the rule fired and **never** from the run having
+ended.
+
+It works, and on a quadratic it is startlingly good — two iterations, because
+the Barzilai–Borwein step length is exactly the inverse curvature when the
+curvature is constant:
+
+```{r}
+r <- minimize(barzilai(), f, c(0, 0), gr = gr)
+c(par = r@par, iterations = r@iterations, converged = r@converged)
+```
+
+## Checking it
+
+`check_optimizer()` exists for exactly this moment. It separates two questions
+that are easy to confuse: whether the optimiser keeps its **contract**, and how
+**powerful** it is. Those are different, and conflating them would make the
+function useless — gradient descent does not solve Rosenbrock in five hundred
+iterations and is not broken, it is slow.
+
+So the numbered checks are statements every optimiser must satisfy however weak
+it is, and the battery underneath is a table of gaps, information rather than
+verdict:
+
+```{r}
+res <- check_optimizer(barzilai(step = 1e-3))
+```
+
+Read the battery first: this method is *strong*. It solves every smooth problem
+in the list to machine precision, and is beaten only by the two that are
+multimodal and the one with a kink — which is correct behaviour, not failure.
+
+And read the two failed checks second, because they are the more useful half.
+Nothing above is wrong with the *algorithm*. What is wrong is that the method
+accepted two arguments and did nothing with them.
+
+**It ignored `bounds`.** The signature has to include it — S7 requires a
+method's formals to contain every named argument of the generic — and the
+easiest thing to do with an argument you did not plan for is to let it sit
+there. A caller then passes a box, gets no error, and receives an answer outside
+it. Removing the box is four lines, because
+`bounded_transform()` does the work:
+
+```{r}
+suppressMessages(
+S7::method(minimize, BarzilaiBorwein) <-
+  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    if (is.null(gr)) stop("barzilai() needs a gradient.", call. = FALSE)
+    check_criterion(optimizer)                                     # (2)
+
+    if (is.null(bounds)) return(bb_run(optimizer, fn, par, gr))    # (1)
+
+    # Optimise in eta, where there is no box, and map back to report. The
+    # Jacobian is diagonal, so the chain rule is one multiplication.
+    hh <- function(e) vapply(seq_along(e),
+            function(j) bounded_transform(bounds[[j]], e[j])$h, 0)
+    dd <- function(e) vapply(seq_along(e),
+            function(j) bounded_transform(bounds[[j]], e[j])$d1, 0)
+    eta0 <- vapply(seq_along(par),
+                   function(j) bounded_forward(bounds[[j]], par[j]), 0)
+
+    res <- bb_run(optimizer,
+                  function(e) fn(hh(e)),
+                  eta0,
+                  function(e) gr(hh(e)) * dd(e))
+
+    res@gradient <- res@gradient / dd(res@par)   # both on the user's scale
+    res@par <- hh(res@par)
+    res
+  }
+)
+```
+
+**It never validated the stopping rule.** `check_criterion()` — marked (2) — is
+the one line that refuses a rule the method cannot evaluate, instead of
+accepting one that would test `NULL` for ever. What a method *can* supply is
+declared by `optimizer_provides()`, whose default claims a gradient and an
+objective. This one has both, so the default is honest; a derivative-free method
+of your own would need one line:
+
+```r
+S7::method(optimizer_provides, BarzilaiBorwein) <- function(optimizer)
+  c("objective", "stationarity")
+```
+
+With both promises kept, the contract holds:
+
+```{r}
+all(check_optimizer(barzilai(step = 1e-3), problems = test_problems("sphere"),
+                    verbose = FALSE)$checks)
+```
+
+That is the whole point of the numbered checks. The algorithm was right from the
+first line; what was missing was two promises the package makes on every
+optimiser's behalf, and neither omission would have shown itself in any run that
+happened to succeed.
+
+## The test problems are yours too
+
+`test_problems()` is exported because a battery is useful to anyone writing an
+optimiser, not only to this package:
+
+```{r}
+p <- test_problems("beale")[[1]]
+str(p, max.level = 1)
+
+minimize(bfgs(), p$fn, p$par, gr = p$gr)@par
+p$solution
+```
+
+Two of them are marked `multimodal`, where a local method reaching a different
+minimum is behaving correctly rather than failing, and one is marked
+non-`smooth`, where a method that assumes a derivative exists will walk to the
+answer and then be unable to certify it:
+
+```{r}
+sapply(test_problems(), function(p) c(multimodal = p$multimodal,
+                                      smooth = p$smooth))
+```

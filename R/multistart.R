@@ -14,6 +14,8 @@ NULL
 #' @param distinct_tol Objective values closer than this count as one optimum.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{multistart}}
+#' @name MultiStart-class
+#' @aliases MultiStart
 #' @keywords internal
 MultiStart <- S7::new_class("MultiStart", parent = optimizer,
   properties = list(

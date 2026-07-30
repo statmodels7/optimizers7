@@ -1,0 +1,121 @@
+url: https://statmodels7.github.io/optimizers7
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#0F2A3F"
+    base_font: {google: "Inter"}
+    heading_font: {google: "Inter"}
+    code_font: {google: "JetBrains Mono"}
+
+home:
+  title: Optimisation algorithms as reusable objects
+  description: >
+    Optimisers written once, as objects any package can use: the algorithm and
+    its safeguards in one object, the stopping rule in another you can replace
+    or write yourself, and the objective in whichever of three shapes you
+    already have it.
+
+navbar:
+  structure:
+    left:  [reference, articles]
+    right: [search, book, statmodels7, github]
+  components:
+    book:
+      text: book
+      href: https://statmodels7.github.io/book/
+    statmodels7:
+      text: statmodels7
+      href: https://statmodels7.github.io
+
+reference:
+- title: Running an optimisation
+  desc: >
+    One generic for every algorithm. Which of the three shapes the objective
+    arrived in is settled separately, so an algorithm is written once.
+  contents:
+  - minimize
+  - maximize
+  - optimizer_result
+
+- title: Smooth problems
+  desc: >
+    Methods that build a model of the surface from derivatives. Fast when the
+    objective is smooth, and misled when it is not.
+  contents:
+  - newton
+  - bfgs
+  - lbfgs
+  - gradient_descent
+
+- title: Stochastic and large problems
+  desc: >
+    Adam, on the whole sample or on minibatches drawn from an objective that has
+    declared itself a sum over observations.
+  contents:
+  - adam
+  - finite_sum
+
+- title: Problems with a kink
+  desc: >
+    Where a descent method arrives at the answer and cannot certify it, because
+    the subgradient it evaluates never becomes small.
+  contents:
+  - bundle
+  - nelder_mead
+  - compass
+
+- title: Wrapping an optimiser
+  desc: >
+    Multi-start is itself an optimiser, so it composes with everything above.
+    What it reports that a single run cannot is the number of distinct optima.
+  contents:
+  - multistart
+
+- title: Stopping rules
+  desc: >
+    A criterion is an object implementing one generic, so a rule the authors
+    never thought of is a first-class citizen. An optimiser refuses a rule it
+    cannot evaluate rather than accepting one that never fires.
+  contents:
+  - criterion
+  - crit_met
+  - crit_needs
+  - crit_grad
+  - crit_abs_obj
+  - crit_rel_obj
+  - crit_abs_par
+  - crit_rel_par
+  - crit_stationary
+  - crit_never
+  - crit_any
+  - crit_all
+
+- title: Line searches
+  desc: How far to go along a direction, once the direction is chosen.
+  contents:
+  - line_search
+  - armijo
+  - wolfe
+
+- title: The objective
+  desc: >
+    An R function, a sum over observations, or compiled C++ behind a pointer.
+    The algorithms are written once against the handle these produce.
+  contents:
+  - as_objective
+  - cpp_objective
+
+- title: Writing an optimiser of your own
+  desc: >
+    What a `minimize()` method of your own has to promise, and the pieces that
+    let it. `check_optimizer()` tests the contract; the battery under it reports
+    the power; they are separate because they are different questions.
+  contents:
+  - optimizer
+  - check_criterion
+  - optimizer_provides
+  - bounded_transform
+  - bounded_forward
+  - check_optimizer
+  - test_problems

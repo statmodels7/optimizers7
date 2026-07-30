@@ -15,7 +15,20 @@ bounded_forward(b, theta)
 A numeric vector on the unconstrained scale.
 }
 \description{
-Maps a parameter inside its bounds to the unconstrained scale; the inverse of
-\code{\link{bounded_transform}}'s \code{h}.
+Maps a parameter from inside its bounds to the unconstrained scale: the
+inverse of \code{\link{bounded_transform}}'s \code{h}, and what a starting
+value goes through before an unconstrained run.
 }
-\keyword{internal}
+\details{
+Strictly inside. A value on a bound maps to an infinite \eqn{\eta}, so a run
+started there begins at infinity and fails far from its cause; that is why
+\code{\link{minimize}} refuses such a starting value by name.
+}
+\examples{
+bounded_forward(c(0, Inf), c(0.5, 1, 8))
+bounded_forward(c(0, 1), 0.5)
+
+}
+\seealso{
+\code{\link{bounded_transform}}
+}

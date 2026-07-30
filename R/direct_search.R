@@ -16,6 +16,8 @@ NULL
 #' @param simplex An optional starting simplex.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{nelder_mead}}
+#' @name NelderMead-class
+#' @aliases NelderMead
 #' @keywords internal
 NelderMead <- S7::new_class("NelderMead", parent = optimizer,
   properties = list(
@@ -170,6 +172,8 @@ nelder_mead <- function(criterion = crit_stationary(1e-8),
 #' @param expand,shrink Factors applied to the poll size.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{compass}}
+#' @name Compass-class
+#' @aliases Compass
 #' @keywords internal
 Compass <- S7::new_class("Compass", parent = optimizer,
   properties = list(

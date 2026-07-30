@@ -50,6 +50,16 @@ These properties are shared by every algorithm without exception, which is
 what lets a caller swap one optimiser for another without changing anything
 else.
 }
+\examples{
+# Abstract: use one of the constructors.
+try(optimizer(name = "mine"))
+
+# Every algorithm carries the same settings, which is what lets one be
+# swapped for another without changing anything else.
+names(S7::props(bfgs()))
+bfgs()@maxit
+
+}
 \seealso{
 \code{\link{minimize}}, \code{\link{gradient_descent}}
 }

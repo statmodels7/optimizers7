@@ -10,16 +10,29 @@ optimizer_provides(optimizer)
 \item{optimizer}{An \code{\link{optimizer}}.}
 }
 \value{
-A character vector.
+A character vector. The names the shipped criteria read are
+\code{"gradient"}, \code{"objective"} and \code{"stationarity"}.
 }
 \description{
 The names of the \code{state} components an optimiser is able to fill in, so
-that \code{\link{prepare_objective}} can refuse a rule it could never satisfy.
+that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
 }
 \details{
-Gradient-based methods provide a gradient and a reproducible objective value;
-the derivative-free ones to come will not provide the first, and a stochastic
-method provides neither, since both are then estimates whose noise a
-tolerance would be measuring instead of the progress.
+Gradient-based methods provide a gradient and a reproducible objective value.
+The derivative-free ones provide neither a gradient nor anything a gradient
+rule could read, and a subsampling \code{\link{adam}} provides nothing at
+all, since both its objective and its gradient are then estimates whose noise
+a tolerance would be measuring instead of the progress.
+
+A method of your own inherits the default, which claims a gradient and an
+objective. If that is not true of it, say so: the whole refusal machinery
+rests on this being honest.
 }
-\keyword{internal}
+\examples{
+optimizer_provides(bfgs())
+optimizer_provides(nelder_mead())
+
+}
+\seealso{
+\code{\link{check_criterion}}, \code{\link{crit_needs}}
+}

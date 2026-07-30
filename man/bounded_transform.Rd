@@ -2,29 +2,54 @@
 % Please edit documentation in R/methods.R
 \name{bounded_transform}
 \alias{bounded_transform}
-\title{The Bound Transform, for Checking Against linkfunctions7}
+\title{The Bound Transform, and Its First Two Derivatives}
 \usage{
 bounded_transform(b, eta)
 }
 \arguments{
-\item{b}{A length-2 numeric vector, \code{c(lower, upper)}.}
+\item{b}{A length-2 numeric vector, \code{c(lower, upper)}, using
+\code{-Inf} and \code{Inf} for a side that is unbounded.}
 
 \item{eta}{A numeric vector on the unconstrained scale.}
 }
 \value{
-A list with \code{h}, \code{d1} and \code{d2}, matching
-\code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} of the
-corresponding \code{bounded_link()}.
+A list with \code{h} (the parameter), \code{d1} and \code{d2}.
 }
 \description{
-Evaluates the reparametrisation a set of bounds implies, together with its
-first two derivatives.
+Evaluates the reparametrisation a set of bounds implies. This is how the
+package removes a box, and it is exported so that a \code{\link{minimize}}
+method of your own can remove one the same way.
 }
 \details{
-Not part of the interface. It exists because the transforms are written out
-in C++ rather than called through \pkg{linkfunctions7} — the transform is
-applied on every objective evaluation, and a callback into R there would undo
-the reason for compiling the loop — so something has to hold the copy against
-the original. The test suite does, on every run.
+Bounds are not enforced here, they are removed: a shifted log for a one-sided
+bound, a scaled logit for two, and the identity for neither. Optimise in
+\eqn{\eta} and every point you propose is admissible by construction.
+
+To honour \code{bounds} in a method of your own: map the starting value with
+\code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
+that it maps back before evaluating. The Jacobian is diagonal, so the chain
+rule is short —
+\eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'} —
+and \code{d2} is needed only if you transform a Hessian, where it appears on
+the diagonal alone. Report \code{par} on the user's scale.
+
+These are \pkg{linkfunctions7}'s \code{bounded_link()}, written out in C++
+because the transform is applied on every objective evaluation and a callback
+into R there would undo the reason for compiling the loop. The test suite
+pins them to \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} on
+every run, so the copy cannot drift from the original.
 }
-\keyword{internal}
+\examples{
+# a variance: the whole line maps onto the positive half
+bounded_transform(c(0, Inf), c(-2, 0, 2))$h
+
+# a probability, and the derivative that carries a gradient across
+str(bounded_transform(c(0, 1), c(-1, 0, 1)))
+
+# the round trip
+bounded_transform(c(0, 1), bounded_forward(c(0, 1), c(0.1, 0.5, 0.9)))$h
+
+}
+\seealso{
+\code{\link{bounded_forward}}, \code{\link{minimize}}
+}
