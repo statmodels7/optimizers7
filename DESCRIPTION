@@ -36,7 +36,10 @@ Collate:
     'optimizers7-package.R'
     'second_order.R'
     'zzz.R'
+Remotes:
+    statmodels7/linkfunctions7
 Suggests:
+    linkfunctions7,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown

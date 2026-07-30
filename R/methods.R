@@ -142,13 +142,15 @@ build_result <- function(out, optimizer, spec, elapsed) {
 #'
 #' @param optimizer The \code{\link{optimizer}}.
 #' @param fn,par,gr,he The problem, as the user supplied it.
+#' @param bounds Optional box constraints, as in \code{\link{minimize}}.
 #' @param method A list describing the direction to the compiled loop.
 #'
 #' @return An \code{\link{optimizer_result}}.
 #'
 #' @keywords internal
-run_descent <- function(optimizer, fn, par, gr, he, method) {
+run_descent <- function(optimizer, fn, par, gr, he, bounds, method) {
   spec <- prepare_objective(optimizer, fn, par, gr, he)
+  bounds <- check_bounds(bounds, par)
 
   t0 <- proc.time()[["elapsed"]]
   out <- descent_run(
@@ -161,7 +163,8 @@ run_descent <- function(optimizer, fn, par, gr, he, method) {
     verbose = optimizer@verbose,
     refresh = as.integer(optimizer@refresh),
     keep_trace = optimizer@keep_trace,
-    step = optimizer@step
+    step = optimizer@step,
+    bounds = bounds
   )
   elapsed <- proc.time()[["elapsed"]] - t0
 
@@ -191,3 +194,89 @@ check_line_search <- function(x) {
   }
   invisible(TRUE)
 }
+
+
+#' Validate Box Constraints
+#'
+#' @description
+#' Checks that the bounds are well formed and that the starting value lies
+#' strictly inside them, and returns them in the shape the compiled loop reads.
+#'
+#' @details
+#' The starting value must be strictly interior, and refusing a boundary start
+#' is not pedantry. The reparametrisation sends a bound to an infinite value of
+#' the transformed variable, so a run started exactly on one begins at infinity:
+#' every subsequent quantity is non-finite and the failure surfaces far from its
+#' cause. Saying so here, naming the coordinate, costs one check.
+#'
+#' @param bounds A list of length-2 numeric vectors, or \code{NULL}.
+#' @param par The starting value.
+#'
+#' @return A list of length-2 numeric vectors, or an empty list when there are
+#'   no bounds — the compiled side reads an empty list as "unconstrained".
+#'
+#' @keywords internal
+check_bounds <- function(bounds, par) {
+  if (is.null(bounds)) return(list())
+  if (!is.list(bounds) || length(bounds) != length(par)) {
+    stop("'bounds' must be a list with one element per parameter.",
+         call. = FALSE)
+  }
+  out <- vector("list", length(par))
+  for (i in seq_along(bounds)) {
+    b <- bounds[[i]]
+    if (!is.numeric(b) || length(b) != 2L || anyNA(b)) {
+      stop("Element ", i, " of 'bounds' must be c(lower, upper).", call. = FALSE)
+    }
+    if (b[1] >= b[2]) {
+      stop("In 'bounds' element ", i, ", the lower bound must be strictly ",
+           "below the upper one.", call. = FALSE)
+    }
+    if (par[i] <= b[1] || par[i] >= b[2]) {
+      stop("The starting value for parameter ", i, " must lie strictly inside ",
+           "its bounds (", format(b[1]), ", ", format(b[2]), "); it is ",
+           format(par[i]), ".", call. = FALSE)
+    }
+    out[[i]] <- as.numeric(b)
+  }
+  out
+}
+
+
+#' The Bound Transform, for Checking Against linkfunctions7
+#'
+#' @description
+#' Evaluates the reparametrisation a set of bounds implies, together with its
+#' first two derivatives.
+#'
+#' @details
+#' Not part of the interface. It exists because the transforms are written out
+#' in C++ rather than called through \pkg{linkfunctions7} — the transform is
+#' applied on every objective evaluation, and a callback into R there would undo
+#' the reason for compiling the loop — so something has to hold the copy against
+#' the original. The test suite does, on every run.
+#'
+#' @param b A length-2 numeric vector, \code{c(lower, upper)}.
+#' @param eta A numeric vector on the unconstrained scale.
+#'
+#' @return A list with \code{h}, \code{d1} and \code{d2}, matching
+#'   \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} of the
+#'   corresponding \code{bounded_link()}.
+#'
+#' @keywords internal
+bounded_transform <- function(b, eta) bounded_transform_cpp(b, as.numeric(eta))
+
+
+#' The Forward Bound Transform
+#'
+#' @description
+#' Maps a parameter inside its bounds to the unconstrained scale; the inverse of
+#' \code{\link{bounded_transform}}'s \code{h}.
+#'
+#' @param b A length-2 numeric vector, \code{c(lower, upper)}.
+#' @param theta A numeric vector strictly inside the bounds.
+#'
+#' @return A numeric vector on the unconstrained scale.
+#'
+#' @keywords internal
+bounded_forward <- function(b, theta) bounded_forward_cpp(b, as.numeric(theta))

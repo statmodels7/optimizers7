@@ -10,6 +10,7 @@
 #include "objective.h"
 #include "line_search.h"
 #include "direction.h"
+#include "bounded.h"
 
 using namespace optimizers7;
 
@@ -49,9 +50,25 @@ Rcpp::List descent_run(Rcpp::List spec,
                        bool verbose,
                        int refresh,
                        bool keep_trace,
-                       double step) {
+                       double step,
+                       Rcpp::List bounds) {
 
-  std::unique_ptr<Objective> obj(make_objective(spec));
+  std::unique_ptr<Objective> inner(make_objective(spec));
+
+  // A box is removed rather than enforced: the objective is wrapped so that the
+  // algorithm sees an unconstrained problem in eta and never learns a box was
+  // involved.
+  const bool bounded = bounds.size() > 0;
+  std::vector<Coord> coords;
+  std::unique_ptr<BoundedObjective> wrap;
+  Objective* obj_ptr = inner.get();
+  if (bounded) {
+    coords = make_coords(bounds);
+    wrap.reset(new BoundedObjective(inner.get(), coords));
+    obj_ptr = wrap.get();
+    par = to_eta(coords, par);
+  }
+  Objective* obj = obj_ptr;
   std::unique_ptr<Direction> dir(make_direction(method, par.n_elem));
   const LineSearchSpec ls = LineSearchSpec::from_list(line_search);
 
@@ -171,10 +188,16 @@ Rcpp::List descent_run(Rcpp::List spec,
     );
   }
 
+  // Reported on the scale the user thinks in. `par` and `gradient` must refer
+  // to the same thing, so the gradient is mapped back too rather than left as
+  // the eta-scale one the criterion happened to use.
+  arma::vec par_out = bounded ? wrap->report_par(x) : x;
+  arma::vec g_out   = bounded ? wrap->report_grad(x, g) : g;
+
   return Rcpp::List::create(
-    Rcpp::Named("par")        = as_r_vector(x),
+    Rcpp::Named("par")        = as_r_vector(par_out),
     Rcpp::Named("value")      = f,
-    Rcpp::Named("gradient")   = as_r_vector(g),
+    Rcpp::Named("gradient")   = as_r_vector(g_out),
     Rcpp::Named("iterations") = it,
     Rcpp::Named("converged")  = converged,
     Rcpp::Named("stopped_by") = stopped_by,

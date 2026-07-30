@@ -94,8 +94,10 @@ test_that("a criterion the method cannot evaluate is refused, not ignored", {
   # report a reason nowhere near the truth.
   NoGrad <- S7::new_class("NoGrad", parent = optimizer)
   S7::method(optimizer_provides, NoGrad) <- function(optimizer) character()
+  # The signature must include every named argument of the generic, bounds
+  # among them, or S7 refuses to register the method.
   S7::method(minimize, NoGrad) <-
-    function(optimizer, fn, par, gr = NULL, he = NULL, ...) {
+    function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
       prepare_objective(optimizer, fn, par, gr)
       "unreachable"
     }

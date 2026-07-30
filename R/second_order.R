@@ -262,12 +262,12 @@ lbfgs <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 #' @title Minimise by Newton's Method
 #' @name minimize.Newton
 #' @param optimizer A \code{Newton} object.
-#' @param fn,par,gr,he,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Newton) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he,
+  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    run_descent(optimizer, fn, par, gr, he, bounds,
                 list(type = "newton", hessian_mod = optimizer@hessian_mod,
                      floor = optimizer@floor))
   }
@@ -275,12 +275,12 @@ S7::method(minimize, Newton) <-
 #' @title Minimise by BFGS
 #' @name minimize.Bfgs
 #' @param optimizer A \code{Bfgs} object.
-#' @param fn,par,gr,he,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Bfgs) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he,
+  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    run_descent(optimizer, fn, par, gr, he, bounds,
                 list(type = "bfgs", curv_tol = optimizer@curv_tol,
                      max_skip = as.integer(optimizer@max_skip)))
   }
@@ -288,12 +288,12 @@ S7::method(minimize, Bfgs) <-
 #' @title Minimise by Limited-Memory BFGS
 #' @name minimize.Lbfgs
 #' @param optimizer An \code{Lbfgs} object.
-#' @param fn,par,gr,he,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Lbfgs) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he,
+  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    run_descent(optimizer, fn, par, gr, he, bounds,
                 list(type = "lbfgs", memory = as.integer(optimizer@memory),
                      curv_tol = optimizer@curv_tol))
   }

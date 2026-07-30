@@ -84,10 +84,11 @@ gradient_descent <- function(criterion = crit_any(crit_grad(1e-8),
 #' @description
 #' Runs \code{\link{gradient_descent}} on the objective.
 #' @param optimizer A \code{GradientDescent} object.
-#' @param fn,par,gr,he,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, GradientDescent) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he, list(type = "gradient_descent"))
+  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    run_descent(optimizer, fn, par, gr, he, bounds,
+                list(type = "gradient_descent"))
   }
