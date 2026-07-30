@@ -24,8 +24,9 @@ bundle(
 \item{criterion}{The stopping rule. Defaults to
 \code{crit_stationary(1e-8)}, on the predicted decrease.}
 
-\item{t0}{Initial proximity weight — how far the model is trusted. Defaults
-to \code{1}.}
+\item{t0}{Initial proximity weight, expressed as a \strong{step length} on
+the parameter scale rather than as a bare multiplier; see Details.
+Defaults to \code{1}.}
 
 \item{t_min, t_max}{Bounds on it, so that neither a run of null steps nor a
 run of serious ones can drive it to zero or to infinity. Default
@@ -81,9 +82,18 @@ That is what is tested. The step solves
 where \eqn{\alpha_j \ge 0} measures how badly linearisation \eqn{j} misses
 the current point and the quadratic term keeps the step inside the region
 where the model is believed. Its optimal value \eqn{v \le 0} is the
-\emph{predicted decrease}, and \eqn{-v} is what \code{\link{crit_stationary}}
-watches: it collapses to zero exactly when zero is in the convex hull of the
-collected subgradients with no linearisation error.
+\emph{predicted decrease}, which is what the acceptance test below uses.
+
+What \code{\link{crit_stationary}} watches is a related but different
+quantity, the \emph{optimality estimate}
+\eqn{\lVert p \rVert^2 + \alpha}, where \eqn{p} is the aggregate
+subgradient. Both vanish together at a solution, and the distinction is not
+pedantry: \eqn{-v} carries a factor of \eqn{t}, and \eqn{t} is halved at
+every null step, so it can be pushed below any tolerance by the trust
+parameter shrinking rather than by the point becoming stationary. A run doing
+that reports success while standing somewhere its own model still calls
+steep. Dropping the factor leaves the model's own claim, which no amount of
+shrinking can flatter.
 }
 
 \subsection{Serious steps and null steps}{
@@ -103,6 +113,26 @@ message.
 \code{t_min} and \code{t_max}. Kiwiel's rule chooses the factor from a
 curvature estimate and is better; this is the safeguarded version, which is
 cruder and cannot run away.
+}
+
+\subsection{Why t0 is a step length}{
+The step is \eqn{d = -t\,p}, so a bare \code{t} would make the first step as
+long as the gradient happens to be big. On Rosenbrock from its usual start
+that is 233 units, landing where the objective is \eqn{10^{11}} and its
+gradient \eqn{10^{15}}; the null step that follows halves \code{t} while the
+gradient has squared, so \code{t} can never catch up and the run spends its
+entire budget on rejected steps before returning the point it began at.
+
+\code{t0} is therefore divided by the size of the gradient at the starting
+point, which makes the first step of length \code{t0} in parameter space.
+It is the same normalisation a line search performs when it starts at 1 along
+a unit direction, and \code{t_min} and \code{t_max} move with it since they
+bound the same quantity. Raise \code{t0} for a problem whose optimum is far
+away, lower it for one where the model is trustworthy only nearby.
+
+Should a subgradient overflow anyway — possible for an objective that grows
+fast enough — the run stops and says so, rather than spending its budget on a
+subproblem whose matrix contains an infinity.
 }
 
 \subsection{Bounded memory}{

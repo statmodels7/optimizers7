@@ -351,9 +351,13 @@ S7::method(crit_met, CritStationary) <- function(criterion, state) {
 #'   \item{\code{\link{compass}}}{the poll size \eqn{\Delta}. This is the
 #'     rule with a theorem behind it: the limit points of a pattern search with
 #'     \eqn{\Delta \to 0} are Clarke stationary.}
-#'   \item{\code{\link{bundle}}}{the predicted decrease \eqn{-v \ge 0}, which
-#'     bounds how much better the model believes it can do, so the tolerance is
-#'     on the objective scale.}
+#'   \item{\code{\link{bundle}}}{the optimality estimate
+#'     \eqn{\lVert p \rVert^2 + \alpha}, which vanishes exactly when zero lies
+#'     in the convex hull of the collected subgradients with no linearisation
+#'     error. Note that this is \emph{not} the predicted decrease, which
+#'     carries a factor of the trust parameter and can therefore be driven to
+#'     zero by that parameter shrinking rather than by the point becoming
+#'     stationary.}
 #' }
 #' The measure appears in the trace as the \code{stationarity} column, so a run
 #' can be read afterwards without knowing which method produced it.

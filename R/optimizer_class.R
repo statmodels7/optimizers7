@@ -106,6 +106,11 @@ check_optimizer_args <- function(criterion, maxit, max_eval, verbose, refresh,
 # a numerical fallback.
 criterion_class <- function() criterion
 
+# ...and the same for the optimizer class itself, wanted by multistart() and by
+# check_optimizer(), both of which accept an arbitrary optimiser and must be
+# able to say whether that is what they were given.
+optimizer_class <- function() optimizer
+
 
 #' @title Print Method for Optimisers
 #' @name print.optimizer

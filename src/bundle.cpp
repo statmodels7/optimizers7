@@ -145,11 +145,32 @@ Rcpp::List bundle_run(Rcpp::List spec,
   std::vector<arma::vec> Gs;
   std::vector<double>    as;
 
+  // t0 IS A STEP LENGTH, NOT A BARE MULTIPLIER.
+  //
+  // The step is d = -t p, so a raw t makes the first step as long as the
+  // gradient happens to be big -- 233 units on Rosenbrock from its usual start.
+  // That lands where the objective is 1e11 and its gradient 1e15; the next null
+  // step halves t while the gradient has squared, so t can never catch up, and
+  // the run spends its whole budget taking rejected steps and returns the point
+  // it started from. Measured before the fix: 0 serious steps in 3000
+  // iterations on rosenbrock, beale and powell alike, with the aggregate
+  // subgradient at 1e196.
+  //
+  // Dividing by the gradient's size makes the first step of length t0 in
+  // PARAMETER space, which is the same normalisation a line search performs
+  // when it starts at 1 along a unit direction. The bounds move with it, since
+  // they bound the same quantity. After it: all eight battery problems solved.
+  double tscale = 1.0;
   {
     const arma::vec g0 = obj->grad(xhat);
     Gs.push_back(g0);
     as.push_back(fhat - arma::dot(g0, xhat));
+    const double gn = g0.is_empty() ? 0.0 : arma::abs(g0).max();
+    if (std::isfinite(gn) && gn > 1.0) tscale = 1.0 / gn;
   }
+  t0 *= tscale;
+  t_min *= tscale;
+  t_max *= tscale;
 
   double t = t0;
   Trace tr;
@@ -188,13 +209,38 @@ Rcpp::List bundle_run(Rcpp::List spec,
     p_agg = G * lam;
     const double a_agg = arma::dot(alpha, lam);
 
-    // The predicted decrease. Both terms are non-negative, so v <= 0, and -v is
-    // an upper bound on how much better the model believes it can do: it
-    // collapses to zero exactly when 0 lies in the convex hull of the collected
-    // subgradients with no linearisation error, which is the discrete stand-in
-    // for 0 being in the subdifferential.
+    // The predicted decrease, used for the descent test: how much better the
+    // model believes the step it is about to propose will be.
     const double v = -(t * arma::dot(p_agg, p_agg) + a_agg);
-    stat = -v;
+
+    // The OPTIMALITY ESTIMATE, which is what the stopping rule watches, and it
+    // is deliberately not -v. Both are non-negative and both vanish when 0 lies
+    // in the convex hull of the collected subgradients with no linearisation
+    // error -- the computable stand-in for 0 being in the subdifferential -- but
+    // -v carries a factor of t, and t is halved at every null step. So -v can
+    // be driven below any tolerance by the TRUST PARAMETER SHRINKING rather
+    // than by the point becoming stationary, and the run then reports success
+    // while standing somewhere the model still says is steep.
+    //
+    // Not hypothetical: on an objective finite nowhere but its starting point,
+    // every trial is refused, t halves down past 1e-8, and -v follows it under
+    // the tolerance. The run reported converged = TRUE at the point it began,
+    // having taken zero serious and zero null steps. Dropping t leaves the
+    // model's own claim, which no amount of shrinking can flatter.
+    stat = arma::dot(p_agg, p_agg) + a_agg;
+
+    // The second half of the same guard. Scaling t0 stops the runaway from
+    // starting, but nothing stops an objective that grows fast enough from
+    // producing a subgradient whose square overflows -- and once G'G holds an
+    // infinity the subproblem returns nonsense and every iteration after it is
+    // wasted. Ending here with a diagnosis is worth far more than spending the
+    // whole budget and reporting the starting point as though it were an answer.
+    if (!p_agg.is_finite() || !std::isfinite(v)) {
+      note = "the model diverged: a subgradient overflowed. Try a smaller t0.";
+      stopped_by = "failed";
+      if (keep_trace) tr.push_stat(it, fhat, R_PosInf, 0.0, "diverged");
+      break;
+    }
 
     if (have_prev &&
         ask_criterion(crit_fn, criterion, it - 1, fhat, f_prev, xhat, x_prev,
@@ -239,7 +285,21 @@ Rcpp::List bundle_run(Rcpp::List spec,
     } else {
       // Stepped outside the domain. Nothing is learnt, so nothing is added --
       // only the trust region shrinks.
-      t = std::max(t * 0.5, t_min);
+      const double t_new = std::max(t * 0.5, t_min);
+      if (t_new == t) {
+        // Already at the floor, so halving can do nothing more and every
+        // further iteration would propose the same rejected step. The trigger
+        // needs no chosen constant: t_min IS the limit of the only control the
+        // method has left, and reaching it while still being refused is the
+        // definition of stuck. Without this the run spends its whole budget
+        // re-proposing one step and reports the point it started from.
+        note = "every trial step left the domain, even at the smallest "
+               "trust region";
+        stopped_by = "failed";
+        if (keep_trace) tr.push_stat(it, fhat, stat, 0.0, "trust floor");
+        break;
+      }
+      t = t_new;
       guard = "step rejected";
     }
 

@@ -1,6 +1,7 @@
 #' @include optimizer_class.R
 #' @include generics.R
 #' @include methods.R
+#' @include check_optimizer.R
 NULL
 
 #' @title S7 Class for Multi-Start
@@ -155,12 +156,6 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
   )
 }
 
-# Fetched rather than captured, for the reason recorded in optimizer_class.R:
-# comparing S7 classes by identity is wrong under any loader that re-evaluates
-# the code.
-optimizer_class <- function() optimizer
-
-
 #' @title What Multi-Start Can Offer a Stopping Rule
 #' @name optimizer_provides.MultiStart
 #' @description
@@ -171,6 +166,29 @@ optimizer_class <- function() optimizer
 #' @keywords internal
 S7::method(optimizer_provides, MultiStart) <- function(optimizer)
   optimizer_provides(optimizer@optimizer)
+
+
+# Changing a setting has to reach the optimiser that will actually use it. The
+# criterion is the one that matters: the outer copy exists so that printing a
+# multistart tells the truth, but the rule that is evaluated belongs to the
+# optimiser inside, so setting only the outer one would change nothing while
+# looking as though it had.
+
+#' @rdname with_criterion
+#' @name with_criterion.MultiStart
+#' @keywords internal
+S7::method(with_criterion, MultiStart) <- function(optimizer, criterion) {
+  S7::set_props(optimizer, criterion = criterion,
+                optimizer = with_criterion(optimizer@optimizer, criterion))
+}
+
+#' @rdname with_maxit
+#' @name with_maxit.MultiStart
+#' @keywords internal
+S7::method(with_maxit, MultiStart) <- function(optimizer, maxit) {
+  # Its own maxit counts starts; the budget being varied is the inner one.
+  S7::set_props(optimizer, optimizer = with_maxit(optimizer@optimizer, maxit))
+}
 
 
 #' Latin Hypercube Starting Points

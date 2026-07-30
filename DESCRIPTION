@@ -33,6 +33,8 @@ Collate:
     'methods.R'
     'adam.R'
     'bundle.R'
+    'test_problems.R'
+    'check_optimizer.R'
     'direct_search.R'
     'gradient_descent.R'
     'line_search.R'
