@@ -1,0 +1,44 @@
+Package: optimizers7
+Title: An S7 Framework for Optimisation Algorithms
+Version: 0.0.0.9000
+Authors@R:
+    person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
+Description: Implements optimisation algorithms using the S7 object-oriented
+    system, with the numerical work in C++. An optimiser is an object carrying
+    its own settings, safeguards and stopping rule; the stopping rule is itself
+    a composable object, and the objective may be an R function, a finite sum
+    over observations, or a compiled C++ function reached through an external
+    pointer.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+URL: https://statmodels7.github.io/optimizers7/,
+    https://github.com/statmodels7/optimizers7
+BugReports: https://github.com/statmodels7/optimizers7/issues
+Depends:
+    R (>= 4.1.0)
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
+Imports:
+    Rcpp,
+    S7
+Collate:
+    'RcppExports.R'
+    'criterion.R'
+    'objective.R'
+    'optimizer_class.R'
+    'result_class.R'
+    'generics.R'
+    'gradient_descent.R'
+    'line_search.R'
+    'methods.R'
+    'optimizers7-package.R'
+    'zzz.R'
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

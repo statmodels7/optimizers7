@@ -1,0 +1,5 @@
+## Armadillo dispatches to BLAS and LAPACK, so they must be linked: without
+## this, arma::dot() alone leaves an undefined reference to ddot_, and the
+## decompositions Newton will need are worse. R supplies the right flags for
+## whichever libraries this installation was built against.
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
