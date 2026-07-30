@@ -59,10 +59,14 @@ test_that("finite_sum rejects what it cannot use", {
 test_that("criteria are objects, compose, and can be written by a user", {
   expect_s3_class(crit_grad(), "S7_object")
   expect_equal(crit_needs(crit_grad()), "gradient")
-  expect_length(crit_needs(crit_rel_obj()), 0)
+  # An objective-based rule declares that it reads the objective, which is not
+  # pedantry: a stochastic method has only a minibatch estimate of it, and must
+  # be able to refuse the rule rather than let it measure the sampling noise.
+  expect_equal(crit_needs(crit_rel_obj()), "objective")
+  expect_length(crit_needs(crit_abs_par()), 0)
 
   both <- crit_any(crit_grad(1e-8), crit_rel_obj(1e-12))
-  expect_equal(crit_needs(both), "gradient")
+  expect_setequal(crit_needs(both), c("gradient", "objective"))
 
   # x has genuinely moved here, so the parameter rule is not satisfied and the
   # conjunction must fail even though the gradient rule is satisfied.
@@ -93,7 +97,10 @@ test_that("a criterion the method cannot evaluate is refused, not ignored", {
   # NULL every iteration and never fire; the run would end on the budget and
   # report a reason nowhere near the truth.
   NoGrad <- S7::new_class("NoGrad", parent = optimizer)
-  S7::method(optimizer_provides, NoGrad) <- function(optimizer) character()
+  # It has no gradient but it does evaluate the objective, and says exactly
+  # that: what an optimiser declares is what it can honestly supply, so a rule
+  # reading the objective is fine and one reading a gradient is not.
+  S7::method(optimizer_provides, NoGrad) <- function(optimizer) "objective"
   # The signature must include every named argument of the generic, bounds
   # among them, or S7 refuses to register the method.
   S7::method(minimize, NoGrad) <-

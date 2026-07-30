@@ -24,11 +24,14 @@ NULL
 #' @param optimizer The \code{\link{optimizer}}.
 #' @param fn,gr,he The objective and its optional derivatives, as supplied.
 #' @param par The starting value.
+#' @param note An optional extra sentence appended when a criterion is refused,
+#'   for a method whose reason is not simply that it computes no such quantity.
 #'
 #' @return The objective handle from \code{\link{as_objective}}.
 #'
 #' @keywords internal
-prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
+prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
+                              note = NULL) {
   if (!is.numeric(par) || !length(par) || anyNA(par)) {
     stop("'par' must be a numeric vector of starting values.", call. = FALSE)
   }
@@ -38,11 +41,13 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
   provides <- optimizer_provides(optimizer)
   missing <- setdiff(needs, provides)
   if (length(missing)) {
-    stop(sprintf(
-      paste0("The stopping rule needs %s, which %s does not compute.\n",
+    msg <- sprintf(
+      paste0("The stopping rule needs %s, which %s does not provide.\n",
              "  Choose a criterion this optimiser can evaluate, or a method ",
              "that provides it."),
-      paste(missing, collapse = ", "), optimizer@name), call. = FALSE)
+      paste(missing, collapse = ", "), optimizer@name)
+    if (!is.null(note)) msg <- paste0(msg, "\n  ", note)
+    stop(msg, call. = FALSE)
   }
   spec
 }
@@ -55,8 +60,10 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 #' that \code{\link{prepare_objective}} can refuse a rule it could never satisfy.
 #'
 #' @details
-#' Gradient-based methods provide a gradient; the derivative-free ones to come
-#' will not, and will override this to say so.
+#' Gradient-based methods provide a gradient and a reproducible objective value;
+#' the derivative-free ones to come will not provide the first, and a stochastic
+#' method provides neither, since both are then estimates whose noise a
+#' tolerance would be measuring instead of the progress.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
 #'
@@ -66,7 +73,8 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 optimizer_provides <- S7::new_generic("optimizer_provides", "optimizer",
                                       function(optimizer) S7::S7_dispatch())
 
-S7::method(optimizer_provides, optimizer) <- function(optimizer) "gradient"
+S7::method(optimizer_provides, optimizer) <- function(optimizer)
+  c("gradient", "objective")
 
 
 #' Assemble the Result of a Run

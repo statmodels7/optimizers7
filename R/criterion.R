@@ -161,6 +161,8 @@ crit_grad <- function(tol = 1e-8, norm = c("max", "2")) {
 CritAbsObj <- S7::new_class("CritAbsObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
 
+S7::method(crit_needs, CritAbsObj) <- function(criterion) "objective"
+
 S7::method(crit_met, CritAbsObj) <- function(criterion, state) {
   if (is.null(state$f_old) || !is.finite(state$f_old)) return(FALSE)
   abs(state$f_new - state$f_old) < criterion@tol
@@ -194,6 +196,8 @@ crit_abs_obj <- function(tol = 1e-10) {
 #' @keywords internal
 CritRelObj <- S7::new_class("CritRelObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
+
+S7::method(crit_needs, CritRelObj) <- function(criterion) "objective"
 
 S7::method(crit_met, CritRelObj) <- function(criterion, state) {
   if (is.null(state$f_old) || !is.finite(state$f_old)) return(FALSE)
@@ -299,6 +303,47 @@ crit_rel_par <- function(tol = 1e-8) {
   check_tol(tol)
   CritRelPar(label = paste0("|dx| < ", format(tol), " (relative)"), tol = tol)
 }
+
+
+# --- run the budget ---------------------------------------------------------
+
+#' @title S7 Class for the Empty Criterion
+#' @description The class \code{\link{crit_never}} instantiates.
+#' @return An S7 object inheriting from \code{\link{criterion}}.
+#' @seealso \code{\link{crit_never}}
+#' @keywords internal
+CritNever <- S7::new_class("CritNever", parent = criterion)
+
+S7::method(crit_met, CritNever) <- function(criterion, state) FALSE
+
+#' @title Never Stop Early
+#'
+#' @description
+#' The rule that never fires, so a run ends only when it exhausts its iteration
+#' budget.
+#'
+#' @details
+#' This is not a placeholder. For a stochastic method there is often nothing
+#' left to test: every quantity a convergence rule could look at — the
+#' objective, the gradient — is a noisy estimate drawn from whichever
+#' observations happened to be sampled, and a tolerance applied to one of those
+#' measures the noise rather than the progress. Such a run is meant to be
+#' governed by its budget, and saying so with an object is better than leaving a
+#' real criterion in place that quietly never fires.
+#'
+#' A run that ends this way reports \code{converged = FALSE}, which is the
+#' truth: the budget ran out, and nothing checked whether the answer was any
+#' good. It is the same discipline everywhere else in the package — convergence
+#' is what a rule confirmed, never what the run merely stopped doing.
+#'
+#' @return A \code{\link{criterion}} object.
+#'
+#' @examples
+#' crit_never()
+#'
+#' @seealso \code{\link{adam}}, \code{\link{crit_grad}}
+#' @export
+crit_never <- function() CritNever(label = "iteration budget")
 
 
 # --- combinators ------------------------------------------------------------

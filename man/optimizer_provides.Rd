@@ -17,7 +17,9 @@ The names of the \code{state} components an optimiser is able to fill in, so
 that \code{\link{prepare_objective}} can refuse a rule it could never satisfy.
 }
 \details{
-Gradient-based methods provide a gradient; the derivative-free ones to come
-will not, and will override this to say so.
+Gradient-based methods provide a gradient and a reproducible objective value;
+the derivative-free ones to come will not provide the first, and a stochastic
+method provides neither, since both are then estimates whose noise a
+tolerance would be measuring instead of the progress.
 }
 \keyword{internal}

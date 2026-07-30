@@ -11,32 +11,9 @@
 #include "line_search.h"
 #include "direction.h"
 #include "bounded.h"
+#include "loop_support.h"
 
 using namespace optimizers7;
-
-static bool criterion_met(SEXP crit_fn, SEXP criterion, int iter,
-                          double f_new, double f_old,
-                          const arma::vec& x_new, const arma::vec& x_old,
-                          const arma::vec& g, bool have_g, bool have_old) {
-  // Built with the optional slots empty and filled in afterwards: a ternary
-  // whose branches are a NumericVector and R_NilValue has no common type.
-  Rcpp::List state = Rcpp::List::create(
-    Rcpp::Named("iter")     = iter,
-    Rcpp::Named("f_new")    = f_new,
-    Rcpp::Named("f_old")    = R_NilValue,
-    Rcpp::Named("x_new")    = as_r_vector(x_new),
-    Rcpp::Named("x_old")    = R_NilValue,
-    Rcpp::Named("gradient") = R_NilValue
-  );
-  if (have_old) {
-    state["f_old"] = f_old;
-    state["x_old"] = as_r_vector(x_old);
-  }
-  if (have_g) state["gradient"] = as_r_vector(g);
-
-  Rcpp::LogicalVector out = Rcpp::Function(crit_fn)(criterion, state);
-  return out.size() == 1 && out[0] == TRUE;
-}
 
 // [[Rcpp::export]]
 Rcpp::List descent_run(Rcpp::List spec,
@@ -78,9 +55,7 @@ Rcpp::List descent_run(Rcpp::List spec,
     Rcpp::stop("The objective is not finite at the starting value.");
   }
 
-  std::vector<int>    tr_iter;
-  std::vector<double> tr_value, tr_gnorm, tr_step;
-  std::vector<std::string> tr_guard;
+  Trace tr;
 
   bool converged = false;
   std::string stopped_by = "maxit";
@@ -104,11 +79,7 @@ Rcpp::List descent_run(Rcpp::List spec,
       note = "gradient not finite; stopped";
       stopped_by = "failed";
       guard = "gradient non-finite";
-      if (keep_trace) {
-        tr_iter.push_back(it); tr_value.push_back(f);
-        tr_gnorm.push_back(gnorm); tr_step.push_back(0.0);
-        tr_guard.push_back(guard);
-      }
+      if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
       break;
     }
 
@@ -119,11 +90,7 @@ Rcpp::List descent_run(Rcpp::List spec,
       note = "the line search found no acceptable step";
       stopped_by = "failed";
       if (res.guard != "none") guard = res.guard;
-      if (keep_trace) {
-        tr_iter.push_back(it); tr_value.push_back(f);
-        tr_gnorm.push_back(gnorm); tr_step.push_back(0.0);
-        tr_guard.push_back(guard);
-      }
+      if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
       break;
     }
     if (guard == "none" && res.guard != "none") guard = res.guard;
@@ -141,11 +108,7 @@ Rcpp::List descent_run(Rcpp::List spec,
     // lets a skipped update be reported at the iteration where it happened.
     dir->update(x - x_old, g - g_old, guard);
 
-    if (keep_trace) {
-      tr_iter.push_back(it); tr_value.push_back(f);
-      tr_gnorm.push_back(gnorm); tr_step.push_back(res.step);
-      tr_guard.push_back(guard);
-    }
+    if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
 
     if (verbose && refresh > 0 && (it % refresh == 0)) {
       Rcpp::Rcout << std::setw(6) << it
@@ -155,7 +118,7 @@ Rcpp::List descent_run(Rcpp::List spec,
                   << "  " << guard << "\n";
     }
 
-    if (criterion_met(crit_fn, criterion, it, f, f_old, x, x_old, g, true, true)) {
+    if (ask_criterion(crit_fn, criterion, it, f, f_old, x, x_old, g, true, true)) {
       converged = true;
       stopped_by = "criterion";
       break;
@@ -172,20 +135,6 @@ Rcpp::List descent_run(Rcpp::List spec,
   if (verbose) {
     Rcpp::Rcout << "  stopped after " << it << " iterations ("
                 << stopped_by << "), objective " << f << "\n";
-  }
-
-  // SEXP, not Rcpp::List: assigning R_NilValue to an Rcpp::List builds an empty
-  // list rather than NULL.
-  SEXP trace = R_NilValue;
-  if (keep_trace) {
-    trace = Rcpp::DataFrame::create(
-      Rcpp::Named("iteration") = tr_iter,
-      Rcpp::Named("value")     = tr_value,
-      Rcpp::Named("gnorm")     = tr_gnorm,
-      Rcpp::Named("step")      = tr_step,
-      Rcpp::Named("safeguard") = tr_guard,
-      Rcpp::Named("stringsAsFactors") = false
-    );
   }
 
   // Reported on the scale the user thinks in. `par` and `gradient` must refer
@@ -205,6 +154,6 @@ Rcpp::List descent_run(Rcpp::List spec,
     Rcpp::Named("n_value")    = obj->n_value,
     Rcpp::Named("n_grad")     = obj->n_grad,
     Rcpp::Named("n_hess")     = obj->n_hess,
-    Rcpp::Named("trace")      = trace
+    Rcpp::Named("trace")      = tr.as_r(keep_trace)
   );
 }
