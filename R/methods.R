@@ -105,7 +105,11 @@ build_result <- function(out, optimizer, spec, elapsed) {
   if (!is.data.frame(trace) || !nrow(trace)) trace <- NULL
 
   msg <- out$message
-  if (!isTRUE(spec$has_gradient)) {
+  # Only for a method that actually uses a gradient. A derivative-free one
+  # differences nothing, and saying it did would be a false statement about how
+  # exact the run was -- exactly the kind of claim this field exists to make
+  # honestly. `gradient` comes back NULL from precisely those methods.
+  if (!isTRUE(spec$has_gradient) && !is.null(out$gradient)) {
     extra <- "gradient obtained by finite differences"
     msg <- if (nzchar(msg)) paste(msg, extra, sep = "; ") else extra
   }
@@ -121,7 +125,10 @@ build_result <- function(out, optimizer, spec, elapsed) {
   optimizer_result(
     par = as.numeric(out$par),
     value = out$value,
-    gradient = as.numeric(out$gradient),
+    # NULL, not numeric(0): a derivative-free method computes no gradient, and
+    # the class documents that absence as NULL. An empty numeric would print as
+    # one and satisfy every is.null() test that exists to detect it.
+    gradient = if (is.null(out$gradient)) NULL else as.numeric(out$gradient),
     counts = c(f = out$n_value, g = out$n_grad, h = out$n_hess),
     iterations = out$iterations,
     converged = isTRUE(out$converged),

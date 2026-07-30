@@ -47,17 +47,57 @@ struct Coord {
   double upr = R_PosInf;
 };
 
+// The last ulp before the bound.
+//
+// The reparametrisation makes an admissible point out of every eta IN EXACT
+// ARITHMETIC, and that is not quite the same as in double precision: plogis
+// returns exactly 1 for eta above about 37, and lwr + W * p rounds to lwr as
+// soon as W * p falls below half an ulp of lwr. Either way theta lands EXACTLY
+// on a bound, which is the one outcome the whole construction promises will not
+// happen -- and it is not a harmless promise, since the caller's next act is
+// typically to divide by theta or take its log.
+//
+// The correction is the smallest one that can work, and it is derived rather
+// than chosen: the constraint that binds is "strictly inside the box", and the
+// nearest double satisfying it is the neighbour of the bound. No tolerance is
+// invented, nothing is scaled by a constant that happens to look small, and the
+// result is still the closest approach to the bound the machine can represent.
+//
+// Found by the derivative-free methods, which push eta far past where a
+// gradient method stalls: at 40 the gradient has long since underflowed, so
+// newton, bfgs and adam never got there and the defect sat unreached.
+inline double clamp_inside(const Coord& c, double theta) {
+  // The other end of the same failure. With only one bound the transform is
+  // lwr + exp(eta), which overflows to infinity past eta = 710, and an infinite
+  // theta is not merely outside the box -- it poisons whatever the objective
+  // does with it, and Inf - Inf turns into a NaN that points nowhere near here.
+  // The largest finite double is a value the caller can still compute with, and
+  // it is derived the same way as the ulp below: it is the extreme of what the
+  // constraint "a usable parameter" permits. A NaN is left alone deliberately,
+  // since converting one here would hide a real defect upstream.
+  if (theta == R_PosInf) theta = std::numeric_limits<double>::max();
+  else if (theta == R_NegInf) theta = -std::numeric_limits<double>::max();
+
+  if (R_finite(c.lwr) && theta <= c.lwr) {
+    return std::nextafter(c.lwr, std::numeric_limits<double>::infinity());
+  }
+  if (R_finite(c.upr) && theta >= c.upr) {
+    return std::nextafter(c.upr, -std::numeric_limits<double>::infinity());
+  }
+  return theta;
+}
+
 // theta = h(eta)
 inline double h_value(const Coord& c, double eta) {
   switch (c.kind) {
-    case BOUND_LOWER: return c.lwr + exp_floored(eta);
-    case BOUND_UPPER: return c.upr - exp_floored(eta);
+    case BOUND_LOWER: return clamp_inside(c, c.lwr + exp_floored(eta));
+    case BOUND_UPPER: return clamp_inside(c, c.upr - exp_floored(eta));
     case BOUND_BOTH: {
       const double W = c.upr - c.lwr;
       // plogis, written so that a large |eta| cannot overflow
       const double p = eta >= 0.0 ? 1.0 / (1.0 + std::exp(-eta))
                                   : std::exp(eta) / (1.0 + std::exp(eta));
-      return c.lwr + W * p;
+      return clamp_inside(c, c.lwr + W * p);
     }
     default: return eta;
   }

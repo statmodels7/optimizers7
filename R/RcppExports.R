@@ -13,7 +13,19 @@ bounded_forward_cpp <- function(b, theta) {
     .Call(`_optimizers7_bounded_forward_cpp`, b, theta)
 }
 
+bundle_run <- function(spec, par, criterion, crit_fn, t0, t_min, t_max, m_serious, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_bundle_run`, spec, par, criterion, crit_fn, t0, t_min, t_max, m_serious, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds)
+}
+
 descent_run <- function(spec, par, criterion, crit_fn, method, line_search, maxit, max_eval, verbose, refresh, keep_trace, step, bounds) {
     .Call(`_optimizers7_descent_run`, spec, par, criterion, crit_fn, method, line_search, maxit, max_eval, verbose, refresh, keep_trace, step, bounds)
+}
+
+nelder_mead_run <- function(spec, par, criterion, crit_fn, step, adaptive, max_restarts, degenerate_tol, start_simplex, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_nelder_mead_run`, spec, par, criterion, crit_fn, step, adaptive, max_restarts, degenerate_tol, start_simplex, maxit, max_eval, verbose, refresh, keep_trace, bounds)
+}
+
+compass_run <- function(spec, par, criterion, crit_fn, step, random_directions, opportunistic, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_compass_run`, spec, par, criterion, crit_fn, step, random_directions, opportunistic, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 

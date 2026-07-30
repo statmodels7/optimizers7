@@ -45,6 +45,37 @@ test_that("the transforms agree with linkfunctions7 to machine precision", {
 })
 
 
+test_that("a saturated eta still lands strictly inside the box", {
+  # In exact arithmetic every eta maps to an interior point. In double precision
+  # it does not: plogis is exactly 1 above about eta = 37, and lwr + W * p
+  # rounds to lwr as soon as W * p drops below half an ulp of lwr. Either way
+  # theta lands ON a bound, which is the one thing the construction promises
+  # cannot happen -- and the caller's next act is usually to divide by it.
+  #
+  # Reached only by the derivative-free methods, which push eta far past where a
+  # gradient method stalls; newton, bfgs and adam never got there.
+  for (b in list(c(0, 1), c(-2, 3), c(2, Inf), c(-Inf, -5))) {
+    h <- bounded_transform(b, c(-800, -100, -40, 40, 100, 800))$h
+    expect_true(all(h > b[1]), label = paste(format(b), collapse = ","))
+    expect_true(all(h < b[2]), label = paste(format(b), collapse = ","))
+    expect_true(all(is.finite(h)))
+  }
+})
+
+
+test_that("a run pressed hard against a bound reports an interior point", {
+  # The minimum is far outside the box, so the optimiser drives eta as far as it
+  # can and the reported parameter must still satisfy the constraint it was
+  # given -- strictly, since a probability of exactly 1 is not one.
+  f <- function(p) (p - 50)^2
+  for (o in list(nelder_mead(), compass(), bfgs(), adam(maxit = 3000))) {
+    r <- minimize(o, f, par = 0.5, bounds = list(c(0, 1)))
+    expect_lt(r@par, 1, label = r@optimizer@name)
+    expect_gt(r@par, 0, label = r@optimizer@name)
+  }
+})
+
+
 test_that("the forward map inverts the backward one", {
   for (b in list(c(0, Inf), c(-Inf, 5), c(-2, 3))) {
     theta <- switch(paste(b, collapse = ","),

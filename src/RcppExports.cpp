@@ -63,6 +63,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// bundle_run
+Rcpp::List bundle_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double t0, double t_min, double t_max, double m_serious, int bundle_size, int qp_iters, double qp_tol, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_bundle_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP t0SEXP, SEXP t_minSEXP, SEXP t_maxSEXP, SEXP m_seriousSEXP, SEXP bundle_sizeSEXP, SEXP qp_itersSEXP, SEXP qp_tolSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type par(parSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type criterion(criterionSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type crit_fn(crit_fnSEXP);
+    Rcpp::traits::input_parameter< double >::type t0(t0SEXP);
+    Rcpp::traits::input_parameter< double >::type t_min(t_minSEXP);
+    Rcpp::traits::input_parameter< double >::type t_max(t_maxSEXP);
+    Rcpp::traits::input_parameter< double >::type m_serious(m_seriousSEXP);
+    Rcpp::traits::input_parameter< int >::type bundle_size(bundle_sizeSEXP);
+    Rcpp::traits::input_parameter< int >::type qp_iters(qp_itersSEXP);
+    Rcpp::traits::input_parameter< double >::type qp_tol(qp_tolSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
+    Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bundle_run(spec, par, criterion, crit_fn, t0, t_min, t_max, m_serious, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    return rcpp_result_gen;
+END_RCPP
+}
 // descent_run
 Rcpp::List descent_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, Rcpp::List method, Rcpp::List line_search, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, double step, Rcpp::List bounds);
 RcppExport SEXP _optimizers7_descent_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP methodSEXP, SEXP line_searchSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP stepSEXP, SEXP boundsSEXP) {
@@ -86,12 +113,65 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// nelder_mead_run
+Rcpp::List nelder_mead_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double step, bool adaptive, int max_restarts, double degenerate_tol, Rcpp::NumericMatrix start_simplex, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_nelder_mead_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP stepSEXP, SEXP adaptiveSEXP, SEXP max_restartsSEXP, SEXP degenerate_tolSEXP, SEXP start_simplexSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type par(parSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type criterion(criterionSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type crit_fn(crit_fnSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type adaptive(adaptiveSEXP);
+    Rcpp::traits::input_parameter< int >::type max_restarts(max_restartsSEXP);
+    Rcpp::traits::input_parameter< double >::type degenerate_tol(degenerate_tolSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type start_simplex(start_simplexSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
+    Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
+    rcpp_result_gen = Rcpp::wrap(nelder_mead_run(spec, par, criterion, crit_fn, step, adaptive, max_restarts, degenerate_tol, start_simplex, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compass_run
+Rcpp::List compass_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double step, bool random_directions, bool opportunistic, double expand, double shrink, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_compass_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP stepSEXP, SEXP random_directionsSEXP, SEXP opportunisticSEXP, SEXP expandSEXP, SEXP shrinkSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type par(parSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type criterion(criterionSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type crit_fn(crit_fnSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< bool >::type random_directions(random_directionsSEXP);
+    Rcpp::traits::input_parameter< bool >::type opportunistic(opportunisticSEXP);
+    Rcpp::traits::input_parameter< double >::type expand(expandSEXP);
+    Rcpp::traits::input_parameter< double >::type shrink(shrinkSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
+    Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
+    rcpp_result_gen = Rcpp::wrap(compass_run(spec, par, criterion, crit_fn, step, random_directions, opportunistic, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_optimizers7_adam_run", (DL_FUNC) &_optimizers7_adam_run, 18},
     {"_optimizers7_bounded_transform_cpp", (DL_FUNC) &_optimizers7_bounded_transform_cpp, 2},
     {"_optimizers7_bounded_forward_cpp", (DL_FUNC) &_optimizers7_bounded_forward_cpp, 2},
+    {"_optimizers7_bundle_run", (DL_FUNC) &_optimizers7_bundle_run, 17},
     {"_optimizers7_descent_run", (DL_FUNC) &_optimizers7_descent_run, 13},
+    {"_optimizers7_nelder_mead_run", (DL_FUNC) &_optimizers7_nelder_mead_run, 15},
+    {"_optimizers7_compass_run", (DL_FUNC) &_optimizers7_compass_run, 15},
     {NULL, NULL, 0}
 };
 

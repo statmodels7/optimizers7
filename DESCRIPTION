@@ -32,6 +32,8 @@ Collate:
     'generics.R'
     'methods.R'
     'adam.R'
+    'bundle.R'
+    'direct_search.R'
     'gradient_descent.R'
     'line_search.R'
     'optimizers7-package.R'

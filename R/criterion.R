@@ -47,6 +47,9 @@ criterion <- S7::new_class(
 #'   \item{\code{x_new}, \code{x_old}}{the parameter vectors, likewise.}
 #'   \item{\code{gradient}}{the gradient at \code{x_new}, or \code{NULL} when the
 #'     method does not compute one.}
+#'   \item{\code{stationarity}}{a non-negative measure of remaining progress,
+#'     supplied by the derivative-free methods in place of a gradient, or
+#'     \code{NULL}. See \code{\link{crit_stationary}}.}
 #' }
 #' A rule that needs something absent from \code{state} — a gradient, from a
 #' derivative-free method — must say so through \code{\link{crit_needs}} rather
@@ -302,6 +305,71 @@ S7::method(crit_met, CritRelPar) <- function(criterion, state) {
 crit_rel_par <- function(tol = 1e-8) {
   check_tol(tol)
   CritRelPar(label = paste0("|dx| < ", format(tol), " (relative)"), tol = tol)
+}
+
+
+# --- stationarity -----------------------------------------------------------
+
+#' @title S7 Class for the Stationarity Criterion
+#' @description The class \code{\link{crit_stationary}} instantiates.
+#' @param tol The tolerance.
+#' @return An S7 object inheriting from \code{\link{criterion}}.
+#' @seealso \code{\link{crit_stationary}}
+#' @keywords internal
+CritStationary <- S7::new_class("CritStationary", parent = criterion,
+  properties = list(tol = S7::class_numeric))
+
+S7::method(crit_needs, CritStationary) <- function(criterion) "stationarity"
+
+S7::method(crit_met, CritStationary) <- function(criterion, state) {
+  s <- state$stationarity
+  if (is.null(s) || !length(s) || !is.finite(s)) return(FALSE)
+  s < criterion@tol
+}
+
+#' @title Stop When the Method's Own Measure of Progress Is Small
+#'
+#' @description
+#' The stopping rule for a method that has no gradient to test.
+#'
+#' @param tol Numeric tolerance. Defaults to \code{1e-8}.
+#'
+#' @details
+#' A gradient-based method knows it has arrived because \eqn{\nabla f} vanishes.
+#' None of the derivative-free methods can use that test, and for the
+#' non-smooth problems they exist to solve it would not be the right test even
+#' if they could: at the minimum of \eqn{\lvert x \rvert} the subgradient you
+#' happen to evaluate is \eqn{\pm 1}, so \code{\link{crit_grad}} would sit there
+#' forever while sitting exactly on the answer.
+#'
+#' Each such method therefore reports a non-negative scalar of its own that goes
+#' to zero as it converges, and this rule tests that. What the scalar
+#' \emph{is} differs, deliberately, because the natural measure differs:
+#' \describe{
+#'   \item{\code{\link{nelder_mead}}}{the diameter of the simplex, so the
+#'     tolerance is on the parameter scale.}
+#'   \item{\code{\link{compass}}}{the poll size \eqn{\Delta}. This is the
+#'     rule with a theorem behind it: the limit points of a pattern search with
+#'     \eqn{\Delta \to 0} are Clarke stationary.}
+#'   \item{\code{\link{bundle}}}{the predicted decrease \eqn{-v \ge 0}, which
+#'     bounds how much better the model believes it can do, so the tolerance is
+#'     on the objective scale.}
+#' }
+#' The measure appears in the trace as the \code{stationarity} column, so a run
+#' can be read afterwards without knowing which method produced it.
+#'
+#' @return A \code{\link{criterion}} object.
+#'
+#' @examples
+#' crit_stationary()
+#' crit_stationary(1e-10)
+#'
+#' @seealso \code{\link{nelder_mead}}, \code{\link{compass}},
+#'   \code{\link{bundle}}, \code{\link{crit_grad}}
+#' @export
+crit_stationary <- function(tol = 1e-8) {
+  check_tol(tol)
+  CritStationary(label = paste0("stationarity < ", format(tol)), tol = tol)
 }
 
 

@@ -25,6 +25,9 @@ The one generic a criterion must implement.
 \item{\code{x_new}, \code{x_old}}{the parameter vectors, likewise.}
 \item{\code{gradient}}{the gradient at \code{x_new}, or \code{NULL} when the
 method does not compute one.}
+\item{\code{stationarity}}{a non-negative measure of remaining progress,
+supplied by the derivative-free methods in place of a gradient, or
+\code{NULL}. See \code{\link{crit_stationary}}.}
 }
 A rule that needs something absent from \code{state} — a gradient, from a
 derivative-free method — must say so through \code{\link{crit_needs}} rather
