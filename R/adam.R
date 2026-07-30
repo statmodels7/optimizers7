@@ -263,6 +263,10 @@ S7::method(minimize, Adam) <-
 
     bounds <- check_bounds(bounds, par)
 
+    # A subsampling run draws its minibatches from R's generator, so the state
+    # it began with is the only thing that makes it repeatable.
+    seed <- if (stochastic) capture_seed() else NULL
+
     # The value is not needed by the algorithm at all -- Adam steps on the
     # gradient alone -- so it is computed only when something will read it.
     need_value <- optimizer@keep_trace || optimizer@verbose ||
@@ -286,5 +290,5 @@ S7::method(minimize, Adam) <-
     )
     elapsed <- proc.time()[["elapsed"]] - t0
 
-    build_result(out, optimizer, spec, elapsed)
+    build_result(out, optimizer, spec, elapsed, seed)
   }

@@ -11,7 +11,7 @@ quad <- function(p) sum((p - c(1, 2))^2)
 
 test_that("all three solve a smooth problem, slowly", {
   set.seed(1)
-  for (o in list(nelder_mead(), compass(), compass(directions = "random"))) {
+  for (o in list(nelder_mead(), compass(), compass(directions = "mads"))) {
     r <- minimize(o, quad, c(0, 0))
     expect_true(r@converged, label = r@optimizer@name)
     expect_equal(r@par, c(1, 2), tolerance = 1e-6, label = r@optimizer@name)
@@ -73,15 +73,16 @@ test_that("the restart does not disturb a run that never degenerates", {
 kink <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
 
 
-test_that("a coordinate poll stalls on a diagonal kink and a random one does not", {
-  co <- minimize(compass(), kink, c(1, 0.5))
+test_that("a coordinate poll stalls on a diagonal kink and a mads one does not", {
+  # compass() defaults to mads, so the coordinate poll has to be asked for.
+  co <- minimize(compass(directions = "coordinate"), kink, c(1, 0.5))
   set.seed(2)
-  ra <- minimize(compass(directions = "random"), kink, c(1, 0.5))
+  ra <- minimize(compass(directions = "mads"), kink, c(1, 0.5))
 
   # the coordinate poll stops on the ridge, at a point that is not stationary
   expect_gt(co@value, 1e-2)
   expect_equal(co@par[1] + co@par[2], 0, tolerance = 1e-6)
-  # random directions do better, by an order of magnitude
+  # mads directions do better, by an order of magnitude
   expect_lt(ra@value, co@value / 5)
   # ...but neither reaches the minimum. That is not a defect in either: a poll
   # of finitely many directions is the wrong instrument for a kink, and it is
@@ -91,8 +92,8 @@ test_that("a coordinate poll stalls on a diagonal kink and a random one does not
 
 
 test_that("a random poll is reproducible under set.seed", {
-  set.seed(4); a <- minimize(compass(directions = "random"), quad, c(0, 0))
-  set.seed(4); b <- minimize(compass(directions = "random"), quad, c(0, 0))
+  set.seed(4); a <- minimize(compass(directions = "mads"), quad, c(0, 0))
+  set.seed(4); b <- minimize(compass(directions = "mads"), quad, c(0, 0))
   expect_identical(a@par, b@par)
 })
 

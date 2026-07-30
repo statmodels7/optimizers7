@@ -15,7 +15,8 @@ optimizer_result(
   message = character(0),
   trace = NULL,
   optimizer = NULL,
-  elapsed = integer(0)
+  elapsed = integer(0),
+  seed = NULL
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ optimizer_result(
 run can be repeated exactly.}
 
 \item{elapsed}{Seconds.}
+
+\item{seed}{The state of the random number generator when the run began, for
+a method that draws any, and \code{NULL} otherwise.}
 }
 \value{
 An S7 object of class \code{optimizer_result}.
@@ -60,6 +64,14 @@ failure into a silently wrong answer.
 quantity the criterion is watching, the step actually taken, and the name of
 any safeguard that fired. That last column is what turns "it did not
 converge" into a diagnosis.
+
+\code{seed} is filled in by the methods that draw random numbers -- a
+\code{"mads"} poll, a subsampling \code{\link{adam}}, a
+\code{\link{multistart}} generating its own starts. Assigning it back with
+\code{assign(".Random.seed", res@seed, globalenv())} reproduces the run
+exactly. A stochastic method that cannot be repeated is very hard to debug,
+and remembering to call \code{set.seed()} beforehand is not something anyone
+does until the second time they need it.
 }
 \seealso{
 \code{\link{minimize}}

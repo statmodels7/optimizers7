@@ -94,11 +94,13 @@ S7::method(optimizer_provides, optimizer) <- function(optimizer)
 #' @param spec The objective handle, consulted for whether the gradient was
 #'   supplied or differenced.
 #' @param elapsed Seconds.
+#' @param seed The generator state the run began with, or \code{NULL} for a
+#'   method that draws no random numbers.
 #'
 #' @return An \code{\link{optimizer_result}}.
 #'
 #' @keywords internal
-build_result <- function(out, optimizer, spec, elapsed) {
+build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
   # Belt and braces beside the C++ fix: anything that is not an actual data
   # frame of rows becomes NULL, so that every consumer can test one thing.
   trace <- out$trace
@@ -136,7 +138,8 @@ build_result <- function(out, optimizer, spec, elapsed) {
     message = msg,
     trace = trace,
     optimizer = optimizer,
-    elapsed = elapsed
+    elapsed = elapsed,
+    seed = seed
   )
 }
 

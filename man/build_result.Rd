@@ -4,7 +4,7 @@
 \alias{build_result}
 \title{Assemble the Result of a Run}
 \usage{
-build_result(out, optimizer, spec, elapsed)
+build_result(out, optimizer, spec, elapsed, seed = NULL)
 }
 \arguments{
 \item{out}{The list from the C++ driver.}
@@ -15,6 +15,9 @@ build_result(out, optimizer, spec, elapsed)
 supplied or differenced.}
 
 \item{elapsed}{Seconds.}
+
+\item{seed}{The generator state the run began with, or \code{NULL} for a
+method that draws no random numbers.}
 }
 \value{
 An \code{\link{optimizer_result}}.

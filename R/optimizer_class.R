@@ -130,6 +130,7 @@ S7::method(print, optimizer) <- function(x, ...) {
     describe <- function(p) {
       v <- S7::prop(x, p)
       if (S7::S7_inherits(v) && "label" %in% names(S7::props(v))) return(v@label)
+      if (S7::S7_inherits(v) && "name" %in% names(S7::props(v))) return(v@name)
       if (is.atomic(v) && length(v) == 1L) return(format(v))
       paste0("<", class(v)[1], ">")
     }

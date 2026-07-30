@@ -7,7 +7,7 @@
 compass(
   criterion = crit_stationary(1e-08),
   step = 0.1,
-  directions = c("coordinate", "random"),
+  directions = c("mads", "coordinate"),
   opportunistic = TRUE,
   expand = 2,
   shrink = 0.5,
@@ -25,7 +25,7 @@ compass(
 \item{step}{Initial poll size, scaled by the largest coordinate of the
 starting value. Defaults to \code{0.1}.}
 
-\item{directions}{\code{"coordinate"} (default) or \code{"random"}; see
+\item{directions}{\code{"mads"} (default) or \code{"coordinate"}; see
 Details.}
 
 \item{opportunistic}{Move to the first improvement found rather than polling
@@ -70,7 +70,7 @@ to zero are stationary.
 \item{\code{"coordinate"}}{the \eqn{2p} signed axes: this is compass
 search. Cheap, deterministic, reproducible. The theorem it enjoys assumes
 \eqn{f} is continuously differentiable.}
-\item{\code{"random"}}{a fresh random orthonormal basis at every poll,
+\item{\code{"mads"}}{a fresh random orthonormal basis at every poll,
 taken plus and minus.}
 }
 The difference is not cosmetic on the problems this method exists for. When
@@ -102,7 +102,7 @@ compass()
 f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
 minimize(compass(), f, c(1, 0.5))@value
 set.seed(1)
-minimize(compass(directions = "random"), f, c(1, 0.5))@value
+minimize(compass(directions = "mads"), f, c(1, 0.5))@value
 
 }
 \references{

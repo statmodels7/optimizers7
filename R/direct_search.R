@@ -165,7 +165,7 @@ nelder_mead <- function(criterion = crit_stationary(1e-8),
 #' @title S7 Class for Pattern Search
 #' @description The class \code{\link{compass}} instantiates.
 #' @param step Initial poll size, relative to the starting value.
-#' @param directions Either \code{"coordinate"} or \code{"random"}.
+#' @param directions Either \code{"mads"} or \code{"coordinate"}.
 #' @param opportunistic Whether to accept the first improvement found.
 #' @param expand,shrink Factors applied to the poll size.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
@@ -193,7 +193,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #'   \code{crit_stationary(1e-8)}, on the poll size.
 #' @param step Initial poll size, scaled by the largest coordinate of the
 #'   starting value. Defaults to \code{0.1}.
-#' @param directions \code{"coordinate"} (default) or \code{"random"}; see
+#' @param directions \code{"mads"} (default) or \code{"coordinate"}; see
 #'   Details.
 #' @param opportunistic Move to the first improvement found rather than polling
 #'   every direction? Defaults to \code{TRUE}.
@@ -220,7 +220,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #'   \item{\code{"coordinate"}}{the \eqn{2p} signed axes: this is compass
 #'     search. Cheap, deterministic, reproducible. The theorem it enjoys assumes
 #'     \eqn{f} is continuously differentiable.}
-#'   \item{\code{"random"}}{a fresh random orthonormal basis at every poll,
+#'   \item{\code{"mads"}}{a fresh random orthonormal basis at every poll,
 #'     taken plus and minus.}
 #' }
 #' The difference is not cosmetic on the problems this method exists for. When
@@ -263,14 +263,14 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
 #' minimize(compass(), f, c(1, 0.5))@value
 #' set.seed(1)
-#' minimize(compass(directions = "random"), f, c(1, 0.5))@value
+#' minimize(compass(directions = "mads"), f, c(1, 0.5))@value
 #'
 #' @seealso \code{\link{nelder_mead}}, \code{\link{bundle}},
 #'   \code{\link{crit_stationary}}
 #' @export
 compass <- function(criterion = crit_stationary(1e-8),
                     step = 0.1,
-                    directions = c("coordinate", "random"),
+                    directions = c("mads", "coordinate"),
                     opportunistic = TRUE, expand = 2, shrink = 0.5,
                     maxit = 2000, max_eval = 20000,
                     verbose = FALSE, refresh = 50, keep_trace = FALSE) {
@@ -374,12 +374,19 @@ S7::method(minimize, Compass) <-
     spec <- prepare_objective(optimizer, fn, par, gr, he)
     bounds <- check_bounds(bounds, par)
 
+    # A mads poll draws a fresh basis at every iteration, so the run is
+    # reproducible only if the state it started from is known. Recording it is
+    # cheaper than discovering afterwards that the interesting run cannot be
+    # repeated.
+    mads <- identical(optimizer@directions, "mads")
+    seed <- if (mads) capture_seed() else NULL
+
     t0 <- proc.time()[["elapsed"]]
     out <- compass_run(
       spec = spec, par = as.numeric(par),
       criterion = optimizer@criterion, crit_fn = crit_met,
       step = optimizer@step,
-      random_directions = identical(optimizer@directions, "random"),
+      random_directions = mads,
       opportunistic = optimizer@opportunistic,
       expand = optimizer@expand, shrink = optimizer@shrink,
       maxit = as.integer(optimizer@maxit),
@@ -389,5 +396,5 @@ S7::method(minimize, Compass) <-
       keep_trace = optimizer@keep_trace,
       bounds = bounds
     )
-    build_result(out, optimizer, spec, proc.time()[["elapsed"]] - t0)
+    build_result(out, optimizer, spec, proc.time()[["elapsed"]] - t0, seed)
   }

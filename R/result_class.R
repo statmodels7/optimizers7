@@ -19,6 +19,8 @@ NULL
 #' @param optimizer The \code{\link{optimizer}} that produced this, kept so the
 #'   run can be repeated exactly.
 #' @param elapsed Seconds.
+#' @param seed The state of the random number generator when the run began, for
+#'   a method that draws any, and \code{NULL} otherwise.
 #'
 #' @details
 #' \code{converged} is \code{TRUE} only when the stopping rule was satisfied. It
@@ -31,6 +33,14 @@ NULL
 #' quantity the criterion is watching, the step actually taken, and the name of
 #' any safeguard that fired. That last column is what turns "it did not
 #' converge" into a diagnosis.
+#'
+#' \code{seed} is filled in by the methods that draw random numbers -- a
+#' \code{"mads"} poll, a subsampling \code{\link{adam}}, a
+#' \code{\link{multistart}} generating its own starts. Assigning it back with
+#' \code{assign(".Random.seed", res@seed, globalenv())} reproduces the run
+#' exactly. A stochastic method that cannot be repeated is very hard to debug,
+#' and remembering to call \code{set.seed()} beforehand is not something anyone
+#' does until the second time they need it.
 #'
 #' @return An S7 object of class \code{optimizer_result}.
 #'
@@ -49,7 +59,8 @@ optimizer_result <- S7::new_class(
     message       = S7::class_character,
     trace         = S7::class_any,
     optimizer     = S7::class_any,
-    elapsed       = S7::class_numeric
+    elapsed       = S7::class_numeric,
+    seed          = S7::class_any
   )
 )
 
