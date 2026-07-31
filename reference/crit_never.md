@@ -33,7 +33,7 @@ doing.
 
 ## See also
 
-[`adam`](https://statmodels7.github.io/optimizers7/reference/Adam.md),
+[`adam`](https://statmodels7.github.io/optimizers7/reference/adam.md),
 [`crit_grad`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 
 ## Examples

@@ -1,7 +1,7 @@
 # S7 Class for Multi-Start
 
 The class
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 instantiates.
 
 ## Usage
@@ -19,7 +19,7 @@ MultiStart(
   n = integer(0),
   starts = NULL,
   spread = integer(0),
-  cluster = NULL,
+  ncores = NULL,
   distinct_tol = integer(0)
 )
 ```
@@ -42,9 +42,9 @@ MultiStart(
 
   How widely the random starts are scattered.
 
-- cluster:
+- ncores:
 
-  An optional parallel cluster.
+  How many processes the starts are spread over.
 
 - distinct_tol:
 
@@ -57,4 +57,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)

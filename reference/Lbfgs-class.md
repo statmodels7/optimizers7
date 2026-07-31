@@ -1,7 +1,7 @@
 # S7 Class for Limited-Memory BFGS
 
 The class
-[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md)
+[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
 instantiates.
 
 ## Usage
@@ -27,7 +27,7 @@ Lbfgs(
 - step, line_search:
 
   As in
-  [`lbfgs`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md).
+  [`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md).
 
 - memory:
 
@@ -44,4 +44,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md)
+[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)

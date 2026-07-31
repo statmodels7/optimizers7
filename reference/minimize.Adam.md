@@ -1,7 +1,7 @@
 # Minimise by Adam
 
 Runs
-[`adam`](https://statmodels7.github.io/optimizers7/reference/Adam.md) on
+[`adam`](https://statmodels7.github.io/optimizers7/reference/adam.md) on
 the objective.
 
 ## Arguments

@@ -27,7 +27,7 @@ An optimiser of the same class.
 ## Details
 
 The distinction matters.
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 carries a criterion only so that printing it tells the truth; the rule
 that is evaluated belongs to the optimiser inside. Setting the outer one
 and expecting a different run is the sort of thing that makes a check

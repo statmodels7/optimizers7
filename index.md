@@ -119,12 +119,40 @@ sqrt(mean(y^2))
 #> [1] 1.854906
 ```
 
+## Starting values you do not have to write out
+
+`par` may be a starter rather than a vector. Both work on the
+*unconstrained* scale and are mapped back through the bounds, which is
+what makes one constant sensible for every kind of parameter — zero
+becomes one for a variance and one half for a probability — and what
+makes it impossible for a draw to land outside its box:
+
+``` r
+
+X <- cbind(1, matrix(rnorm(60), 30))
+b <- drop(X %*% c(0.5, -1, 2)) + rnorm(30, sd = 0.2)
+rss <- function(p) sum((b - X %*% p)^2)
+
+minimize(bfgs(), rss, start_zeros())@par        # how many? worked out
+#> [1]  0.5175641 -1.0649279  1.9870314
+minimize(bfgs(), rss, start_runif(-2, 2))@par   # or drawn, on that scale
+#> [1]  0.5175641 -1.0649279  1.9870314
+```
+
+How many parameters there are is settled by whichever of three things
+the caller was willing to say: `start_zeros(npar = 3)`, or bounds with
+one element per parameter, or — as above — the objective itself, probed
+once before the run. `X %*% p` of the wrong length is an error rather
+than a number, so a model of any kind answers the question on its own. A
+vectorised toy that accepts every length cannot, and is told so by name
+rather than guessed at.
+
 ## When the derivative does not exist
 
 A descent method walks to the minimum of a sum of absolute deviations
 and then reports that it did not converge — correctly, because the
 subgradient it evaluates there has norm 1 and never becomes small.
-[`bundle()`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 keeps a *collection* of subgradients and tests whether zero lies in
 their convex hull, which is the statement that actually holds:
 
@@ -141,25 +169,36 @@ c(bfgs   = minimize(bfgs(), sad, par = 0, gr = sub)@converged,
 
 c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 #>     bundle     median 
-#> 0.00213186 0.00213186
+#> 0.06462704 0.06462703
 ```
 
 ## What is here
 
 |  |  |
 |----|----|
-| second order | [`newton()`](https://statmodels7.github.io/optimizers7/reference/Newton.md), [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md), [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md) |
+| second order | [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md), [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md), [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md) |
 | first order | [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md), [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md), [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md) |
-| noisy objectives, and long parameter vectors | [`adam()`](https://statmodels7.github.io/optimizers7/reference/Adam.md) |
-| no derivative at all | [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md), [`compass()`](https://statmodels7.github.io/optimizers7/reference/Compass.md) |
-| non-smooth, with subgradients | [`bundle()`](https://statmodels7.github.io/optimizers7/reference/Bundle.md) |
-| wrapping any of them | [`multistart()`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md) |
-| line searches | [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md), [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md) |
+| noisy objectives, and long parameter vectors | [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md) |
+| no derivative at all | [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md), [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md) |
+| non-smooth, with subgradients | [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md) |
+| wrapping any of them | [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md), parallel by default |
+| line searches | [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md), [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md), [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md) |
+| starting values | [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md), [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md) |
 | stopping rules | [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md), [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md), [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md), [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md), [`crit_rel_par()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_par.md), [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md), [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md), and [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md) / [`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md) to combine them |
 
 Every method reports which safeguards fired, counts its own evaluations,
 and sets `converged` only when the stopping rule was satisfied — never
 because the iteration budget ran out.
+
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+runs its starts in parallel and there is nothing to set up: `ncores` is
+a number, defaulting to as many processes as there are starts and never
+more than the machine can spare. Starting the workers, loading the
+package on them, giving each an independent stream and shutting them
+down again all happen inside and are undone before it returns — forks on
+Linux and macOS, a socket cluster on Windows, and
+[`set.seed()`](https://rdrr.io/r/base/Random.html) reproducing the run
+identically whichever it was and however many cores were used.
 
 ## Checking an optimiser of your own
 

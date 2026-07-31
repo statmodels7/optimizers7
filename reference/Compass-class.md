@@ -1,7 +1,7 @@
 # S7 Class for Pattern Search
 
 The class
-[`compass`](https://statmodels7.github.io/optimizers7/reference/Compass.md)
+[`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md)
 instantiates.
 
 ## Usage
@@ -48,4 +48,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`compass`](https://statmodels7.github.io/optimizers7/reference/Compass.md)
+[`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md)

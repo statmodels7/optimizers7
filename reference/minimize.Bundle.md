@@ -1,7 +1,7 @@
 # Minimise by the Proximal Bundle Method
 
 Runs
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 on the objective.
 
 ## Arguments

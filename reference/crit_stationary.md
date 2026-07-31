@@ -39,13 +39,13 @@ goes to zero as it converges, and this rule tests that. What the scalar
   the diameter of the simplex, so the tolerance is on the parameter
   scale.
 
-- [`compass`](https://statmodels7.github.io/optimizers7/reference/Compass.md):
+- [`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md):
 
   the poll size \\\Delta\\. This is the rule with a theorem behind it:
   the limit points of a pattern search with \\\Delta \to 0\\ are Clarke
   stationary.
 
-- [`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md):
+- [`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md):
 
   the optimality estimate \\\lVert p \rVert^2 + \alpha\\, which vanishes
   exactly when zero lies in the convex hull of the collected
@@ -60,8 +60,8 @@ can be read afterwards without knowing which method produced it.
 ## See also
 
 [`nelder_mead`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
-[`compass`](https://statmodels7.github.io/optimizers7/reference/Compass.md),
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md),
+[`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md),
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md),
 [`crit_grad`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 
 ## Examples

@@ -1,0 +1,238 @@
+# Adaptive Moment Estimation
+
+Adam: a first-order method that gives every coordinate its own step
+length, inferred from the size of the gradients it has been seeing. It
+tolerates a gradient that points downhill only on average, which is what
+makes it the method to reach for when the objective is noisy.
+
+## Usage
+
+``` r
+adam(
+  criterion = crit_never(),
+  alpha = 0.01,
+  beta1 = 0.9,
+  beta2 = 0.999,
+  eps = 1e-08,
+  decay = 0,
+  amsgrad = FALSE,
+  maxit = 1000,
+  max_eval = 1e+05,
+  verbose = FALSE,
+  refresh = 100,
+  keep_trace = FALSE
+)
+```
+
+## Arguments
+
+- criterion:
+
+  The stopping rule. Defaults to
+  [`crit_never`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
+  so the run is governed by `maxit`; see Details.
+
+- alpha:
+
+  The learning rate — the size of a step when the gradient is steady.
+  Defaults to `0.01`.
+
+- beta1:
+
+  Decay rate of the first moment, the smoothed gradient. Defaults to
+  `0.9`.
+
+- beta2:
+
+  Decay rate of the second moment, the smoothed squared gradient.
+  Defaults to `0.999`.
+
+- eps:
+
+  Added to the square-rooted second moment before dividing, so that a
+  coordinate whose gradient has been uniformly zero does not divide by
+  it. Defaults to `1e-8`.
+
+- decay:
+
+  Reduces the learning rate as \\\alpha_t = \alpha/(1 + \delta t)\\.
+  Defaults to `0`, a constant rate; see Details.
+
+- amsgrad:
+
+  Hold the second moment at its running maximum? Defaults to `FALSE`;
+  see Details.
+
+- maxit:
+
+  Maximum iterations. Defaults to 1000, higher than the other methods
+  because Adam takes many small steps rather than few large ones.
+
+- max_eval:
+
+  Maximum objective evaluations. Defaults to 100000.
+
+- verbose:
+
+  Report progress? Defaults to `FALSE`.
+
+- refresh:
+
+  Report every this many iterations. Defaults to 100.
+
+- keep_trace:
+
+  Store the iteration path? Defaults to `FALSE`.
+
+## Value
+
+An S7 object of class `Adam`, inheriting from
+[`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+
+## Details
+
+The idea is one line. Adam keeps an exponentially weighted average of
+the gradient, \\m_t\\, and of its square, \\v_t\\, and steps
+\$\$x\_{t+1} = x_t - \alpha\\ \hat m_t / (\sqrt{\hat v_t} +
+\epsilon).\$\$ The division is elementwise, which is the whole point: a
+coordinate whose gradient has been consistently large is divided by a
+large number and moves modestly, while one whose gradient is small but
+persistent still moves. It is a diagonal preconditioner assembled from
+the gradients already seen, so it costs nothing beyond them — and that
+is also its limit, since a diagonal cannot represent the correlation
+between parameters that
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+learns from the same information.
+
+Both averages start at zero, so early on they are pulled towards it;
+dividing by \\1 - \beta^t\\ removes exactly that bias, and without it
+the first iterations would barely move.
+
+### Why it is not a descent method
+
+Adam takes no line search and makes no attempt to decrease the objective
+at every step. That is deliberate, not an omission: the freedom to go
+uphill is most of why it tolerates a gradient that is only right on
+average. It also means that none of the usual reassurances apply. There
+is no guarantee of monotone progress, and the run may end somewhere
+worse than it passed through.
+
+The practical consequence is that Adam is the wrong tool for a small
+smooth problem where a Hessian is affordable. Use
+[`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+or [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+there and reach machine precision in a dozen iterations. Adam earns its
+place when the parameter vector is long, when the objective is noisy, or
+when the surface is rough enough that a quadratic model is a fiction.
+
+### Minibatches belong to the caller
+
+Adam does **not** draw subsamples, and the omission is the design rather
+than a gap in it. An optimiser does not know what an observation is; a
+version that did would need a second kind of objective to be told, a
+rule for which stopping rules such an objective allows, and a way to
+report which of them was in force. None of that buys anything a closure
+cannot do, because a stochastic objective is just an objective:
+
+
+    batch <- function(par) {
+      i <- sample.int(n, size = 0.05 * n)
+      sum((y[i] - par)^2) / 2
+    }
+    minimize(adam(), batch, par = 0, gr = batch_gr)
+
+Adam then behaves exactly as it would on a minibatch of its own drawing,
+and [`set.seed()`](https://rdrr.io/r/base/Random.html) governs it
+because the draws happen in your function.
+
+**Resample inside the objective, not around the run.** It is tempting to
+call `minimize(adam(maxit = 1), ...)` in a loop, drawing a new batch
+each time. That does not work: \\m\\ and \\v\\ start at zero and the
+bias correction restarts at \\t = 1\\, so every call takes a first step
+of length \\\alpha\\ and the accumulated moments — the whole of the
+method — are thrown away at each one.
+
+### Stopping, and why the default is a budget
+
+The default criterion is
+[`crit_never`](https://statmodels7.github.io/optimizers7/reference/crit_never.md):
+the run ends when `maxit` is reached, and reports `converged = FALSE`,
+which is the truth about a run that nothing checked. With a fixed
+`alpha` Adam generally circles an optimum rather than settling on it, so
+a tolerance on the gradient is usually a rule that never fires.
+
+On an exact objective a real rule may be passed and will work. On a
+noisy one nothing based on the objective or the gradient means much,
+since both are then estimates; that is a fact about the objective you
+supplied, and the package cannot detect it for you.
+
+### The safeguards
+
+`eps` floors the denominator. `decay` makes the learning rate
+\\O(1/t)\\, which is the Robbins–Monro condition a run on a noisy
+objective needs to settle at the optimum rather than rattle about it at
+a radius set by \\\alpha\\; it is off by default because on an exact
+objective there is nothing to average away.
+
+`amsgrad` replaces \\v_t\\ by its running maximum. This is not cosmetic:
+Reddi, Kale and Kumar (2018) exhibited a convex problem on which Adam as
+published fails to converge, because \\v_t\\ can shrink and let a single
+large gradient dominate the iterate long after it has passed. The
+maximum forbids that, at the cost of steps that only ever get shorter.
+It is `FALSE` by default so that `adam()` is Adam — a run that silently
+did something else would not reproduce anything — but it is worth
+turning on whenever a run refuses to settle.
+
+A non-finite gradient or update stops the run and says so, rather than
+propagating a `NaN` into every iterate after it.
+
+## References
+
+Kingma, D. P. and Ba, J. (2015). Adam: A Method for Stochastic
+Optimization. *ICLR*.
+
+Reddi, S. J., Kale, S. and Kumar, S. (2018). On the Convergence of Adam
+and Beyond. *ICLR*.
+
+## See also
+
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+[`crit_never`](https://statmodels7.github.io/optimizers7/reference/crit_never.md)
+
+## Examples
+
+``` r
+adam()
+#> <optimizer> adam
+#>   stop when : iteration budget
+#>   budgets   : maxit 1000, evaluations 1e+05
+#>   settings  : alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = FALSE
+adam(alpha = 0.05, amsgrad = TRUE)
+#> <optimizer> adam
+#>   stop when : iteration budget
+#>   budgets   : maxit 1000, evaluations 1e+05
+#>   settings  : alpha = 0.05, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = TRUE
+
+# on a quadratic
+minimize(adam(alpha = 0.1, maxit = 2000),
+         function(p) sum((p - c(1, 2))^2), c(0, 0),
+         gr = function(p) 2 * (p - c(1, 2)))
+#> <optimizer_result> adam
+#>   value      : 0
+#>   par        : 1 2
+#>   iterations : 2000   evaluations: f 2002, g 2001
+#>   converged  : NO (iteration budget reached)
+
+# on a noisy objective, which is what it is for: the minibatch is drawn
+# inside the function, so the optimiser never has to know about it
+set.seed(1)
+y <- rnorm(2000, mean = 3)
+m <- 100
+batch    <- function(p) { i <- sample.int(2000, m); sum((y[i] - p)^2) / 2 }
+batch_gr <- function(p) { i <- sample.int(2000, m); -sum(y[i] - p) }
+minimize(adam(alpha = 0.05, decay = 0.01, maxit = 2000),
+         batch, par = 0, gr = batch_gr)@par
+#> [1] 2.980926
+mean(y)
+#> [1] 2.986045
+```

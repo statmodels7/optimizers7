@@ -65,7 +65,7 @@ fail.
 2.  the reported gradient is the gradient at `par`, checked only for
     optimisers that offer `"gradient"` to a stopping rule and so are
     claiming it is one.
-    [`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+    [`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
     reports an aggregate subgradient and does not make that claim, so it
     is not held to it.
 
@@ -109,7 +109,7 @@ minimum, and it is information rather than judgement. A large gap on
 `rastrigin` or `himmelblau` means the method found a different local
 minimum, which for a local method is correct behaviour; a large gap on
 `abs_sum` means it was defeated by a kink, which is what
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 and the derivative-free methods are for.
 
 ## See also

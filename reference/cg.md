@@ -81,7 +81,7 @@ method is the choice of \\\beta\\. On a quadratic with an exact line
 search the directions come out conjugate with respect to the Hessian, so
 the method terminates in \\p\\ steps exactly — *without ever forming
 that Hessian*, which is the point. The storage is two vectors against
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)'s
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)'s
 \\p \times p\\ matrix.
 
 ### Which beta
@@ -108,7 +108,7 @@ is the default and departing from it is departing from the theory.
 The constant matters as much as the search.
 [`wolfe`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
 defaults to \\c_2 = 0.9\\, which is right for
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md),
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
 where the curvature approximation repairs a loose step. Conjugate
 gradients has nothing to repair with: the accumulated conjugacy is only
 as good as the line search that produced it, and a loose one degrades it
@@ -137,7 +137,7 @@ Optimization* **10**, 177–182.
 ## See also
 
 [`gd`](https://statmodels7.github.io/optimizers7/reference/gd.md),
-[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md),
+[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),
 [`bb`](https://statmodels7.github.io/optimizers7/reference/bb.md)
 
 ## Examples

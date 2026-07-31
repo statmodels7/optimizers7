@@ -96,8 +96,8 @@ diagnosis.
 
 `seed` is filled in by the methods that draw random numbers – a `"mads"`
 poll, a subsampling
-[`adam`](https://statmodels7.github.io/optimizers7/reference/Adam.md), a
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+[`adam`](https://statmodels7.github.io/optimizers7/reference/adam.md), a
+[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 generating its own starts. Assigning it back with
 `assign(".Random.seed", res@seed, globalenv())` reproduces the run
 exactly. A stochastic method that cannot be repeated is very hard to

@@ -17,7 +17,7 @@ class object.
 ## Details
 
 Wanted by
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 and
 [`check_optimizer`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md),
 both of which accept an arbitrary optimiser and must be able to say

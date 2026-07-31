@@ -1,7 +1,7 @@
 # S7 Class for BFGS
 
 The class
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 instantiates.
 
 ## Usage
@@ -27,7 +27,7 @@ Bfgs(
 - step, line_search:
 
   As in
-  [`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md).
+  [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
 
 - curv_tol:
 
@@ -44,4 +44,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)

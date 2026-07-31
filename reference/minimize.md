@@ -74,6 +74,35 @@ differences. The result records which derivatives were supplied and
 which were differenced, so a run is never silently less exact than it
 appears.
 
+### Starting values you do not have to write out
+
+`par` may be a **starter** rather than a vector:
+[`start_zeros`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
+for all zeros,
+[`start_runif`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)
+for a uniform draw from a range you choose. Both work on the
+*unconstrained* scale and are mapped back through the bounds, which is
+what makes a single constant sensible for every kind of parameter — zero
+becomes one for a variance, one half for a probability — and what
+guarantees the point is admissible however tight the box.
+
+A starter needs to know how many parameters there are, and it is told in
+one of three ways. Say so, with `start_zeros(npar = 3)`, and that is the
+end of it. Otherwise a `lower` or `upper` with more than one element
+answers the question, bounds being one per parameter. Otherwise the
+objective is probed by
+[`infer_npar`](https://statmodels7.github.io/optimizers7/reference/infer_npar.md),
+which tries lengths until one is accepted and costs at most fifty
+evaluations, once, before the run begins.
+
+That last route settles any objective with a fixed width built into it,
+which is most real ones: `X %*% beta` with a parameter of the wrong
+length is an error rather than a number. It cannot settle a vectorised
+toy, since R recycles a shorter vector silently whenever its length
+divides, so `sum((p - c(1, 2, 3))^2)` is a perfectly finite function of
+one parameter as well as of three. It then refuses, naming the lengths
+it found, rather than optimising a different problem from the one asked.
+
 `lower` and `upper` are two vectors rather than a list of pairs, which
 is what [`optim`](https://rdrr.io/r/stats/optim.html) and
 [`nlminb`](https://rdrr.io/r/stats/nlminb.html) take, and what lets
@@ -103,6 +132,7 @@ right tool and this is not one.
 
 [`maximize`](https://statmodels7.github.io/optimizers7/reference/maximize.md),
 [`gd`](https://statmodels7.github.io/optimizers7/reference/gd.md),
+[`start_zeros`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md),
 [`crit_any`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
 
 ## Examples
@@ -143,6 +173,16 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 #>   value      : 1
 #>   par        : 1 1
 #>   iterations : 30   evaluations: f 161, g 0
+#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   note       : gradient obtained by finite differences
+
+# no starting value at all: the bounds say there are two parameters
+minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
+         lower = c(0, 0), upper = c(5, 10))
+#> <optimizer_result> BFGS
+#>   value      : 3.26661e-23
+#>   par        : 1 2
+#>   iterations : 19   evaluations: f 236, g 0
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

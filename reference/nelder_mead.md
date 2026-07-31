@@ -129,7 +129,7 @@ Rarely, and knowingly. If the objective is smooth, every gradient-based
 method here will beat it by orders of magnitude. Its place is an
 objective that is genuinely non-smooth or noisy and whose subgradients
 are not available; if they *are* available,
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 is the better tool, since it uses them and this uses nothing.
 
 ## References
@@ -146,8 +146,8 @@ Applications* **51**, 259–277.
 
 ## See also
 
-[`compass`](https://statmodels7.github.io/optimizers7/reference/Compass.md),
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md),
+[`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md),
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md),
 [`crit_stationary`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
 
 ## Examples

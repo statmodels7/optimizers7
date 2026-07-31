@@ -1,7 +1,7 @@
 # S7 Class for the Proximal Bundle Method
 
 The class
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 instantiates.
 
 ## Usage
@@ -54,4 +54,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)

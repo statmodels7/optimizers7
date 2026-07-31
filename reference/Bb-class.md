@@ -19,6 +19,7 @@ Bb(
   alpha0 = integer(0),
   alpha_min = integer(0),
   alpha_max = integer(0),
+  curv_tol = integer(0),
   step = integer(0),
   line_search = NULL
 )
@@ -38,15 +39,9 @@ Bb(
 
   Bounds on it.
 
-- step:
+- curv_tol:
 
-  The initial multiplier offered to the line search.
-
-- line_search:
-
-  A
-  [`line_search`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
-  object.
+  The relative threshold below which a pair is refused.
 
 ## Value
 

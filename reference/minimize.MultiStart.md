@@ -1,7 +1,7 @@
 # Minimise From Many Starting Points
 
 Runs
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 on the objective.
 
 ## Arguments

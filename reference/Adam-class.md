@@ -1,7 +1,7 @@
 # S7 Class for Adam
 
 The class
-[`adam`](https://statmodels7.github.io/optimizers7/reference/Adam.md)
+[`adam`](https://statmodels7.github.io/optimizers7/reference/adam.md)
 instantiates.
 
 ## Usage
@@ -53,4 +53,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`adam`](https://statmodels7.github.io/optimizers7/reference/Adam.md)
+[`adam`](https://statmodels7.github.io/optimizers7/reference/adam.md)

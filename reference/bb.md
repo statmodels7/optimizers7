@@ -13,8 +13,9 @@ bb(
   alpha0 = 0.01,
   alpha_min = 1e-10,
   alpha_max = 1e+10,
+  curv_tol = 1e-10,
   step = 1,
-  line_search = armijo(),
+  line_search = nonmonotone(),
   maxit = 1000,
   max_eval = 20000,
   verbose = FALSE,
@@ -43,6 +44,14 @@ bb(
 
   Bounds on the step length. Defaults `1e-10` and `1e10`.
 
+- curv_tol:
+
+  The relative curvature threshold: a secant pair is refused when
+  \\s^\top y \le c \lVert s \rVert \lVert y \rVert\\ for \\c\\ equal to
+  `curv_tol`. Defaults to `1e-10`, which is the same relative test
+  [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+  applies to the same quantity.
+
 - step:
 
   Initial multiplier offered to the line search. Defaults to `1`, so the
@@ -51,8 +60,8 @@ bb(
 - line_search:
 
   Defaults to
-  [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md);
-  see Details.
+  [`nonmonotone`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
+  and that is not an incidental choice; see Details.
 
 - maxit:
 
@@ -93,17 +102,17 @@ It reaches every smooth minimum in
 [`test_problems`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
 to machine precision while storing two vectors and doing no linear
 algebra at all, and it solves a quadratic in two iterations, because the
-first secant pair already contains the answer. For a method with one
-scalar of memory that is a great deal.
+first secant pair already contains the answer.
 
-What it does not do is get there quickly on a curved valley. Measured on
-Rosenbrock it takes about 930 iterations where
-[`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md) takes
-35 and
-[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md)
-takes 35 — a thousandth of the memory and thirty times the iterations.
-See below for why, since the reason is this implementation rather than
-the method.
+On Rosenbrock it takes 68 iterations and 77 objective evaluations,
+against 65 for
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+and
+[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
+and 353 for
+[`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md) — from
+one stored number rather than a matrix, a list of secant pairs or a
+direction. For a method of this size that is a remarkable place to be.
 
 ### Which variant
 
@@ -115,25 +124,65 @@ taking them in turn is more robust than trusting either.
 ### The line search, and what it is for here
 
 The step length is the method, so the line search must not be allowed to
-reshape it. It is offered the Barzilai-Borwein step first and unaltered,
-and only backtracks when that step fails the sufficient-decrease test.
+reshape it. The Barzilai-Borwein step is offered first and unaltered,
+and backtracking happens only when it fails the acceptance test.
 
-That backtracking is where the iteration count above comes from, and it
-is worth being plain about. The method is **famously non-monotone**: its
+Which test matters. The method is **non-monotone by design**: its
 efficiency comes from steps that make the objective worse now in order
-to align with the curvature, and an Armijo condition forbids exactly
-those. The classical remedy is a *nonmonotone* line search, which
-requires sufficient decrease against the worst of the last several
-values rather than the last one, and with it Barzilai-Borwein is
-competitive with conjugate gradients. This package has no such search,
-so what is here is the safe version and substantially the slower one on
-a curved valley. It is not a defect in the method and it is a real
-limitation of this implementation.
+to be aligned with the curvature later, and an Armijo condition forbids
+exactly those. The default is therefore
+[`nonmonotone`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
+which asks for improvement on the worst of the last several values
+rather than on the present one. Measured on Rosenbrock it accepts eleven
+uphill steps out of sixty-seven, where
+[`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+accepts none, and finishes in 68 iterations and 77 evaluations against
+82 and 186. On the non-smooth problem in
+[`test_problems`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
+it ends eight orders of magnitude closer, though it takes 439 iterations
+to get there against 29 that stop early.
 
-A secant pair reporting non-positive curvature is skipped rather than
-used, and a step length outside `alpha_min` and `alpha_max` is clamped.
-Both are reported in the trace: an unbounded step is how a first-order
-method leaves the domain entirely.
+[`nonmonotone`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
+with `memory = 0` is exactly
+[`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+– the same trace, value for value – so the two can be compared without
+changing anything else.
+
+### What happens when a pair carries no curvature
+
+A secant pair is usable only if it reports positive curvature, and the
+test is stated relatively – \\s^\top y \le c \lVert s \rVert \lVert y
+\rVert\\, with \\c\\ the `curv_tol` argument, the same test
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+applies to the same quantity – so that a value positive only by rounding
+does not pass. When the pair is refused the step length is set to
+\\1/\lVert g \rVert\_\infty\\, which asks for a trial displacement of
+order one in the parameters whatever the gradient's magnitude.
+
+That looks like an odd thing to reach for until one sees what the
+obvious alternatives do. Keeping the previous \\\alpha\\ is an absorbing
+state: a short step samples curvature over a short interval, on a valley
+floor that curvature is negative, so the pair is refused, so \\\alpha\\
+stays short and the next pair is refused too. Measured on Rosenbrock the
+`"bb2"` variant fell into it at iteration six and never left: 873
+refusals in 945 iterations, the gradient norm frozen while the objective
+crept down by 0.002 a step. Restarting at `alpha0` escapes that trap and
+then fails in the same shape wherever `alpha0` is itself too short to
+escape with – on a boxed quadratic seen through its reparametrisation it
+cost 1395 refusals in 1521 iterations, against 113 for keeping. Reaching
+for `alpha_max`, as the spectral projected gradient literature does in a
+setting that also projects and clamps differently, asks the line search
+to backtrack a direction of length `1e10`, which thirty halvings do not
+bring back into scale: on that same boxed problem the run stopped after
+eight iterations a whole unit from the solution while reporting success.
+Of the four, \\1/\lVert g \rVert\_\infty\\ is the only one that is never
+the worst, over Rosenbrock, Beale, Powell's quartic and the boxed
+quadratic; it cannot freeze, since it does not depend on the \\\alpha\\
+it replaces, and it cannot explode, since it scales with the gradient.
+
+A step length outside `alpha_min` and `alpha_max` is clamped. Both the
+reset and the clamp are named in the trace: an unbounded step is how a
+first-order method leaves the domain entirely.
 
 ## References
 
@@ -144,7 +193,7 @@ methods. *IMA Journal of Numerical Analysis* **8**, 141–148.
 
 [`gd`](https://statmodels7.github.io/optimizers7/reference/gd.md),
 [`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md),
-[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md)
+[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
 
 ## Examples
 
@@ -153,7 +202,7 @@ bb()
 #> <optimizer> barzilai-borwein (alternate)
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
 #>   budgets   : maxit 1000, evaluations 20000
-#>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, step = 1, line_search = Armijo backtracking (c1 = 1e-04)
+#>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, curv_tol = 1e-10, step = 1, line_search = nonmonotone backtracking (memory = 10)
 
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),

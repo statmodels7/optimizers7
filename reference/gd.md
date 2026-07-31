@@ -78,14 +78,14 @@ no extra cost per iteration.
 
 Reach for it when you want the simplest thing that works, or as the
 baseline another method has to beat. On anything smooth
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 will beat it by orders of magnitude.
 
 ## See also
 
 [`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md),
 [`bb`](https://statmodels7.github.io/optimizers7/reference/bb.md),
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 
 ## Examples
 

@@ -1,7 +1,7 @@
 # S7 Class for Newton's Method
 
 The class
-[`newton`](https://statmodels7.github.io/optimizers7/reference/Newton.md)
+[`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md)
 instantiates.
 
 ## Usage
@@ -27,7 +27,7 @@ Newton(
 - step, line_search:
 
   As in
-  [`newton`](https://statmodels7.github.io/optimizers7/reference/Newton.md).
+  [`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - hessian_mod:
 
@@ -44,4 +44,4 @@ An S7 object inheriting from
 
 ## See also
 
-[`newton`](https://statmodels7.github.io/optimizers7/reference/Newton.md)
+[`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md)

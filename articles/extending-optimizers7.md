@@ -138,7 +138,7 @@ mean(y)
 
 There was once a `finite_sum()` class here, by which an objective
 declared that it was a sum over observations so that
-[`adam()`](https://statmodels7.github.io/optimizers7/reference/Adam.md)
+[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
 could ask it for a subset. It is gone, and its removal is worth a
 paragraph because it is the same judgement repeated all through this
 package.
@@ -214,7 +214,7 @@ descent with momentum, which adds a fraction of the previous
 
 The momentum term is what carries the iterate along a valley floor
 instead of across it, and it is the ancestor of the moment estimate in
-[`adam()`](https://statmodels7.github.io/optimizers7/reference/Adam.md).
+[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md).
 
 ``` r
 

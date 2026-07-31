@@ -64,8 +64,8 @@ The class is abstract. Each algorithm is a subclass with its own
 constructor —
 [`gd`](https://statmodels7.github.io/optimizers7/reference/gd.md), and
 in time
-[`newton()`](https://statmodels7.github.io/optimizers7/reference/Newton.md),
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md),
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and the rest — adding only the settings that are genuinely its own.
 
 These properties are shared by every algorithm without exception, which

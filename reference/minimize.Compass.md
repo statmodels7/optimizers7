@@ -1,7 +1,7 @@
 # Minimise by Pattern Search
 
 Runs
-[`compass`](https://statmodels7.github.io/optimizers7/reference/Compass.md)
+[`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md)
 on the objective.
 
 ## Arguments

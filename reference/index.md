@@ -17,11 +17,11 @@ arrived in is settled separately, so an algorithm is written once.
 Methods that build a model of the surface from derivatives. Fast when
 the objective is smooth, and misled when it is not.
 
-- [`newton()`](https://statmodels7.github.io/optimizers7/reference/Newton.md)
+- [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
   : Newton's Method with a Modified Hessian
-- [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/Bfgs.md)
+- [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
   : BFGS
-- [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/Lbfgs.md)
+- [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
   : Limited-Memory BFGS
 - [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md) :
   Nonlinear Conjugate Gradients
@@ -36,7 +36,7 @@ Adam, which tolerates a gradient that points downhill only on average.
 It draws no minibatches of its own: an objective that resamples is a
 closure, and belongs to whoever knows what an observation is.
 
-- [`adam()`](https://statmodels7.github.io/optimizers7/reference/Adam.md)
+- [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
   : Adaptive Moment Estimation
 
 ## Problems with a kink
@@ -44,11 +44,11 @@ closure, and belongs to whoever knows what an observation is.
 Where a descent method arrives at the answer and cannot certify it,
 because the subgradient it evaluates never becomes small.
 
-- [`bundle()`](https://statmodels7.github.io/optimizers7/reference/Bundle.md)
+- [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
   : The Proximal Bundle Method
 - [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
   : The Nelder-Mead Simplex Method
-- [`compass()`](https://statmodels7.github.io/optimizers7/reference/Compass.md)
+- [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
   : Pattern Search, With Coordinate or Random Polling
 
 ## Wrapping an optimiser
@@ -57,7 +57,7 @@ Multi-start is itself an optimiser, so it composes with everything
 above. What it reports that a single run cannot is the number of
 distinct optima.
 
-- [`multistart()`](https://statmodels7.github.io/optimizers7/reference/MultiStart.md)
+- [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
   : Run an Optimiser From Many Starting Points
 
 ## Stopping rules
@@ -93,7 +93,10 @@ it cannot evaluate rather than accepting one that never fires.
 
 ## Line searches
 
-How far to go along a direction, once the direction is chosen.
+How far to go along a direction, once the direction is chosen. The
+non-monotone rule is not an exotic option: a method whose step length is
+itself the method, as Barzilai-Borwein’s is, needs a search that does
+not reshape it.
 
 - [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
   : S7 Class for Line Searches
@@ -101,6 +104,24 @@ How far to go along a direction, once the direction is chosen.
   : Backtracking Line Search with the Armijo Condition
 - [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
   : Line Search Satisfying the Strong Wolfe Conditions
+- [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
+  : Nonmonotone Backtracking
+
+## Starting values
+
+A starter stands in for the vector of starting values, and is resolved
+on the unconstrained scale, so a single constant means something
+sensible for every kind of parameter and no draw can land outside its
+bounds.
+
+- [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
+  : Start From Zero on the Unconstrained Scale
+- [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)
+  : Start From a Uniform Draw on the Unconstrained Scale
+- [`starting_values()`](https://statmodels7.github.io/optimizers7/reference/starting_values.md)
+  : Produce a Vector of Starting Values
+- [`infer_npar()`](https://statmodels7.github.io/optimizers7/reference/infer_npar.md)
+  : How Many Parameters the Objective Takes
 
 ## The objective
 
