@@ -12,6 +12,7 @@
 #include "direction.h"
 #include "bounded.h"
 #include "loop_support.h"
+#include <deque>
 
 using namespace optimizers7;
 
@@ -66,6 +67,12 @@ Rcpp::List descent_run(Rcpp::List spec,
     Rcpp::Rcout << "  iter        objective     |grad|max        step  safeguard\n";
   }
 
+  // The window a nonmonotone search compares against. Empty when the search is
+  // monotone, in which case f_ref below is just f and nothing changes.
+  const int mem = ls.memory;
+  std::deque<double> recent;
+  if (mem > 0) recent.push_back(f);
+
   arma::vec g = obj->grad(x);
 
   for (it = 1; it <= maxit; ++it) {
@@ -85,7 +92,16 @@ Rcpp::List descent_run(Rcpp::List spec,
 
     const arma::vec d = dir->compute(*obj, x, g, f, guard);
 
-    LineSearchResult res = run_line_search(ls, *obj, x, f, g, d, step);
+    // Grippo, Lampariello and Lucidi: the reference is the LARGEST of the last
+    // mem + 1 values rather than the current one. A step that makes the
+    // objective worse than where it stands is then admissible, provided it
+    // improves on the worst of recent memory -- which is exactly what a method
+    // whose efficiency comes from such steps needs, and exactly what an Armijo
+    // condition forbids.
+    double f_ref = f;
+    if (mem > 0) for (double v : recent) f_ref = std::max(f_ref, v);
+
+    LineSearchResult res = run_line_search(ls, *obj, x, f, g, d, step, f_ref);
     if (!res.ok) {
       note = "the line search found no acceptable step";
       stopped_by = "failed";
@@ -101,6 +117,11 @@ Rcpp::List descent_run(Rcpp::List spec,
 
     x = res.x_new;
     f = res.f_new;
+
+    if (mem > 0) {
+      recent.push_back(f);
+      while (static_cast<int>(recent.size()) > mem + 1) recent.pop_front();
+    }
     // The Wolfe search already evaluated the gradient at the accepted point.
     g = res.g_new_valid ? res.g_new : obj->grad(x);
 

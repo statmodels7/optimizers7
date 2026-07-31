@@ -17,6 +17,7 @@ Bb(
   alpha0 = integer(0),
   alpha_min = integer(0),
   alpha_max = integer(0),
+  curv_tol = integer(0),
   step = integer(0),
   line_search = NULL
 )
@@ -28,9 +29,7 @@ Bb(
 
 \item{alpha_min, alpha_max}{Bounds on it.}
 
-\item{step}{The initial multiplier offered to the line search.}
-
-\item{line_search}{A \code{\link{line_search}} object.}
+\item{curv_tol}{The relative threshold below which a pair is refused.}
 }
 \value{
 An S7 object inheriting from \code{\link{optimizer}}.

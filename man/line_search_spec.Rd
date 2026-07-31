@@ -2,6 +2,7 @@
 % Please edit documentation in R/line_search.R
 \name{line_search_spec}
 \alias{line_search_spec}
+\alias{line_search_spec.NonmonotoneSearch}
 \title{Describe a Line Search to the C++ Side}
 \usage{
 line_search_spec(x)

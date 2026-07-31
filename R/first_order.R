@@ -256,8 +256,7 @@ S7::method(minimize, Cg) <-
 #' @param variant Which step-length formula.
 #' @param alpha0 The step length used before there is a secant pair.
 #' @param alpha_min,alpha_max Bounds on it.
-#' @param step The initial multiplier offered to the line search.
-#' @param line_search A \code{\link{line_search}} object.
+#' @param curv_tol The relative threshold below which a pair is refused.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{bb}}
 #' @name Bb-class
@@ -269,6 +268,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
     alpha0      = S7::class_numeric,
     alpha_min   = S7::class_numeric,
     alpha_max   = S7::class_numeric,
+    curv_tol    = S7::class_numeric,
     step        = S7::class_numeric,
     line_search = S7::class_any
   ))
@@ -288,9 +288,14 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'   secant pair to estimate one from. Defaults to \code{1e-2}.
 #' @param alpha_min,alpha_max Bounds on the step length. Defaults \code{1e-10}
 #'   and \code{1e10}.
+#' @param curv_tol The relative curvature threshold: a secant pair is refused
+#'   when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
+#'   for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
+#'   the same relative test \code{\link{bfgs}} applies to the same quantity.
 #' @param step Initial multiplier offered to the line search. Defaults to
 #'   \code{1}, so the Barzilai-Borwein step is tried unaltered first.
-#' @param line_search Defaults to \code{\link{armijo}}; see Details.
+#' @param line_search Defaults to \code{\link{nonmonotone}}, and that is not
+#'   an incidental choice; see Details.
 #' @param maxit Maximum iterations. Defaults to 1000.
 #' @param max_eval Maximum objective evaluations. Defaults to 20000.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
@@ -310,14 +315,12 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' It reaches every smooth minimum in \code{\link{test_problems}} to machine
 #' precision while storing two vectors and doing no linear algebra at all, and
 #' it solves a quadratic in two iterations, because the first secant pair
-#' already contains the answer. For a method with one scalar of memory that is a
-#' great deal.
+#' already contains the answer.
 #'
-#' What it does not do is get there quickly on a curved valley. Measured on
-#' Rosenbrock it takes about 930 iterations where \code{\link{cg}} takes 35 and
-#' \code{\link{lbfgs}} takes 35 — a thousandth of the memory and thirty times
-#' the iterations. See below for why, since the reason is this implementation
-#' rather than the method.
+#' On Rosenbrock it takes 68 iterations and 77 objective evaluations, against 65
+#' for \code{\link{bfgs}} and \code{\link{lbfgs}} and 353 for \code{\link{cg}} —
+#' from one stored number rather than a matrix, a list of secant pairs or a
+#' direction. For a method of this size that is a remarkable place to be.
 #'
 #' \subsection{Which variant}{
 #' \code{"bb1"} and \code{"bb2"} are the two quotients, and \code{"alternate"}
@@ -328,24 +331,59 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'
 #' \subsection{The line search, and what it is for here}{
 #' The step length is the method, so the line search must not be allowed to
-#' reshape it. It is offered the Barzilai-Borwein step first and unaltered, and
-#' only backtracks when that step fails the sufficient-decrease test.
+#' reshape it. The Barzilai-Borwein step is offered first and unaltered, and
+#' backtracking happens only when it fails the acceptance test.
 #'
-#' That backtracking is where the iteration count above comes from, and it is
-#' worth being plain about. The method is \strong{famously non-monotone}: its
-#' efficiency comes from steps that make the objective worse now in order to
-#' align with the curvature, and an Armijo condition forbids exactly those. The
-#' classical remedy is a \emph{nonmonotone} line search, which requires
-#' sufficient decrease against the worst of the last several values rather than
-#' the last one, and with it Barzilai-Borwein is competitive with conjugate
-#' gradients. This package has no such search, so what is here is the safe
-#' version and substantially the slower one on a curved valley. It is not a
-#' defect in the method and it is a real limitation of this implementation.
+#' Which test matters. The method is \strong{non-monotone by design}: its
+#' efficiency comes from steps that make the objective worse now in order to be
+#' aligned with the curvature later, and an Armijo condition forbids exactly
+#' those. The default is therefore \code{\link{nonmonotone}}, which asks for
+#' improvement on the worst of the last several values rather than on the
+#' present one. Measured on Rosenbrock it accepts eleven uphill steps out of
+#' sixty-seven, where \code{\link{armijo}} accepts none, and finishes in 68
+#' iterations and 77 evaluations against 82 and 186. On the non-smooth problem
+#' in \code{\link{test_problems}} it ends eight orders of magnitude closer,
+#' though it takes 439 iterations to get there against 29 that stop early.
 #'
-#' A secant pair reporting non-positive curvature is skipped rather than used,
-#' and a step length outside \code{alpha_min} and \code{alpha_max} is clamped.
-#' Both are reported in the trace: an unbounded step is how a first-order method
-#' leaves the domain entirely.
+#' \code{\link{nonmonotone}} with \code{memory = 0} is exactly
+#' \code{\link{armijo}} -- the same trace, value for value -- so the two can be
+#' compared without changing anything else.
+#' }
+#'
+#' \subsection{What happens when a pair carries no curvature}{
+#' A secant pair is usable only if it reports positive curvature, and the test
+#' is stated relatively -- \eqn{s^\top y \le c \lVert s \rVert \lVert y
+#' \rVert}{s'y <= c |s| |y|}, with \eqn{c} the \code{curv_tol} argument, the
+#' same test \code{\link{bfgs}} applies to the same quantity -- so that a value
+#' positive only by rounding does not pass. When the pair is refused the step
+#' length is set to \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, which asks for a
+#' trial displacement of order one in the parameters whatever the gradient's
+#' magnitude.
+#'
+#' That looks like an odd thing to reach for until one sees what the obvious
+#' alternatives do. Keeping the previous \eqn{\alpha} is an absorbing state: a
+#' short step samples curvature over a short interval, on a valley floor that
+#' curvature is negative, so the pair is refused, so \eqn{\alpha} stays short
+#' and the next pair is refused too. Measured on Rosenbrock the \code{"bb2"}
+#' variant fell into it at iteration six and never left: 873 refusals in 945
+#' iterations, the gradient norm frozen while the objective crept down by 0.002
+#' a step. Restarting at \code{alpha0} escapes that trap and then fails in the
+#' same shape wherever \code{alpha0} is itself too short to escape with -- on a
+#' boxed quadratic seen through its reparametrisation it cost 1395 refusals in
+#' 1521 iterations, against 113 for keeping. Reaching for \code{alpha_max}, as
+#' the spectral projected gradient literature does in a setting that also
+#' projects and clamps differently, asks the line search to backtrack a
+#' direction of length \code{1e10}, which thirty halvings do not bring back into
+#' scale: on that same boxed problem the run stopped after eight iterations a
+#' whole unit from the solution while reporting success. Of the four,
+#' \eqn{1/\lVert g \rVert_\infty}{1/max|g|} is the only one that is never the
+#' worst, over Rosenbrock, Beale, Powell's quartic and the boxed quadratic; it
+#' cannot freeze, since it does not depend on the \eqn{\alpha} it replaces, and
+#' it cannot explode, since it scales with the gradient.
+#'
+#' A step length outside \code{alpha_min} and \code{alpha_max} is clamped. Both
+#' the reset and the clamp are named in the trace: an unbounded step is how a
+#' first-order method leaves the domain entirely.
 #' }
 #'
 #' @return An S7 object of class \code{Bb}, inheriting from
@@ -372,7 +410,8 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 bb <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                variant = c("alternate", "bb1", "bb2"),
                alpha0 = 1e-2, alpha_min = 1e-10, alpha_max = 1e10,
-               step = 1, line_search = armijo(),
+               curv_tol = 1e-10,
+               step = 1, line_search = nonmonotone(),
                maxit = 1000, max_eval = 20000,
                verbose = FALSE, refresh = 20, keep_trace = FALSE) {
   variant <- match.arg(variant)
@@ -382,6 +421,7 @@ bb <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
   check_tol(alpha0)
   check_tol(alpha_min)
   check_tol(alpha_max)
+  check_tol(curv_tol)
   if (alpha_min >= alpha_max) {
     stop("'alpha_min' must be strictly below 'alpha_max'.", call. = FALSE)
   }
@@ -390,7 +430,7 @@ bb <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
     variant = variant, alpha0 = alpha0,
-    alpha_min = alpha_min, alpha_max = alpha_max,
+    alpha_min = alpha_min, alpha_max = alpha_max, curv_tol = curv_tol,
     step = step, line_search = line_search
   )
 }
@@ -410,5 +450,6 @@ S7::method(minimize, Bb) <-
                 list(type = "bb", variant = optimizer@variant,
                      alpha0 = optimizer@alpha0,
                      alpha_min = optimizer@alpha_min,
-                     alpha_max = optimizer@alpha_max))
+                     alpha_max = optimizer@alpha_max,
+                     curv_tol = optimizer@curv_tol))
   }

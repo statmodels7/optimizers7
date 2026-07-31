@@ -143,15 +143,81 @@ test_that("the three variants all work", {
 })
 
 
-test_that("a pair with no curvature is skipped rather than used", {
-  # s'y <= 0 says the pair reports negative curvature, and no positive step
-  # length is consistent with it. Provoked on a non-convex surface.
+test_that("a refused pair resets alpha to a step of order one, not to a constant", {
+  # A pair reporting no usable curvature implies no positive step length, so
+  # some alpha has to be supplied from outside. Both constants one might reach
+  # for are absorbing states: KEEPING the previous alpha traps a short step in
+  # its own shortness, since a short step samples curvature over a short
+  # interval and on a valley floor that curvature is negative; restarting at
+  # alpha0 does the same wherever alpha0 is itself too short to escape with.
+  # 1/max|g| is neither, because it depends on the gradient and not on the alpha
+  # it replaces. The two witnesses are the two problems that fail under the two
+  # constants: Rosenbrock, where keeping cost 873 refusals in 945 iterations,
+  # and a boxed quadratic through its reparametrisation, where restarting at
+  # alpha0 cost 1395 in 1521.
+  f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
+  g  <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
+                      200 * (p[2] - p[1]^2))
+  r <- minimize(bb(variant = "bb2", maxit = 5000, keep_trace = TRUE),
+                f, c(-1.2, 1), gr = g)
+  expect_true(r@converged)
+  expect_lt(r@iterations, 150)
+  # the reset is named where it fires, and it fires a handful of times, not on
+  # nine tenths of the run
+  expect_lt(sum(r@trace$safeguard == "bb curvature reset"), 10)
+
+  q <- minimize(bb(maxit = 5000, keep_trace = TRUE),
+                function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
+                gr = function(p) 2 * (p - c(1, 2)),
+                lower = c(0, 0), upper = c(5, 1))
+  expect_true(q@converged)
+  expect_lt(q@iterations, 200)
+  expect_lt(sum(q@trace$safeguard == "bb curvature reset"), 10)
+
   set.seed(3)
-  f <- function(p) sum(sin(2 * p)) + 0.05 * sum(p^2)
-  g <- function(p) 2 * cos(2 * p) + 0.1 * p
-  r <- minimize(bb(maxit = 500, keep_trace = TRUE), f, c(1.4, -0.6), gr = g)
-  expect_true(all(is.finite(r@par)))
-  expect_true(is.finite(r@value))
+  f2 <- function(p) sum(sin(2 * p)) + 0.05 * sum(p^2)
+  g2 <- function(p) 2 * cos(2 * p) + 0.1 * p
+  r2 <- minimize(bb(maxit = 500, keep_trace = TRUE), f2, c(1.4, -0.6), gr = g2)
+  expect_true(all(is.finite(r2@par)))
+  expect_true(is.finite(r2@value))
+})
+
+
+test_that("the nonmonotone search lets bb go uphill, and that is what it is for", {
+  f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
+  g  <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
+                      200 * (p[2] - p[1]^2))
+  nm <- minimize(bb(maxit = 5000, keep_trace = TRUE), f, c(-1.2, 1), gr = g)
+  mo <- minimize(bb(line_search = armijo(), maxit = 5000, keep_trace = TRUE),
+                 f, c(-1.2, 1), gr = g)
+
+  # the mechanism: steps that make the objective worse are accepted
+  expect_gt(sum(diff(nm@trace$value) > 0), 0)
+  # and cannot be, under a monotone rule
+  expect_equal(sum(diff(mo@trace$value) > 0), 0)
+  # and it pays, in the count that matters
+  expect_lt(nm@counts[["f"]], mo@counts[["f"]])
+})
+
+
+test_that("memory zero is exactly armijo", {
+  # The two differ in one number, so the comparison above is a comparison of
+  # that number and of nothing else.
+  f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
+  g  <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
+                      200 * (p[2] - p[1]^2))
+  a <- minimize(bb(line_search = nonmonotone(memory = 0), maxit = 5000),
+                f, c(-1.2, 1), gr = g)
+  b <- minimize(bb(line_search = armijo(), maxit = 5000), f, c(-1.2, 1), gr = g)
+  expect_identical(a@par, b@par)
+  expect_identical(a@counts, b@counts)
+})
+
+
+test_that("nonmonotone refuses nonsense", {
+  expect_error(nonmonotone(memory = -1), "'memory'")
+  expect_error(nonmonotone(memory = 2.5), "'memory'")
+  expect_error(nonmonotone(c1 = 0), "'c1'")
 })
 
 

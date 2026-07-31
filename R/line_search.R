@@ -186,14 +186,123 @@ line_search_spec <- S7::new_generic("line_search_spec", "x",
 
 S7::method(line_search_spec, ArmijoSearch) <- function(x) {
   list(type = "armijo", c1 = x@c1, c2 = 0.9, shrink = x@shrink,
-       max_step = as.integer(x@max_step))
+       max_step = as.integer(x@max_step), memory = 0L)
 }
 
 S7::method(line_search_spec, WolfeSearch) <- function(x) {
   list(type = "wolfe", c1 = x@c1, c2 = x@c2, shrink = 0.5,
-       max_step = as.integer(x@max_step))
+       max_step = as.integer(x@max_step), memory = 0L)
 }
 
+
+#' @title S7 Class for the Nonmonotone Line Search
+#' @description The class \code{\link{nonmonotone}} instantiates.
+#' @param c1 The sufficient-decrease constant.
+#' @param shrink The factor the step is multiplied by on each backtrack.
+#' @param memory How many earlier values the reference looks back over.
+#' @param max_step The most backtracks allowed.
+#' @return An S7 object inheriting from \code{\link{line_search}}.
+#' @seealso \code{\link{nonmonotone}}
+#' @keywords internal
+NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
+  properties = list(
+    c1       = S7::class_numeric,
+    shrink   = S7::class_numeric,
+    memory   = S7::class_numeric,
+    max_step = S7::class_numeric
+  ))
+
+
+#' @title Nonmonotone Backtracking
+#'
+#' @description
+#' Armijo backtracking that compares against the worst of the last few
+#' objective values rather than against the current one, so a step is allowed to
+#' make things worse now in order to be better placed later.
+#'
+#' @param c1 Sufficient-decrease constant. Defaults to \code{1e-4}.
+#' @param shrink Factor applied to the step on each backtrack. Defaults to
+#'   \code{0.5}.
+#' @param memory How many earlier values to look back over. Defaults to
+#'   \code{10}; \code{0} makes this ordinary \code{\link{armijo}}.
+#' @param max_step Most backtracks before the search gives up. Defaults to
+#'   \code{30}.
+#'
+#' @details
+#' The condition is Grippo, Lampariello and Lucidi's:
+#' \deqn{f(x_k + s d_k) \le \max_{0 \le j \le m} f(x_{k-j}) + c_1 s\, g_k^	op d_k,}
+#' which is Armijo's with the reference replaced by the largest of the last
+#' \eqn{m+1} values. Every step it accepts improves on the worst of recent
+#' memory; none is required to improve on the present.
+#'
+#' \subsection{What it is for}{
+#' Some methods are efficient \emph{because} of steps that make the objective
+#' worse. \code{\link{bb}} is the clear case: its step length is a curvature
+#' estimate taken from the last secant pair, and following that estimate
+#' faithfully means occasionally going somewhere higher in order to be aligned
+#' with the curvature when it matters. An Armijo condition forbids exactly those
+#' steps and backtracks until it finds a shorter one, which is safe and is also
+#' most of what the method was for.
+#'
+#' The cost is that the guarantee weakens. A monotone method cannot cycle,
+#' because the objective is a decreasing sequence bounded below; a nonmonotone
+#' one needs the finite memory to play that role, and the convergence result is
+#' correspondingly more delicate. Use it where a method asks for it, not as a
+#' faster default.
+#' }
+#'
+#' \subsection{Not available with Wolfe}{
+#' The curvature condition is a statement about the gradient at the trial point
+#' and has nothing to say about which value the decrease is measured against, so
+#' a nonmonotone Wolfe search would be a different object rather than an option
+#' on this one. There is not one here.
+#' }
+#'
+#' @return A \code{\link{line_search}} object.
+#'
+#' @references
+#' Grippo, L., Lampariello, F. and Lucidi, S. (1986). A nonmonotone line search
+#' technique for Newton's method. \emph{SIAM Journal on Numerical Analysis}
+#' \strong{23}, 707--716.
+#'
+#' Raydan, M. (1997). The Barzilai and Borwein gradient method for the large
+#' scale unconstrained minimization problem. \emph{SIAM Journal on
+#' Optimization} \strong{7}, 26--33.
+#'
+#' @examples
+#' nonmonotone()
+#' nonmonotone(memory = 5)
+#'
+#' # what it buys the method it was added for
+#' f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
+#' gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
+#'                     200 * (p[2] - p[1]^2))
+#' minimize(bb(line_search = armijo()), f, c(-1.2, 1), gr = gr)@iterations
+#' minimize(bb(), f, c(-1.2, 1), gr = gr)@iterations
+#'
+#' @seealso \code{\link{armijo}}, \code{\link{bb}}
+#' @export
+nonmonotone <- function(c1 = 1e-4, shrink = 0.5, memory = 10, max_step = 30) {
+  check_unit(c1, "c1")
+  check_unit(shrink, "shrink")
+  check_count(max_step, "max_step")
+  if (length(memory) != 1L || !is.numeric(memory) || is.na(memory) ||
+      memory < 0 || memory != round(memory)) {
+    stop("'memory' must be a single non-negative whole number.", call. = FALSE)
+  }
+  NonmonotoneSearch(
+    label = paste0("nonmonotone backtracking (memory = ", format(memory), ")"),
+    c1 = c1, shrink = shrink, memory = memory, max_step = max_step)
+}
+
+
+#' @rdname line_search_spec
+#' @name line_search_spec.NonmonotoneSearch
+#' @keywords internal
+S7::method(line_search_spec, NonmonotoneSearch) <- function(x) {
+  list(type = "armijo", c1 = x@c1, c2 = 0.9, shrink = x@shrink,
+       max_step = as.integer(x@max_step), memory = as.integer(x@memory))
+}
 
 #' @title Print Method for Line Searches
 #' @name print.line_search

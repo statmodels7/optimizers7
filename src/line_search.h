@@ -50,8 +50,15 @@ inline double directional_derivative(const arma::vec& g, const arma::vec& d) {
 // exactly that: the iterate then oscillates forever while a criterion watching
 // the objective sees no change and reports convergence at a point that is not a
 // minimum. Sufficient decrease is what forbids it.
+// `f_ref` is what sufficient decrease is measured AGAINST, and separating it
+// from the value at x is the whole of the nonmonotone variant. For an ordinary
+// search the caller passes f(x) and the condition is Armijo's; for a
+// nonmonotone one it passes the largest of the last few values and the
+// condition becomes Grippo, Lampariello and Lucidi's, which permits a step that
+// makes things worse than the current point so long as it improves on the worst
+// of recent memory.
 inline LineSearchResult armijo_search(Objective& obj,
-                                      const arma::vec& x, double f,
+                                      const arma::vec& x, double f_ref,
                                       const arma::vec& g, const arma::vec& d,
                                       double step0, double c1, double shrink,
                                       int max_step) {
@@ -69,7 +76,7 @@ inline LineSearchResult armijo_search(Objective& obj,
     const double ft = obj.value(xt);
     ++out.evaluations;
 
-    if (std::isfinite(ft) && ft <= f + c1 * s * dg) {
+    if (std::isfinite(ft) && ft <= f_ref + c1 * s * dg) {
       out.step = s;
       out.f_new = ft;
       out.x_new = xt;
@@ -228,6 +235,7 @@ struct LineSearchSpec {
   double c2 = 0.9;
   double shrink = 0.5;
   int max_step = 30;
+  int memory = 0;          // 0 is monotone; k remembers the last k+1 values
 
   static LineSearchSpec from_list(Rcpp::List ls) {
     LineSearchSpec s;
@@ -236,19 +244,25 @@ struct LineSearchSpec {
     s.c2       = Rcpp::as<double>(ls["c2"]);
     s.shrink   = Rcpp::as<double>(ls["shrink"]);
     s.max_step = Rcpp::as<int>(ls["max_step"]);
+    s.memory   = Rcpp::as<int>(ls["memory"]);
     return s;
   }
 };
 
+// `f_ref` defaults to f, so every existing caller is unchanged; the loop passes
+// something different only when the search has memory.
 inline LineSearchResult run_line_search(const LineSearchSpec& spec,
                                         Objective& obj,
                                         const arma::vec& x, double f,
                                         const arma::vec& g, const arma::vec& d,
-                                        double step0) {
+                                        double step0, double f_ref) {
   if (spec.type == "wolfe") {
+    // The curvature condition is about the gradient at the trial point and has
+    // nothing to say about which value the decrease is measured against, so a
+    // nonmonotone Wolfe search would be a different object. There is not one.
     return wolfe_search(obj, x, f, g, d, step0, spec.c1, spec.c2, spec.max_step);
   }
-  return armijo_search(obj, x, f, g, d, step0, spec.c1, spec.shrink,
+  return armijo_search(obj, x, f_ref, g, d, step0, spec.c1, spec.shrink,
                        spec.max_step);
 }
 
