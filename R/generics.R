@@ -34,6 +34,31 @@ NULL
 #' The result records which derivatives were supplied and which were
 #' differenced, so a run is never silently less exact than it appears.
 #'
+#' \subsection{Starting values you do not have to write out}{
+#' \code{par} may be a \strong{starter} rather than a vector:
+#' \code{\link{start_zeros}} for all zeros, \code{\link{start_runif}} for a
+#' uniform draw from a range you choose. Both work on the \emph{unconstrained}
+#' scale and are mapped back through the bounds, which is what makes a single
+#' constant sensible for every kind of parameter — zero becomes one for a
+#' variance, one half for a probability — and what guarantees the point is
+#' admissible however tight the box.
+#'
+#' A starter needs to know how many parameters there are, and it is told in one
+#' of three ways. Say so, with \code{start_zeros(npar = 3)}, and that is the end
+#' of it. Otherwise a \code{lower} or \code{upper} with more than one element
+#' answers the question, bounds being one per parameter. Otherwise the objective
+#' is probed by \code{\link{infer_npar}}, which tries lengths until one is
+#' accepted and costs at most fifty evaluations, once, before the run begins.
+#'
+#' That last route settles any objective with a fixed width built into it,
+#' which is most real ones: \code{X \%*\% beta} with a parameter of the wrong
+#' length is an error rather than a number. It cannot settle a vectorised toy,
+#' since \R recycles a shorter vector silently whenever its length divides, so
+#' \code{sum((p - c(1, 2, 3))^2)} is a perfectly finite function of one
+#' parameter as well as of three. It then refuses, naming the lengths it found,
+#' rather than optimising a different problem from the one asked.
+#' }
+#'
 #' \code{lower} and \code{upper} are two vectors rather than a list of pairs,
 #' which is what \code{\link[stats]{optim}} and \code{\link[stats]{nlminb}}
 #' take, and what lets \code{lower = 0} say "every parameter is positive"
@@ -75,13 +100,23 @@ NULL
 #' minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 #'          lower = c(0, 0), upper = c(5, 1))
 #'
+#' # no starting value at all: the bounds say there are two parameters
+#' minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
+#'          lower = c(0, 0), upper = c(5, 10))
+#'
 #' @seealso \code{\link{maximize}}, \code{\link{gd}},
-#'   \code{\link{crit_any}}
+#'   \code{\link{start_zeros}}, \code{\link{crit_any}}
 #' @export
 minimize <- S7::new_generic("minimize", "optimizer",
   function(optimizer, fn, par, gr = NULL, he = NULL,
-           lower = -Inf, upper = Inf, ...)
-    S7::S7_dispatch())
+           lower = -Inf, upper = Inf, ...) {
+    # A starter becomes an ordinary numeric vector here, before dispatch, so
+    # that every method -- including one a user wrote -- receives what it always
+    # received and needs to know nothing about starters. A numeric `par` is
+    # returned untouched, so the ordinary call pays nothing for this.
+    par <- resolve_start(par, fn, gr, lower, upper)
+    S7::S7_dispatch()
+  })
 
 
 #' @title Maximise a Function

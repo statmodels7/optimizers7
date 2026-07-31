@@ -1,5 +1,24 @@
 # Documentation invariants that R CMD check does not enforce.
 
+test_that("every exported object appears in the pkgdown index", {
+  # pkgdown refuses to build a site with a topic missing from the reference
+  # index, and it refuses IN CI, minutes after the push, when the fix is one
+  # line of YAML. This package learned that the hard way twice over: exporting
+  # nonmonotone() without listing it turned two pushes red for that reason and
+  # nothing else, while every other job stayed green -- so the failure carried
+  # no information about the package at all.
+  #
+  # linkfunctions7 has had this test since the same thing happened there.
+  # Copying it here was overdue: a habit that lives in one package out of three
+  # is not a habit.
+  skip_if_not_installed("pkgdown")
+  root <- normalizePath("../..", mustWork = FALSE)
+  skip_if_not(file.exists(file.path(root, "_pkgdown.yml")),
+              "_pkgdown.yml not reachable from here")
+
+  expect_no_error(pkgdown::check_pkgdown(pkg = root))
+})
+
 # man/ is reachable when the tests run from the source tree, which is where
 # these checks belong; an installed package has no man/ to read.
 man_dir <- function() if (dir.exists("../../man")) "../../man" else NULL

@@ -17,7 +17,7 @@ MultiStart(
   n = integer(0),
   starts = NULL,
   spread = integer(0),
-  cluster = NULL,
+  ncores = NULL,
   distinct_tol = integer(0)
 )
 }
@@ -30,7 +30,7 @@ MultiStart(
 
 \item{spread}{How widely the random starts are scattered.}
 
-\item{cluster}{An optional \pkg{parallel} cluster.}
+\item{ncores}{How many processes the starts are spread over.}
 
 \item{distinct_tol}{Objective values closer than this count as one optimum.}
 }

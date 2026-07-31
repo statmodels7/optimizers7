@@ -173,6 +173,88 @@ test_that("the constructor refuses nonsense", {
   expect_error(multistart(bfgs(), n = 0), "'maxit'")
   expect_error(multistart(bfgs(), spread = -1), "'tol'")
   expect_error(multistart(bfgs(), starts = 1:3), "one starting point per row")
+  expect_error(multistart(bfgs(), ncores = 0), "'ncores'")
+  expect_error(multistart(bfgs(), ncores = 2.5), "'ncores'")
+  expect_error(multistart(bfgs(), ncores = "all"), "'ncores'")
+})
+
+
+test_that("ncores is settled here rather than by the caller", {
+  # The default is as many processes as there are starts, capped by what the
+  # machine can spare, and two are held back rather than one because the
+  # session doing the asking is itself one of them.
+  avail <- max(1L, parallel::detectCores() - 2L)
+  capped <- nzchar(Sys.getenv("_R_CHECK_LIMIT_CORES_"))
+  want <- function(k) {
+    v <- min(k, avail)
+    if (capped) min(v, 2L) else v
+  }
+  expect_equal(resolve_ncores(NULL, 4), want(4L))
+  expect_equal(resolve_ncores(NULL, 1), 1L)
+
+  # never more processes than starts: they would cost what they cost to create
+  # and have nothing to do
+  expect_equal(resolve_ncores(64, 3), if (capped) 2L else 3L)
+  expect_equal(resolve_ncores(1, 100), 1L)
+
+  # R CMD check sets _R_CHECK_LIMIT_CORES_ and fails a package that ignores it
+  old <- Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = NA)
+  Sys.setenv("_R_CHECK_LIMIT_CORES_" = "TRUE")
+  on.exit(if (is.na(old)) Sys.unsetenv("_R_CHECK_LIMIT_CORES_")
+          else Sys.setenv("_R_CHECK_LIMIT_CORES_" = old), add = TRUE)
+  expect_lte(resolve_ncores(NULL, 32), 2L)
+  expect_lte(resolve_ncores(16, 32), 2L)
+})
+
+
+test_that("one core is the sequential loop, and it still reports progress", {
+  out <- capture.output(
+    minimize(multistart(bfgs(), n = 3, ncores = 1, verbose = TRUE),
+             twowell, c(1.5, 0.5), gr = twowell_g))
+  expect_true(any(grepl("start\\s+1 of 3", out)))
+  expect_true(any(grepl("start\\s+3 of 3", out)))
+})
+
+
+test_that("running in parallel gives the answer the sequential run gives", {
+  # Not a performance test -- two starts on a quadratic will be slower in
+  # parallel than not. It is a test that the route taken does not change the
+  # result, which is the only thing the caller can observe.
+  skip_on_cran()
+  set.seed(3)
+  a <- minimize(multistart(bfgs(), n = 4, ncores = 1), twowell, c(1.5, 0.5),
+                gr = twowell_g)
+  set.seed(3)
+  b <- suppressWarnings(
+    minimize(multistart(bfgs(), n = 4, ncores = 2), twowell, c(1.5, 0.5),
+             gr = twowell_g))
+
+  # The starts are drawn here, before anything is dispatched, so the same seed
+  # gives the same starting points however the work was split -- and bfgs on a
+  # given start is deterministic, so the values must agree exactly.
+  expect_equal(a@trace$value, b@trace$value)
+  expect_equal(a@par, b@par)
+})
+
+
+test_that("the workers are cleaned up, whatever happened", {
+  # A cluster left running is a handful of R processes the caller never asked
+  # for and cannot see. The old interface made stopping them the caller's job
+  # because the cluster was the caller's; this one makes them ours, so they
+  # have to be gone by the time the function returns.
+  skip_on_cran()
+  set.seed(5)
+  suppressWarnings(
+    minimize(multistart(bfgs(), n = 3, ncores = 2), twowell, c(1.5, 0.5),
+             gr = twowell_g))
+  # There is no portable roll-call of child processes, so the observable claim
+  # is the weaker one that a second run works: a leaked PSOCK cluster on the
+  # same ports, or an exhausted connection table, would show up here.
+  set.seed(5)
+  r <- suppressWarnings(
+    minimize(multistart(bfgs(), n = 3, ncores = 2), twowell, c(1.5, 0.5),
+             gr = twowell_g))
+  expect_true(is.finite(r@value))
 })
 
 

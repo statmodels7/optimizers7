@@ -25,6 +25,7 @@ LinkingTo:
     Rcpp,
     RcppArmadillo
 Imports:
+    parallel,
     Rcpp,
     S7
 Collate:
@@ -45,12 +46,13 @@ Collate:
     'multistart.R'
     'optimizers7-package.R'
     'second_order.R'
+    'starters.R'
     'zzz.R'
 Remotes:
     statmodels7/linkfunctions7
 Suggests:
     linkfunctions7,
-    parallel,
+    pkgdown,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown

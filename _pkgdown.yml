@@ -94,11 +94,27 @@ reference:
   - crit_all
 
 - title: Line searches
-  desc: How far to go along a direction, once the direction is chosen.
+  desc: >
+    How far to go along a direction, once the direction is chosen. The
+    non-monotone rule is not an exotic option: a method whose step length is
+    itself the method, as Barzilai-Borwein's is, needs a search that does not
+    reshape it.
   contents:
   - line_search
   - armijo
   - wolfe
+  - nonmonotone
+
+- title: Starting values
+  desc: >
+    A starter stands in for the vector of starting values, and is resolved on
+    the unconstrained scale, so a single constant means something sensible for
+    every kind of parameter and no draw can land outside its bounds.
+  contents:
+  - start_zeros
+  - start_runif
+  - starting_values
+  - infer_npar
 
 - title: The objective
   desc: >

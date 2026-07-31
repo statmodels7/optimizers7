@@ -9,7 +9,7 @@ multistart(
   n = 10,
   starts = NULL,
   spread = 1,
-  cluster = NULL,
+  ncores = NULL,
   distinct_tol = 1e-06,
   verbose = FALSE,
   refresh = 1,
@@ -29,8 +29,9 @@ verbatim; \code{n} and \code{spread} are then ignored.}
 \item{spread}{How widely the random starts are scattered, in units of the
 unconstrained scale. Defaults to \code{1}.}
 
-\item{cluster}{An optional cluster from \pkg{parallel}. Defaults to
-\code{NULL}, meaning run the starts one after another; see Details.}
+\item{ncores}{How many processes to spread the starts over. Defaults to
+\code{NULL}, meaning as many as are worth using: see Details. Pass
+\code{1} to stay in this session.}
 
 \item{distinct_tol}{Objective values differing by less than this are counted
 as the same optimum. Defaults to \code{1e-6}.}
@@ -77,28 +78,38 @@ automatic: a start for a variance is drawn as a log and comes back positive,
 and no draw is ever rejected for being outside the box.
 }
 
-\subsection{Parallelism, and why it is at the level of processes}{
-Pass a cluster made by \code{parallel::makeCluster()} and the starts are
-distributed across it. \pkg{optimizers7} is loaded on the workers for you; a
-cluster you made is a cluster you keep, so stopping it is yours to do.
+\subsection{Parallelism, which is arranged for you}{
+The starts are independent, so they are run in parallel, and there is nothing
+to set up: \code{ncores} is a number, and everything behind it — starting the
+workers, loading the package on them, giving each an independent random
+stream, and shutting them down again — happens inside and is undone before the
+function returns. The default is
+\code{min(n, max(1, parallel::detectCores() - 2))}: as many processes as
+there are starts to run, but never so many that the machine has nothing left
+for anything else. Two cores are held back rather than one because the
+process doing the asking is one of them.
 
-Threading the starts inside C++ is not possible, and the reason is worth
-stating because it is not about the objective. \strong{The stopping rule is
-an R object}, by design, and it is consulted at every iteration — that is the
-feature this package was built around, a criterion the user can write. Every
-run therefore returns to R, and R is single-threaded, so calling it from
-several threads is undefined behaviour that crashes rather than errors.
+The mechanism differs by platform and the difference is not visible from
+outside. On Linux and macOS the workers are forks, which start in
+microseconds and inherit this session entire — including a package loaded
+with \pkg{pkgload}, which is why development works there without installing
+anything. Windows has no \code{fork}, so a socket cluster is started instead
+and \pkg{optimizers7} is loaded on each worker; if that fails, because the
+package is not installed anywhere the workers can see it, the run says so and
+continues sequentially rather than failing.
 
-Separate processes have no such problem, so that is the route taken.
+Threading inside C++ is not an option, and the reason is worth stating
+because it is not about the objective. \strong{The stopping rule is an R
+object}, by design, and it is consulted at every iteration — that is the
+feature this package was built around. Every run therefore returns to R, and R
+is single-threaded, so calling it from several threads is undefined behaviour
+that crashes rather than errors. Separate processes have no such problem.
 
-For reproducibility across workers use
-\code{parallel::clusterSetRNGStream()}; ordinary \code{set.seed()} governs
-only the sequential path. The \code{seed} recorded in the result is the
-master's state, and reproduces a \emph{sequential} run only: the workers
-draw from streams of their own, which the master never sees. Reproducing a
-cluster run means recording the argument you gave
-\code{clusterSetRNGStream()}, and there is no way for this function to do
-that for you.
+\code{\link{set.seed}} reproduces a parallel run exactly, and reproduces it
+across platforms and across values of \code{ncores}: the starting points are
+drawn here, before anything is dispatched, and each worker is handed a stream
+derived from this session's, so the same seed gives the same answer whether
+the work was split eight ways or not at all.
 }
 
 \subsection{A start that fails is not a run that fails}{

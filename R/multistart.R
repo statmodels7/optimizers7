@@ -10,7 +10,7 @@ NULL
 #' @param n How many starts.
 #' @param starts An optional matrix of starting points.
 #' @param spread How widely the random starts are scattered.
-#' @param cluster An optional \pkg{parallel} cluster.
+#' @param ncores How many processes the starts are spread over.
 #' @param distinct_tol Objective values closer than this count as one optimum.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{multistart}}
@@ -23,7 +23,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
     n            = S7::class_numeric,
     starts       = S7::class_any,
     spread       = S7::class_numeric,
-    cluster      = S7::class_any,
+    ncores       = S7::class_any,
     distinct_tol = S7::class_numeric
   ))
 
@@ -42,8 +42,9 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'   verbatim; \code{n} and \code{spread} are then ignored.
 #' @param spread How widely the random starts are scattered, in units of the
 #'   unconstrained scale. Defaults to \code{1}.
-#' @param cluster An optional cluster from \pkg{parallel}. Defaults to
-#'   \code{NULL}, meaning run the starts one after another; see Details.
+#' @param ncores How many processes to spread the starts over. Defaults to
+#'   \code{NULL}, meaning as many as are worth using: see Details. Pass
+#'   \code{1} to stay in this session.
 #' @param distinct_tol Objective values differing by less than this are counted
 #'   as the same optimum. Defaults to \code{1e-6}.
 #' @param verbose Report each start as it finishes? Defaults to \code{FALSE}.
@@ -78,28 +79,38 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' and no draw is ever rejected for being outside the box.
 #' }
 #'
-#' \subsection{Parallelism, and why it is at the level of processes}{
-#' Pass a cluster made by \code{parallel::makeCluster()} and the starts are
-#' distributed across it. \pkg{optimizers7} is loaded on the workers for you; a
-#' cluster you made is a cluster you keep, so stopping it is yours to do.
+#' \subsection{Parallelism, which is arranged for you}{
+#' The starts are independent, so they are run in parallel, and there is nothing
+#' to set up: \code{ncores} is a number, and everything behind it — starting the
+#' workers, loading the package on them, giving each an independent random
+#' stream, and shutting them down again — happens inside and is undone before the
+#' function returns. The default is
+#' \code{min(n, max(1, parallel::detectCores() - 2))}: as many processes as
+#' there are starts to run, but never so many that the machine has nothing left
+#' for anything else. Two cores are held back rather than one because the
+#' process doing the asking is one of them.
 #'
-#' Threading the starts inside C++ is not possible, and the reason is worth
-#' stating because it is not about the objective. \strong{The stopping rule is
-#' an R object}, by design, and it is consulted at every iteration — that is the
-#' feature this package was built around, a criterion the user can write. Every
-#' run therefore returns to R, and R is single-threaded, so calling it from
-#' several threads is undefined behaviour that crashes rather than errors.
+#' The mechanism differs by platform and the difference is not visible from
+#' outside. On Linux and macOS the workers are forks, which start in
+#' microseconds and inherit this session entire — including a package loaded
+#' with \pkg{pkgload}, which is why development works there without installing
+#' anything. Windows has no \code{fork}, so a socket cluster is started instead
+#' and \pkg{optimizers7} is loaded on each worker; if that fails, because the
+#' package is not installed anywhere the workers can see it, the run says so and
+#' continues sequentially rather than failing.
 #'
-#' Separate processes have no such problem, so that is the route taken.
+#' Threading inside C++ is not an option, and the reason is worth stating
+#' because it is not about the objective. \strong{The stopping rule is an R
+#' object}, by design, and it is consulted at every iteration — that is the
+#' feature this package was built around. Every run therefore returns to R, and R
+#' is single-threaded, so calling it from several threads is undefined behaviour
+#' that crashes rather than errors. Separate processes have no such problem.
 #'
-#' For reproducibility across workers use
-#' \code{parallel::clusterSetRNGStream()}; ordinary \code{set.seed()} governs
-#' only the sequential path. The \code{seed} recorded in the result is the
-#' master's state, and reproduces a \emph{sequential} run only: the workers
-#' draw from streams of their own, which the master never sees. Reproducing a
-#' cluster run means recording the argument you gave
-#' \code{clusterSetRNGStream()}, and there is no way for this function to do
-#' that for you.
+#' \code{\link{set.seed}} reproduces a parallel run exactly, and reproduces it
+#' across platforms and across values of \code{ncores}: the starting points are
+#' drawn here, before anything is dispatched, and each worker is handed a stream
+#' derived from this session's, so the same seed gives the same answer whether
+#' the work was split eight ways or not at all.
 #' }
 #'
 #' \subsection{A start that fails is not a run that fails}{
@@ -125,7 +136,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' @seealso \code{\link{minimize}}, \code{\link{bfgs}}
 #' @export
 multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
-                       cluster = NULL, distinct_tol = 1e-6,
+                       ncores = NULL, distinct_tol = 1e-6,
                        verbose = FALSE, refresh = 1, keep_trace = TRUE) {
   if (!S7::S7_inherits(optimizer, optimizer_class())) {
     stop("'optimizer' must be an optimizer object, e.g. bfgs().", call. = FALSE)
@@ -142,6 +153,14 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
                        refresh, keep_trace)
   check_tol(spread)
   check_tol(distinct_tol)
+  if (!is.null(ncores)) {
+    if (!is.numeric(ncores) || length(ncores) != 1L || is.na(ncores) ||
+        ncores < 1 || ncores != round(ncores)) {
+      stop("'ncores' must be a single positive whole number, or NULL.",
+           call. = FALSE)
+    }
+    ncores <- as.integer(ncores)
+  }
 
   MultiStart(
     name = paste0("multistart (", optimizer@name, ")"),
@@ -149,7 +168,7 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
     maxit = n, max_eval = optimizer@max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
     optimizer = optimizer, n = n, starts = starts, spread = spread,
-    cluster = cluster, distinct_tol = distinct_tol
+    ncores = ncores, distinct_tol = distinct_tol
   )
 }
 
@@ -266,41 +285,8 @@ S7::method(minimize, MultiStart) <-
     }
 
     t0 <- proc.time()[["elapsed"]]
-    cl <- optimizer@cluster
-    if (is.null(cl)) {
-      res <- vector("list", n)
-      for (i in seq_len(n)) {
-        res[[i]] <- one(i)
-        if (optimizer@verbose && optimizer@refresh > 0 &&
-            i %% optimizer@refresh == 0) {
-          v <- if (is.character(res[[i]])) "failed"
-               else format(res[[i]]@value, digits = 8)
-          cat(sprintf("  start %4d of %d : %s\n", i, n, v))
-        }
-      }
-    } else {
-      if (!requireNamespace("parallel", quietly = TRUE)) {
-        stop("Running on a cluster needs the 'parallel' package.",
-             call. = FALSE)
-      }
-      # A worker is a fresh session and knows nothing, so the package has to be
-      # loaded there. Checking rather than assuming: without this the failure
-      # arrives as checkForRemoteErrors() reporting "there is no package called
-      # 'optimizers7'" from inside parLapply, which says nothing about what the
-      # caller should do. It is a real case, not a hypothetical one -- a package
-      # loaded with pkgload during development is not installed anywhere the
-      # workers can see.
-      have <- try(parallel::clusterEvalQ(
-        cl, requireNamespace("optimizers7", quietly = TRUE)), silent = TRUE)
-      if (inherits(have, "try-error") || !all(unlist(have))) {
-        stop("optimizers7 must be installed where the cluster workers can ",
-             "load it.\n  They are separate R sessions and do not inherit ",
-             "this one's loaded packages;\n  a package loaded with pkgload, ",
-             "or installed in a library the workers\n  do not have on their ",
-             ".libPaths(), will not be found.", call. = FALSE)
-      }
-      res <- parallel::parLapply(cl, seq_len(n), one)
-    }
+    res <- run_starts(one, n, resolve_ncores(optimizer@ncores, n),
+                      optimizer@verbose, optimizer@refresh)
     elapsed <- proc.time()[["elapsed"]] - t0
 
     build_multistart_result(res, S, optimizer, seed, elapsed)
@@ -333,6 +319,133 @@ capture_seed <- function() {
     stats::runif(1)
   }
   get(".Random.seed", envir = globalenv(), inherits = FALSE)
+}
+
+
+#' How Many Processes to Use
+#'
+#' @description
+#' Turns \code{ncores = NULL} into a number: as many processes as there are
+#' starts, but never more than the machine can spare.
+#'
+#' @details
+#' The rule is \code{min(n, max(1, detectCores() - 2))}. Two are held back
+#' rather than one because the session doing the asking is itself one of them,
+#' and a machine with nothing left over is a machine that stops responding.
+#' Asking for more processes than there are starts wastes the cost of starting
+#' them, which on Windows is seconds rather than microseconds.
+#'
+#' It is capped at two under \code{R CMD check}, which sets
+#' \code{_R_CHECK_LIMIT_CORES_} and fails a package that ignores it, and it
+#' falls back to one process where \code{detectCores()} cannot tell.
+#'
+#' @param ncores What the caller asked for, possibly \code{NULL}.
+#' @param n The number of starts.
+#'
+#' @return A single integer, at least one.
+#'
+#' @keywords internal
+resolve_ncores <- function(ncores, n) {
+  if (is.null(ncores)) {
+    avail <- suppressWarnings(parallel::detectCores())
+    if (!is.finite(avail)) avail <- 1L
+    ncores <- min(n, max(1L, avail - 2L))
+  }
+  ncores <- min(as.integer(ncores), n)
+  if (nzchar(Sys.getenv("_R_CHECK_LIMIT_CORES_"))) ncores <- min(ncores, 2L)
+  max(1L, ncores)
+}
+
+
+#' Run the Starts, in Parallel or Not
+#'
+#' @description
+#' Evaluates \code{one(i)} for \code{i} in \code{1:n}, over \code{ncores}
+#' processes, and cleans up after itself.
+#'
+#' @details
+#' Three routes, chosen for the caller rather than by them.
+#'
+#' One process is the sequential loop, and it is the only route that can report
+#' progress as it goes, a worker having nowhere to print to that the caller
+#' would see.
+#'
+#' On a Unix-alike the workers are \strong{forks}, through
+#' \code{parallel::mclapply()}. A fork starts in microseconds and inherits this
+#' session entire, so there is nothing to load and nothing to export — including
+#' a package loaded with \pkg{pkgload}, which is why this works during
+#' development where a socket cluster does not.
+#'
+#' On Windows there is no \code{fork}, so a \strong{socket cluster} is started
+#' here and stopped on exit. Its workers are fresh sessions that know nothing, so
+#' \pkg{optimizers7} has to be loaded on them; when it cannot be, because it is
+#' not installed anywhere they can see, this warns and runs sequentially rather
+#' than failing. A slower answer beats an error about \code{checkForRemoteErrors}
+#' for someone who only asked for several starting points.
+#'
+#' Both parallel routes seed their workers from this session's stream, so
+#' \code{set.seed()} reproduces the run and reproduces it identically whatever
+#' \code{ncores} was. The generator is set to \code{"L'Ecuyer-CMRG"} for the
+#' duration and put back afterwards, that being the only kind \R can split into
+#' independent streams.
+#'
+#' @param one A function of the start's index, returning a result or a message.
+#' @param n How many starts.
+#' @param ncores How many processes, already resolved.
+#' @param verbose Report each start as it finishes?
+#' @param refresh Report every this many.
+#'
+#' @return A list of \code{n} results.
+#'
+#' @keywords internal
+run_starts <- function(one, n, ncores, verbose, refresh) {
+  sequential <- function() {
+    res <- vector("list", n)
+    for (i in seq_len(n)) {
+      res[[i]] <- one(i)
+      if (verbose && refresh > 0 && i %% refresh == 0) {
+        v <- if (is.character(res[[i]])) "failed"
+             else format(res[[i]]@value, digits = 8)
+        cat(sprintf("  start %4d of %d : %s\n", i, n, v))
+      }
+    }
+    res
+  }
+  if (ncores <= 1L) return(sequential())
+
+  # Independent streams for the workers, derived from the caller's seed so that
+  # set.seed() still governs everything.
+  old_kind <- RNGkind()[1]
+  on.exit(RNGkind(old_kind), add = TRUE)
+  RNGkind("L'Ecuyer-CMRG")
+  iseed <- sample.int(.Machine$integer.max, 1L)
+
+  if (.Platform$OS.type != "windows") {
+    set.seed(iseed)
+    return(parallel::mclapply(seq_len(n), one, mc.cores = ncores,
+                              mc.set.seed = TRUE))
+  }
+
+  cl <- try(parallel::makePSOCKcluster(ncores), silent = TRUE)
+  if (inherits(cl, "try-error")) {
+    warning("Could not start ", ncores, " worker processes; running the ",
+            "starts sequentially.", call. = FALSE)
+    return(sequential())
+  }
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+
+  have <- try(parallel::clusterEvalQ(
+    cl, requireNamespace("optimizers7", quietly = TRUE)), silent = TRUE)
+  if (inherits(have, "try-error") || !all(unlist(have))) {
+    warning("The worker processes could not load optimizers7, so the starts ",
+            "were run\n  sequentially. They are separate R sessions and do ",
+            "not inherit this one's\n  loaded packages, so a package loaded ",
+            "with pkgload, or installed in a\n  library not on their ",
+            ".libPaths(), is invisible to them.", call. = FALSE)
+    return(sequential())
+  }
+  parallel::clusterSetRNGStream(cl, iseed)
+  parallel::parLapply(cl, seq_len(n), one)
 }
 
 

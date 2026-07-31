@@ -24,7 +24,7 @@ library(optimizers7)
 set.seed(1)
 ```
 
-# optimizers7
+# optimizers7 <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 Almost every R package that fits a model carries its own optimiser, written
 inside the function that needs it: a loop, a `while (!converged)`, a tolerance
@@ -120,6 +120,30 @@ minimize(bfgs(), nll, par = 1, lower = 0)@par
 sqrt(mean(y^2))
 ```
 
+## Starting values you do not have to write out
+
+`par` may be a starter rather than a vector. Both work on the *unconstrained*
+scale and are mapped back through the bounds, which is what makes one constant
+sensible for every kind of parameter — zero becomes one for a variance and one
+half for a probability — and what makes it impossible for a draw to land outside
+its box:
+
+```{r}
+X <- cbind(1, matrix(rnorm(60), 30))
+b <- drop(X %*% c(0.5, -1, 2)) + rnorm(30, sd = 0.2)
+rss <- function(p) sum((b - X %*% p)^2)
+
+minimize(bfgs(), rss, start_zeros())@par        # how many? worked out
+minimize(bfgs(), rss, start_runif(-2, 2))@par   # or drawn, on that scale
+```
+
+How many parameters there are is settled by whichever of three things the caller
+was willing to say: `start_zeros(npar = 3)`, or bounds with one element per
+parameter, or — as above — the objective itself, probed once before the run.
+`X %*% p` of the wrong length is an error rather than a number, so a model of
+any kind answers the question on its own. A vectorised toy that accepts every
+length cannot, and is told so by name rather than guessed at.
+
 ## When the derivative does not exist
 
 A descent method walks to the minimum of a sum of absolute deviations and then
@@ -148,13 +172,22 @@ c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 | noisy objectives, and long parameter vectors | `adam()` |
 | no derivative at all | `nelder_mead()`, `compass()` |
 | non-smooth, with subgradients | `bundle()` |
-| wrapping any of them | `multistart()` |
-| line searches | `armijo()`, `wolfe()` |
+| wrapping any of them | `multistart()`, parallel by default |
+| line searches | `armijo()`, `wolfe()`, `nonmonotone()` |
+| starting values | `start_zeros()`, `start_runif()` |
 | stopping rules | `crit_grad()`, `crit_abs_obj()`, `crit_rel_obj()`, `crit_abs_par()`, `crit_rel_par()`, `crit_stationary()`, `crit_never()`, and `crit_any()` / `crit_all()` to combine them |
 
 Every method reports which safeguards fired, counts its own evaluations, and
 sets `converged` only when the stopping rule was satisfied — never because the
 iteration budget ran out.
+
+`multistart()` runs its starts in parallel and there is nothing to set up:
+`ncores` is a number, defaulting to as many processes as there are starts and
+never more than the machine can spare. Starting the workers, loading the package
+on them, giving each an independent stream and shutting them down again all
+happen inside and are undone before it returns — forks on Linux and macOS, a
+socket cluster on Windows, and `set.seed()` reproducing the run identically
+whichever it was and however many cores were used.
 
 ## Checking an optimiser of your own
 
