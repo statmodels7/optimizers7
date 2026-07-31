@@ -83,19 +83,14 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' distributed across it. \pkg{optimizers7} is loaded on the workers for you; a
 #' cluster you made is a cluster you keep, so stopping it is yours to do.
 #'
-#' Threading the starts inside C++ would be faster and is not possible, and the
-#' reason is worth stating because it is not the obvious one. It is easy to
-#' assume that a \code{\link{cpp_objective}} would make the run callback-free and
-#' so safe to thread. It would not: \strong{the stopping rule is an R object},
-#' by design, and it is consulted at every iteration. That is the feature this
-#' package was built around — a criterion the user can write — and it means every
-#' run returns to R whatever the objective is made of. R is single-threaded, so
-#' calling it from several threads is undefined behaviour that crashes rather
-#' than errors.
+#' Threading the starts inside C++ is not possible, and the reason is worth
+#' stating because it is not about the objective. \strong{The stopping rule is
+#' an R object}, by design, and it is consulted at every iteration — that is the
+#' feature this package was built around, a criterion the user can write. Every
+#' run therefore returns to R, and R is single-threaded, so calling it from
+#' several threads is undefined behaviour that crashes rather than errors.
 #'
-#' Separate processes have no such problem, so that is the route taken, and it
-#' has the advantage of working for \emph{every} objective rather than only for
-#' compiled ones.
+#' Separate processes have no such problem, so that is the route taken.
 #'
 #' For reproducibility across workers use
 #' \code{parallel::clusterSetRNGStream()}; ordinary \code{set.seed()} governs

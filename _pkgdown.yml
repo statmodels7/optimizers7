@@ -46,7 +46,9 @@ reference:
   - newton
   - bfgs
   - lbfgs
-  - gradient_descent
+  - cg
+  - bb
+  - gd
 
 - title: Noisy and large problems
   desc: >
@@ -100,11 +102,11 @@ reference:
 
 - title: The objective
   desc: >
-    An R function, a sum over observations, or compiled C++ behind a pointer.
-    The algorithms are written once against the handle these produce.
+    A function of the parameter vector. The generic is the extension point: a
+    caller with its own kind of objective registers one method and every
+    algorithm accepts it.
   contents:
   - as_objective
-  - cpp_objective
 
 - title: Writing an optimiser of your own
   desc: >

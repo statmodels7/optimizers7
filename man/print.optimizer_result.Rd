@@ -17,7 +17,7 @@
 Print Method for an Optimisation Result
 }
 \examples{
-res <- minimize(gradient_descent(), function(p) sum((p - 1:2)^2), c(0, 0))
+res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
 print(res)
 }
 \keyword{internal}

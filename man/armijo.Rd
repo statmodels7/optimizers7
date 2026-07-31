@@ -39,7 +39,7 @@ quasi-Newton method, which needs \code{\link{wolfe}}.
 }
 \examples{
 armijo()
-minimize(gradient_descent(line_search = armijo(shrink = 0.2)),
+minimize(gd(line_search = armijo(shrink = 0.2)),
          function(p) sum((p - 1:2)^2), c(0, 0))
 
 }

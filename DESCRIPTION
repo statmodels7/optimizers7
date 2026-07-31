@@ -36,7 +36,7 @@ Collate:
     'test_problems.R'
     'check_optimizer.R'
     'direct_search.R'
-    'gradient_descent.R'
+    'first_order.R'
     'line_search.R'
     'multistart.R'
     'optimizers7-package.R'

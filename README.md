@@ -153,7 +153,8 @@ c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 
 |  |  |
 |----|----|
-| smooth, with derivatives | `newton()`, `bfgs()`, `lbfgs()`, `gradient_descent()` |
+| second order | `newton()`, `bfgs()`, `lbfgs()` |
+| first order | `cg()`, `bb()`, `gd()` |
 | noisy objectives, and long parameter vectors | `adam()` |
 | no derivative at all | `nelder_mead()`, `compass()` |
 | non-smooth, with subgradients | `bundle()` |

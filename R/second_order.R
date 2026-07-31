@@ -40,7 +40,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   the solution.
 #' @param line_search See \code{\link{armijo}} and \code{\link{wolfe}}.
 #' @param maxit,max_eval,verbose,refresh,keep_trace As in
-#'   \code{\link{gradient_descent}}.
+#'   \code{\link{gd}}.
 #'
 #' @details
 #' Newton's method converges quadratically near a minimum and is unreliable away

@@ -80,7 +80,7 @@ optimizer_result <- S7::new_class(
 #' @param ... Unused.
 #' @return \code{x}, invisibly.
 #' @examples
-#' res <- minimize(gradient_descent(), function(p) sum((p - 1:2)^2), c(0, 0))
+#' res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
 #' print(res)
 #' @keywords internal
 S7::method(print, optimizer_result) <- function(x, digits = 6, ...) {
@@ -107,7 +107,7 @@ S7::method(print, optimizer_result) <- function(x, digits = 6, ...) {
 #' @param ... Unused.
 #' @return \code{object}, invisibly. Called for the printed summary.
 #' @examples
-#' res <- minimize(gradient_descent(keep_trace = TRUE),
+#' res <- minimize(gd(keep_trace = TRUE),
 #'                 function(p) sum((p - 1:2)^2), c(0, 0))
 #' summary(res)
 #' @keywords internal
@@ -143,7 +143,7 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 #' @return No return value; called for the plot.
 #'
 #' @examples
-#' res <- minimize(gradient_descent(keep_trace = TRUE),
+#' res <- minimize(gd(keep_trace = TRUE),
 #'                 function(p) sum((p - 1:2)^2), c(0, 0))
 #' plot(res)
 #'

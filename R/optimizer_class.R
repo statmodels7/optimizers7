@@ -11,7 +11,7 @@ NULL
 #'
 #' @details
 #' The class is abstract. Each algorithm is a subclass with its own constructor —
-#' \code{\link{gradient_descent}}, and in time \code{newton()}, \code{bfgs()} and
+#' \code{\link{gd}}, and in time \code{newton()}, \code{bfgs()} and
 #' the rest — adding only the settings that are genuinely its own.
 #'
 #' These properties are shared by every algorithm without exception, which is
@@ -40,7 +40,7 @@ NULL
 #' names(S7::props(bfgs()))
 #' bfgs()@maxit
 #'
-#' @seealso \code{\link{minimize}}, \code{\link{gradient_descent}}
+#' @seealso \code{\link{minimize}}, \code{\link{gd}}
 #' @export
 optimizer <- S7::new_class(
   "optimizer",
@@ -152,7 +152,7 @@ optimizer_class <- function() optimizer
 #' @param ... Unused.
 #' @return \code{x}, invisibly.
 #' @examples
-#' print(gradient_descent())
+#' print(gd())
 #' @keywords internal
 S7::method(print, optimizer) <- function(x, ...) {
   cat("<optimizer> ", x@name, "\n", sep = "")

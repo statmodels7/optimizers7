@@ -45,7 +45,7 @@ one per problem.
 }
 \examples{
 wolfe()
-minimize(gradient_descent(line_search = wolfe(), maxit = 200),
+minimize(gd(line_search = wolfe(), maxit = 200),
          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
 
 }

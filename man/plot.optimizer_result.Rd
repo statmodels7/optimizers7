@@ -16,7 +16,7 @@ The objective against iteration, with any iteration at which a safeguard
 fired marked. Requires \code{keep_trace = TRUE}.
 }
 \examples{
-res <- minimize(gradient_descent(keep_trace = TRUE),
+res <- minimize(gd(keep_trace = TRUE),
                 function(p) sum((p - 1:2)^2), c(0, 0))
 plot(res)
 

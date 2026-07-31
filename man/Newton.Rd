@@ -33,7 +33,7 @@ the solution.}
 \item{line_search}{See \code{\link{armijo}} and \code{\link{wolfe}}.}
 
 \item{maxit, max_eval, verbose, refresh, keep_trace}{As in
-\code{\link{gradient_descent}}.}
+\code{\link{gd}}.}
 }
 \value{
 An S7 object of class \code{Newton}.

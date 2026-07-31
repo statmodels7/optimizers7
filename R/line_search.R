@@ -84,7 +84,7 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #'
 #' @examples
 #' armijo()
-#' minimize(gradient_descent(line_search = armijo(shrink = 0.2)),
+#' minimize(gd(line_search = armijo(shrink = 0.2)),
 #'          function(p) sum((p - 1:2)^2), c(0, 0))
 #'
 #' @seealso \code{\link{wolfe}}
@@ -148,7 +148,7 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #'
 #' @examples
 #' wolfe()
-#' minimize(gradient_descent(line_search = wolfe(), maxit = 200),
+#' minimize(gd(line_search = wolfe(), maxit = 200),
 #'          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
 #'
 #' @seealso \code{\link{armijo}}

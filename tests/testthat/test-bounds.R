@@ -95,7 +95,7 @@ test_that("a bounded run stays inside its box and finds the right point", {
   g <- function(p) 2 * (p - c(1, 2))
   bx <- list(c(0, 5), c(0, 1))
 
-  for (o in list(gradient_descent(maxit = 5000), bfgs(), lbfgs(), newton())) {
+  for (o in list(gd(maxit = 5000), bfgs(), lbfgs(), newton())) {
     r <- minimize(o, f, c(0.5, 0.5), gr = g, bounds = bx)
     expect_gt(r@par[1], 0); expect_lt(r@par[1], 5)
     expect_gt(r@par[2], 0); expect_lt(r@par[2], 1)

@@ -19,8 +19,8 @@ test_that("the three shapes of objective reach the same answer", {
   target <- c(1, 2)
   f <- quad(target)
 
-  with_gr <- minimize(gradient_descent(), f, c(0, 0), gr = quad_gr(target))
-  no_gr   <- minimize(gradient_descent(), f, c(0, 0))
+  with_gr <- minimize(gd(), f, c(0, 0), gr = quad_gr(target))
+  no_gr   <- minimize(gd(), f, c(0, 0))
 
   expect_equal(with_gr@par, target, tolerance = 1e-6)
   expect_equal(no_gr@par, target, tolerance = 1e-6)
@@ -79,7 +79,7 @@ test_that("criteria are objects, compose, and can be written by a user", {
     state$f_new < criterion@tol
   }
   mine <- CritTiny(label = "objective below 1e-6", tol = 1e-6)
-  res <- minimize(gradient_descent(criterion = mine), quad(c(1, 2)), c(0, 0),
+  res <- minimize(gd(criterion = mine), quad(c(1, 2)), c(0, 0),
                   gr = quad_gr(c(1, 2)))
   expect_true(res@converged)
   expect_equal(res@criterion_met, "objective below 1e-6")
@@ -118,13 +118,13 @@ test_that("a criterion the method cannot evaluate is refused, not ignored", {
 test_that("converged is never TRUE merely because a budget ran out", {
   # The commonest defect in a hand-written loop, and the one that turns a
   # failure into a wrong answer that looks right.
-  res <- minimize(gradient_descent(maxit = 5, criterion = crit_grad(1e-12)),
+  res <- minimize(gd(maxit = 5, criterion = crit_grad(1e-12)),
                   rosen, c(-1.2, 1), gr = rosen_gr)
   expect_false(res@converged)
   expect_equal(res@iterations, 5)
   expect_match(res@criterion_met, "iteration budget")
 
-  ev <- minimize(gradient_descent(maxit = 1000, max_eval = 20,
+  ev <- minimize(gd(maxit = 1000, max_eval = 20,
                                   criterion = crit_grad(1e-12)),
                  rosen, c(-1.2, 1), gr = rosen_gr)
   expect_false(ev@converged)
@@ -136,7 +136,7 @@ test_that("a step to a non-finite objective is refused, not taken", {
   # Propagating one NaN contaminates every iterate after it, and the run then
   # fails somewhere far from the cause.
   f <- function(p) if (sum(p^2) > 4) Inf else sum((p - c(1, 1))^2)
-  res <- minimize(gradient_descent(step = 10, keep_trace = TRUE), f, c(0, 0))
+  res <- minimize(gd(step = 10, keep_trace = TRUE), f, c(0, 0))
 
   expect_true(all(is.finite(res@par)))
   expect_true(is.finite(res@value))
@@ -147,10 +147,10 @@ test_that("a step to a non-finite objective is refused, not taken", {
 
 test_that("the trace is a data frame or NULL, never an empty list", {
   f <- quad(c(1, 2))
-  bare <- minimize(gradient_descent(), f, c(0, 0), gr = quad_gr(c(1, 2)))
+  bare <- minimize(gd(), f, c(0, 0), gr = quad_gr(c(1, 2)))
   expect_null(bare@trace)
 
-  kept <- minimize(gradient_descent(keep_trace = TRUE, criterion = crit_grad(1e-10)),
+  kept <- minimize(gd(keep_trace = TRUE, criterion = crit_grad(1e-10)),
                    rosen, c(-1.2, 1), gr = rosen_gr)
   expect_s3_class(kept@trace, "data.frame")
   expect_equal(names(kept@trace),
@@ -167,7 +167,7 @@ test_that("sufficient decrease is required, not mere non-increase", {
   # the iterate oscillate forever while a criterion watching the objective sees
   # no change and reports convergence at a point that is not a minimum.
   target <- c(1, 2)
-  res <- minimize(gradient_descent(step = 1), quad(target), c(0, 0),
+  res <- minimize(gd(step = 1), quad(target), c(0, 0),
                   gr = quad_gr(target))
   expect_equal(res@par, target, tolerance = 1e-8)
   expect_true(res@value < 1e-12)
@@ -176,7 +176,7 @@ test_that("sufficient decrease is required, not mere non-increase", {
 
 test_that("maximize() restores the sign of everything it flipped", {
   f <- function(p) -sum((p - c(1, 2))^2)
-  res <- maximize(gradient_descent(keep_trace = TRUE), f, c(0, 0))
+  res <- maximize(gd(keep_trace = TRUE), f, c(0, 0))
   expect_equal(res@par, c(1, 2), tolerance = 1e-6)
   expect_equal(res@value, 0, tolerance = 1e-10)
   expect_true(all(res@trace$value <= 1e-10))
@@ -185,13 +185,13 @@ test_that("maximize() restores the sign of everything it flipped", {
 
 
 test_that("constructors refuse settings that are not settings", {
-  expect_error(gradient_descent(maxit = 0), "positive")
-  expect_error(gradient_descent(refresh = -1), "non-negative")
-  expect_error(gradient_descent(verbose = "yes"), "TRUE or FALSE")
-  expect_error(gradient_descent(step = -1), "positive")
-  expect_error(gradient_descent(line_search = armijo(shrink = 1)),
+  expect_error(gd(maxit = 0), "positive")
+  expect_error(gd(refresh = -1), "non-negative")
+  expect_error(gd(verbose = "yes"), "TRUE or FALSE")
+  expect_error(gd(step = -1), "positive")
+  expect_error(gd(line_search = armijo(shrink = 1)),
                "between 0 and 1")
-  expect_error(gradient_descent(criterion = "gradient"), "criterion object")
+  expect_error(gd(criterion = "gradient"), "criterion object")
   expect_error(crit_grad(0), "positive")
   expect_error(crit_any(), "At least one")
   expect_error(crit_any(crit_grad(), "nonsense"), "criterion")
@@ -200,7 +200,7 @@ test_that("constructors refuse settings that are not settings", {
 
 test_that("verbose reports on the refresh schedule and nowhere else", {
   out <- capture.output(
-    minimize(gradient_descent(verbose = TRUE, refresh = 3, maxit = 10,
+    minimize(gd(verbose = TRUE, refresh = 3, maxit = 10,
                               criterion = crit_grad(1e-14)),
              rosen, c(-1.2, 1), gr = rosen_gr)
   )
@@ -212,7 +212,7 @@ test_that("verbose reports on the refresh schedule and nowhere else", {
 
   # invisible(), or the returned object auto-prints and the capture is not empty
   quiet <- capture.output(
-    invisible(minimize(gradient_descent(verbose = FALSE), quad(c(1, 2)),
+    invisible(minimize(gd(verbose = FALSE), quad(c(1, 2)),
                        c(0, 0), gr = quad_gr(c(1, 2))))
   )
   expect_length(quiet, 0)

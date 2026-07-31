@@ -10,8 +10,8 @@ maximize(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
 \item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
 its settings.}
 
-\item{fn}{The objective: an ordinary R function of the parameter vector, or
-a \code{\link{cpp_objective}}.}
+\item{fn}{The objective: a function of the parameter vector returning a
+single number.}
 
 \item{par}{A numeric vector of starting values.}
 
@@ -42,7 +42,7 @@ exists so that nobody has to remember to negate a log-likelihood by hand and
 then negate the answer back.
 }
 \examples{
-maximize(gradient_descent(), function(p) -sum((p - c(1, 2))^2), c(0, 0))
+maximize(gd(), function(p) -sum((p - c(1, 2))^2), c(0, 0))
 
 }
 \seealso{

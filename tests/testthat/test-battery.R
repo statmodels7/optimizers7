@@ -44,7 +44,7 @@ test_that("test_problems() selects and refuses by name", {
 # --- every shipped optimiser keeps the contract -----------------------------
 
 all_optimizers <- function() {
-  list(gradient_descent(), newton(), bfgs(), lbfgs(),
+  list(gd(), newton(), bfgs(), lbfgs(),
        adam(alpha = 0.05, maxit = 4000),
        nelder_mead(), compass(), compass(directions = "coordinate"),
        bundle(), multistart(bfgs(), n = 6))

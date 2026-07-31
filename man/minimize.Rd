@@ -10,8 +10,8 @@ minimize(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
 \item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
 its settings.}
 
-\item{fn}{The objective: an ordinary R function of the parameter vector, or
-a \code{\link{cpp_objective}}.}
+\item{fn}{The objective: a function of the parameter vector returning a
+single number.}
 
 \item{par}{A numeric vector of starting values.}
 
@@ -36,9 +36,10 @@ The entry point of the package. Everything here minimises; see
 }
 \details{
 The generic dispatches on \code{optimizer} alone, so each algorithm is
-written once. Which of the two shapes \code{fn} arrived in is settled
-separately by \code{\link{as_objective}}, which dispatches on \code{fn} and
-hands every algorithm the same handle.
+written once. The objective is normalised separately by
+\code{\link{as_objective}}, which dispatches on \code{fn}, so a caller with
+its own kind of objective registers one method there and every algorithm
+accepts it.
 
 A gradient that is not supplied is computed by central finite differences.
 The result records which derivatives were supplied and which were
@@ -62,11 +63,11 @@ an active-set method is the right tool and this is not one.
 }
 \examples{
 # a quadratic, with the gradient supplied
-minimize(gradient_descent(), function(p) sum((p - c(1, 2))^2),
+minimize(gd(), function(p) sum((p - c(1, 2))^2),
          par = c(0, 0), gr = function(p) 2 * (p - c(1, 2)))
 
 # and without, so the gradient is differenced
-minimize(gradient_descent(), function(p) sum((p - c(1, 2))^2), c(0, 0))
+minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 
 # with a box: the unconstrained minimum is at (1, 2), so the second
 # coordinate is pushed against its ceiling
@@ -75,6 +76,6 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 
 }
 \seealso{
-\code{\link{maximize}}, \code{\link{gradient_descent}},
+\code{\link{maximize}}, \code{\link{gd}},
 \code{\link{crit_any}}
 }

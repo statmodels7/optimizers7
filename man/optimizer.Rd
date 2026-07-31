@@ -43,7 +43,7 @@ and passed around; nothing about a run is hidden in the call that started it.
 }
 \details{
 The class is abstract. Each algorithm is a subclass with its own constructor —
-\code{\link{gradient_descent}}, and in time \code{newton()}, \code{bfgs()} and
+\code{\link{gd}}, and in time \code{newton()}, \code{bfgs()} and
 the rest — adding only the settings that are genuinely its own.
 
 These properties are shared by every algorithm without exception, which is
@@ -61,5 +61,5 @@ bfgs()@maxit
 
 }
 \seealso{
-\code{\link{minimize}}, \code{\link{gradient_descent}}
+\code{\link{minimize}}, \code{\link{gd}}
 }

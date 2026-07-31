@@ -156,61 +156,25 @@ private:
 };
 
 
-// --- a compiled objective ---------------------------------------------------
+// Build the Objective from the handle as_objective() produced.
 //
-// Function pointers, called directly. The loop never returns to R, which is the
-// whole reason the algorithms are in C++ at all.
-
-typedef double   (*fn_ptr_t)(const arma::vec&);
-typedef arma::vec (*gr_ptr_t)(const arma::vec&);
-
-class CppObjective : public Objective {
-public:
-  CppObjective(SEXP fn, SEXP gr) {
-    Rcpp::XPtr<fn_ptr_t> f(fn);
-    fn_ = *f;
-    if (gr != R_NilValue) {
-      Rcpp::XPtr<gr_ptr_t> g(gr);
-      gr_ = *g;
-      has_gr_ = true;
-    }
-  }
-
-  double value(const arma::vec& x) {
-    ++n_value;
-    return fn_(x);
-  }
-
-  arma::vec gradient(const arma::vec& x) {
-    ++n_grad;
-    return gr_(x);
-  }
-
-  bool has_gradient() const { return has_gr_; }
-
-private:
-  fn_ptr_t fn_ = nullptr;
-  gr_ptr_t gr_ = nullptr;
-  bool has_gr_ = false;
-};
-
-
-// Build the right Objective from the handle as_objective() produced. The single
-// place in the package that knows the two shapes apart.
+// There is one shape now, and there were three. A finite sum evaluable on a
+// subset of its terms went when Adam stopped drawing minibatches; an objective
+// behind a pair of bare C++ function pointers went because it could not carry
+// data -- double(*)(const arma::vec&) has no closure, so any real statistical
+// objective had to keep y and X in globals, which is not reentrant and means one
+// model at a time. Measured, it was also SLOWER than vectorised R below about
+// twenty thousand observations and never better than about twice as fast, since
+// R's matrix arithmetic and Armadillo's call the same BLAS.
 //
-// There used to be a third, a finite sum that could be evaluated on a subset of
-// its terms, and it existed solely so that Adam could draw its own minibatches.
-// It went with that: an optimiser does not know what an observation is, and the
-// caller that does can hand it an objective which already resamples. Removing
-// the class removed a second kind of objective, a rule about which criteria it
-// allowed, and the branch here -- none of which was doing anything a closure
-// could not.
+// The dispatch stays a generic on the R side even with one method registered,
+// because that is the extension point: a caller with its own kind of objective
+// registers a method and every algorithm accepts it. What went was a second
+// shipped shape that nothing could use.
 inline Objective* make_objective(Rcpp::List spec) {
   std::string kind = Rcpp::as<std::string>(spec["kind"]);
   if (kind == "r") {
     return new RObjective(spec["fn"], spec["gr"], spec["he"]);
-  } else if (kind == "cpp") {
-    return new CppObjective(spec["fn_ptr"], spec["gr_ptr"]);
   }
   Rcpp::stop("Unknown objective kind '%s'.", kind);
   return nullptr;

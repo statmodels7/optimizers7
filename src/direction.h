@@ -44,6 +44,155 @@ public:
 };
 
 
+// --- nonlinear conjugate gradients ------------------------------------------
+//
+// Steepest descent's failure is that consecutive directions are orthogonal, so
+// on a narrow valley it zigzags across the floor and makes progress only along
+// the axis it keeps recrossing. Conjugate gradients repairs it by bending each
+// direction back towards the last:
+//
+//     d_k = -g_k + beta_k d_{k-1},
+//
+// and the whole of the method is the choice of beta. On a quadratic with the
+// right beta the directions are conjugate with respect to the Hessian and the
+// method terminates in p steps exactly, without ever forming that Hessian --
+// which is why it is the classical answer for a problem too large to store one.
+//
+// The four formulas agree on a quadratic with an exact line search and differ
+// everywhere else. Fletcher-Reeves has the cleanest theory and can stall for
+// many iterations after a bad step; Polak-Ribiere is faster in practice but can
+// fail to converge, which is repaired by clamping beta at zero -- and that clamp
+// has a reading, since beta = 0 restarts the method at steepest descent.
+// Hestenes-Stiefel and Dai-Yuan are the other two standard choices.
+
+class ConjugateGradient : public Direction {
+public:
+  ConjugateGradient(std::string beta_type, int restart_every)
+    : beta_type_(std::move(beta_type)), restart_every_(restart_every) {}
+
+  arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
+                    std::string& guard) {
+    ++k_;
+    if (!have_prev_) {
+      d_prev_ = -g;
+      g_prev_ = g;
+      have_prev_ = true;
+      return d_prev_;
+    }
+
+    const arma::vec y = g - g_prev_;
+    double beta = 0.0;
+    const double gg_prev = arma::dot(g_prev_, g_prev_);
+
+    if (beta_type_ == "fr") {
+      beta = gg_prev > 0 ? arma::dot(g, g) / gg_prev : 0.0;
+    } else if (beta_type_ == "pr") {
+      // PR+, the clamp at zero. Without it the method can cycle without
+      // converging; with it, a beta that would have gone negative is a restart.
+      beta = gg_prev > 0 ? arma::dot(g, y) / gg_prev : 0.0;
+      if (beta < 0.0) { beta = 0.0; guard = "cg restart"; }
+    } else if (beta_type_ == "hs") {
+      const double den = arma::dot(d_prev_, y);
+      beta = std::abs(den) > 0 ? arma::dot(g, y) / den : 0.0;
+    } else { // "dy"
+      const double den = arma::dot(d_prev_, y);
+      beta = std::abs(den) > 0 ? arma::dot(g, g) / den : 0.0;
+    }
+
+    // A periodic restart, which is what keeps the classical convergence proof
+    // alive: the accumulated conjugacy is only meaningful for as long as the
+    // quadratic model it rests on does, and after p steps it no longer does.
+    if (restart_every_ > 0 && (k_ % restart_every_ == 0)) {
+      beta = 0.0;
+      if (guard == "none") guard = "cg restart";
+    }
+
+    arma::vec d = -g + beta * d_prev_;
+
+    // The one thing the formula cannot promise. If the bend has taken the
+    // direction uphill it is useless, and the line search would find nothing;
+    // steepest descent always goes downhill, so fall back to it and say so.
+    if (arma::dot(g, d) >= 0.0) {
+      d = -g;
+      guard = "cg not descent";
+    }
+
+    d_prev_ = d;
+    g_prev_ = g;
+    return d;
+  }
+
+private:
+  std::string beta_type_;
+  int restart_every_;
+  arma::vec d_prev_, g_prev_;
+  bool have_prev_ = false;
+  long k_ = 0;
+};
+
+
+// --- Barzilai-Borwein -------------------------------------------------------
+//
+// Steepest descent with one number changed, and the number is what makes it
+// work. Rather than choosing a step by searching, take
+//
+//     d = -alpha_BB g,     alpha_BB = (s's)/(s'y)   or   (s'y)/(y'y),
+//
+// the two Rayleigh quotients of the secant pair. Either is an estimate of the
+// inverse curvature along the direction just travelled, so the method is a
+// quasi-Newton one that has thrown away everything but a scalar -- and on a
+// quadratic, where the curvature is constant, that scalar is exactly right and
+// the first step lands on the answer.
+//
+// It carries no convergence guarantee of its own on a general function, which
+// is why the line search stays: the BB step is offered first, and if it fails
+// the sufficient-decrease test it is backtracked like any other.
+
+class BarzilaiBorwein : public Direction {
+public:
+  BarzilaiBorwein(std::string variant, double alpha0,
+                  double alpha_min, double alpha_max)
+    : variant_(std::move(variant)), alpha_(alpha0),
+      alpha_min_(alpha_min), alpha_max_(alpha_max) {}
+
+  arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
+                    std::string&) {
+    ++k_;
+    return -alpha_ * g;
+  }
+
+  void update(const arma::vec& s, const arma::vec& y, std::string& guard) {
+    const double sy = arma::dot(s, y);
+    const double ss = arma::dot(s, s);
+    const double yy = arma::dot(y, y);
+
+    // A non-positive s'y says the pair reports negative curvature, and no
+    // positive step length is consistent with it. The previous one is kept.
+    if (!(sy > 0.0) || !std::isfinite(sy)) {
+      guard = "bb curvature skipped";
+      return;
+    }
+
+    double a;
+    if (variant_ == "bb1")      a = ss / sy;
+    else if (variant_ == "bb2") a = sy / yy;
+    else                        a = (k_ % 2 == 0) ? ss / sy : sy / yy;
+
+    // Both quotients are unbounded when the curvature estimate degenerates, and
+    // an unbounded step is how a first-order method leaves the domain entirely.
+    if (!std::isfinite(a) || a <= 0.0) { guard = "bb step rejected"; return; }
+    if (a < alpha_min_) { a = alpha_min_; guard = "bb step clamped"; }
+    if (a > alpha_max_) { a = alpha_max_; guard = "bb step clamped"; }
+    alpha_ = a;
+  }
+
+private:
+  std::string variant_;
+  double alpha_, alpha_min_, alpha_max_;
+  long k_ = 0;
+};
+
+
 // --- Newton -----------------------------------------------------------------
 //
 // The direction solves H d = -g. Away from a minimum H need not be positive
@@ -275,8 +424,16 @@ private:
 
 inline Direction* make_direction(Rcpp::List method, arma::uword p) {
   std::string type = Rcpp::as<std::string>(method["type"]);
-  if (type == "gradient_descent") {
+  if (type == "gd") {
     return new SteepestDescent();
+  } else if (type == "cg") {
+    return new ConjugateGradient(Rcpp::as<std::string>(method["beta"]),
+                                 Rcpp::as<int>(method["restart_every"]));
+  } else if (type == "bb") {
+    return new BarzilaiBorwein(Rcpp::as<std::string>(method["variant"]),
+                               Rcpp::as<double>(method["alpha0"]),
+                               Rcpp::as<double>(method["alpha_min"]),
+                               Rcpp::as<double>(method["alpha_max"]));
   } else if (type == "newton") {
     return new NewtonDirection(Rcpp::as<std::string>(method["hessian_mod"]),
                                Rcpp::as<double>(method["floor"]));

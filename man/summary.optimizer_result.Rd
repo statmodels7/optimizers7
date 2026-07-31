@@ -15,7 +15,7 @@
 Summary Method for an Optimisation Result
 }
 \examples{
-res <- minimize(gradient_descent(keep_trace = TRUE),
+res <- minimize(gd(keep_trace = TRUE),
                 function(p) sum((p - 1:2)^2), c(0, 0))
 summary(res)
 }

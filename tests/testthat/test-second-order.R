@@ -27,7 +27,7 @@ test_that("all three solve Rosenbrock, and far faster than first order", {
   }
 
   # the whole reason for using curvature: gradient descent needs thousands
-  gd <- minimize(gradient_descent(maxit = 50000, max_eval = 1e7), rosen, x0,
+  gd <- minimize(gd(maxit = 50000, max_eval = 1e7), rosen, x0,
                  gr = rosen_gr)
   expect_true(gd@converged)
   expect_lt(n@iterations, 100)
@@ -150,7 +150,7 @@ test_that("every method reaches the same minimiser of a shared problem", {
     newton = minimize(newton(), f, x0, gr = g),
     bfgs   = minimize(bfgs(),   f, x0, gr = g),
     lbfgs  = minimize(lbfgs(),  f, x0, gr = g),
-    gd     = minimize(gradient_descent(maxit = 20000), f, x0, gr = g)
+    gd     = minimize(gd(maxit = 20000), f, x0, gr = g)
   )
   pars <- do.call(rbind, lapply(rs, function(r) r@par))
   for (j in seq_len(ncol(pars))) {

@@ -15,6 +15,6 @@
 Print Method for Optimisers
 }
 \examples{
-print(gradient_descent())
+print(gd())
 }
 \keyword{internal}
