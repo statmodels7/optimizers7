@@ -69,7 +69,7 @@ test_that("a run pressed hard against a bound reports an interior point", {
   # given -- strictly, since a probability of exactly 1 is not one.
   f <- function(p) (p - 50)^2
   for (o in list(nelder_mead(), compass(), bfgs(), adam(maxit = 3000))) {
-    r <- minimize(o, f, par = 0.5, bounds = list(c(0, 1)))
+    r <- minimize(o, f, par = 0.5, lower = 0, upper = 1)
     expect_lt(r@par, 1, label = r@optimizer@name)
     expect_gt(r@par, 0, label = r@optimizer@name)
   }
@@ -93,10 +93,9 @@ test_that("a bounded run stays inside its box and finds the right point", {
   # against its ceiling of 1 and leaves the first alone
   f <- function(p) sum((p - c(1, 2))^2)
   g <- function(p) 2 * (p - c(1, 2))
-  bx <- list(c(0, 5), c(0, 1))
 
   for (o in list(gd(maxit = 5000), bfgs(), lbfgs(), newton())) {
-    r <- minimize(o, f, c(0.5, 0.5), gr = g, bounds = bx)
+    r <- minimize(o, f, c(0.5, 0.5), gr = g, lower = c(0, 0), upper = c(5, 1))
     expect_gt(r@par[1], 0); expect_lt(r@par[1], 5)
     expect_gt(r@par[2], 0); expect_lt(r@par[2], 1)
     # the free coordinate reaches its unconstrained optimum
@@ -114,7 +113,7 @@ test_that("an interior optimum is found exactly, bounds or not", {
 
   free  <- minimize(bfgs(), f, c(0.5, 0.5), gr = g)
   boxed <- minimize(bfgs(), f, c(0.5, 0.5), gr = g,
-                    bounds = list(c(-10, 10), c(-10, 10)))
+                    lower = -10, upper = 10)
 
   expect_equal(boxed@par, c(1, 2), tolerance = 1e-6)
   expect_equal(boxed@par, free@par, tolerance = 1e-5)
@@ -128,7 +127,7 @@ test_that("par and gradient are reported on the user's scale together", {
   f <- function(p) sum((p - c(1, 2))^2)
   g <- function(p) 2 * (p - c(1, 2))
   r <- minimize(bfgs(), f, c(0.5, 0.5), gr = g,
-                bounds = list(c(-10, 10), c(-10, 10)))
+                lower = -10, upper = 10)
 
   expect_equal(r@par, c(1, 2), tolerance = 1e-6)
   # the reported gradient is the gradient of the ORIGINAL objective at par
@@ -141,7 +140,7 @@ test_that("a one-sided box keeps a positive parameter positive", {
   set.seed(3)
   y <- rnorm(200, mean = 0, sd = 2)
   nll <- function(p) length(y) * log(p[1]) + sum(y^2) / (2 * p[1]^2)
-  r <- minimize(bfgs(), nll, par = 1, bounds = list(c(0, Inf)))
+  r <- minimize(bfgs(), nll, par = 1, lower = 0)
 
   expect_true(r@converged)
   expect_gt(r@par, 0)
@@ -153,29 +152,56 @@ test_that("a start on the boundary is refused, naming the coordinate", {
   # The transform sends a bound to an infinite eta, so a run started exactly on
   # one begins at infinity and fails far from the cause.
   f <- function(p) sum(p^2)
-  expect_error(minimize(bfgs(), f, c(0, 1), bounds = list(c(0, 5), c(0, 5))),
+  expect_error(minimize(bfgs(), f, c(0, 1), lower = 0, upper = 5),
                "parameter 1")
-  expect_error(minimize(bfgs(), f, c(1, 5), bounds = list(c(0, 5), c(0, 5))),
+  expect_error(minimize(bfgs(), f, c(1, 5), lower = 0, upper = 5),
                "parameter 2")
+})
+
+
+test_that("lower and upper recycle to length one or to p, and nothing between", {
+  f <- function(p) sum((p - 3)^2)
+  # one value for every parameter
+  a <- minimize(bfgs(), f, c(1, 1, 1), lower = 0, upper = 2)
+  expect_true(all(a@par > 0)); expect_true(all(a@par < 2))
+  # one per parameter
+  b <- minimize(bfgs(), f, c(1, 1, 1), lower = c(0, 0, 0), upper = c(2, 4, 6))
+  expect_lt(b@par[1], 2); expect_lt(b@par[2], 4); expect_gt(b@par[3], 2.9)
+
+  # a length that is neither is a mistake far more often than a request, and
+  # R's ordinary recycling would silently oblige
+  expect_error(minimize(bfgs(), f, c(1, 1, 1), lower = c(0, 0)),
+               "length 1 or 3")
 })
 
 
 test_that("malformed bounds are refused", {
   f <- function(p) sum(p^2)
-  expect_error(minimize(bfgs(), f, c(1, 1), bounds = list(c(0, 5))),
-               "one element per parameter")
-  expect_error(minimize(bfgs(), f, c(1, 1), bounds = list(c(0, 5), c(5, 0))),
+  expect_error(minimize(bfgs(), f, c(1, 1), lower = 5, upper = 0),
                "strictly below")
-  expect_error(minimize(bfgs(), f, c(1, 1), bounds = list(c(0, 5), 3)),
-               "c\\(lower, upper\\)")
-  expect_error(minimize(bfgs(), f, c(1, 1), bounds = "positive"),
-               "must be a list")
+  expect_error(minimize(bfgs(), f, c(1, 1), lower = "positive"),
+               "must be numeric")
+  expect_error(minimize(bfgs(), f, c(1, 1), upper = NA),
+               "must be numeric")
+})
+
+
+test_that("no finite bound means no reparametrisation at all", {
+  # The default is -Inf and Inf, and a run given those must be identical to one
+  # given nothing: the whole transform is skipped rather than composed with the
+  # identity once per parameter.
+  f <- function(p) sum((p - c(1, 2))^2)
+  g <- function(p) 2 * (p - c(1, 2))
+  plain <- minimize(bfgs(), f, c(0, 0), gr = g)
+  inf   <- minimize(bfgs(), f, c(0, 0), gr = g, lower = -Inf, upper = Inf)
+  expect_identical(plain@par, inf@par)
+  expect_identical(plain@counts, inf@counts)
 })
 
 
 test_that("maximize() carries bounds through", {
   f <- function(p) -sum((p - c(1, 2))^2)
-  r <- maximize(bfgs(), f, c(0.5, 0.5), bounds = list(c(0, 5), c(0, 1)))
+  r <- maximize(bfgs(), f, c(0.5, 0.5), lower = c(0, 0), upper = c(5, 1))
   expect_gt(r@par[2], 0.99)
   expect_lt(r@par[2], 1)
   expect_equal(r@par[1], 1, tolerance = 1e-4)

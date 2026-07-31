@@ -4,7 +4,16 @@
 \alias{maximize}
 \title{Maximise a Function}
 \usage{
-maximize(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
+maximize(
+  optimizer,
+  fn,
+  par,
+  gr = NULL,
+  he = NULL,
+  lower = -Inf,
+  upper = Inf,
+  ...
+)
 }
 \arguments{
 \item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
@@ -21,9 +30,9 @@ own gradient.}
 \item{he}{An optional Hessian function. Methods that do not use one ignore
 it, so calling code need not branch on the algorithm.}
 
-\item{bounds}{Optional box constraints: a list with one length-2 numeric
-vector per parameter, \code{c(lower, upper)}, using \code{-Inf} and
-\code{Inf} for a side that is unbounded. See Details.}
+\item{lower, upper}{Box constraints. Numeric, of length one — applying to
+every parameter — or one value per parameter. Default \code{-Inf} and
+\code{Inf}, which is no constraint at all. See Details.}
 
 \item{...}{Passed to methods.}
 }

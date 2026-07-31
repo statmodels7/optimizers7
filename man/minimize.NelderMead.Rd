@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{NelderMead} object.}
 
-\item{fn, par, gr, he, bounds, ...}{As in \code{\link{minimize}}. \code{gr} and
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} and
 \code{he} are accepted and ignored: the method uses no derivative, and
 refusing them would force calling code to branch on the algorithm.}
 }

@@ -87,12 +87,13 @@ gd <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 #' @name minimize.GradientDescent
 #' @description Runs \code{\link{gd}} on the objective.
 #' @param optimizer A \code{GradientDescent} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, GradientDescent) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he, bounds, list(type = "gd"))
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
+    run_descent(optimizer, fn, par, gr, he, lower, upper, list(type = "gd"))
   }
 
 
@@ -236,12 +237,13 @@ cg <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 #' @name minimize.Cg
 #' @description Runs \code{\link{cg}} on the objective.
 #' @param optimizer A \code{Cg} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Cg) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he, bounds,
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
+    run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "cg", beta = optimizer@beta,
                      restart_every = as.integer(optimizer@restart_every)))
   }
@@ -398,12 +400,13 @@ bb <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 #' @name minimize.Bb
 #' @description Runs \code{\link{bb}} on the objective.
 #' @param optimizer A \code{Bb} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Bb) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
-    run_descent(optimizer, fn, par, gr, he, bounds,
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
+    run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "bb", variant = optimizer@variant,
                      alpha0 = optimizer@alpha0,
                      alpha_min = optimizer@alpha_min,

@@ -223,13 +223,14 @@ adam <- function(criterion = crit_never(),
 #' @description
 #' Runs \code{\link{adam}} on the objective.
 #' @param optimizer An \code{Adam} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Adam) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
     spec <- prepare_objective(optimizer, fn, par, gr, he)
-    bounds <- check_bounds(bounds, par)
+    bounds <- check_bounds(lower, upper, par)
 
     t0 <- proc.time()[["elapsed"]]
     out <- adam_run(

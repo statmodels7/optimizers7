@@ -328,15 +328,16 @@ S7::method(optimizer_provides, Compass) <- function(optimizer)
 #' @name minimize.NelderMead
 #' @description Runs \code{\link{nelder_mead}} on the objective.
 #' @param optimizer A \code{NelderMead} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}. \code{gr} and
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}. \code{gr} and
 #'   \code{he} are accepted and ignored: the method uses no derivative, and
 #'   refusing them would force calling code to branch on the algorithm.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, NelderMead) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
     spec <- prepare_objective(optimizer, fn, par, gr, he)
-    bounds <- check_bounds(bounds, par)
+    bounds <- check_bounds(lower, upper, par)
 
     sx <- optimizer@simplex
     if (is.null(sx)) {
@@ -369,14 +370,15 @@ S7::method(minimize, NelderMead) <-
 #' @name minimize.Compass
 #' @description Runs \code{\link{compass}} on the objective.
 #' @param optimizer A \code{Compass} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}. \code{gr} and
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}. \code{gr} and
 #'   \code{he} are accepted and ignored.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, Compass) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
     spec <- prepare_objective(optimizer, fn, par, gr, he)
-    bounds <- check_bounds(bounds, par)
+    bounds <- check_bounds(lower, upper, par)
 
     # A mads poll draws a fresh basis at every iteration, so the run is
     # reproducible only if the state it started from is known. Recording it is

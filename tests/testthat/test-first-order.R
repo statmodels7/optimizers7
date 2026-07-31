@@ -192,9 +192,8 @@ test_that("the constructors refuse nonsense", {
 
 test_that("they carry bounds like everything else", {
   f <- function(p) sum((p - c(1, 2))^2)
-  bx <- list(c(0, 5), c(0, 1))
   for (o in list(gd(maxit = 5000), cg(), bb())) {
-    r <- minimize(o, f, c(0.5, 0.5), gr = quad_g, bounds = bx)
+    r <- minimize(o, f, c(0.5, 0.5), gr = quad_g, lower = c(0, 0), upper = c(5, 1))
     expect_gt(r@par[2], 0.98, label = r@optimizer@name)
     expect_lt(r@par[2], 1, label = r@optimizer@name)
     expect_equal(r@par[1], 1, tolerance = 1e-3, label = r@optimizer@name)

@@ -230,10 +230,9 @@ test_that("a derivative-free method does not claim to have differenced one", {
 
 test_that("bounds work for all three, on the user's scale", {
   f <- function(p) sum((p - c(1, 2))^2)
-  bx <- list(c(0, 5), c(0, 1))
   for (o in list(nelder_mead(), compass(), bundle())) {
     r <- minimize(o, f, c(0.5, 0.5), gr = function(p) 2 * (p - c(1, 2)),
-                  bounds = bx)
+                  lower = c(0, 0), upper = c(5, 1))
     expect_gt(r@par[2], 0.9); expect_lt(r@par[2], 1)
     expect_equal(r@par[1], 1, tolerance = 1e-3, label = r@optimizer@name)
   }

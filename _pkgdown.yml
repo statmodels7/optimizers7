@@ -116,6 +116,7 @@ reference:
   contents:
   - optimizer
   - check_criterion
+  - check_bounds
   - optimizer_provides
   - bounded_transform
   - bounded_forward

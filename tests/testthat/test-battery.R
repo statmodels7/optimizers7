@@ -163,11 +163,11 @@ Liar <- S7::new_class("Liar", parent = optimizer,
                       properties = list(lie = S7::class_character))
 
 S7::method(minimize, Liar) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
     r <- minimize(bfgs(criterion = optimizer@criterion,
                        maxit = optimizer@maxit,
                        keep_trace = optimizer@keep_trace),
-                  fn, par, gr = gr, he = he, bounds = bounds)
+                  fn, par, gr = gr, he = he, lower = lower, upper = upper)
     switch(optimizer@lie,
       value     = r@value <- r@value + 1,
       converged = { r@converged <- TRUE
@@ -227,10 +227,10 @@ test_that("an honest optimiser of the same shape passes, so the checks are not t
   # replaced for whatever ran after it.
   Honest <- S7::new_class("Honest", parent = optimizer)
   S7::method(minimize, Honest) <-
-    function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+    function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
       minimize(bfgs(criterion = optimizer@criterion, maxit = optimizer@maxit,
                     keep_trace = optimizer@keep_trace),
-               fn, par, gr = gr, he = he, bounds = bounds)
+               fn, par, gr = gr, he = he, lower = lower, upper = upper)
     }
   honest <- Honest(name = "honest", criterion = crit_grad(1e-8), maxit = 200,
                    max_eval = 10000, verbose = FALSE, refresh = 10,

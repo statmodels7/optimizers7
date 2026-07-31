@@ -233,7 +233,7 @@ hb_run <- function(o, fn, par, gr) {
 }
 
 S7::method(minimize, HeavyBall) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
     if (is.null(gr)) stop("heavy_ball() needs a gradient.", call. = FALSE)
     hb_run(optimizer, fn, par, gr)
   }
@@ -277,30 +277,33 @@ And read the two failed checks second, because they are the more useful half.
 Nothing above is wrong with the *algorithm*. What is wrong is that the method
 accepted two arguments and did nothing with them.
 
-**It ignored `bounds`.** The signature has to include it — S7 requires a
-method's formals to contain every named argument of the generic — and the
-easiest thing to do with an argument you did not plan for is to let it sit
+**It ignored `lower` and `upper`.** The signature has to include them — S7
+requires a method's formals to contain every named argument of the generic — and
+the easiest thing to do with an argument you did not plan for is to let it sit
 there. A caller then passes a box, gets no error, and receives an answer outside
-it. Removing the box is four lines, because
-`bounded_transform()` does the work:
+it.
+
+Removing the box is a few lines, because `check_bounds()` normalises the two
+vectors into one pair per coordinate and `bounded_transform()` does the rest:
 
 ```{r}
 suppressMessages(
 S7::method(minimize, HeavyBall) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
     if (is.null(gr)) stop("heavy_ball() needs a gradient.", call. = FALSE)
     check_criterion(optimizer)                                     # (2)
 
-    if (is.null(bounds)) return(hb_run(optimizer, fn, par, gr))    # (1)
+    bx <- check_bounds(lower, upper, par)                       # (1)
+    if (!length(bx)) return(hb_run(optimizer, fn, par, gr))
 
     # Optimise in eta, where there is no box, and map back to report. The
     # Jacobian is diagonal, so the chain rule is one multiplication.
     hh <- function(e) vapply(seq_along(e),
-            function(j) bounded_transform(bounds[[j]], e[j])$h, 0)
+            function(j) bounded_transform(bx[[j]], e[j])$h, 0)
     dd <- function(e) vapply(seq_along(e),
-            function(j) bounded_transform(bounds[[j]], e[j])$d1, 0)
+            function(j) bounded_transform(bx[[j]], e[j])$d1, 0)
     eta0 <- vapply(seq_along(par),
-                   function(j) bounded_forward(bounds[[j]], par[j]), 0)
+                   function(j) bounded_forward(bx[[j]], par[j]), 0)
 
     res <- hb_run(optimizer,
                   function(e) fn(hh(e)),

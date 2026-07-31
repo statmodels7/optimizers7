@@ -120,7 +120,7 @@ without knowing they exist:
 y <- rnorm(200, mean = 0, sd = 2)
 nll <- function(p) length(y) * log(p) + sum(y^2) / (2 * p^2)
 
-minimize(bfgs(), nll, par = 1, bounds = list(c(0, Inf)))@par
+minimize(bfgs(), nll, par = 1, lower = 0)@par
 #> [1] 1.854906
 sqrt(mean(y^2))
 #> [1] 1.854906

@@ -160,7 +160,7 @@ test_that("a full-sample Adam accepts every criterion", {
 
 test_that("Adam respects a box, and reports on the user's scale", {
   r <- minimize(adam(alpha = 0.1, maxit = 4000), quad, c(0.5, 0.5),
-                gr = quad_g, bounds = list(c(0, 5), c(0, 1)))
+                gr = quad_g, lower = c(0, 0), upper = c(5, 1))
   expect_gt(r@par[2], 0.99)
   expect_lt(r@par[2], 1)
   expect_equal(r@par[1], 1, tolerance = 1e-3)

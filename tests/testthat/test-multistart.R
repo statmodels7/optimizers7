@@ -63,7 +63,7 @@ test_that("random starts respect bounds without a single rejected draw", {
   y <- rnorm(200, mean = 0, sd = 2)
   nll <- function(p) length(y) * log(p[1]) + sum(y^2) / (2 * p[1]^2)
   r <- minimize(multistart(bfgs(), n = 10, spread = 2), nll, par = 1,
-                bounds = list(c(0, Inf)))
+                lower = 0)
   expect_true(r@converged)
   expect_equal(r@par, sqrt(mean(y^2)), tolerance = 1e-6)
   expect_gt(r@par, 0)
@@ -107,6 +107,8 @@ test_that("a Latin hypercube uses each stratum once", {
   # cluster in one part of the range. With m = n - 1 random starts, one falls in
   # each of the m equal strata of the sampling interval.
   set.seed(8)
+  # make_starts takes the NORMALISED shape, one pair per parameter, which is
+  # what check_bounds() produces from lower and upper. An empty list is no box.
   S <- make_starts(par = 0, n = 21, spread = 1, bounds = list())
   x <- S[-1, 1]
   half <- 3                                   # 3 * spread * max(1, |0|)

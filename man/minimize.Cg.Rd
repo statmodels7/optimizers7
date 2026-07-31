@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{Cg} object.}
 
-\item{fn, par, gr, he, bounds, ...}{As in \code{\link{minimize}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}.}
 }
 \value{
 An \code{\link{optimizer_result}}.

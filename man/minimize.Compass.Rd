@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{Compass} object.}
 
-\item{fn, par, gr, he, bounds, ...}{As in \code{\link{minimize}}. \code{gr} and
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} and
 \code{he} are accepted and ignored.}
 }
 \value{

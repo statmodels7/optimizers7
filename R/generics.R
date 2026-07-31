@@ -18,9 +18,9 @@ NULL
 #'   own gradient.
 #' @param he An optional Hessian function. Methods that do not use one ignore
 #'   it, so calling code need not branch on the algorithm.
-#' @param bounds Optional box constraints: a list with one length-2 numeric
-#'   vector per parameter, \code{c(lower, upper)}, using \code{-Inf} and
-#'   \code{Inf} for a side that is unbounded. See Details.
+#' @param lower,upper Box constraints. Numeric, of length one — applying to
+#'   every parameter — or one value per parameter. Default \code{-Inf} and
+#'   \code{Inf}, which is no constraint at all. See Details.
 #' @param ... Passed to methods.
 #'
 #' @details
@@ -33,6 +33,13 @@ NULL
 #' A gradient that is not supplied is computed by central finite differences.
 #' The result records which derivatives were supplied and which were
 #' differenced, so a run is never silently less exact than it appears.
+#'
+#' \code{lower} and \code{upper} are two vectors rather than a list of pairs,
+#' which is what \code{\link[stats]{optim}} and \code{\link[stats]{nlminb}}
+#' take, and what lets \code{lower = 0} say "every parameter is positive"
+#' without writing out one pair per coefficient. Recycling is length one or one
+#' per parameter and nothing between, since anything else is far more likely to
+#' be a mistake than a request.
 #'
 #' \strong{Bounds are removed, not enforced.} Each bounded coordinate is
 #' reparametrised onto the whole real line — a shifted log for one-sided bounds,
@@ -60,16 +67,20 @@ NULL
 #' # and without, so the gradient is differenced
 #' minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #'
-#' # with a box: the unconstrained minimum is at (1, 2), so the second
-#' # coordinate is pushed against its ceiling
+#' # one bound for every parameter: a scale that must stay positive
+#' minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
+#'
+#' # or one per parameter. The unconstrained minimum is at (1, 2), so the
+#' # second coordinate is pushed against its ceiling of 1.
 #' minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
-#'          bounds = list(c(0, 5), c(0, 1)))
+#'          lower = c(0, 0), upper = c(5, 1))
 #'
 #' @seealso \code{\link{maximize}}, \code{\link{gd}},
 #'   \code{\link{crit_any}}
 #' @export
 minimize <- S7::new_generic("minimize", "optimizer",
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...)
     S7::S7_dispatch())
 
 
@@ -96,7 +107,7 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' @seealso \code{\link{minimize}}
 #' @export
 maximize <- function(optimizer, fn, par, gr = NULL, he = NULL,
-                     bounds = NULL, ...) {
+                     lower = -Inf, upper = Inf, ...) {
   if (!is.function(fn)) {
     stop("maximize() takes a plain function; negate other objectives yourself.",
          call. = FALSE)
@@ -106,7 +117,7 @@ maximize <- function(optimizer, fn, par, gr = NULL, he = NULL,
   neg_he <- if (is.null(he)) NULL else function(p) -he(p)
 
   res <- minimize(optimizer, neg_fn, par, gr = neg_gr, he = neg_he,
-                  bounds = bounds, ...)
+                  lower = lower, upper = upper, ...)
 
   res@value <- -res@value
   if (!is.null(res@gradient)) res@gradient <- -res@gradient

@@ -4,7 +4,16 @@
 \alias{minimize}
 \title{Minimise a Function}
 \usage{
-minimize(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
+minimize(
+  optimizer,
+  fn,
+  par,
+  gr = NULL,
+  he = NULL,
+  lower = -Inf,
+  upper = Inf,
+  ...
+)
 }
 \arguments{
 \item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
@@ -21,9 +30,9 @@ own gradient.}
 \item{he}{An optional Hessian function. Methods that do not use one ignore
 it, so calling code need not branch on the algorithm.}
 
-\item{bounds}{Optional box constraints: a list with one length-2 numeric
-vector per parameter, \code{c(lower, upper)}, using \code{-Inf} and
-\code{Inf} for a side that is unbounded. See Details.}
+\item{lower, upper}{Box constraints. Numeric, of length one — applying to
+every parameter — or one value per parameter. Default \code{-Inf} and
+\code{Inf}, which is no constraint at all. See Details.}
 
 \item{...}{Passed to methods.}
 }
@@ -44,6 +53,13 @@ accepts it.
 A gradient that is not supplied is computed by central finite differences.
 The result records which derivatives were supplied and which were
 differenced, so a run is never silently less exact than it appears.
+
+\code{lower} and \code{upper} are two vectors rather than a list of pairs,
+which is what \code{\link[stats]{optim}} and \code{\link[stats]{nlminb}}
+take, and what lets \code{lower = 0} say "every parameter is positive"
+without writing out one pair per coefficient. Recycling is length one or one
+per parameter and nothing between, since anything else is far more likely to
+be a mistake than a request.
 
 \strong{Bounds are removed, not enforced.} Each bounded coordinate is
 reparametrised onto the whole real line — a shifted log for one-sided bounds,
@@ -69,10 +85,13 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2),
 # and without, so the gradient is differenced
 minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 
-# with a box: the unconstrained minimum is at (1, 2), so the second
-# coordinate is pushed against its ceiling
+# one bound for every parameter: a scale that must stay positive
+minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
+
+# or one per parameter. The unconstrained minimum is at (1, 2), so the
+# second coordinate is pushed against its ceiling of 1.
 minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
-         bounds = list(c(0, 5), c(0, 1)))
+         lower = c(0, 0), upper = c(5, 1))
 
 }
 \seealso{

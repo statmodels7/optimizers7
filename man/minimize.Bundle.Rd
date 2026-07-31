@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{Bundle} object.}
 
-\item{fn, par, gr, he, bounds, ...}{As in \code{\link{minimize}}. \code{gr} should
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} should
 return a subgradient; \code{he} is ignored.}
 }
 \value{

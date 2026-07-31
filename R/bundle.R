@@ -248,16 +248,17 @@ S7::method(optimizer_provides, Bundle) <- function(optimizer)
 #' @name minimize.Bundle
 #' @description Runs \code{\link{bundle}} on the objective.
 #' @param optimizer A \code{Bundle} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}. \code{gr} should
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}. \code{gr} should
 #'   return a subgradient; \code{he} is ignored.
 #' @return An \code{\link{optimizer_result}}, whose \code{gradient} is the
 #'   \emph{aggregate} subgradient, the one quantity of that shape which goes to
 #'   zero at a solution.
 #' @keywords internal
 S7::method(minimize, Bundle) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
     spec <- prepare_objective(optimizer, fn, par, gr, he)
-    bounds <- check_bounds(bounds, par)
+    bounds <- check_bounds(lower, upper, par)
 
     t0 <- proc.time()[["elapsed"]]
     out <- bundle_run(

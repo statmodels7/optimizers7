@@ -198,15 +198,15 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
 #'
 #' @param optimizer The \code{\link{optimizer}}.
 #' @param fn,par,gr,he The problem, as the user supplied it.
-#' @param bounds Optional box constraints, as in \code{\link{minimize}}.
+#' @param lower,upper Box constraints, as in \code{\link{minimize}}.
 #' @param method A list describing the direction to the compiled loop.
 #'
 #' @return An \code{\link{optimizer_result}}.
 #'
 #' @keywords internal
-run_descent <- function(optimizer, fn, par, gr, he, bounds, method) {
+run_descent <- function(optimizer, fn, par, gr, he, lower, upper, method) {
   spec <- prepare_objective(optimizer, fn, par, gr, he)
-  bounds <- check_bounds(bounds, par)
+  bounds <- check_bounds(lower, upper, par)
 
   t0 <- proc.time()[["elapsed"]]
   out <- descent_run(
@@ -252,48 +252,85 @@ check_line_search <- function(x) {
 }
 
 
-#' Validate Box Constraints
+#' @title Normalise Box Constraints
 #'
 #' @description
-#' Checks that the bounds are well formed and that the starting value lies
-#' strictly inside them, and returns them in the shape the compiled loop reads.
+#' Recycles \code{lower} and \code{upper} to the length of \code{par}, checks
+#' them, and returns them in the shape the compiled loop reads.
 #'
 #' @details
+#' The interface is two numeric vectors rather than a list of pairs, which is
+#' what \code{stats::optim} and \code{stats::nlminb} take and what makes
+#' \code{lower = 0} say "every parameter is positive" in four characters instead
+#' of a list of identical pairs one per coefficient. The list of pairs is an
+#' internal shape, produced here, because that is what the per-coordinate
+#' transform on the C++ side wants.
+#'
+#' Recycling is length one or length \code{p} and nothing between: a
+#' \code{lower} of length 2 for three parameters is far more likely to be a
+#' mistake than a request, and R's ordinary recycling would silently oblige.
+#'
 #' The starting value must be strictly interior, and refusing a boundary start
 #' is not pedantry. The reparametrisation sends a bound to an infinite value of
 #' the transformed variable, so a run started exactly on one begins at infinity:
 #' every subsequent quantity is non-finite and the failure surfaces far from its
 #' cause. Saying so here, naming the coordinate, costs one check.
 #'
-#' @param bounds A list of length-2 numeric vectors, or \code{NULL}.
+#' @param lower,upper Numeric, of length one or \code{length(par)}.
 #' @param par The starting value.
 #'
-#' @return A list of length-2 numeric vectors, or an empty list when there are
-#'   no bounds — the compiled side reads an empty list as "unconstrained".
+#' @return A list with one \code{c(lower, upper)} pair per parameter, or an
+#'   empty list when no bound is finite. Call it at the top of a
+#'   \code{\link{minimize}} method of your own, then hand each pair to
+#'   \code{\link{bounded_transform}}; an empty list means there is no box and
+#'   the whole reparametrisation should be skipped.
 #'
-#' @keywords internal
-check_bounds <- function(bounds, par) {
-  if (is.null(bounds)) return(list())
-  if (!is.list(bounds) || length(bounds) != length(par)) {
-    stop("'bounds' must be a list with one element per parameter.",
-         call. = FALSE)
+#' @examples
+#' check_bounds(0, Inf, par = c(1, 2))
+#' check_bounds(c(0, -5), c(1, 5), par = c(0.5, 0))
+#'
+#' # no finite bound is no box at all
+#' length(check_bounds(-Inf, Inf, par = c(1, 2)))
+#'
+#' # and a start on a bound is refused, naming the coordinate
+#' try(check_bounds(0, 1, par = c(0.5, 1)))
+#'
+#' @seealso \code{\link{bounded_transform}}, \code{\link{minimize}}
+#' @export
+check_bounds <- function(lower, upper, par) {
+  p <- length(par)
+  fix <- function(v, nm) {
+    if (is.null(v)) return(rep(if (nm == "lower") -Inf else Inf, p))
+    if (!is.numeric(v) || anyNA(v)) {
+      stop("'", nm, "' must be numeric and not NA.", call. = FALSE)
+    }
+    if (length(v) == 1L) return(rep(as.numeric(v), p))
+    if (length(v) != p) {
+      stop("'", nm, "' must have length 1 or ", p,
+           ", one per parameter; it has length ", length(v), ".", call. = FALSE)
+    }
+    as.numeric(v)
   }
-  out <- vector("list", length(par))
-  for (i in seq_along(bounds)) {
-    b <- bounds[[i]]
-    if (!is.numeric(b) || length(b) != 2L || anyNA(b)) {
-      stop("Element ", i, " of 'bounds' must be c(lower, upper).", call. = FALSE)
+  lo <- fix(lower, "lower")
+  up <- fix(upper, "upper")
+
+  # Nothing finite means no box at all, and the compiled loop then skips the
+  # whole reparametrisation rather than composing with the identity p times.
+  if (all(!is.finite(lo)) && all(!is.finite(up))) return(list())
+
+  out <- vector("list", p)
+  for (i in seq_len(p)) {
+    if (lo[i] >= up[i]) {
+      stop("For parameter ", i, " the lower bound must be strictly below the ",
+           "upper one; they are ", format(lo[i]), " and ", format(up[i]), ".",
+           call. = FALSE)
     }
-    if (b[1] >= b[2]) {
-      stop("In 'bounds' element ", i, ", the lower bound must be strictly ",
-           "below the upper one.", call. = FALSE)
-    }
-    if (par[i] <= b[1] || par[i] >= b[2]) {
+    if (par[i] <= lo[i] || par[i] >= up[i]) {
       stop("The starting value for parameter ", i, " must lie strictly inside ",
-           "its bounds (", format(b[1]), ", ", format(b[2]), "); it is ",
+           "its bounds (", format(lo[i]), ", ", format(up[i]), "); it is ",
            format(par[i]), ".", call. = FALSE)
     }
-    out[[i]] <- as.numeric(b)
+    out[[i]] <- c(lo[i], up[i])
   }
   out
 }

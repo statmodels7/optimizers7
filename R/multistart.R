@@ -235,17 +235,18 @@ make_starts <- function(par, n, spread, bounds) {
 #' @name minimize.MultiStart
 #' @description Runs \code{\link{multistart}} on the objective.
 #' @param optimizer A \code{MultiStart} object.
-#' @param fn,par,gr,he,bounds,... As in \code{\link{minimize}}.
+#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
 #' @return An \code{\link{optimizer_result}}: the best run, with the per-start
 #'   summary in its \code{trace}.
 #' @keywords internal
 S7::method(minimize, MultiStart) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
+  function(optimizer, fn, par, gr = NULL, he = NULL,
+           lower = -Inf, upper = Inf, ...) {
     inner <- optimizer@optimizer
     # Validate once, here, so that a bad criterion or a start outside its bounds
     # is refused before n runs are launched rather than n times over.
     prepare_objective(inner, fn, par, gr, he)
-    bx <- check_bounds(bounds, par)
+    bx <- check_bounds(lower, upper, par)
 
     seed <- capture_seed()
     S <- optimizer@starts
@@ -259,7 +260,8 @@ S7::method(minimize, MultiStart) <-
 
     n <- nrow(S)
     one <- function(i) {
-      tryCatch(minimize(inner, fn, S[i, ], gr = gr, he = he, bounds = bounds),
+      tryCatch(minimize(inner, fn, S[i, ], gr = gr, he = he,
+                        lower = lower, upper = upper),
                error = function(e) conditionMessage(e))
     }
 

@@ -2,28 +2,55 @@
 % Please edit documentation in R/methods.R
 \name{check_bounds}
 \alias{check_bounds}
-\title{Validate Box Constraints}
+\title{Normalise Box Constraints}
 \usage{
-check_bounds(bounds, par)
+check_bounds(lower, upper, par)
 }
 \arguments{
-\item{bounds}{A list of length-2 numeric vectors, or \code{NULL}.}
+\item{lower, upper}{Numeric, of length one or \code{length(par)}.}
 
 \item{par}{The starting value.}
 }
 \value{
-A list of length-2 numeric vectors, or an empty list when there are
-no bounds — the compiled side reads an empty list as "unconstrained".
+A list with one \code{c(lower, upper)} pair per parameter, or an
+empty list when no bound is finite. Call it at the top of a
+\code{\link{minimize}} method of your own, then hand each pair to
+\code{\link{bounded_transform}}; an empty list means there is no box and
+the whole reparametrisation should be skipped.
 }
 \description{
-Checks that the bounds are well formed and that the starting value lies
-strictly inside them, and returns them in the shape the compiled loop reads.
+Recycles \code{lower} and \code{upper} to the length of \code{par}, checks
+them, and returns them in the shape the compiled loop reads.
 }
 \details{
+The interface is two numeric vectors rather than a list of pairs, which is
+what \code{stats::optim} and \code{stats::nlminb} take and what makes
+\code{lower = 0} say "every parameter is positive" in four characters instead
+of a list of identical pairs one per coefficient. The list of pairs is an
+internal shape, produced here, because that is what the per-coordinate
+transform on the C++ side wants.
+
+Recycling is length one or length \code{p} and nothing between: a
+\code{lower} of length 2 for three parameters is far more likely to be a
+mistake than a request, and R's ordinary recycling would silently oblige.
+
 The starting value must be strictly interior, and refusing a boundary start
 is not pedantry. The reparametrisation sends a bound to an infinite value of
 the transformed variable, so a run started exactly on one begins at infinity:
 every subsequent quantity is non-finite and the failure surfaces far from its
 cause. Saying so here, naming the coordinate, costs one check.
 }
-\keyword{internal}
+\examples{
+check_bounds(0, Inf, par = c(1, 2))
+check_bounds(c(0, -5), c(1, 5), par = c(0.5, 0))
+
+# no finite bound is no box at all
+length(check_bounds(-Inf, Inf, par = c(1, 2)))
+
+# and a start on a bound is refused, naming the coordinate
+try(check_bounds(0, 1, par = c(0.5, 1)))
+
+}
+\seealso{
+\code{\link{bounded_transform}}, \code{\link{minimize}}
+}
