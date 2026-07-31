@@ -11,22 +11,21 @@ optimizer_provides(optimizer)
 }
 \value{
 A character vector. The names the shipped criteria read are
-\code{"gradient"}, \code{"objective"} and \code{"stationarity"}.
+\code{"gradient"} and \code{"stationarity"}.
 }
 \description{
 The names of the \code{state} components an optimiser is able to fill in, so
 that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
 }
 \details{
-Gradient-based methods provide a gradient and a reproducible objective value.
-The derivative-free ones provide neither a gradient nor anything a gradient
-rule could read, and a subsampling \code{\link{adam}} provides nothing at
-all, since both its objective and its gradient are then estimates whose noise
-a tolerance would be measuring instead of the progress.
+Gradient-based methods provide a gradient. The derivative-free ones provide
+a stationarity measure instead, since no single derivative they could report
+goes to zero at a solution.
 
-A method of your own inherits the default, which claims a gradient and an
-objective. If that is not true of it, say so: the whole refusal machinery
-rests on this being honest.
+Every optimiser evaluates the objective, so there is no token for that and
+rules reading it are never refused. A method of your own inherits the
+default, which claims a gradient; if that is not true of it, say so, because
+the whole refusal machinery rests on this being honest.
 }
 \examples{
 optimizer_provides(bfgs())

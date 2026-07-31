@@ -176,8 +176,6 @@ crit_grad <- function(tol = 1e-8, norm = c("max", "2")) {
 CritAbsObj <- S7::new_class("CritAbsObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
 
-S7::method(crit_needs, CritAbsObj) <- function(criterion) "objective"
-
 S7::method(crit_met, CritAbsObj) <- function(criterion, state) {
   if (is.null(state$f_old) || !is.finite(state$f_old)) return(FALSE)
   abs(state$f_new - state$f_old) < criterion@tol
@@ -211,8 +209,6 @@ crit_abs_obj <- function(tol = 1e-10) {
 #' @keywords internal
 CritRelObj <- S7::new_class("CritRelObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
-
-S7::method(crit_needs, CritRelObj) <- function(criterion) "objective"
 
 S7::method(crit_met, CritRelObj) <- function(criterion, state) {
   if (is.null(state$f_old) || !is.finite(state$f_old)) return(FALSE)

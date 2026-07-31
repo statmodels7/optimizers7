@@ -24,20 +24,17 @@ NULL
 #' @param optimizer The \code{\link{optimizer}}.
 #' @param fn,gr,he The objective and its optional derivatives, as supplied.
 #' @param par The starting value.
-#' @param note An optional extra sentence appended when a criterion is refused,
-#'   for a method whose reason is not simply that it computes no such quantity.
 #'
 #' @return The objective handle from \code{\link{as_objective}}.
 #'
 #' @keywords internal
-prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
-                              note = NULL) {
+prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
   if (!is.numeric(par) || !length(par) || anyNA(par)) {
     stop("'par' must be a numeric vector of starting values.", call. = FALSE)
   }
   spec <- as_objective(fn, gr, he)
 
-  check_criterion(optimizer, note)
+  check_criterion(optimizer)
   spec
 }
 
@@ -49,8 +46,6 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
 #' supply, and stops if the rule asks for something absent.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
-#' @param note An optional extra sentence, for a method whose reason is not
-#'   simply that it computes no such quantity.
 #'
 #' @details
 #' Call this at the top of a \code{\link{minimize}} method of your own. A rule
@@ -60,8 +55,8 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
 #' by name, is what \code{\link{check_optimizer}} tests for.
 #'
 #' What an optimiser can supply is declared by
-#' \code{\link{optimizer_provides}}, whose default says a gradient and an
-#' objective. Override that if your method has neither.
+#' \code{\link{optimizer_provides}}, whose default claims a gradient. Override
+#' that if your method computes none.
 #'
 #' @return Invisibly \code{TRUE}; raises an error otherwise.
 #'
@@ -71,7 +66,7 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL,
 #'
 #' @seealso \code{\link{optimizer_provides}}, \code{\link{crit_needs}}
 #' @export
-check_criterion <- function(optimizer, note = NULL) {
+check_criterion <- function(optimizer) {
   needs <- crit_needs(optimizer@criterion)
   provides <- optimizer_provides(optimizer)
   missing <- setdiff(needs, provides)
@@ -81,7 +76,6 @@ check_criterion <- function(optimizer, note = NULL) {
              "  Choose a criterion this optimiser can evaluate, or a method ",
              "that provides it."),
       paste(missing, collapse = ", "), optimizer@name)
-    if (!is.null(note)) msg <- paste0(msg, "\n  ", note)
     stop(msg, call. = FALSE)
   }
   invisible(TRUE)
@@ -95,20 +89,19 @@ check_criterion <- function(optimizer, note = NULL) {
 #' that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
 #'
 #' @details
-#' Gradient-based methods provide a gradient and a reproducible objective value.
-#' The derivative-free ones provide neither a gradient nor anything a gradient
-#' rule could read, and a subsampling \code{\link{adam}} provides nothing at
-#' all, since both its objective and its gradient are then estimates whose noise
-#' a tolerance would be measuring instead of the progress.
+#' Gradient-based methods provide a gradient. The derivative-free ones provide
+#' a stationarity measure instead, since no single derivative they could report
+#' goes to zero at a solution.
 #'
-#' A method of your own inherits the default, which claims a gradient and an
-#' objective. If that is not true of it, say so: the whole refusal machinery
-#' rests on this being honest.
+#' Every optimiser evaluates the objective, so there is no token for that and
+#' rules reading it are never refused. A method of your own inherits the
+#' default, which claims a gradient; if that is not true of it, say so, because
+#' the whole refusal machinery rests on this being honest.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
 #'
 #' @return A character vector. The names the shipped criteria read are
-#'   \code{"gradient"}, \code{"objective"} and \code{"stationarity"}.
+#'   \code{"gradient"} and \code{"stationarity"}.
 #'
 #' @examples
 #' optimizer_provides(bfgs())
@@ -119,8 +112,7 @@ check_criterion <- function(optimizer, note = NULL) {
 optimizer_provides <- S7::new_generic("optimizer_provides", "optimizer",
                                       function(optimizer) S7::S7_dispatch())
 
-S7::method(optimizer_provides, optimizer) <- function(optimizer)
-  c("gradient", "objective")
+S7::method(optimizer_provides, optimizer) <- function(optimizer) "gradient"
 
 
 #' Assemble the Result of a Run

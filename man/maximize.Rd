@@ -10,8 +10,8 @@ maximize(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
 \item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
 its settings.}
 
-\item{fn}{The objective: an ordinary R function of the parameter vector, a
-\code{\link{finite_sum}} object, or a \code{\link{cpp_objective}}.}
+\item{fn}{The objective: an ordinary R function of the parameter vector, or
+a \code{\link{cpp_objective}}.}
 
 \item{par}{A numeric vector of starting values.}
 

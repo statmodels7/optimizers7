@@ -1,21 +1,26 @@
 #' @include criterion.R
 NULL
 
-# The objective, and the three shapes it may arrive in.
+# The objective, and the two shapes it may arrive in.
 #
 # minimize() dispatches on the optimizer, so an algorithm is written once.
-# as_objective() dispatches on the objective, so the three shapes are told apart
+# as_objective() dispatches on the objective, so the two shapes are told apart
 # once. Each generic dispatches where there is real variation; dispatching
 # minimize() on both would need one method per algorithm per shape, and every
-# algorithm would be written three times.
+# algorithm would be written twice.
+#
+# There was a third, finite_sum(), an objective declaring itself a sum over
+# observations so that a stochastic method could ask it for a subsample. It
+# existed for exactly one caller, Adam, and went when Adam stopped drawing its
+# own minibatches: an objective that resamples is a closure, and needs no class.
 
 
 #' @title Normalise an Objective for the Optimisers
 #'
 #' @description
-#' Turns whatever the user supplied — an R function, a finite sum over
-#' observations, or a compiled C++ function behind an external pointer — into the
-#' single handle the algorithms are written against.
+#' Turns whatever the user supplied — an R function or a compiled C++ function
+#' behind an external pointer — into the single handle the algorithms are
+#' written against.
 #'
 #' @param fn The objective.
 #' @param gr An optional gradient.
@@ -32,7 +37,7 @@ NULL
 #' str(as_objective(function(p) sum(p^2)))
 #' str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #'
-#' @seealso \code{\link{finite_sum}}, \code{\link{cpp_objective}}
+#' @seealso \code{\link{cpp_objective}}
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
                                 function(fn, gr = NULL, he = NULL, ...)
@@ -60,113 +65,6 @@ S7::method(as_objective, S7::class_function) <-
     list(kind = "r", fn = fn, gr = gr, he = he,
          has_gradient = !is.null(gr), has_hessian = !is.null(he))
   }
-
-
-# --- finite sums ------------------------------------------------------------
-
-#' @title S7 Class for a Finite-Sum Objective
-#'
-#' @description
-#' The class \code{\link{finite_sum}} instantiates: an objective that is a sum
-#' over observations and can therefore be evaluated on a subset of them.
-#'
-#' @param fn A function \code{fn(par, idx)}.
-#' @param gr An optional \code{gr(par, idx)}.
-#' @param n The number of terms.
-#'
-#' @return An S7 object of class \code{FiniteSum}.
-#'
-#' @seealso \code{\link{finite_sum}}
-#' @keywords internal
-FiniteSum <- S7::new_class("FiniteSum",
-  properties = list(
-    fn = S7::class_function,
-    gr = S7::class_any,
-    n  = S7::class_numeric
-  ))
-
-
-#' @title An Objective That Is a Sum Over Observations
-#'
-#' @description
-#' Declares that the objective is \eqn{\sum_{i=1}^{n} f_i(\theta)}, so that a
-#' stochastic method may evaluate it on a subset of the terms.
-#'
-#' @param fn A function \code{fn(par, idx)} returning the sum of the terms
-#'   indexed by \code{idx}.
-#' @param gr An optional \code{gr(par, idx)} returning that sum's gradient.
-#' @param n The number of terms.
-#'
-#' @details
-#' Subsampling is not a property of an algorithm; it is a property of the
-#' objective. A black-box \code{fn(par)} has no terms to draw from — the
-#' optimiser does not know what an observation is and must not guess — so a
-#' method that wants to subsample can only be given an objective that has said
-#' it may. That is what this constructor is for.
-#'
-#' The full-sample value is \code{fn(par, seq_len(n))}, so an ordinary
-#' evaluation is a special case and nothing is duplicated.
-#'
-#' @return An S7 object of class \code{FiniteSum}, accepted by
-#'   \code{\link{minimize}} anywhere an objective is.
-#'
-#' @examples
-#' set.seed(1)
-#' y <- rnorm(100, mean = 2)
-#'
-#' # the negative Gaussian log-likelihood in the mean, as a sum over observations
-#' obj <- finite_sum(
-#'   fn = function(par, idx) sum((y[idx] - par)^2) / 2,
-#'   gr = function(par, idx) -sum(y[idx] - par),
-#'   n  = length(y)
-#' )
-#' obj@n
-#'
-#' @seealso \code{\link{as_objective}}, \code{\link{minimize}}
-#' @export
-finite_sum <- function(fn, gr = NULL, n) {
-  if (!is.function(fn)) stop("'fn' must be a function.", call. = FALSE)
-  if (!is.null(gr) && !is.function(gr)) {
-    stop("'gr' must be a function or NULL.", call. = FALSE)
-  }
-  if (length(n) != 1L || !is.numeric(n) || is.na(n) || n < 1) {
-    stop("'n' must be a single positive number of terms.", call. = FALSE)
-  }
-  if (length(formals(fn)) < 2L) {
-    stop("'fn' must take two arguments, fn(par, idx).", call. = FALSE)
-  }
-  FiniteSum(fn = fn, gr = gr, n = as.integer(n))
-}
-
-
-#' @title A Finite Sum as an Objective
-#' @name as_objective.FiniteSum
-#' @description
-#' Wraps the two-argument functions so that the algorithms see the usual
-#' one-argument interface, and keeps the pieces a stochastic method needs to
-#' subsample.
-#' @param fn A \code{\link{FiniteSum}} object.
-#' @param gr Ignored; the gradient belongs to the object.
-#' @param ... Unused.
-#' @return An objective handle; see \code{\link{as_objective}}.
-#' @keywords internal
-S7::method(as_objective, FiniteSum) <- function(fn, gr = NULL, he = NULL, ...) {
-  obj <- fn
-  n <- obj@n
-  all_idx <- seq_len(n)
-  gr_obj <- obj@gr
-  list(
-    kind = "finite_sum",
-    fn = function(par) obj@fn(par, all_idx),
-    gr = if (is.null(gr_obj)) NULL else function(par) gr_obj(par, all_idx),
-    fn_idx = obj@fn,
-    gr_idx = gr_obj,
-    n = n,
-    he = NULL,
-    has_gradient = !is.null(gr_obj),
-    has_hessian = FALSE
-  )
-}
 
 
 # --- compiled objectives ----------------------------------------------------

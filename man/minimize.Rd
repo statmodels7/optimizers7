@@ -10,8 +10,8 @@ minimize(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...)
 \item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
 its settings.}
 
-\item{fn}{The objective: an ordinary R function of the parameter vector, a
-\code{\link{finite_sum}} object, or a \code{\link{cpp_objective}}.}
+\item{fn}{The objective: an ordinary R function of the parameter vector, or
+a \code{\link{cpp_objective}}.}
 
 \item{par}{A numeric vector of starting values.}
 
@@ -36,7 +36,7 @@ The entry point of the package. Everything here minimises; see
 }
 \details{
 The generic dispatches on \code{optimizer} alone, so each algorithm is
-written once. Which of the three shapes \code{fn} arrived in is settled
+written once. Which of the two shapes \code{fn} arrived in is settled
 separately by \code{\link{as_objective}}, which dispatches on \code{fn} and
 hands every algorithm the same handle.
 

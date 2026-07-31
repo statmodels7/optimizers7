@@ -315,13 +315,13 @@ compass <- function(criterion = crit_stationary(1e-8),
 #' @return A character vector.
 #' @keywords internal
 S7::method(optimizer_provides, NelderMead) <- function(optimizer)
-  c("objective", "stationarity")
+  "stationarity"
 
 #' @rdname optimizer_provides.NelderMead
 #' @name optimizer_provides.Compass
 #' @keywords internal
 S7::method(optimizer_provides, Compass) <- function(optimizer)
-  c("objective", "stationarity")
+  "stationarity"
 
 
 #' @title Minimise by Nelder-Mead

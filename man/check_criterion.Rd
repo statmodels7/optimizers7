@@ -4,13 +4,10 @@
 \alias{check_criterion}
 \title{Refuse a Stopping Rule an Optimiser Cannot Evaluate}
 \usage{
-check_criterion(optimizer, note = NULL)
+check_criterion(optimizer)
 }
 \arguments{
 \item{optimizer}{An \code{\link{optimizer}}.}
-
-\item{note}{An optional extra sentence, for a method whose reason is not
-simply that it computes no such quantity.}
 }
 \value{
 Invisibly \code{TRUE}; raises an error otherwise.
@@ -27,8 +24,8 @@ iteration budget and report a reason nowhere near the truth. Refusing it here,
 by name, is what \code{\link{check_optimizer}} tests for.
 
 What an optimiser can supply is declared by
-\code{\link{optimizer_provides}}, whose default says a gradient and an
-objective. Override that if your method has neither.
+\code{\link{optimizer_provides}}, whose default claims a gradient. Override
+that if your method computes none.
 }
 \examples{
 check_criterion(bfgs())

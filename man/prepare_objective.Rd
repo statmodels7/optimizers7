@@ -4,7 +4,7 @@
 \alias{prepare_objective}
 \title{Prepare an Objective for an Algorithm}
 \usage{
-prepare_objective(optimizer, fn, par, gr = NULL, he = NULL, note = NULL)
+prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
 }
 \arguments{
 \item{optimizer}{The \code{\link{optimizer}}.}
@@ -12,9 +12,6 @@ prepare_objective(optimizer, fn, par, gr = NULL, he = NULL, note = NULL)
 \item{fn, gr, he}{The objective and its optional derivatives, as supplied.}
 
 \item{par}{The starting value.}
-
-\item{note}{An optional extra sentence appended when a criterion is refused,
-for a method whose reason is not simply that it computes no such quantity.}
 }
 \value{
 The objective handle from \code{\link{as_objective}}.

@@ -48,13 +48,13 @@ reference:
   - lbfgs
   - gradient_descent
 
-- title: Stochastic and large problems
+- title: Noisy and large problems
   desc: >
-    Adam, on the whole sample or on minibatches drawn from an objective that has
-    declared itself a sum over observations.
+    Adam, which tolerates a gradient that points downhill only on average. It
+    draws no minibatches of its own: an objective that resamples is a closure,
+    and belongs to whoever knows what an observation is.
   contents:
   - adam
-  - finite_sum
 
 - title: Problems with a kink
   desc: >

@@ -174,8 +174,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
 
   # [10] Every state component the optimiser does NOT provide must have its
   # criterion refused. An optimiser providing everything passes vacuously.
-  rules <- list(gradient = crit_grad(), objective = crit_abs_obj(),
-                stationarity = crit_stationary())
+  rules <- list(gradient = crit_grad(), stationarity = crit_stationary())
   unmet <- setdiff(names(rules), provides)
   ok[10] <- all(vapply(unmet, function(nm) {
     r <- run(with_criterion(optimizer, rules[[nm]]), sph)

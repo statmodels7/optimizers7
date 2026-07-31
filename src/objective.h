@@ -195,77 +195,22 @@ private:
 };
 
 
-// --- a finite sum over observations -----------------------------------------
-//
-// Evaluated on the whole sample here. The point of the class is that it KNOWS
-// it is a sum, so a stochastic method can ask it for a subsample; the frame
-// carries that knowledge from the start even though the only algorithm in the
-// skeleton never uses it.
-
-class FiniteSumObjective : public Objective {
-public:
-  FiniteSumObjective(SEXP fn, SEXP gr, int n)
-    : fn_(fn), gr_(gr), n_(n), has_gr_(gr != R_NilValue) {}
-
-  double value(const arma::vec& x) {
-    ++n_value;
-    Rcpp::NumericVector out = Rcpp::Function(fn_)(as_r_vector(x), all_idx());
-    return out[0];
-  }
-
-  arma::vec gradient(const arma::vec& x) {
-    ++n_grad;
-    Rcpp::NumericVector out = Rcpp::Function(gr_)(as_r_vector(x), all_idx());
-    return Rcpp::as<arma::vec>(out);
-  }
-
-  // A subsample of the terms, for a stochastic method. Draws through R's RNG so
-  // that set.seed() governs the run and it can be reproduced.
-  Rcpp::IntegerVector sample_idx(int m) const {
-    Rcpp::Function sample_int("sample.int", R_BaseNamespace);
-    return sample_int(n_, m);
-  }
-
-  double value_on(const arma::vec& x, Rcpp::IntegerVector idx) {
-    ++n_value;
-    Rcpp::NumericVector out = Rcpp::Function(fn_)(as_r_vector(x), idx);
-    return out[0];
-  }
-
-  arma::vec gradient_on(const arma::vec& x, Rcpp::IntegerVector idx) {
-    ++n_grad;
-    Rcpp::NumericVector out = Rcpp::Function(gr_)(as_r_vector(x), idx);
-    return Rcpp::as<arma::vec>(out);
-  }
-
-  bool has_gradient() const { return has_gr_; }
-  int n_terms() const { return n_; }
-
-private:
-  Rcpp::IntegerVector all_idx() const {
-    Rcpp::IntegerVector idx(n_);
-    for (int i = 0; i < n_; ++i) idx[i] = i + 1;
-    return idx;
-  }
-
-  SEXP fn_;
-  SEXP gr_;
-  int n_;
-  bool has_gr_;
-};
-
-
 // Build the right Objective from the handle as_objective() produced. The single
-// place in the package that knows the three shapes apart.
+// place in the package that knows the two shapes apart.
+//
+// There used to be a third, a finite sum that could be evaluated on a subset of
+// its terms, and it existed solely so that Adam could draw its own minibatches.
+// It went with that: an optimiser does not know what an observation is, and the
+// caller that does can hand it an objective which already resamples. Removing
+// the class removed a second kind of objective, a rule about which criteria it
+// allowed, and the branch here -- none of which was doing anything a closure
+// could not.
 inline Objective* make_objective(Rcpp::List spec) {
   std::string kind = Rcpp::as<std::string>(spec["kind"]);
   if (kind == "r") {
     return new RObjective(spec["fn"], spec["gr"], spec["he"]);
   } else if (kind == "cpp") {
     return new CppObjective(spec["fn_ptr"], spec["gr_ptr"]);
-  } else if (kind == "finite_sum") {
-    return new FiniteSumObjective(spec["fn_idx"], spec["gr_idx"],
-                                  Rcpp::as<int>(spec["n"]));
   }
   Rcpp::stop("Unknown objective kind '%s'.", kind);
   return nullptr;

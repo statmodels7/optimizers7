@@ -2,16 +2,23 @@
 //
 // Every other method in the package is a direction plus a line search, so they
 // share descent.cpp and differ only in the Direction they carry. Adam is not
-// one of those, on three counts, and forcing it into that shape would have
+// one of those, on two counts, and forcing it into that shape would have
 // changed the algorithm rather than reused the code:
 //
 //   * it takes no line search. Its step length is set by the accumulated
 //     second-moment estimate, and imposing a sufficient-decrease test on top
 //     would be a different algorithm wearing Adam's name;
 //   * it is not a descent method. The objective is allowed to rise, and that
-//     freedom is most of why it copes with a stochastic gradient at all;
-//   * it computes its OWN gradient, on a subsample it draws itself, so it
-//     cannot be handed one computed for it.
+//     freedom is most of why it copes with a gradient that points downhill
+//     only on average.
+//
+// WHAT IT DELIBERATELY DOES NOT DO IS DRAW ITS OWN SUBSAMPLES. An optimiser
+// does not know what an observation is, and a version that did would have to be
+// told -- which means a second kind of objective, a second kind of criterion,
+// and a rule for which combinations are allowed. All of that belonged to
+// whichever caller already knows the answer. Adam here optimises the objective
+// it is given; if that objective is stochastic, Adam is stochastic, and neither
+// side needs to negotiate about it.
 //
 // What is shared is shared: the stopping rule, the trace and the reporting all
 // come from loop_support.h, so the two loops cannot drift in what they report.
@@ -35,13 +42,11 @@ Rcpp::List adam_run(Rcpp::List spec,
                     double eps,
                     double decay,
                     bool amsgrad,
-                    double resample,
                     int maxit,
                     int max_eval,
                     bool verbose,
                     int refresh,
                     bool keep_trace,
-                    bool need_value,
                     Rcpp::List bounds) {
 
   std::unique_ptr<Objective> inner(make_objective(spec));
@@ -57,51 +62,13 @@ Rcpp::List adam_run(Rcpp::List spec,
     par = to_eta(coords, par);
   }
 
-  // Subsampling is a property of the objective, not of the algorithm: a black
-  // box f(par) has no terms to draw from. The R side has already refused the
-  // combination, so reaching here with the wrong kind would be an internal bug.
-  const bool stochastic = resample < 1.0;
-  FiniteSumObjective* fs = dynamic_cast<FiniteSumObjective*>(inner.get());
-  if (stochastic && fs == nullptr) {
-    Rcpp::stop("A resample below 1 needs a finite_sum() objective.");
-  }
-  int m = 0;
-  if (stochastic) {
-    m = static_cast<int>(std::ceil(resample * fs->n_terms()));
-    if (m < 1) m = 1;                       // never an empty batch
-    if (m > fs->n_terms()) m = fs->n_terms();
-  }
-
   const arma::uword p = par.n_elem;
   arma::vec x = par;
 
-  // The value on the WHOLE sample, at the start and at the end. A subsampled
-  // run reports a full-sample objective or it reports nothing comparable: two
-  // minibatch values differ by which terms were drawn as much as by where the
-  // parameters moved.
   double f = obj->value(x);
   if (!std::isfinite(f)) {
     Rcpp::stop("The objective is not finite at the starting value.");
   }
-
-  // One batch: the gradient, and optionally the value, at x. When bounded, the
-  // chain rule is applied here rather than by the decorator, because the
-  // decorator has no way to pass an index set through.
-  Rcpp::IntegerVector idx;
-  auto batch_grad = [&](const arma::vec& xx) {
-    if (!stochastic) return obj->grad(xx);
-    arma::vec th = bounded ? to_theta(coords, xx) : xx;
-    arma::vec g = fs->gradient_on(th, idx);
-    if (bounded) {
-      for (arma::uword i = 0; i < p; ++i) g[i] *= h_deriv1(coords[i], xx[i]);
-    }
-    return g;
-  };
-  auto batch_value = [&](const arma::vec& xx) {
-    if (!stochastic) return obj->value(xx);
-    arma::vec th = bounded ? to_theta(coords, xx) : xx;
-    return fs->value_on(th, idx);
-  };
 
   arma::vec mv(p, arma::fill::zeros);   // first moment
   arma::vec vv(p, arma::fill::zeros);   // second moment
@@ -130,9 +97,7 @@ Rcpp::List adam_run(Rcpp::List spec,
   for (it = 1; it <= maxit; ++it) {
     Rcpp::checkUserInterrupt();
 
-    if (stochastic) idx = fs->sample_idx(m);
-
-    const arma::vec g = batch_grad(x);
+    const arma::vec g = obj->grad(x);
     std::string guard = "none";
     const double gnorm = g.is_empty() ? 0.0 : arma::abs(g).max();
 
@@ -155,7 +120,8 @@ Rcpp::List adam_run(Rcpp::List spec,
 
     // The learning rate schedule. Constant by default, which is Adam as
     // published; with decay > 0 it is O(1/t), the Robbins-Monro condition a
-    // stochastic run needs to settle rather than rattle around the optimum.
+    // run on a noisy objective needs to settle rather than rattle around the
+    // optimum.
     const double at = alpha / (1.0 + decay * (it - 1));
 
     mv = beta1 * mv + (1.0 - beta1) * g;
@@ -191,7 +157,12 @@ Rcpp::List adam_run(Rcpp::List spec,
     have_prev = true;
     x -= dx;
 
-    if (need_value) f = batch_value(x);
+    // Evaluated every iteration, though the algorithm itself never reads it.
+    // Making it conditional saved one call and cost a silent defect: with the
+    // value left stale, a rule comparing f_new against f_old would compare a
+    // number against itself and fire at once. One evaluation is what every
+    // other method here already pays.
+    f = obj->value(x);
     const double step = arma::abs(dx).max();
 
     if (keep_trace) tr.push(it, f, gnorm, step, guard);
@@ -204,9 +175,6 @@ Rcpp::List adam_run(Rcpp::List spec,
                   << "  " << guard << "\n";
     }
 
-    // The INNER count, not the decorator's. A subsampled run calls the finite
-    // sum directly and never through the wrapper, so the wrapper's mirror of
-    // the count would sit at zero and the budget would never bite.
     if (inner->n_value >= max_eval) {
       note = "evaluation budget exhausted";
       stopped_by = "max_eval";
@@ -215,9 +183,8 @@ Rcpp::List adam_run(Rcpp::List spec,
   }
   if (it > maxit) it = maxit;
 
-  // The honest final report, on the whole sample and at the point actually
-  // reached. Anything else would let a lucky minibatch decide what the run
-  // claims to have achieved.
+  // The value and gradient at the point actually reached, rather than whatever
+  // the last iteration happened to have computed.
   const double f_end = obj->value(x);
   const arma::vec g_end = obj->grad(x);
 

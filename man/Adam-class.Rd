@@ -18,8 +18,7 @@ Adam(
   beta2 = integer(0),
   eps = integer(0),
   decay = integer(0),
-  amsgrad = logical(0),
-  resample = integer(0)
+  amsgrad = logical(0)
 )
 }
 \arguments{
@@ -32,8 +31,6 @@ Adam(
 \item{decay}{Rate at which the learning rate is reduced.}
 
 \item{amsgrad}{Whether to hold the second moment at its running maximum.}
-
-\item{resample}{Fraction of the observations used at each iteration.}
 }
 \value{
 An S7 object inheriting from \code{\link{optimizer}}.

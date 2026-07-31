@@ -241,7 +241,7 @@ bundle <- function(criterion = crit_stationary(1e-8),
 #' @return A character vector.
 #' @keywords internal
 S7::method(optimizer_provides, Bundle) <- function(optimizer)
-  c("objective", "stationarity")
+  "stationarity"
 
 
 #' @title Minimise by the Proximal Bundle Method

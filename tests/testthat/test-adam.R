@@ -1,11 +1,10 @@
-# Adam: the full-sample method, the stochastic one, and the refusals.
+# Adam, on an exact objective and on a noisy one.
 #
 # The tests below deliberately do NOT check that Adam beats the second-order
 # methods, because it does not and should not: on a small smooth problem it is
 # the wrong tool. What they check is that it converges to the right point when
-# given enough iterations, that the stochastic path finds the answer through the
-# noise, and that everything it cannot honestly report is refused rather than
-# quietly returned.
+# given enough iterations, and that it finds the answer through the noise of an
+# objective that resamples itself.
 
 quad <- function(p) sum((p - c(1, 2))^2)
 quad_g <- function(p) 2 * (p - c(1, 2))
@@ -86,77 +85,66 @@ test_that("decay shortens the steps monotonically", {
 })
 
 
-# --- subsampling ------------------------------------------------------------
+# --- a noisy objective, which is now the caller's business -------------------
+#
+# Adam no longer draws minibatches. It does not need to: an objective that
+# resamples is a closure, and Adam optimising a noisy objective is what
+# subsampling ever was. These tests are the same claims as before, made through
+# the interface that replaced the machinery.
 
-make_sum <- function(y) {
-  finite_sum(fn = function(par, idx) sum((y[idx] - par)^2) / 2,
-             gr = function(par, idx) -sum(y[idx] - par),
-             n  = length(y))
-}
-
-test_that("minibatch Adam finds the mean through the sampling noise", {
+test_that("Adam finds the mean through the noise of a resampling objective", {
   set.seed(11)
   y <- rnorm(1000, mean = 3)
-  r <- minimize(adam(alpha = 0.05, resample = 0.05, decay = 0.005,
-                     maxit = 4000),
-                make_sum(y), par = 0)
+  m <- 50
+  bf <- function(p) { i <- sample.int(1000, m); sum((y[i] - p)^2) / 2 }
+  bg <- function(p) { i <- sample.int(1000, m); -sum(y[i] - p) }
+
+  r <- minimize(adam(alpha = 0.05, decay = 0.005, maxit = 4000),
+                bf, par = 0, gr = bg)
   expect_equal(r@par, mean(y), tolerance = 1e-2)
 })
 
 
-test_that("the reported value and gradient are full-sample, not minibatch", {
-  set.seed(12)
-  y <- rnorm(400, mean = 1.5)
-  obj <- make_sum(y)
-  r <- minimize(adam(alpha = 0.05, resample = 0.1, maxit = 1500), obj, par = 0)
-
-  full_f <- sum((y - r@par)^2) / 2
-  full_g <- -sum(y - r@par)
-  expect_equal(r@value, full_f, tolerance = 1e-10)
-  expect_equal(r@gradient, full_g, tolerance = 1e-8)
-})
-
-
-test_that("the same seed gives the same stochastic run", {
+test_that("set.seed governs it, because the draws happen in the objective", {
   set.seed(13)
   y <- rnorm(300, mean = -1)
-  obj <- make_sum(y)
-  set.seed(99); a <- minimize(adam(resample = 0.1, maxit = 300), obj, par = 0)
-  set.seed(99); b <- minimize(adam(resample = 0.1, maxit = 300), obj, par = 0)
+  bf <- function(p) { i <- sample.int(300, 30); sum((y[i] - p)^2) / 2 }
+  bg <- function(p) { i <- sample.int(300, 30); -sum(y[i] - p) }
+
+  set.seed(99); a <- minimize(adam(maxit = 300), bf, par = 0, gr = bg)
+  set.seed(99); b <- minimize(adam(maxit = 300), bf, par = 0, gr = bg)
   expect_identical(a@par, b@par)
 })
 
 
-test_that("resample below 1 refuses a plain function and a gradient-free sum", {
-  expect_error(minimize(adam(resample = 0.5), quad, c(0, 0), gr = quad_g),
-               "no terms to draw from")
+test_that("restarting Adam each batch throws its state away", {
+  # The reason ?adam tells the caller to resample INSIDE the objective. Every
+  # restart puts m and v back to zero and the bias correction back to t = 1, so
+  # after one iteration mhat/sqrt(vhat) is the SIGN of the gradient exactly, and
+  # the step is alpha whatever the surface looks like.
+  #
+  # The claim is about the step lengths, not about which run ends up closer.
+  # A first version of this test compared the two answers and failed, correctly:
+  # in one well-scaled dimension there is no adaptivity to destroy, and both
+  # runs finish within alpha of the target, so which is nearer is luck.
+  al <- 0.05
+  f  <- function(p) sum((p - c(1, 200))^2)     # coordinates on wildly
+  g  <- function(p) 2 * (p - c(1, 200))        # different scales
 
-  no_gr <- finite_sum(fn = function(par, idx) sum((seq_len(10)[idx] - par)^2),
-                      n = 10)
-  expect_error(minimize(adam(resample = 0.5), no_gr, par = 0),
-               "analytic gradient")
-})
+  one <- minimize(adam(alpha = al, maxit = 1, keep_trace = TRUE), f,
+                  c(0, 0), gr = g)
+  # both coordinates move by alpha, though their gradients differ by 200-fold
+  expect_equal(one@trace$step[1], al, tolerance = 1e-6)
 
+  # a continuous run adapts: by the end its steps are no longer alpha
+  many <- minimize(adam(alpha = al, maxit = 500, keep_trace = TRUE), f,
+                   c(0, 0), gr = g)
+  expect_false(isTRUE(all.equal(tail(many@trace$step, 1), al,
+                                tolerance = 1e-6)))
 
-test_that("a criterion reading a noisy quantity is refused, not left to hang", {
-  set.seed(14)
-  y <- rnorm(100)
-  obj <- make_sum(y)
-
-  expect_error(minimize(adam(resample = 0.2, criterion = crit_grad(1e-6)),
-                        obj, par = 0),
-               "gradient")
-  expect_error(minimize(adam(resample = 0.2, criterion = crit_rel_obj()),
-                        obj, par = 0),
-               "objective")
-  # the explanation, not just the refusal
-  expect_error(minimize(adam(resample = 0.2, criterion = crit_grad()),
-                        obj, par = 0),
-               "sampling noise")
-
-  # a rule on the parameters reads nothing noisy and is accepted
-  expect_silent(minimize(adam(resample = 0.2, criterion = crit_abs_par(1e-12),
-                             maxit = 20), obj, par = 0))
+  # and the restarted loop never gets past alpha per step, so 500 of them can
+  # travel at most 500 * alpha -- nowhere near the second coordinate's optimum
+  expect_lt(500 * al, 200)
 })
 
 
@@ -202,8 +190,8 @@ test_that("the constructor refuses nonsense", {
   expect_error(adam(beta2 = -0.1), "'beta2'")
   expect_error(adam(decay = -1), "'decay'")
   expect_error(adam(amsgrad = 1), "'amsgrad'")
-  expect_error(adam(resample = 0), "'resample'")
-  expect_error(adam(resample = 1.5), "'resample'")
+  # resample is gone: an optimiser does not know what an observation is
+  expect_error(adam(resample = 0.5), "unused argument")
 })
 
 

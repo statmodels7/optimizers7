@@ -10,7 +10,6 @@ NULL
 #' @param eps The denominator floor.
 #' @param decay Rate at which the learning rate is reduced.
 #' @param amsgrad Whether to hold the second moment at its running maximum.
-#' @param resample Fraction of the observations used at each iteration.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{adam}}
 #' @name Adam-class
@@ -23,8 +22,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
     beta2    = S7::class_numeric,
     eps      = S7::class_numeric,
     decay    = S7::class_numeric,
-    amsgrad  = S7::class_logical,
-    resample = S7::class_numeric
+    amsgrad  = S7::class_logical
   ))
 
 
@@ -32,8 +30,9 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'
 #' @description
 #' Adam: a first-order method that gives every coordinate its own step length,
-#' inferred from the size of the gradients it has been seeing. Available both on
-#' the whole sample and on subsamples of it.
+#' inferred from the size of the gradients it has been seeing. It tolerates a
+#' gradient that points downhill only on average, which is what makes it the
+#' method to reach for when the objective is noisy.
 #'
 #' @param criterion The stopping rule. Defaults to \code{\link{crit_never}}, so
 #'   the run is governed by \code{maxit}; see Details.
@@ -50,9 +49,6 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'   t)}. Defaults to \code{0}, a constant rate; see Details.
 #' @param amsgrad Hold the second moment at its running maximum? Defaults to
 #'   \code{FALSE}; see Details.
-#' @param resample Fraction of the terms to draw at each iteration, in
-#'   \code{(0, 1]}. Defaults to \code{1}, the whole sample. Anything less
-#'   requires a \code{\link{finite_sum}} objective.
 #' @param maxit Maximum iterations. Defaults to 1000, higher than the other
 #'   methods because Adam takes many small steps rather than few large ones.
 #' @param max_eval Maximum objective evaluations. Defaults to 100000.
@@ -79,39 +75,64 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' \subsection{Why it is not a descent method}{
 #' Adam takes no line search and makes no attempt to decrease the objective at
 #' every step. That is deliberate, not an omission: the freedom to go uphill is
-#' most of why it tolerates a gradient computed from a handful of observations.
-#' It also means that none of the usual reassurances apply. There is no
-#' guarantee of monotone progress, and the run may end somewhere worse than it
-#' passed through.
+#' most of why it tolerates a gradient that is only right on average. It also
+#' means that none of the usual reassurances apply. There is no guarantee of
+#' monotone progress, and the run may end somewhere worse than it passed
+#' through.
 #'
 #' The practical consequence is that Adam is the wrong tool for a small smooth
 #' problem where a Hessian is affordable. Use \code{\link{newton}} or
 #' \code{\link{bfgs}} there and reach machine precision in a dozen iterations.
 #' Adam earns its place when the parameter vector is long, when the objective is
-#' a sum over many observations, or when the surface is rough enough that a
-#' quadratic model is a fiction.
+#' noisy, or when the surface is rough enough that a quadratic model is a
+#' fiction.
+#' }
+#'
+#' \subsection{Minibatches belong to the caller}{
+#' Adam does \strong{not} draw subsamples, and the omission is the design rather
+#' than a gap in it. An optimiser does not know what an observation is; a
+#' version that did would need a second kind of objective to be told, a rule for
+#' which stopping rules such an objective allows, and a way to report which of
+#' them was in force. None of that buys anything a closure cannot do, because a
+#' stochastic objective is just an objective:
+#'
+#' \preformatted{
+#' batch <- function(par) {
+#'   i <- sample.int(n, size = 0.05 * n)
+#'   sum((y[i] - par)^2) / 2
+#' }
+#' minimize(adam(), batch, par = 0, gr = batch_gr)
+#' }
+#'
+#' Adam then behaves exactly as it would on a minibatch of its own drawing, and
+#' \code{set.seed()} governs it because the draws happen in your function.
+#'
+#' \strong{Resample inside the objective, not around the run.} It is tempting to
+#' call \code{minimize(adam(maxit = 1), ...)} in a loop, drawing a new batch each
+#' time. That does not work: \eqn{m} and \eqn{v} start at zero and the bias
+#' correction restarts at \eqn{t = 1}, so every call takes a first step of length
+#' \eqn{\alpha} and the accumulated moments — the whole of the method — are
+#' thrown away at each one.
 #' }
 #'
 #' \subsection{Stopping, and why the default is a budget}{
 #' The default criterion is \code{\link{crit_never}}: the run ends when
 #' \code{maxit} is reached, and reports \code{converged = FALSE}, which is the
-#' truth about a run that nothing checked.
+#' truth about a run that nothing checked. With a fixed \code{alpha} Adam
+#' generally circles an optimum rather than settling on it, so a tolerance on
+#' the gradient is usually a rule that never fires.
 #'
-#' With \code{resample = 1} the objective and the gradient are exact, and a real
-#' rule such as \code{crit_grad(1e-6)} may be passed and will work. With
-#' \code{resample < 1} both are estimates that depend on which observations were
-#' drawn, so a tolerance applied to either would be measuring the sampling noise
-#' rather than the progress. Such a criterion is therefore \strong{refused},
-#' by name, rather than accepted and left never to fire — the same discipline as
-#' everywhere else in the toolkit. Rules on the movement of the parameters
-#' remain available, and with \code{decay > 0} they are meaningful.
+#' On an exact objective a real rule may be passed and will work. On a noisy one
+#' nothing based on the objective or the gradient means much, since both are
+#' then estimates; that is a fact about the objective you supplied, and the
+#' package cannot detect it for you.
 #' }
 #'
 #' \subsection{The safeguards}{
 #' \code{eps} floors the denominator. \code{decay} makes the learning rate
-#' \eqn{O(1/t)}, which is the Robbins–Monro condition a stochastic run needs to
-#' settle at the optimum rather than rattle about it at a radius set by
-#' \eqn{\alpha}; it is off by default because with \code{resample = 1} there is
+#' \eqn{O(1/t)}, which is the Robbins–Monro condition a run on a noisy objective
+#' needs to settle at the optimum rather than rattle about it at a radius set by
+#' \eqn{\alpha}; it is off by default because on an exact objective there is
 #' nothing to average away.
 #'
 #' \code{amsgrad} replaces \eqn{v_t} by its running maximum. This is not
@@ -125,21 +146,6 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'
 #' A non-finite gradient or update stops the run and says so, rather than
 #' propagating a \code{NaN} into every iterate after it.
-#' }
-#'
-#' \subsection{Subsampling}{
-#' \code{resample} is the fraction of terms drawn at each iteration, and it
-#' requires a \code{\link{finite_sum}} objective, which is what tells the
-#' optimiser that the objective \emph{has} terms. A plain \code{fn(par)} is a
-#' black box: the optimiser does not know what an observation is and must not
-#' guess. An analytic gradient is required too, since differencing a subsample
-#' would cost the \eqn{2p} evaluations that subsampling exists to avoid.
-#'
-#' Draws go through \R's generator, so \code{set.seed()} governs the run and it
-#' can be reproduced. The value and gradient finally reported are recomputed on
-#' the \strong{whole} sample at the point actually reached: two minibatch values
-#' differ by which terms were drawn as much as by where the parameters went, so
-#' anything else would let a lucky draw decide what the run claims.
 #' }
 #'
 #' @return An S7 object of class \code{Adam}, inheriting from
@@ -156,25 +162,27 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' adam()
 #' adam(alpha = 0.05, amsgrad = TRUE)
 #'
-#' # full sample, on a quadratic
+#' # on a quadratic
 #' minimize(adam(alpha = 0.1, maxit = 2000),
 #'          function(p) sum((p - c(1, 2))^2), c(0, 0),
 #'          gr = function(p) 2 * (p - c(1, 2)))
 #'
-#' # minibatches, which need an objective that knows it is a sum
+#' # on a noisy objective, which is what it is for: the minibatch is drawn
+#' # inside the function, so the optimiser never has to know about it
 #' set.seed(1)
-#' y <- rnorm(500, mean = 2)
-#' obj <- finite_sum(fn = function(par, idx) sum((y[idx] - par)^2) / 2,
-#'                   gr = function(par, idx) -sum(y[idx] - par),
-#'                   n  = length(y))
-#' minimize(adam(alpha = 0.05, resample = 0.1, decay = 0.01), obj, par = 0)
+#' y <- rnorm(2000, mean = 3)
+#' m <- 100
+#' batch    <- function(p) { i <- sample.int(2000, m); sum((y[i] - p)^2) / 2 }
+#' batch_gr <- function(p) { i <- sample.int(2000, m); -sum(y[i] - p) }
+#' minimize(adam(alpha = 0.05, decay = 0.01, maxit = 2000),
+#'          batch, par = 0, gr = batch_gr)@par
+#' mean(y)
 #'
-#' @seealso \code{\link{bfgs}}, \code{\link{finite_sum}},
-#'   \code{\link{crit_never}}
+#' @seealso \code{\link{bfgs}}, \code{\link{crit_never}}
 #' @export
 adam <- function(criterion = crit_never(),
                  alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-8,
-                 decay = 0, amsgrad = FALSE, resample = 1,
+                 decay = 0, amsgrad = FALSE,
                  maxit = 1000, max_eval = 100000,
                  verbose = FALSE, refresh = 100, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
@@ -199,35 +207,14 @@ adam <- function(criterion = crit_never(),
   if (length(amsgrad) != 1L || !is.logical(amsgrad) || is.na(amsgrad)) {
     stop("'amsgrad' must be TRUE or FALSE.", call. = FALSE)
   }
-  if (length(resample) != 1L || !is.numeric(resample) || is.na(resample) ||
-      resample <= 0 || resample > 1) {
-    stop("'resample' must be a single number in (0, 1].", call. = FALSE)
-  }
 
   Adam(
     name = "adam", criterion = criterion,
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
     alpha = alpha, beta1 = beta1, beta2 = beta2, eps = eps,
-    decay = decay, amsgrad = amsgrad, resample = resample
+    decay = decay, amsgrad = amsgrad
   )
-}
-
-
-#' @title What Adam Can Offer a Stopping Rule
-#' @name optimizer_provides.Adam
-#' @description
-#' Everything, on the whole sample; nothing, on subsamples.
-#' @details
-#' With \code{resample < 1} both the objective and the gradient are estimates
-#' from whichever terms were drawn. A tolerance on either measures the sampling
-#' noise, so every rule that reads one is refused rather than accepted and left
-#' to never fire.
-#' @param optimizer An \code{Adam} object.
-#' @return A character vector.
-#' @keywords internal
-S7::method(optimizer_provides, Adam) <- function(optimizer) {
-  if (optimizer@resample < 1) character() else c("gradient", "objective")
 }
 
 
@@ -241,38 +228,8 @@ S7::method(optimizer_provides, Adam) <- function(optimizer) {
 #' @keywords internal
 S7::method(minimize, Adam) <-
   function(optimizer, fn, par, gr = NULL, he = NULL, bounds = NULL, ...) {
-    stochastic <- optimizer@resample < 1
-
-    spec <- prepare_objective(
-      optimizer, fn, par, gr, he,
-      note = if (stochastic) paste0(
-        "With resample < 1 both are minibatch estimates, so a tolerance on ",
-        "either would measure the sampling noise. Use crit_never() and a ",
-        "budget, or a rule on the parameters.") else NULL
-    )
-
-    if (stochastic) {
-      if (!identical(spec$kind, "finite_sum")) {
-        stop("A resample below 1 needs a finite_sum() objective: a plain ",
-             "function has no terms to draw from.", call. = FALSE)
-      }
-      if (!isTRUE(spec$has_gradient)) {
-        stop("A resample below 1 needs an analytic gradient in finite_sum(): ",
-             "differencing a subsample would cost the evaluations that ",
-             "subsampling exists to save.", call. = FALSE)
-      }
-    }
-
+    spec <- prepare_objective(optimizer, fn, par, gr, he)
     bounds <- check_bounds(bounds, par)
-
-    # A subsampling run draws its minibatches from R's generator, so the state
-    # it began with is the only thing that makes it repeatable.
-    seed <- if (stochastic) capture_seed() else NULL
-
-    # The value is not needed by the algorithm at all -- Adam steps on the
-    # gradient alone -- so it is computed only when something will read it.
-    need_value <- optimizer@keep_trace || optimizer@verbose ||
-      "objective" %in% crit_needs(optimizer@criterion)
 
     t0 <- proc.time()[["elapsed"]]
     out <- adam_run(
@@ -281,16 +238,14 @@ S7::method(minimize, Adam) <-
       alpha = optimizer@alpha, beta1 = optimizer@beta1,
       beta2 = optimizer@beta2, eps = optimizer@eps,
       decay = optimizer@decay, amsgrad = optimizer@amsgrad,
-      resample = optimizer@resample,
       maxit = as.integer(optimizer@maxit),
       max_eval = as.integer(optimizer@max_eval),
       verbose = optimizer@verbose,
       refresh = as.integer(optimizer@refresh),
       keep_trace = optimizer@keep_trace,
-      need_value = need_value,
       bounds = bounds
     )
     elapsed <- proc.time()[["elapsed"]] - t0
 
-    build_result(out, optimizer, spec, elapsed, seed)
+    build_result(out, optimizer, spec, elapsed)
   }

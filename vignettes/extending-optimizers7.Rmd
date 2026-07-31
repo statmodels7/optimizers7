@@ -104,34 +104,41 @@ result says so, so a run is never silently less exact than it appears:
 minimize(bfgs(), f, c(0, 0))@message
 ```
 
-### A sum over observations
+### An objective that resamples itself
 
-Subsampling is a property of the objective, not of an algorithm. A black-box
-`f(par)` has no terms to draw from: the optimiser does not know what an
-observation is and must not guess. `finite_sum()` is how an objective declares
-that it has terms and may be evaluated on some of them.
+Subsampling is a property of the objective, not of an algorithm, and the
+sharpest way to say so is that it needs no support at all. An objective that
+draws a fresh minibatch on every call is an ordinary R function:
 
 ```{r}
 y <- rnorm(2000, mean = 3)
+m <- 100
 
-obj <- finite_sum(
-  fn = function(par, idx) sum((y[idx] - par)^2) / 2,
-  gr = function(par, idx) -sum(y[idx] - par),
-  n  = length(y)
-)
+batch    <- function(par) { i <- sample.int(2000, m); sum((y[i] - par)^2) / 2 }
+batch_gr <- function(par) { i <- sample.int(2000, m); -sum(y[i] - par) }
 
-minimize(adam(alpha = 0.05, resample = 0.05, decay = 0.005, maxit = 3000),
-         obj, par = 0)@par
+minimize(adam(alpha = 0.05, decay = 0.005, maxit = 3000),
+         batch, par = 0, gr = batch_gr)@par
 mean(y)
 ```
 
-The full-sample value is `fn(par, seq_len(n))`, so an ordinary evaluation is a
-special case and nothing is duplicated — every other method takes the same
-object without knowing it could have been subsampled:
+There was once a `finite_sum()` class here, by which an objective declared that
+it was a sum over observations so that `adam()` could ask it for a subset. It is
+gone, and its removal is worth a paragraph because it is the same judgement
+repeated all through this package.
 
-```{r}
-minimize(bfgs(), obj, par = 0)@par
-```
+Supporting it meant a second kind of objective, a rule for which stopping rules
+that objective permitted, a way of reporting which was in force, and a branch in
+the compiled loop — all so that the optimiser could do something the caller could
+do in one line, and do better, since the caller is the one who knows what an
+observation is. **An optimiser that knows about observations is an optimiser
+that has stopped being a general one.** Draw the batch where the knowledge is.
+
+One thing to get right when you do. Resample *inside* the objective, not around
+the run: calling `minimize(adam(maxit = 1), ...)` in a loop resets \eqn{m} and
+\eqn{v} to zero and the bias correction to \eqn{t = 1} at every call, so each one
+takes a first step of length \eqn{\alpha} and the accumulated moments — which are
+the whole of the method — are thrown away each time.
 
 ### Compiled C++
 

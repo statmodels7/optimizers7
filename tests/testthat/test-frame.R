@@ -33,40 +33,34 @@ test_that("the three shapes of objective reach the same answer", {
 })
 
 
-test_that("a finite-sum objective is a first-class objective", {
+test_that("a resampling objective is just an objective", {
+  # finite_sum() is gone. It declared that an objective was a sum over
+  # observations so that a stochastic method could ask it for a subset, and it
+  # had exactly one caller. An objective that resamples is a closure and needs
+  # no class, which is what this asserts.
   set.seed(42)
   y <- rnorm(200, mean = 3)
-  obj <- finite_sum(
-    fn = function(par, idx) sum((y[idx] - par)^2) / 2,
-    gr = function(par, idx) -sum(y[idx] - par),
-    n  = length(y)
-  )
-  res <- minimize(gradient_descent(step = 1 / length(y)), obj, par = 0)
+  batch <- function(par) { i <- sample.int(200, 40); sum((y[i] - par)^2) / 2 }
+  batch_gr <- function(par) { i <- sample.int(200, 40); -sum(y[i] - par) }
 
-  # the minimiser of the sum of squares is the sample mean
-  expect_equal(res@par, mean(y), tolerance = 1e-8)
-  expect_true(res@converged)
-})
-
-
-test_that("finite_sum rejects what it cannot use", {
-  expect_error(finite_sum(function(p) p, n = 10), "two arguments")
-  expect_error(finite_sum(function(p, i) p, n = 0), "positive number")
-  expect_error(finite_sum("not a function", n = 10), "must be a function")
+  res <- minimize(adam(alpha = 0.05, decay = 0.01, maxit = 2000),
+                  batch, par = 0, gr = batch_gr)
+  expect_equal(res@par, mean(y), tolerance = 5e-2)
 })
 
 
 test_that("criteria are objects, compose, and can be written by a user", {
   expect_s3_class(crit_grad(), "S7_object")
   expect_equal(crit_needs(crit_grad()), "gradient")
-  # An objective-based rule declares that it reads the objective, which is not
-  # pedantry: a stochastic method has only a minibatch estimate of it, and must
-  # be able to refuse the rule rather than let it measure the sampling noise.
-  expect_equal(crit_needs(crit_rel_obj()), "objective")
+  # Every optimiser evaluates the objective, so a rule that reads it needs
+  # nothing declared and can never be refused. There was a token for it while
+  # Adam drew its own minibatches and the objective could be an estimate; with
+  # that gone the token could never be unsatisfied, so it went too.
+  expect_length(crit_needs(crit_rel_obj()), 0)
   expect_length(crit_needs(crit_abs_par()), 0)
 
   both <- crit_any(crit_grad(1e-8), crit_rel_obj(1e-12))
-  expect_setequal(crit_needs(both), c("gradient", "objective"))
+  expect_equal(crit_needs(both), "gradient")
 
   # x has genuinely moved here, so the parameter rule is not satisfied and the
   # conjunction must fail even though the gradient rule is satisfied.
@@ -97,10 +91,10 @@ test_that("a criterion the method cannot evaluate is refused, not ignored", {
   # NULL every iteration and never fire; the run would end on the budget and
   # report a reason nowhere near the truth.
   NoGrad <- S7::new_class("NoGrad", parent = optimizer)
-  # It has no gradient but it does evaluate the objective, and says exactly
-  # that: what an optimiser declares is what it can honestly supply, so a rule
-  # reading the objective is fine and one reading a gradient is not.
-  S7::method(optimizer_provides, NoGrad) <- function(optimizer) "objective"
+  # It computes no gradient and says so. What an optimiser declares is what it
+  # can honestly supply, so a rule reading a gradient is refused while one
+  # reading the objective is not -- every optimiser evaluates that.
+  S7::method(optimizer_provides, NoGrad) <- function(optimizer) character()
   # The signature must include every named argument of the generic, bounds
   # among them, or S7 refuses to register the method.
   S7::method(minimize, NoGrad) <-

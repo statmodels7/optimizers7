@@ -25,10 +25,13 @@ number buried three levels down.
 
 `{optimizers7}` writes them once, as objects. An optimiser carries its
 algorithm and every setting that algorithm obeys; a stopping rule is a
-separate object you can replace, combine, or write yourself; and the
-objective may be an R function, a sum over observations, or compiled C++
-reached through a pointer, with the algorithms written once against all
-three.
+separate object you can replace, combine, or write yourself; and every
+algorithm is written once against one objective interface.
+
+It is deliberately narrow. An optimiser here minimises the function it
+is given and knows nothing else — not what an observation is, not where
+the data came from, not what the parameters mean. Everything that needs
+that knowledge belongs to the caller that has it.
 
 It is the optimisation layer of
 [statmodels7](https://statmodels7.github.io), alongside
@@ -151,7 +154,7 @@ c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 |  |  |
 |----|----|
 | smooth, with derivatives | `newton()`, `bfgs()`, `lbfgs()`, `gradient_descent()` |
-| stochastic, and for long parameter vectors | `adam()`, with minibatches over a `finite_sum()` |
+| noisy objectives, and long parameter vectors | `adam()` |
 | no derivative at all | `nelder_mead()`, `compass()` |
 | non-smooth, with subgradients | `bundle()` |
 | wrapping any of them | `multistart()` |

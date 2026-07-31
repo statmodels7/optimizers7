@@ -151,12 +151,9 @@ test_that("only the methods that draw record a seed", {
   expect_null(minimize(compass(directions = "coordinate"), quad, c(0, 0))@seed)
   expect_false(is.null(minimize(compass(directions = "mads"), quad, c(0, 0))@seed))
 
+  # Adam draws nothing now, so it records nothing. A noisy objective draws in
+  # the caller's own code, where the caller's own set.seed() governs it.
   expect_null(minimize(adam(maxit = 5), quad, c(0, 0))@seed)
-  y <- 1:10
-  obj <- finite_sum(fn = function(p, i) sum((y[i] - p)^2),
-                    gr = function(p, i) -2 * sum(y[i] - p), n = 10)
-  expect_false(is.null(minimize(adam(resample = 0.5, maxit = 5), obj,
-                                par = 0)@seed))
 })
 
 

@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // adam_run
-Rcpp::List adam_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double alpha, double beta1, double beta2, double eps, double decay, bool amsgrad, double resample, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, bool need_value, Rcpp::List bounds);
-RcppExport SEXP _optimizers7_adam_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP alphaSEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP epsSEXP, SEXP decaySEXP, SEXP amsgradSEXP, SEXP resampleSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP need_valueSEXP, SEXP boundsSEXP) {
+Rcpp::List adam_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double alpha, double beta1, double beta2, double eps, double decay, bool amsgrad, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_adam_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP alphaSEXP, SEXP beta1SEXP, SEXP beta2SEXP, SEXP epsSEXP, SEXP decaySEXP, SEXP amsgradSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,15 +27,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
     Rcpp::traits::input_parameter< double >::type decay(decaySEXP);
     Rcpp::traits::input_parameter< bool >::type amsgrad(amsgradSEXP);
-    Rcpp::traits::input_parameter< double >::type resample(resampleSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
-    Rcpp::traits::input_parameter< bool >::type need_value(need_valueSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
-    rcpp_result_gen = Rcpp::wrap(adam_run(spec, par, criterion, crit_fn, alpha, beta1, beta2, eps, decay, amsgrad, resample, maxit, max_eval, verbose, refresh, keep_trace, need_value, bounds));
+    rcpp_result_gen = Rcpp::wrap(adam_run(spec, par, criterion, crit_fn, alpha, beta1, beta2, eps, decay, amsgrad, maxit, max_eval, verbose, refresh, keep_trace, bounds));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -165,7 +163,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_optimizers7_adam_run", (DL_FUNC) &_optimizers7_adam_run, 18},
+    {"_optimizers7_adam_run", (DL_FUNC) &_optimizers7_adam_run, 16},
     {"_optimizers7_bounded_transform_cpp", (DL_FUNC) &_optimizers7_bounded_transform_cpp, 2},
     {"_optimizers7_bounded_forward_cpp", (DL_FUNC) &_optimizers7_bounded_forward_cpp, 2},
     {"_optimizers7_bundle_run", (DL_FUNC) &_optimizers7_bundle_run, 17},
