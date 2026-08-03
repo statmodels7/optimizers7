@@ -88,7 +88,7 @@ evidence about the point rather than about the directions. A failed poll
 therefore licenses shrinking the radius, and the limit points of a run
 in which the radius goes to zero are stationary.
 
-### Which directions, and why it matters
+### Poll directions
 
 - `"coordinate"`:
 

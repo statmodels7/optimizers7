@@ -150,7 +150,7 @@ learns from the same information.</p>
 by \(1 - \beta^t\) removes exactly that bias, and without it the first
 iterations would barely move.</p>
 <div class="section">
-<h3 id="why-it-is-not-a-descent-method">Why it is not a descent method<a class="anchor" aria-label="anchor" href="#why-it-is-not-a-descent-method"></a></h3>
+<h3 id="relation-to-descent-methods">Relation to descent methods<a class="anchor" aria-label="anchor" href="#relation-to-descent-methods"></a></h3>
 <p>Adam takes no line search and makes no attempt to decrease the objective at
 every step. That is deliberate, not an omission: the freedom to go uphill is
 most of why it tolerates a gradient that is only right on average. It also
@@ -166,7 +166,7 @@ fiction.</p>
 </div>
 
 <div class="section">
-<h3 id="minibatches-belong-to-the-caller">Minibatches belong to the caller<a class="anchor" aria-label="anchor" href="#minibatches-belong-to-the-caller"></a></h3>
+<h3 id="stochastic-objectives">Stochastic objectives<a class="anchor" aria-label="anchor" href="#stochastic-objectives"></a></h3>
 <p>Adam does <strong>not</strong> draw subsamples, and the omission is the design rather
 than a gap in it. An optimiser does not know what an observation is; a
 version that did would need a second kind of objective to be told, a rule for
@@ -191,7 +191,7 @@ thrown away at each one.</p>
 </div>
 
 <div class="section">
-<h3 id="stopping-and-why-the-default-is-a-budget">Stopping, and why the default is a budget<a class="anchor" aria-label="anchor" href="#stopping-and-why-the-default-is-a-budget"></a></h3>
+<h3 id="stopping">Stopping<a class="anchor" aria-label="anchor" href="#stopping"></a></h3>
 <p>The default criterion is <code><a href="crit_never.html">crit_never</a></code>: the run ends when
 <code>maxit</code> is reached, and reports <code>converged = FALSE</code>, which is the
 truth about a run that nothing checked. With a fixed <code>alpha</code> Adam

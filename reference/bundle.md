@@ -85,7 +85,7 @@ An S7 object of class `Bundle`, inheriting from
 
 ## Details
 
-### Why a descent method fails and this does not
+### Behaviour at a kink
 
 At the minimum of \\\lvert x \rvert\\ the subgradient you evaluate is
 \\\pm 1\\. A descent method therefore sees a large gradient, proposes a
@@ -140,7 +140,7 @@ in the result's message.
 estimate and is better; this is the safeguarded version, which is cruder
 and cannot run away.
 
-### Why t0 is a step length
+### The trust parameter t0
 
 The step is \\d = -t\\p\\, so a bare `t` would make the first step as
 long as the gradient happens to be big. On Rosenbrock from its usual
@@ -170,7 +170,7 @@ discarded. Discarding loses what they knew and can stall the method; the
 aggregate keeps a summary of all of it in one element, which is what
 makes a bounded bundle safe.
 
-### Convexity, and what is clipped without it
+### Convexity requirement
 
 The theory is for convex \\f\\, where the linearisation errors
 \\\alpha_j\\ are non-negative automatically. On a non-convex objective

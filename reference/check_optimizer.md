@@ -102,7 +102,7 @@ fail.
 
 12. it minimises a quadratic.
 
-### Reading the battery
+### The problem battery
 
 The table reports the gap between the value reached and the known
 minimum, and it is information rather than judgement. A large gap on

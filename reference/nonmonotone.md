@@ -44,7 +44,7 @@ is Armijo's with the reference replaced by the largest of the last
 \\m+1\\ values. Every step it accepts improves on the worst of recent
 memory; none is required to improve on the present.
 
-### What it is for
+### Purpose
 
 Some methods are efficient *because* of steps that make the objective
 worse. [`bb`](https://statmodels7.github.io/optimizers7/reference/bb.md)
@@ -61,7 +61,7 @@ nonmonotone one needs the finite memory to play that role, and the
 convergence result is correspondingly more delicate. Use it where a
 method asks for it, not as a faster default.
 
-### Not available with Wolfe
+### Compatibility
 
 The curvature condition is a statement about the gradient at the trial
 point and has nothing to say about which value the decrease is measured

@@ -133,7 +133,7 @@ No model of the function is built and no derivative is assumed to exist,
 which is why it survives a kink — and also why it is slow, since an ordering
 of \(p+1\) values is very little information about a surface.</p>
 <div class="section">
-<h3 id="the-failure-it-is-famous-for-and-the-safeguard">The failure it is famous for, and the safeguard<a class="anchor" aria-label="anchor" href="#the-failure-it-is-famous-for-and-the-safeguard"></a></h3>
+<h3 id="degenerate-simplices">Degenerate simplices<a class="anchor" aria-label="anchor" href="#degenerate-simplices"></a></h3>
 <p>Nelder-Mead can converge to a point that is not a minimiser. McKinnon (1998)
 exhibited a strictly convex function with continuous derivatives on which it
 performs inside contractions for ever: the simplex flattens onto a line
@@ -166,7 +166,7 @@ replace them by \(1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p\), which at
 </div>
 
 <div class="section">
-<h3 id="when-to-use-it">When to use it<a class="anchor" aria-label="anchor" href="#when-to-use-it"></a></h3>
+<h3 id="scope">Scope<a class="anchor" aria-label="anchor" href="#scope"></a></h3>
 <p>Rarely, and knowingly. If the objective is smooth, every gradient-based
 method here will beat it by orders of magnitude. Its place is an objective
 that is genuinely non-smooth or noisy and whose subgradients are not

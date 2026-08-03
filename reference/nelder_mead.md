@@ -89,7 +89,7 @@ derivative is assumed to exist, which is why it survives a kink — and
 also why it is slow, since an ordering of \\p+1\\ values is very little
 information about a surface.
 
-### The failure it is famous for, and the safeguard
+### Degenerate simplices
 
 Nelder-Mead can converge to a point that is not a minimiser. McKinnon
 (1998) exhibited a strictly convex function with continuous derivatives
@@ -123,7 +123,7 @@ which at \\p = 2\\ reduce *exactly* to the classical values — so the
 default is `TRUE` at no cost to the small problems anyone would
 recognise.
 
-### When to use it
+### Scope
 
 Rarely, and knowingly. If the objective is smooth, every gradient-based
 method here will beat it by orders of magnitude. Its place is an

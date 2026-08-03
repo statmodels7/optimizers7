@@ -108,7 +108,7 @@ Both averages start at zero, so early on they are pulled towards it;
 dividing by \\1 - \beta^t\\ removes exactly that bias, and without it
 the first iterations would barely move.
 
-### Why it is not a descent method
+### Relation to descent methods
 
 Adam takes no line search and makes no attempt to decrease the objective
 at every step. That is deliberate, not an omission: the freedom to go
@@ -125,7 +125,7 @@ there and reach machine precision in a dozen iterations. Adam earns its
 place when the parameter vector is long, when the objective is noisy, or
 when the surface is rough enough that a quadratic model is a fiction.
 
-### Minibatches belong to the caller
+### Stochastic objectives
 
 Adam does **not** draw subsamples, and the omission is the design rather
 than a gap in it. An optimiser does not know what an observation is; a
@@ -152,7 +152,7 @@ bias correction restarts at \\t = 1\\, so every call takes a first step
 of length \\\alpha\\ and the accumulated moments — the whole of the
 method — are thrown away at each one.
 
-### Stopping, and why the default is a budget
+### Stopping
 
 The default criterion is
 [`crit_never`](https://statmodels7.github.io/optimizers7/reference/crit_never.md):

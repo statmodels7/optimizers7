@@ -74,7 +74,7 @@ differences. The result records which derivatives were supplied and
 which were differenced, so a run is never silently less exact than it
 appears.
 
-### Starting values you do not have to write out
+### Starters
 
 `par` may be a **starter** rather than a vector:
 [`start_zeros`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)

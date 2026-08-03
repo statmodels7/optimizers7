@@ -46,8 +46,8 @@ cg(
 
 - line_search:
 
-  Defaults to `wolfe(c2 = 0.1)`, and see Details — neither the search
-  nor that constant is a free choice.
+  Defaults to `wolfe(c2 = 0.1)`; the convergence theory of the method
+  assumes a strong Wolfe step, see Details.
 
 - maxit:
 
@@ -84,19 +84,19 @@ that Hessian*, which is the point. The storage is two vectors against
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)'s
 \\p \times p\\ matrix.
 
-### Which beta
+### Choice of beta
 
 All four agree on a quadratic with an exact line search and differ
 everywhere else. `"fr"` has the cleanest convergence theory and the
 well-known practical fault of stalling for many iterations after a poor
 step. `"pr"` recovers from a poor step immediately, because a small \\y
 = g_k - g\_{k-1}\\ sends \\\beta\\ towards zero and the method back to
-steepest descent; it can fail to converge in theory, and the standard
-repair is to clamp \\\beta\\ at zero, which is what this does. The clamp
-is not a fudge — \\\beta = 0\\ *is* a restart, and it is reported as one
-in the trace. `"hs"` and `"dy"` are the other two standard choices.
+steepest descent; its known theoretical non-convergence is repaired by
+clamping \\\beta\\ at zero, which restarts the method and is recorded as
+a restart in the trace. `"hs"` and `"dy"` are the other two standard
+choices.
 
-### The line search is not optional, and neither is its tolerance
+### Line search
 
 The theory behind every one of these formulas assumes a step satisfying
 the **strong** Wolfe conditions, and uses it to prove that the direction

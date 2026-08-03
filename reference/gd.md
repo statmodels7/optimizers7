@@ -67,19 +67,15 @@ An S7 object of class `GradientDescent`, inheriting from
 ## Details
 
 The direction \\-g\\ minimises \\g^\top d\\ over directions of a given
-length, so it is the steepest one available — and that is also the whole
-criticism of it, because steepest is a statement about an arbitrary
-choice of length. Consecutive directions under an exact line search are
-orthogonal, so on a narrow valley the iterates zigzag across the floor
-and progress along it only slowly.
+Euclidean length. Under an exact line search consecutive directions are
+orthogonal, so on an ill-conditioned objective the iterates zigzag and
+converge slowly;
 [`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md)
-repairs exactly this by bending each direction back towards the last, at
-no extra cost per iteration.
-
-Reach for it when you want the simplest thing that works, or as the
-baseline another method has to beat. On anything smooth
+corrects this by combining each direction with the previous one at no
+extra cost per iteration. Gradient descent is mainly useful as a
+baseline: on smooth problems
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-will beat it by orders of magnitude.
+converges in far fewer iterations.
 
 ## See also
 

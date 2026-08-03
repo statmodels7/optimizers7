@@ -89,8 +89,8 @@ dimension of the problem.</p></dd>
 
 
 <dt id="arg-line-search">line_search<a class="anchor" aria-label="anchor" href="#arg-line-search"></a></dt>
-<dd><p>Defaults to <code>wolfe(c2 = 0.1)</code>, and see Details —
-neither the search nor that constant is a free choice.</p></dd>
+<dd><p>Defaults to <code>wolfe(c2 = 0.1)</code>; the convergence
+theory of the method assumes a strong Wolfe step, see Details.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
@@ -128,20 +128,20 @@ Hessian, so the method terminates in \(p\) steps exactly — <em>without
 ever forming that Hessian</em>, which is the point. The storage is two vectors
 against <code><a href="bfgs.html">bfgs</a></code>'s \(p \times p\) matrix.</p>
 <div class="section">
-<h3 id="which-beta">Which beta<a class="anchor" aria-label="anchor" href="#which-beta"></a></h3>
+<h3 id="choice-of-beta">Choice of beta<a class="anchor" aria-label="anchor" href="#choice-of-beta"></a></h3>
 <p>All four agree on a quadratic with an exact line search and differ everywhere
 else. <code>"fr"</code> has the cleanest convergence theory and the well-known
 practical fault of stalling for many iterations after a poor step.
 <code>"pr"</code> recovers from a poor step immediately, because a small
 \(y = g_k - g_{k-1}\) sends \(\beta\) towards zero and the method back to
-steepest descent; it can fail to converge in theory, and the standard repair
-is to clamp \(\beta\) at zero, which is what this does. The clamp is not a
-fudge — \(\beta = 0\) <em>is</em> a restart, and it is reported as one in the
-trace. <code>"hs"</code> and <code>"dy"</code> are the other two standard choices.</p>
+steepest descent; its known theoretical non-convergence is repaired by
+clamping \(\beta\) at zero, which restarts the method and is recorded as a
+restart in the trace. <code>"hs"</code> and <code>"dy"</code> are the other two standard
+choices.</p>
 </div>
 
 <div class="section">
-<h3 id="the-line-search-is-not-optional-and-neither-is-its-tolerance">The line search is not optional, and neither is its tolerance<a class="anchor" aria-label="anchor" href="#the-line-search-is-not-optional-and-neither-is-its-tolerance"></a></h3>
+<h3 id="line-search">Line search<a class="anchor" aria-label="anchor" href="#line-search"></a></h3>
 <p>The theory behind every one of these formulas assumes a step satisfying the
 <strong>strong</strong> Wolfe conditions, and uses it to prove that the direction
 produced is a descent direction at all. Backtracking gives no such guarantee,
