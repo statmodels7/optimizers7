@@ -11,7 +11,7 @@ gd(
   step = 1,
   line_search = armijo(),
   maxit = 500,
-  max_eval = 10000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE
@@ -45,7 +45,9 @@ gd(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 10000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -89,12 +91,12 @@ converges in far fewer iterations.
 gd()
 #> <optimizer> gradient descent
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
-#>   budgets   : maxit 500, evaluations 10000
+#>   budgets   : maxit 500, evaluations Inf
 #>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
 gd(criterion = crit_grad(1e-10), maxit = 2000)
 #> <optimizer> gradient descent
 #>   stop when : gradient (max-norm) < 1e-10
-#>   budgets   : maxit 2000, evaluations 10000
+#>   budgets   : maxit 2000, evaluations Inf
 #>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
 
 minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),

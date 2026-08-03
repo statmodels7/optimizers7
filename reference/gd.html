@@ -51,7 +51,7 @@ line search decide how far.</p>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="fu"><a href="armijo.html">armijo</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -82,7 +82,9 @@ backtracking, which is all a method with nothing to protect needs.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 10000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -122,12 +124,12 @@ in far fewer iterations.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">gd</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; gradient descent</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations 10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)</span>
 <span class="r-in"><span><span class="fu">gd</span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="fl">1e-10</span><span class="op">)</span>, maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; gradient descent</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations 10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">gd</span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>

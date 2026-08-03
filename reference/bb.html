@@ -56,7 +56,7 @@ from the previous step's secant pair rather than found by searching.</p>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="fu"><a href="nonmonotone.html">nonmonotone</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">20000</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -108,7 +108,9 @@ the same relative test <code><a href="bfgs.html">bfgs</a></code> applies to the 
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 20000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -193,7 +195,7 @@ clamped, and both the reset and the clamp are recorded in the trace.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">bb</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; barzilai-borwein (alternate)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations 20000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, curv_tol = 1e-10, step = 1, line_search = nonmonotone backtracking (memory = 10)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">f</span>  <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>

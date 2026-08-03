@@ -17,7 +17,7 @@ compass(
   expand = 2,
   shrink = 0.5,
   maxit = 2000,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 50,
   keep_trace = FALSE
@@ -59,7 +59,9 @@ compass(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 20000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -142,7 +144,7 @@ algorithms for constrained optimization. *SIAM Journal on Optimization*
 compass()
 #> <optimizer> pattern search (mads)
 #>   stop when : stationarity < 1e-08
-#>   budgets   : maxit 2000, evaluations 20000
+#>   budgets   : maxit 2000, evaluations Inf
 #>   settings  : step = 0.1, directions = mads, opportunistic = TRUE, expand = 2, shrink = 0.5
 
 # a kink running diagonally, which no coordinate direction descends

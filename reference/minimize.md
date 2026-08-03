@@ -72,7 +72,12 @@ registers one method there and every algorithm accepts it.
 A gradient that is not supplied is computed by central finite
 differences. The result records which derivatives were supplied and
 which were differenced, so a run is never silently less exact than it
-appears.
+appears. A gradient that is supplied is checked once against the
+objective – one central difference along the gradient direction at
+`par`, two evaluations – and a gross disagreement draws a warning naming
+both rates, since a `gr` computed from a different model than `fn`
+otherwise surfaces as a mute line-search failure at the first iteration;
+`options(optimizers7.check_gradient = FALSE)` disables the check.
 
 ### Starters
 
@@ -145,7 +150,7 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 3, g 2
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 
 # and without, so the gradient is differenced
@@ -187,7 +192,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 #>   value      : 3.26661e-23
 #>   par        : 1 2
 #>   iterations : 19   evaluations: f 236, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

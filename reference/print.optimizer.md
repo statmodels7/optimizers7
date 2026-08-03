@@ -24,6 +24,6 @@ Print Method for Optimisers
 print(gd())
 #> <optimizer> gradient descent
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
-#>   budgets   : maxit 500, evaluations 10000
+#>   budgets   : maxit 500, evaluations Inf
 #>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
 ```

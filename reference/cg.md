@@ -14,7 +14,7 @@ cg(
   step = 1,
   line_search = wolfe(c2 = 0.1),
   maxit = 1000,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 20,
   keep_trace = FALSE
@@ -55,7 +55,9 @@ cg(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 20000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -146,12 +148,12 @@ Optimization* **10**, 177–182.
 cg()
 #> <optimizer> conjugate gradients (pr)
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
-#>   budgets   : maxit 1000, evaluations 20000
+#>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : beta = pr, restart_every = 0, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
 cg(beta = "fr", restart_every = 10)
 #> <optimizer> conjugate gradients (fr)
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
-#>   budgets   : maxit 1000, evaluations 20000
+#>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : beta = fr, restart_every = 10, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
 
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2

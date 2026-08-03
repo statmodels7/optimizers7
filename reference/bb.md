@@ -17,7 +17,7 @@ bb(
   step = 1,
   line_search = nonmonotone(),
   maxit = 1000,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 20,
   keep_trace = FALSE
@@ -69,7 +69,9 @@ bb(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 20000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -156,7 +158,7 @@ methods. *IMA Journal of Numerical Analysis* **8**, 141–148.
 bb()
 #> <optimizer> barzilai-borwein (alternate)
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
-#>   budgets   : maxit 1000, evaluations 20000
+#>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, curv_tol = 1e-10, step = 1, line_search = nonmonotone backtracking (memory = 10)
 
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2

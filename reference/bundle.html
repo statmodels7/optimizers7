@@ -56,7 +56,7 @@ and unlike every descent method here it is not misled by them.</p>
 <span>  qp_iters <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  qp_tol <span class="op">=</span> <span class="fl">1e-12</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">500</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">10000</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -105,7 +105,9 @@ less than <code>qp_tol</code>. Defaults <code>500</code> and <code>1e-12</code>.
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 10000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -247,7 +249,7 @@ nondifferentiable minimization. <em>Mathematical Programming</em> <strong>46</st
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">bundle</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; proximal bundle</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : stationarity &lt; 1e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations 10000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the median, as the minimiser of a sum of absolute deviations: the objective</span></span></span>

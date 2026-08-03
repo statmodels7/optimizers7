@@ -123,7 +123,7 @@ fails.
 multistart(bfgs())
 #> <optimizer> multistart (BFGS)
 #>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
-#>   budgets   : maxit 10, evaluations 20000
+#>   budgets   : maxit 10, evaluations Inf
 #>   settings  : optimizer = BFGS, n = 10, starts = <NULL>, spread = 1, ncores = <NULL>, distinct_tol = 1e-06
 
 # a surface with two minima, one of them better

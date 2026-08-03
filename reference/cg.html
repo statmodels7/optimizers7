@@ -56,7 +56,7 @@ the classical answer for a problem too large to hold a Hessian.</p>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="fu"><a href="wolfe.html">wolfe</a></span><span class="op">(</span>c2 <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">20000</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -98,7 +98,9 @@ theory of the method assumes a strong Wolfe step, see Details.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 20000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -181,12 +183,12 @@ strong global convergence property. <em>SIAM Journal on Optimization</em>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">cg</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; conjugate gradients (pr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations 20000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : beta = pr, restart_every = 0, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)</span>
 <span class="r-in"><span><span class="fu">cg</span><span class="op">(</span>beta <span class="op">=</span> <span class="st">"fr"</span>, restart_every <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; conjugate gradients (fr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations 20000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : beta = fr, restart_every = 10, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">f</span>  <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>

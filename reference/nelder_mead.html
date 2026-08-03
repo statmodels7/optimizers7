@@ -57,7 +57,7 @@ objective but that it return a number.</p>
 <span>  degenerate_tol <span class="op">=</span> <span class="fl">1e-06</span>,</span>
 <span>  simplex <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">20000</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -104,7 +104,9 @@ one vertex per row. Defaults to <code>NULL</code>, meaning build one from
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 20000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -196,7 +198,7 @@ with adaptive parameters. <em>Computational Optimization and Applications</em>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">nelder_mead</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; nelder-mead</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : stationarity &lt; 1e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations 20000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 0.1, adaptive = TRUE, max_restarts = 3, degenerate_tol = 1e-06, simplex = &lt;NULL&gt;</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># a smooth problem, to show it works and to show what it costs</span></span></span>
@@ -205,7 +207,7 @@ with adaptive parameters. <em>Computational Optimization and Applications</em>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 1.66933e-18</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 68   evaluations: f 133, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 4 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (stationarity &lt; 1e-08)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># what it is actually for: a sum of absolute deviations, whose minimiser is</span></span></span>

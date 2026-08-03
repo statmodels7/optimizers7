@@ -177,7 +177,10 @@ function:</p>
 <span></span>
 <span><span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="../reference/adam.html">adam</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.05</span>, decay <span class="op">=</span> <span class="fl">0.005</span>, maxit <span class="op">=</span> <span class="fl">3000</span><span class="op">)</span>,</span>
 <span>         <span class="va">batch</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">batch_gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span>
-<span><span class="co">#&gt; [1] 2.982006</span></span>
+<span><span class="co">#&gt; Warning: 'gr' does not appear to be the gradient of 'fn': along the gradient direction at 'par',</span></span>
+<span><span class="co">#&gt;   'fn' changes at rate -3316475 where 'gr' predicts 291. Check that the two</span></span>
+<span><span class="co">#&gt;   compute the same model. options(optimizers7.check_gradient = FALSE) turns this check off.</span></span>
+<span><span class="co">#&gt; [1] 2.986939</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2.986045</span></span></code></pre></div>
 <p>There was once a <code>finite_sum()</code> class here, by which an

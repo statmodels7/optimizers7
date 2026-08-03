@@ -17,7 +17,7 @@ adam(
   decay = 0,
   amsgrad = FALSE,
   maxit = 1000,
-  max_eval = 1e+05,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 100,
   keep_trace = FALSE
@@ -70,7 +70,9 @@ adam(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 100000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -206,12 +208,12 @@ and Beyond. *ICLR*.
 adam()
 #> <optimizer> adam
 #>   stop when : iteration budget
-#>   budgets   : maxit 1000, evaluations 1e+05
+#>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = FALSE
 adam(alpha = 0.05, amsgrad = TRUE)
 #> <optimizer> adam
 #>   stop when : iteration budget
-#>   budgets   : maxit 1000, evaluations 1e+05
+#>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : alpha = 0.05, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = TRUE
 
 # on a quadratic
@@ -222,7 +224,7 @@ minimize(adam(alpha = 0.1, maxit = 2000),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2000   evaluations: f 2002, g 2001
-#>   elapsed    : 36 ms
+#>   elapsed    : 29 ms
 #>   converged  : NO (iteration budget reached)
 
 # on a noisy objective, which is what it is for: the minibatch is drawn
@@ -234,7 +236,10 @@ batch    <- function(p) { i <- sample.int(2000, m); sum((y[i] - p)^2) / 2 }
 batch_gr <- function(p) { i <- sample.int(2000, m); -sum(y[i] - p) }
 minimize(adam(alpha = 0.05, decay = 0.01, maxit = 2000),
          batch, par = 0, gr = batch_gr)@par
-#> [1] 2.980926
+#> Warning: 'gr' does not appear to be the gradient of 'fn': along the gradient direction at 'par',
+#>   'fn' changes at rate -3316475 where 'gr' predicts 291. Check that the two
+#>   compute the same model. options(optimizers7.check_gradient = FALSE) turns this check off.
+#> [1] 2.984488
 mean(y)
 #> [1] 2.986045
 ```

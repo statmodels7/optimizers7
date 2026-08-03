@@ -17,7 +17,7 @@ bundle(
   qp_iters = 500,
   qp_tol = 1e-12,
   maxit = 500,
-  max_eval = 10000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE
@@ -64,7 +64,9 @@ bundle(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 10000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -210,7 +212,7 @@ optimization. *Optimization Methods and Software* **17**, 1–29.
 bundle()
 #> <optimizer> proximal bundle
 #>   stop when : stationarity < 1e-08
-#>   budgets   : maxit 500, evaluations 10000
+#>   budgets   : maxit 500, evaluations Inf
 #>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12
 
 # the median, as the minimiser of a sum of absolute deviations: the objective

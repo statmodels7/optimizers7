@@ -60,7 +60,7 @@ convergence theorem.</p>
 <span>  expand <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  shrink <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">2000</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">20000</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -105,7 +105,9 @@ every direction? Defaults to <code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 20000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -189,7 +191,7 @@ for constrained optimization. <em>SIAM Journal on Optimization</em>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">compass</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; pattern search (mads)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : stationarity &lt; 1e-08</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations 20000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 0.1, directions = mads, opportunistic = TRUE, expand = 2, shrink = 0.5</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># a kink running diagonally, which no coordinate direction descends</span></span></span>

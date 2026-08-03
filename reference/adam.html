@@ -61,7 +61,7 @@ method suited to a noisy objective.</p>
 <span>  decay <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  amsgrad <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  max_eval <span class="op">=</span> <span class="fl">1e+05</span>,</span>
+<span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -114,7 +114,9 @@ methods because Adam takes many small steps rather than few large ones.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to 100000.</p></dd>
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
+no evaluation budget, so the run stops on the criterion or on
+<code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -240,12 +242,12 @@ Beyond. <em>ICLR</em>.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">adam</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; adam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : iteration budget</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations 1e+05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = FALSE</span>
 <span class="r-in"><span><span class="fu">adam</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.05</span>, amsgrad <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; adam</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : iteration budget</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations 1e+05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : alpha = 0.05, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># on a quadratic</span></span></span>
@@ -256,7 +258,7 @@ Beyond. <em>ICLR</em>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 2000   evaluations: f 2002, g 2001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 36 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 29 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : NO (iteration budget reached)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># on a noisy objective, which is what it is for: the minibatch is drawn</span></span></span>
@@ -268,7 +270,10 @@ Beyond. <em>ICLR</em>.</p>
 <span class="r-in"><span><span class="va">batch_gr</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">{</span> <span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="va">m</span><span class="op">)</span>; <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span> <span class="op">}</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">adam</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.05</span>, decay <span class="op">=</span> <span class="fl">0.01</span>, maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>         <span class="va">batch</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">batch_gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.980926</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'gr' does not appear to be the gradient of 'fn': along the gradient direction at 'par',</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   'fn' changes at rate -3316475 where 'gr' predicts 291. Check that the two</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   compute the same model. options(optimizers7.check_gradient = FALSE) turns this check off.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.984488</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.986045</span>
 <span class="r-in"><span></span></span>

@@ -13,7 +13,7 @@ lbfgs(
   step = 1,
   line_search = wolfe(),
   maxit = 500,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE
@@ -76,7 +76,7 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 #>   value      : 5.34216e-17
 #>   par        : 1 1
 #>   iterations : 34   evaluations: f 253, g 0
-#>   elapsed    : 3 ms
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

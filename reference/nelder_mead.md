@@ -15,7 +15,7 @@ nelder_mead(
   degenerate_tol = 1e-06,
   simplex = NULL,
   maxit = 2000,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 50,
   keep_trace = FALSE
@@ -60,7 +60,9 @@ nelder_mead(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to 20000.
+  Maximum objective evaluations. Defaults to `Inf`: no evaluation
+  budget, so the run stops on the criterion or on `maxit`. Set a finite
+  value to cap the cost of a run.
 
 - verbose:
 
@@ -156,7 +158,7 @@ Applications* **51**, 259–277.
 nelder_mead()
 #> <optimizer> nelder-mead
 #>   stop when : stationarity < 1e-08
-#>   budgets   : maxit 2000, evaluations 20000
+#>   budgets   : maxit 2000, evaluations Inf
 #>   settings  : step = 0.1, adaptive = TRUE, max_restarts = 3, degenerate_tol = 1e-06, simplex = <NULL>
 
 # a smooth problem, to show it works and to show what it costs
@@ -165,7 +167,7 @@ minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #>   value      : 1.66933e-18
 #>   par        : 1 2
 #>   iterations : 68   evaluations: f 133, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 4 ms
 #>   converged  : yes (stationarity < 1e-08)
 
 # what it is actually for: a sum of absolute deviations, whose minimiser is

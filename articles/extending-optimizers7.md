@@ -131,7 +131,10 @@ batch_gr <- function(par) { i <- sample.int(2000, m); -sum(y[i] - par) }
 
 minimize(adam(alpha = 0.05, decay = 0.005, maxit = 3000),
          batch, par = 0, gr = batch_gr)@par
-#> [1] 2.982006
+#> Warning: 'gr' does not appear to be the gradient of 'fn': along the gradient direction at 'par',
+#>   'fn' changes at rate -3316475 where 'gr' predicts 291. Check that the two
+#>   compute the same model. options(optimizers7.check_gradient = FALSE) turns this check off.
+#> [1] 2.986939
 mean(y)
 #> [1] 2.986045
 ```

@@ -38,6 +38,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bfgs.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bounded_forward.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bounded_transform.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/budget_int.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/build_multistart_result.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/build_result.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bundle.html</loc></url>
@@ -46,6 +47,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_bounds.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_count.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_criterion.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/check_gradient_consistency.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_line_search.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_npar.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_optimizer.html</loc></url>
