@@ -3,7 +3,7 @@
 Adam: a first-order method that gives every coordinate its own step
 length, inferred from the size of the gradients it has been seeing. It
 tolerates a gradient that points downhill only on average, which is what
-makes it the method to reach for when the objective is noisy.
+makes it the method suited to a noisy objective.
 
 ## Usage
 
@@ -121,9 +121,10 @@ The practical consequence is that Adam is the wrong tool for a small
 smooth problem where a Hessian is affordable. Use
 [`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md)
 or [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-there and reach machine precision in a dozen iterations. Adam earns its
-place when the parameter vector is long, when the objective is noisy, or
-when the surface is rough enough that a quadratic model is a fiction.
+there and reach machine precision in a dozen iterations. Adam is
+appropriate when the parameter vector is long, when the objective is
+noisy, or when the surface is rough enough that a quadratic model is a
+fiction.
 
 ### Stochastic objectives
 
@@ -143,7 +144,7 @@ cannot do, because a stochastic objective is just an objective:
 
 Adam then behaves exactly as it would on a minibatch of its own drawing,
 and [`set.seed()`](https://rdrr.io/r/base/Random.html) governs it
-because the draws happen in your function.
+because the draws happen in the caller's code.
 
 **Resample inside the objective, not around the run.** It is tempting to
 call `minimize(adam(maxit = 1), ...)` in a loop, drawing a new batch
@@ -163,8 +164,8 @@ a tolerance on the gradient is usually a rule that never fires.
 
 On an exact objective a real rule may be passed and will work. On a
 noisy one nothing based on the objective or the gradient means much,
-since both are then estimates; that is a fact about the objective you
-supplied, and the package cannot detect it for you.
+since both are then estimates; that is a property of the supplied
+objective, which the package cannot detect.
 
 ### The safeguards
 
@@ -180,8 +181,8 @@ published fails to converge, because \\v_t\\ can shrink and let a single
 large gradient dominate the iterate long after it has passed. The
 maximum forbids that, at the cost of steps that only ever get shorter.
 It is `FALSE` by default so that `adam()` is Adam — a run that silently
-did something else would not reproduce anything — but it is worth
-turning on whenever a run refuses to settle.
+did something else would not reproduce anything; it can be enabled
+whenever a run refuses to settle.
 
 A non-finite gradient or update stops the run and says so, rather than
 propagating a `NaN` into every iterate after it.

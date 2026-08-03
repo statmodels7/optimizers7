@@ -30,9 +30,9 @@ provide a stationarity measure instead, since no single derivative they
 could report goes to zero at a solution.
 
 Every optimiser evaluates the objective, so there is no token for that
-and rules reading it are never refused. A method of your own inherits
+and rules reading it are never refused. A user-defined method inherits
 the default, which claims a gradient; if that is not true of it, say so,
-because the whole refusal machinery rests on this being honest.
+because the refusal machinery relies on this declaration being accurate.
 
 ## See also
 

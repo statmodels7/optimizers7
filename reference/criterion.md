@@ -18,7 +18,7 @@ criterion(label = character(0))
 ## Value
 
 An S7 object of class `criterion`. The class is abstract: use one of the
-constructors, or write your own subclass.
+constructors, or from a user-defined subclass.
 
 ## Details
 

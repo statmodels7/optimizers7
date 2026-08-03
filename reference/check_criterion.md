@@ -22,18 +22,18 @@ Invisibly `TRUE`; raises an error otherwise.
 
 ## Details
 
-Call this at the top of a
+Call this at the top of a user-defined
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-method of your own. A rule needing a gradient, handed to a method that
-computes none, would sit testing `NULL` at every iteration and never
-fire; the run would then end on its iteration budget and report a reason
-nowhere near the truth. Refusing it here, by name, is what
+method. A rule needing a gradient, handed to a method that computes
+none, would sit testing `NULL` at every iteration and never fire; the
+run would then end on its iteration budget and report a reason nowhere
+near the truth. Refusing it here, by name, is what
 [`check_optimizer`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 tests for.
 
 What an optimiser can supply is declared by
 [`optimizer_provides`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md),
-whose default claims a gradient. Override that if your method computes
+whose default claims a gradient. Override that when the method computes
 none.
 
 ## See also

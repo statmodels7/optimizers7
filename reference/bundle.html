@@ -130,7 +130,7 @@ less than <code>qp_tol</code>. Defaults <code>500</code> and <code>1e-12</code>.
 
 <div class="section">
 <h3 id="behaviour-at-a-kink">Behaviour at a kink<a class="anchor" aria-label="anchor" href="#behaviour-at-a-kink"></a></h3>
-<p>At the minimum of \(\lvert x \rvert\) the subgradient you evaluate is
+<p>At the minimum of \(\lvert x \rvert\) the evaluated subgradient is
 \(\pm 1\). A descent method therefore sees a large gradient, proposes a
 step, finds no acceptable one, and stops reporting failure while standing
 exactly on the answer — and no tolerance can fix that, because the quantity
@@ -176,7 +176,7 @@ message.</p>
 <p><code>t</code> is halved after a null step and doubled after a serious one, within
 <code>t_min</code> and <code>t_max</code>. Kiwiel's rule chooses the factor from a
 curvature estimate and is better; this is the safeguarded version, which is
-cruder and cannot run away.</p>
+cruder and bounded.</p>
 </div>
 
 <div class="section">

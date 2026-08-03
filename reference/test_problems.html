@@ -66,9 +66,8 @@ Each carries its analytic gradient and its known answer.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>They are exported because they are useful to anyone writing an optimiser, not
-only to this package's own tests: <code><a href="check_optimizer.html">check_optimizer</a></code> runs them, and
-so can you.</p>
+    <p>They are exported for use in testing optimisers generally, not only in this
+package's own tests; <code><a href="check_optimizer.html">check_optimizer</a></code> runs them.</p>
 <p>Each element is a list with <code>name</code>, <code>fn</code>, <code>gr</code>, <code>par</code>
 (a starting point), <code>solution</code>, <code>value</code>, and two flags.
 <code>multimodal</code> marks a surface with more than one local minimum, where a

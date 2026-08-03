@@ -110,7 +110,7 @@ the run has earned rather than starting over. Each rebuild is counted,
 reported in the trace as `"restart"` and in the result's message.
 
 The safeguard is not free: a restart costs \\p+1\\ evaluations and can
-delay an honest convergence. `max_restarts = 0` turns it off.
+delay a genuine convergence. `max_restarts = 0` turns it off.
 
 ### Adaptive coefficients
 

@@ -17,7 +17,7 @@ class object.
 
 ## Details
 
-This is the trap recorded in linkfunctions7: comparing S7 classes with
+Comparing S7 classes with
 [`identical()`](https://rdrr.io/r/base/identical.html) is object
 identity, and a class rebuilt from the same definition is not identical
 to the original. Under covr, which re-evaluates the code instead of

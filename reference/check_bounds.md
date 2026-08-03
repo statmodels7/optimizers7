@@ -22,9 +22,9 @@ check_bounds(lower, upper, par)
 ## Value
 
 A list with one `c(lower, upper)` pair per parameter, or an empty list
-when no bound is finite. Call it at the top of a
+when no bound is finite. Call it at the top of a user-defined
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-method of your own, then hand each pair to
+method, then hand each pair to
 [`bounded_transform`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md);
 an empty list means there is no box and the whole reparametrisation
 should be skipped.

@@ -63,9 +63,9 @@
     <p>A gradient-based method knows it has arrived because \(\nabla f\) vanishes.
 None of the derivative-free methods can use that test, and for the
 non-smooth problems they exist to solve it would not be the right test even
-if they could: at the minimum of \(\lvert x \rvert\) the subgradient you
-happen to evaluate is \(\pm 1\), so <code><a href="crit_grad.html">crit_grad</a></code> would sit there
-forever while sitting exactly on the answer.</p>
+if they could: at the minimum of \(\lvert x \rvert\) any evaluated
+subgradient is \(\pm 1\), so <code><a href="crit_grad.html">crit_grad</a></code> would never fire at
+the solution itself.</p>
 <p>Each such method therefore reports a non-negative scalar of its own that goes
 to zero as it converges, and this rule tests that. What the scalar
 <em>is</em> differs, deliberately, because the natural measure differs:</p><dl><dt><code><a href="nelder_mead.html">nelder_mead</a></code></dt>

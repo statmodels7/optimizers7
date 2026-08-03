@@ -80,11 +80,11 @@ appears.
 [`start_zeros`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
 for all zeros,
 [`start_runif`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)
-for a uniform draw from a range you choose. Both work on the
-*unconstrained* scale and are mapped back through the bounds, which is
-what makes a single constant sensible for every kind of parameter — zero
-becomes one for a variance, one half for a probability — and what
-guarantees the point is admissible however tight the box.
+for a uniform draw from a chosen range. Both work on the *unconstrained*
+scale and are mapped back through the bounds, which is what makes a
+single constant sensible for every kind of parameter — zero becomes one
+for a variance, one half for a probability — and what guarantees the
+point is admissible however tight the box.
 
 A starter needs to know how many parameters there are, and it is told in
 one of three ways. Say so, with `start_zeros(npar = 3)`, and that is the
@@ -118,11 +118,11 @@ the new variable. Every point it proposes is admissible by construction,
 so there is no rejection step and no boundary for a line search to trip
 over, and any method works with bounds without knowing about them.
 
-The limitation is worth knowing before it surprises you: **an optimum
-lying on a bound cannot be reached**. Getting there requires the
-transformed variable to run to infinity, so the optimiser marches off,
-improves by less and less, and stops on a budget at a point merely close
-to the bound. For the statistical use this exists to serve — a positive
+One limitation follows from the construction: **an optimum lying on a
+bound cannot be reached**. Getting there requires the transformed
+variable to run to infinity, so the optimiser marches off, improves by
+less and less, and stops on a budget at a point merely close to the
+bound. For the statistical use this exists to serve — a positive
 variance, a probability inside the unit interval — the optimum is
 interior and this never arises. For a genuine box-constrained problem
 with active constraints at the solution, an active-set method is the

@@ -62,12 +62,11 @@ An S7 object of class `Newton`.
 ## Details
 
 Newton's method converges quadratically near a minimum and is unreliable
-away from one, and the reason is worth stating plainly: \\H^{-1}g\\ is
-only a descent direction when \\H\\ is positive definite. Where the
-objective curves downwards the unmodified step points towards a saddle
-or a maximum, and no line search can rescue it — every step along an
-ascent direction increases the objective. This is not an edge case; it
-is the ordinary situation far from the solution.
+away from one: \\H^{-1}g\\ is only a descent direction when \\H\\ is
+positive definite. Where the objective curves downwards the unmodified
+step points towards a saddle or a maximum, and no line search can rescue
+it — every step along an ascent direction increases the objective. This
+is not an edge case; it is the ordinary situation far from the solution.
 
 Both repairs begin with an attempted Cholesky factorisation, which when
 it succeeds is simultaneously the test for positive definiteness and the

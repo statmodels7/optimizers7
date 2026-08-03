@@ -17,7 +17,7 @@ starting_values(starter, npar)
   [`start_zeros`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
   or
   [`start_runif`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)
-  object, or one of your own.
+  object, or a user-defined starter.
 
 - npar:
 
@@ -38,8 +38,8 @@ maps the result back through
 [`bounded_transform`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)
 before any method sees it.
 
-Write a method for this generic to define a starter of your own; the
-class must inherit from `starter`, and everything else follows.
+A user-defined starter is a subclass of `starter` with a method for this
+generic; nothing else is required.
 
 ## See also
 

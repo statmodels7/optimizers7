@@ -87,11 +87,11 @@ An S7 object of class `Bundle`, inheriting from
 
 ### Behaviour at a kink
 
-At the minimum of \\\lvert x \rvert\\ the subgradient you evaluate is
-\\\pm 1\\. A descent method therefore sees a large gradient, proposes a
-step, finds no acceptable one, and stops reporting failure while
-standing exactly on the answer — and no tolerance can fix that, because
-the quantity it is testing does not become small.
+At the minimum of \\\lvert x \rvert\\ the evaluated subgradient is \\\pm
+1\\. A descent method therefore sees a large gradient, proposes a step,
+finds no acceptable one, and stops reporting failure while standing
+exactly on the answer — and no tolerance can fix that, because the
+quantity it is testing does not become small.
 
 The bundle method does not test any single subgradient. It keeps a
 *collection* of them, from the points it has visited, and builds the
@@ -138,7 +138,7 @@ in the result's message.
 `t` is halved after a null step and doubled after a serious one, within
 `t_min` and `t_max`. Kiwiel's rule chooses the factor from a curvature
 estimate and is better; this is the safeguarded version, which is cruder
-and cannot run away.
+and bounded.
 
 ### The trust parameter t0
 

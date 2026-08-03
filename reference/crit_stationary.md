@@ -25,10 +25,10 @@ object.
 A gradient-based method knows it has arrived because \\\nabla f\\
 vanishes. None of the derivative-free methods can use that test, and for
 the non-smooth problems they exist to solve it would not be the right
-test even if they could: at the minimum of \\\lvert x \rvert\\ the
-subgradient you happen to evaluate is \\\pm 1\\, so
+test even if they could: at the minimum of \\\lvert x \rvert\\ any
+evaluated subgradient is \\\pm 1\\, so
 [`crit_grad`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-would sit there forever while sitting exactly on the answer.
+would never fire at the solution itself.
 
 Each such method therefore reports a non-negative scalar of its own that
 goes to zero as it converges, and this rule tests that. What the scalar

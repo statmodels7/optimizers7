@@ -55,7 +55,7 @@ unconstrained scale."><meta property="og:image" content="https://statmodels7.git
 
 <dl><dt id="arg-starter">starter<a class="anchor" aria-label="anchor" href="#arg-starter"></a></dt>
 <dd><p>A <code><a href="start_zeros.html">start_zeros</a></code> or <code><a href="start_runif.html">start_runif</a></code>
-object, or one of your own.</p></dd>
+object, or a user-defined starter.</p></dd>
 
 
 <dt id="arg-npar">npar<a class="anchor" aria-label="anchor" href="#arg-npar"></a></dt>
@@ -74,8 +74,8 @@ the middle of an interval, one for a variance, one half for a probability,
 and there is no way for it to fall outside a bound. <code><a href="minimize.html">minimize</a></code>
 maps the result back through <code><a href="bounded_transform.html">bounded_transform</a></code> before any
 method sees it.</p>
-<p>Write a method for this generic to define a starter of your own; the class
-must inherit from <code>starter</code>, and everything else follows.</p>
+<p>A user-defined starter is a subclass of <code>starter</code> with a method for
+this generic; nothing else is required.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

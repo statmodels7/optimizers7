@@ -1,8 +1,7 @@
 # Run an Optimiser From Many Starting Points
 
 Wraps any optimiser and runs it from several starts, returning the best
-result — and, as importantly, telling you how many different answers it
-found.
+result together with the number of distinct answers found.
 
 ## Usage
 
@@ -43,8 +42,8 @@ multistart(
 - ncores:
 
   How many processes to spread the starts over. Defaults to `NULL`,
-  meaning as many as are worth using: see Details. Pass `1` to stay in
-  this session.
+  meaning `min(n, parallel::detectCores() - 2)`. Pass `1` for a
+  sequential run.
 
 - distinct_tol:
 
@@ -62,7 +61,7 @@ multistart(
 - keep_trace:
 
   Keep the per-start summary? Defaults to `TRUE` — it is one row per
-  start, not one per iteration, and it is the point of the method.
+  start, not one per iteration.
 
 ## Value
 

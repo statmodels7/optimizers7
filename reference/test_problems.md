@@ -22,10 +22,10 @@ A named list of problems.
 
 ## Details
 
-They are exported because they are useful to anyone writing an
-optimiser, not only to this package's own tests:
+They are exported for use in testing optimisers generally, not only in
+this package's own tests;
 [`check_optimizer`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-runs them, and so can you.
+runs them.
 
 Each element is a list with `name`, `fn`, `gr`, `par` (a starting
 point), `solution`, `value`, and two flags. `multimodal` marks a surface

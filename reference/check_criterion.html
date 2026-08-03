@@ -63,14 +63,14 @@ supply, and stops if the rule asks for something absent.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Call this at the top of a <code><a href="minimize.html">minimize</a></code> method of your own. A rule
+    <p>Call this at the top of a user-defined <code><a href="minimize.html">minimize</a></code> method. A rule
 needing a gradient, handed to a method that computes none, would sit testing
 <code>NULL</code> at every iteration and never fire; the run would then end on its
 iteration budget and report a reason nowhere near the truth. Refusing it here,
 by name, is what <code><a href="check_optimizer.html">check_optimizer</a></code> tests for.</p>
 <p>What an optimiser can supply is declared by
 <code><a href="optimizer_provides.html">optimizer_provides</a></code>, whose default claims a gradient. Override
-that if your method computes none.</p>
+that when the method computes none.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
