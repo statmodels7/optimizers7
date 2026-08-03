@@ -31,8 +31,11 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @title The Proximal Bundle Method
 #'
 #' @description
-#' The method for a convex objective with kinks in it: it uses subgradients,
-#' and unlike every descent method here it is not misled by them.
+#' Proximal bundle method for convex non-smooth objectives: subgradients
+#' collected at the visited points define a cutting-plane model, a proximal
+#' term keeps the step near the stability centre, and convergence is tested on
+#' the aggregate subgradient rather than on any single one, which does not
+#' vanish at a kink.
 #'
 #' @param criterion The stopping rule. Defaults to
 #'   \code{crit_stationary(1e-8)}, on the predicted decrease.

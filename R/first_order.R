@@ -27,15 +27,16 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' @title Gradient Descent
 #'
 #' @description
-#' The simplest method there is: step along the negative gradient, and let the
-#' line search decide how far.
+#' Steepest descent: the search direction is the negative gradient
+#' \eqn{-g(x)}, and a line search chooses the step length.
 #'
 #' @param criterion The stopping rule; see \code{\link{crit_any}}.
 #' @param step Initial step length offered to the line search each iteration.
 #'   Defaults to \code{1}.
 #' @param line_search How far to go along the direction; see
 #'   \code{\link{armijo}} and \code{\link{wolfe}}. Defaults to Armijo
-#'   backtracking, which is all a method with nothing to protect needs.
+#'   backtracking, which suffices for a method carrying no curvature
+#'   approximation to protect.
 #' @param maxit Maximum iterations. Defaults to 500.
 #' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
 #'   no evaluation budget, so the run stops on the criterion or on
@@ -120,9 +121,10 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' @title Nonlinear Conjugate Gradients
 #'
 #' @description
-#' Gradient descent with the zigzag taken out: each direction is bent back
-#' towards the previous one. It stores two vectors and no matrix, which makes it
-#' the classical answer for a problem too large to hold a Hessian.
+#' Nonlinear conjugate gradients: the direction is
+#' \eqn{d_k = -g_k + \beta_k d_{k-1}}, so consecutive directions are conjugate
+#' on a quadratic rather than orthogonal. Storage is two vectors, with no
+#' matrix, which suits problems too large for a Hessian.
 #'
 #' @param criterion The stopping rule; see \code{\link{crit_any}}.
 #' @param beta Which formula for the bend: \code{"pr"} (Polak–Ribière, the
@@ -146,7 +148,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' @details
 #' The direction is
 #' \deqn{d_k = -g_k + \beta_k d_{k-1},}
-#' and the whole method is the choice of \eqn{\beta}. On a quadratic with an
+#' and the methods differ only in the choice of \eqn{\beta}. On a quadratic with an
 #' exact line search the directions come out conjugate with respect to the
 #' Hessian, so the method terminates in \eqn{p} steps exactly — \emph{without
 #' ever forming that Hessian}, which is the point. The storage is two vectors
@@ -277,8 +279,9 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' @title The Barzilai-Borwein Method
 #'
 #' @description
-#' Gradient descent whose step length is a scalar curvature estimate computed
-#' from the previous step's secant pair rather than found by searching.
+#' Gradient descent with the Barzilai-Borwein step length: the direction is
+#' \eqn{-\alpha_k g_k}, where \eqn{\alpha_k} is a scalar estimate of the
+#' inverse curvature computed from the previous secant pair.
 #'
 #' @param criterion The stopping rule; see \code{\link{crit_any}}.
 #' @param variant \code{"alternate"} (default), \code{"bb1"} or \code{"bb2"};

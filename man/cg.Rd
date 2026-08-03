@@ -51,14 +51,15 @@ An S7 object of class \code{Cg}, inheriting from
 \code{\link{optimizer}}.
 }
 \description{
-Gradient descent with the zigzag taken out: each direction is bent back
-towards the previous one. It stores two vectors and no matrix, which makes it
-the classical answer for a problem too large to hold a Hessian.
+Nonlinear conjugate gradients: the direction is
+\eqn{d_k = -g_k + \beta_k d_{k-1}}, so consecutive directions are conjugate
+on a quadratic rather than orthogonal. Storage is two vectors, with no
+matrix, which suits problems too large for a Hessian.
 }
 \details{
 The direction is
 \deqn{d_k = -g_k + \beta_k d_{k-1},}
-and the whole method is the choice of \eqn{\beta}. On a quadratic with an
+and the methods differ only in the choice of \eqn{\beta}. On a quadratic with an
 exact line search the directions come out conjugate with respect to the
 Hessian, so the method terminates in \eqn{p} steps exactly — \emph{without
 ever forming that Hessian}, which is the point. The storage is two vectors

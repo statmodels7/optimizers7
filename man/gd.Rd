@@ -23,7 +23,8 @@ Defaults to \code{1}.}
 
 \item{line_search}{How far to go along the direction; see
 \code{\link{armijo}} and \code{\link{wolfe}}. Defaults to Armijo
-backtracking, which is all a method with nothing to protect needs.}
+backtracking, which suffices for a method carrying no curvature
+approximation to protect.}
 
 \item{maxit}{Maximum iterations. Defaults to 500.}
 
@@ -42,8 +43,8 @@ An S7 object of class \code{GradientDescent}, inheriting from
 \code{\link{optimizer}}.
 }
 \description{
-The simplest method there is: step along the negative gradient, and let the
-line search decide how far.
+Steepest descent: the search direction is the negative gradient
+\eqn{-g(x)}, and a line search chooses the step length.
 }
 \details{
 The direction \eqn{-g} minimises \eqn{g^\top d} over directions of a given

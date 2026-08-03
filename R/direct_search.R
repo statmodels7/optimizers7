@@ -32,9 +32,9 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' @title The Nelder-Mead Simplex Method
 #'
 #' @description
-#' Keeps \eqn{p+1} points, and at each step reflects the worst of them through
-#' the face of the others. It uses no derivative and asks nothing of the
-#' objective but that it return a number.
+#' The Nelder-Mead simplex method: \eqn{p+1} points are maintained and the
+#' worst is reflected, expanded, contracted or shrunk through the centroid of
+#' the others. Only objective values are used; no derivative is required.
 #'
 #' @param criterion The stopping rule. Defaults to
 #'   \code{crit_stationary(1e-8)}, on the diameter of the simplex.
@@ -216,7 +216,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #'
 #' @details
 #' The directions form a \emph{positive spanning set}: any vector in the space
-#' is a non-negative combination of them. That is the whole idea, and it is what
+#' is a non-negative combination of them, which is what
 #' buys the theorem — if the current point is not stationary then some direction
 #' in the set goes downhill, so a poll that fails everywhere is evidence about
 #' the point rather than about the directions. A failed poll therefore licenses

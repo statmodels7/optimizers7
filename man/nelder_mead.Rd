@@ -55,9 +55,9 @@ An S7 object of class \code{NelderMead}, inheriting from
 \code{\link{optimizer}}.
 }
 \description{
-Keeps \eqn{p+1} points, and at each step reflects the worst of them through
-the face of the others. It uses no derivative and asks nothing of the
-objective but that it return a number.
+The Nelder-Mead simplex method: \eqn{p+1} points are maintained and the
+worst is reflected, expanded, contracted or shrunk through the centroid of
+the others. Only objective values are used; no derivative is required.
 }
 \details{
 Reflect the worst vertex through the centroid of the rest; if that is the

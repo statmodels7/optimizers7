@@ -68,7 +68,7 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' @param max_step Maximum backtracks before the search gives up. Defaults to 30.
 #'
 #' @details
-#' The \eqn{c_1 s\, g^\top d} term is the whole point, and dropping it — testing
+#' The \eqn{c_1 s\, g^\top d} term is essential, and dropping it — testing
 #' merely \eqn{f_{new} \le f} — is a real defect rather than a simplification.
 #' On a quadratic with unit step the gradient update reflects the iterate through
 #' the minimum, leaving the objective \emph{exactly} unchanged; the weak test

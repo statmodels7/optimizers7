@@ -60,16 +60,17 @@ An S7 object of class \code{Adam}, inheriting from
 \code{\link{optimizer}}.
 }
 \description{
-Adam: a first-order method that gives every coordinate its own step length,
-inferred from the size of the gradients it has been seeing. It tolerates a
-gradient that points downhill only on average, which is what makes it the
-method suited to a noisy objective.
+Adaptive moment estimation: a first-order method whose coordinate-wise step
+lengths come from exponentially weighted first and second moments of the
+gradient. It takes no line search and tolerates a gradient that is correct
+only on average, which makes it the method suited to a stochastic
+objective.
 }
 \details{
 The idea is one line. Adam keeps an exponentially weighted average of the
 gradient, \eqn{m_t}, and of its square, \eqn{v_t}, and steps
 \deqn{x_{t+1} = x_t - \alpha\, \hat m_t / (\sqrt{\hat v_t} + \epsilon).}
-The division is elementwise, which is the whole point: a coordinate whose
+The division is elementwise: a coordinate whose
 gradient has been consistently large is divided by a large number and moves
 modestly, while one whose gradient is small but persistent still moves. It is
 a diagonal preconditioner assembled from the gradients already seen, so it

@@ -25,7 +25,7 @@ Shrink the step until the objective decreases by enough:
 \deqn{f(x + s d) \leq f(x) + c_1 s\, g^\top d .}
 }
 \details{
-The \eqn{c_1 s\, g^\top d} term is the whole point, and dropping it — testing
+The \eqn{c_1 s\, g^\top d} term is essential, and dropping it — testing
 merely \eqn{f_{new} \le f} — is a real defect rather than a simplification.
 On a quadratic with unit step the gradient update reflects the iterate through
 the minimum, leaving the objective \emph{exactly} unchanged; the weak test
