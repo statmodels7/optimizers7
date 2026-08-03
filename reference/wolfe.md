@@ -67,8 +67,9 @@ minimize(gd(line_search = wolfe(), maxit = 200),
          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
 #> <optimizer_result> gradient descent
 #>   value      : 2.34837e-05
-#>   par        : 1.00483 1.00972
+#>   par        : 1.0048 1.0097
 #>   iterations : 200   evaluations: f 2796, g 0
+#>   elapsed    : 16 ms
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```
