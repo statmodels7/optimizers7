@@ -1,9 +1,10 @@
 # Adaptive Moment Estimation
 
-Adam: a first-order method that gives every coordinate its own step
-length, inferred from the size of the gradients it has been seeing. It
-tolerates a gradient that points downhill only on average, which is what
-makes it the method suited to a noisy objective.
+Adaptive moment estimation: a first-order method whose coordinate-wise
+step lengths come from exponentially weighted first and second moments
+of the gradient. It takes no line search and tolerates a gradient that
+is correct only on average, which makes it the method suited to a
+stochastic objective.
 
 ## Usage
 
@@ -96,13 +97,13 @@ An S7 object of class `Adam`, inheriting from
 The idea is one line. Adam keeps an exponentially weighted average of
 the gradient, \\m_t\\, and of its square, \\v_t\\, and steps
 \$\$x\_{t+1} = x_t - \alpha\\ \hat m_t / (\sqrt{\hat v_t} +
-\epsilon).\$\$ The division is elementwise, which is the whole point: a
-coordinate whose gradient has been consistently large is divided by a
-large number and moves modestly, while one whose gradient is small but
-persistent still moves. It is a diagonal preconditioner assembled from
-the gradients already seen, so it costs nothing beyond them — and that
-is also its limit, since a diagonal cannot represent the correlation
-between parameters that
+\epsilon).\$\$ The division is elementwise: a coordinate whose gradient
+has been consistently large is divided by a large number and moves
+modestly, while one whose gradient is small but persistent still moves.
+It is a diagonal preconditioner assembled from the gradients already
+seen, so it costs nothing beyond them — and that is also its limit,
+since a diagonal cannot represent the correlation between parameters
+that
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 learns from the same information.
 
@@ -224,7 +225,7 @@ minimize(adam(alpha = 0.1, maxit = 2000),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2000   evaluations: f 2002, g 2001
-#>   elapsed    : 29 ms
+#>   elapsed    : 35 ms
 #>   converged  : NO (iteration budget reached)
 
 # on a noisy objective, which is what it is for: the minibatch is drawn

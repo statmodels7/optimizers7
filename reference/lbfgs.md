@@ -76,7 +76,7 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 #>   value      : 5.34216e-17
 #>   par        : 1 1
 #>   iterations : 34   evaluations: f 253, g 0
-#>   elapsed    : 1e+03 us
+#>   elapsed    : 3 ms
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

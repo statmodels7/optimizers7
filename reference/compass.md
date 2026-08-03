@@ -83,12 +83,12 @@ An S7 object of class `Compass`, inheriting from
 ## Details
 
 The directions form a *positive spanning set*: any vector in the space
-is a non-negative combination of them. That is the whole idea, and it is
-what buys the theorem — if the current point is not stationary then some
-direction in the set goes downhill, so a poll that fails everywhere is
-evidence about the point rather than about the directions. A failed poll
-therefore licenses shrinking the radius, and the limit points of a run
-in which the radius goes to zero are stationary.
+is a non-negative combination of them, which is what buys the theorem —
+if the current point is not stationary then some direction in the set
+goes downhill, so a poll that fails everywhere is evidence about the
+point rather than about the directions. A failed poll therefore licenses
+shrinking the radius, and the limit points of a run in which the radius
+goes to zero are stationary.
 
 ### Poll directions
 

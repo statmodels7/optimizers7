@@ -34,8 +34,8 @@ object.
 
 ## Details
 
-The \\c_1 s\\ g^\top d\\ term is the whole point, and dropping it —
-testing merely \\f\_{new} \le f\\ — is a real defect rather than a
+The \\c_1 s\\ g^\top d\\ term is essential, and dropping it — testing
+merely \\f\_{new} \le f\\ — is a real defect rather than a
 simplification. On a quadratic with unit step the gradient update
 reflects the iterate through the minimum, leaving the objective
 *exactly* unchanged; the weak test accepts it, the iterate oscillates
@@ -62,7 +62,7 @@ minimize(gd(line_search = armijo(shrink = 0.2)),
 #>   value      : 2.4818e-17
 #>   par        : 1 2
 #>   iterations : 39   evaluations: f 239, g 0
-#>   elapsed    : 3 ms
+#>   elapsed    : 4 ms
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

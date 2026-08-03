@@ -1,8 +1,9 @@
 # The Nelder-Mead Simplex Method
 
-Keeps \\p+1\\ points, and at each step reflects the worst of them
-through the face of the others. It uses no derivative and asks nothing
-of the objective but that it return a number.
+The Nelder-Mead simplex method: \\p+1\\ points are maintained and the
+worst is reflected, expanded, contracted or shrunk through the centroid
+of the others. Only objective values are used; no derivative is
+required.
 
 ## Usage
 
@@ -167,7 +168,7 @@ minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #>   value      : 1.66933e-18
 #>   par        : 1 2
 #>   iterations : 68   evaluations: f 133, g 0
-#>   elapsed    : 4 ms
+#>   elapsed    : 5 ms
 #>   converged  : yes (stationarity < 1e-08)
 
 # what it is actually for: a sum of absolute deviations, whose minimiser is

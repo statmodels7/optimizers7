@@ -1,8 +1,8 @@
 # The Barzilai-Borwein Method
 
-Gradient descent whose step length is a scalar curvature estimate
-computed from the previous step's secant pair rather than found by
-searching.
+Gradient descent with the Barzilai-Borwein step length: the direction is
+\\-\alpha_k g_k\\, where \\\alpha_k\\ is a scalar estimate of the
+inverse curvature computed from the previous secant pair.
 
 ## Usage
 

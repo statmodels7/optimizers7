@@ -1,7 +1,7 @@
 # Gradient Descent
 
-The simplest method there is: step along the negative gradient, and let
-the line search decide how far.
+Steepest descent: the search direction is the negative gradient
+\\-g(x)\\, and a line search chooses the step length.
 
 ## Usage
 
@@ -36,8 +36,8 @@ gd(
   [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
   and
   [`wolfe`](https://statmodels7.github.io/optimizers7/reference/wolfe.md).
-  Defaults to Armijo backtracking, which is all a method with nothing to
-  protect needs.
+  Defaults to Armijo backtracking, which suffices for a method carrying
+  no curvature approximation to protect.
 
 - maxit:
 
