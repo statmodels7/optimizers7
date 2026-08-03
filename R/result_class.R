@@ -73,24 +73,72 @@ optimizer_result <- S7::new_class(
 )
 
 
+#' Format a Duration With a Unit Matched to Its Size
+#'
+#' @description
+#' Renders a time in seconds using the unit its magnitude calls for:
+#' microseconds below a millisecond, milliseconds below a second, seconds below
+#' a minute, minutes and seconds below an hour, hours and minutes above.
+#'
+#' @param sec A single non-negative number of seconds.
+#' @return A character string, or \code{NA_character_} when \code{sec} is
+#'   missing or not finite.
+#' @keywords internal
+format_elapsed <- function(sec) {
+  if (!length(sec) || !is.finite(sec)) return(NA_character_)
+  if (sec < 1e-3) return(sprintf("%.3g us", sec * 1e6))
+  if (sec < 1)    return(sprintf("%.3g ms", sec * 1e3))
+  if (sec < 60)   return(sprintf("%.3g s", sec))
+  if (sec < 3600) {
+    m <- floor(sec / 60)
+    return(sprintf("%d min %.0f s", m, sec - 60 * m))
+  }
+  h <- floor(sec / 3600)
+  sprintf("%d h %.0f min", h, (sec - 3600 * h) / 60)
+}
+
+
 #' @title Print Method for an Optimisation Result
 #' @name print.optimizer_result
+#' @description
+#' Prints the objective value, the leading parameters, the evaluation counts,
+#' the elapsed time and the convergence status.
 #' @param x An \code{\link{optimizer_result}}.
-#' @param digits Significant digits.
+#' @param digits Decimal places the parameters are rounded to. Defaults to 4.
+#' @param max_par How many parameters to show; any remainder is summarised as
+#'   a count. Defaults to 6.
 #' @param ... Unused.
 #' @return \code{x}, invisibly.
 #' @examples
 #' res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
 #' print(res)
+#' print(res, digits = 2, max_par = 1)
 #' @keywords internal
-S7::method(print, optimizer_result) <- function(x, digits = 6, ...) {
+S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
+                                                ...) {
+  if (!is.numeric(digits) || length(digits) != 1L || is.na(digits) ||
+      digits < 0 || digits != round(digits)) {
+    stop("'digits' must be a single non-negative whole number.", call. = FALSE)
+  }
+  if (!is.numeric(max_par) || length(max_par) != 1L || is.na(max_par) ||
+      max_par < 1 || max_par != round(max_par)) {
+    stop("'max_par' must be a single positive whole number.", call. = FALSE)
+  }
+  p <- length(x@par)
+  shown <- round(x@par[seq_len(min(p, max_par))], digits)
+  tail_note <- if (p > max_par) {
+    sprintf(" ... (%d of %d shown)", as.integer(max_par), p)
+  } else ""
+
   cat("<optimizer_result> ", x@optimizer@name, "\n", sep = "")
-  cat("  value      : ", format(x@value, digits = digits), "\n", sep = "")
-  cat("  par        : ", paste(format(x@par, digits = digits), collapse = " "),
+  cat("  value      : ", format(x@value, digits = 6), "\n", sep = "")
+  cat("  par        : ", paste(format(shown), collapse = " "), tail_note,
       "\n", sep = "")
   cat("  iterations : ", x@iterations,
       "   evaluations: f ", x@counts[["f"]], ", g ", x@counts[["g"]],
       "\n", sep = "")
+  el <- format_elapsed(x@elapsed)
+  if (!is.na(el)) cat("  elapsed    : ", el, "\n", sep = "")
   if (x@converged) {
     cat("  converged  : yes (", x@criterion_met, ")\n", sep = "")
   } else {

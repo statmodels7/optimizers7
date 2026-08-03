@@ -274,6 +274,26 @@ lbfgs <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
 S7::method(minimize, Newton) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
            lower = -Inf, upper = Inf, ...) {
+    # A numerical Hessian differences the gradient once per coordinate and
+    # direction; without an analytic gradient each of those is itself 2p
+    # objective values, so one iteration costs about 4p^2 evaluations. When the
+    # evaluation budget admits fewer than two such iterations the run can only
+    # end on the budget, so that is said here rather than discovered from a
+    # one-iteration result.
+    if (is.null(he) && is.function(fn)) {
+      p <- length(par)
+      per_iter <- if (is.null(gr)) 4 * p^2 + 2 * p else 0
+      if (per_iter > 0 && 2 * per_iter > optimizer@max_eval) {
+        warning("newton() without 'gr' and 'he' costs about 4*p^2 = ",
+                format(4 * p^2), " objective evaluations per iteration at p = ",
+                p, ",
+  and max_eval = ", format(optimizer@max_eval),
+                " admits fewer than two iterations. Supply 'gr' (or 'he'),
+",
+                "  raise 'max_eval', or use bfgs(), which needs no Hessian.",
+                call. = FALSE)
+      }
+    }
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "newton", hessian_mod = optimizer@hessian_mod,
                      floor = optimizer@floor))

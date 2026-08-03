@@ -217,3 +217,43 @@ test_that("verbose reports on the refresh schedule and nowhere else", {
   )
   expect_length(quiet, 0)
 })
+
+
+test_that("format_elapsed picks the unit from the magnitude", {
+  expect_equal(format_elapsed(5e-6), "5 us")
+  expect_equal(format_elapsed(0.446), "446 ms")
+  expect_equal(format_elapsed(1.79), "1.79 s")
+  expect_equal(format_elapsed(150), "2 min 30 s")
+  expect_equal(format_elapsed(4380), "1 h 13 min")
+  expect_true(is.na(format_elapsed(numeric(0))))
+  expect_true(is.na(format_elapsed(NA_real_)))
+})
+
+
+test_that("print shows the leading parameters, rounded, and the elapsed time", {
+  f <- function(p) sum((p - seq_len(10))^2)
+  r <- minimize(bfgs(), f, rep(0, 10), gr = function(p) 2 * (p - seq_len(10)))
+  out <- capture.output(print(r))
+  expect_true(any(grepl("(6 of 10 shown)", out, fixed = TRUE)))
+  expect_true(any(grepl("elapsed", out)))
+  # max_par and digits are honoured
+  out2 <- capture.output(print(r, digits = 2, max_par = 3))
+  expect_true(any(grepl("(3 of 10 shown)", out2, fixed = TRUE)))
+  # nothing is truncated when the vector is short
+  r2 <- minimize(bfgs(), function(p) sum((p - 1:2)^2), c(0, 0))
+  expect_false(any(grepl("shown", capture.output(print(r2)))))
+
+  expect_error(print(r, digits = -1), "'digits'")
+  expect_error(print(r, max_par = 0), "'max_par'")
+})
+
+
+test_that("newton without derivatives warns when the budget cannot carry it", {
+  f <- function(p) sum((p - seq_len(30))^2)
+  # 4 * 30^2 = 3600 per iteration against a 2000-evaluation budget
+  expect_warning(minimize(newton(max_eval = 2000, maxit = 3), f, rep(0, 30)),
+                 "evaluations per iteration")
+  # an analytic gradient removes the p^2 term and the warning with it
+  expect_no_warning(minimize(newton(max_eval = 2000, maxit = 3), f, rep(0, 30),
+                             gr = function(p) 2 * (p - seq_len(30))))
+})

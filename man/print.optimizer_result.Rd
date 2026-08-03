@@ -6,7 +6,10 @@
 \arguments{
 \item{x}{An \code{\link{optimizer_result}}.}
 
-\item{digits}{Significant digits.}
+\item{digits}{Decimal places the parameters are rounded to. Defaults to 4.}
+
+\item{max_par}{How many parameters to show; any remainder is summarised as
+a count. Defaults to 6.}
 
 \item{...}{Unused.}
 }
@@ -14,10 +17,12 @@
 \code{x}, invisibly.
 }
 \description{
-Print Method for an Optimisation Result
+Prints the objective value, the leading parameters, the evaluation counts,
+the elapsed time and the convergence status.
 }
 \examples{
 res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
 print(res)
+print(res, digits = 2, max_par = 1)
 }
 \keyword{internal}
