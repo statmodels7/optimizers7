@@ -61,7 +61,7 @@ The method for a convex objective with kinks in it: it uses subgradients,
 and unlike every descent method here it is not misled by them.
 }
 \details{
-\subsection{Why a descent method fails and this does not}{
+\subsection{Behaviour at a kink}{
 At the minimum of \eqn{\lvert x \rvert} the subgradient you evaluate is
 \eqn{\pm 1}. A descent method therefore sees a large gradient, proposes a
 step, finds no acceptable one, and stops reporting failure while standing
@@ -115,7 +115,7 @@ curvature estimate and is better; this is the safeguarded version, which is
 cruder and cannot run away.
 }
 
-\subsection{Why t0 is a step length}{
+\subsection{The trust parameter t0}{
 The step is \eqn{d = -t\,p}, so a bare \code{t} would make the first step as
 long as the gradient happens to be big. On Rosenbrock from its usual start
 that is 233 units, landing where the objective is \eqn{10^{11}} and its
@@ -144,7 +144,7 @@ the method; the aggregate keeps a summary of all of it in one element, which
 is what makes a bounded bundle safe.
 }
 
-\subsection{Convexity, and what is clipped without it}{
+\subsection{Convexity requirement}{
 The theory is for convex \eqn{f}, where the linearisation errors
 \eqn{\alpha_j} are non-negative automatically. On a non-convex objective they
 can come out negative and are clipped at zero. The method then still runs and

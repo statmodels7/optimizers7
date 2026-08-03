@@ -52,71 +52,44 @@ Wraps any optimiser and runs it from several starts, returning the best
 result — and, as importantly, telling you how many different answers it found.
 }
 \details{
-Every method in this package finds a \emph{local} minimum, and none of them
-can tell you whether it is the global one; that is not a shortcoming of the
-implementations but of local optimisation. Running from several starts is the
-only general answer, and the most valuable thing it produces is not the best
-point but the \strong{count of distinct optima}, which is direct evidence
-about whether the question you asked has one answer. A run reporting one
-optimum from twenty starts is worth far more than a single run reporting
-convergence.
+Every method in this package finds a local minimum. Running from several
+starting points is the general remedy, and beyond the best point found it
+reports the \strong{count of distinct optima}, which is evidence about
+whether the objective has a single minimum at all.
 
 The result is the best run, with everything it carried. The per-start summary
 is in \code{trace}: one row each, with the value reached, whether that start
 converged, and how many iterations it took. The message counts the starts that
 succeeded, the ones that converged, and the distinct optima found.
 
-\subsection{Where the starts come from}{
-The first is always \code{par}: your guess is a hypothesis worth testing, and
-silently discarding it would be rude.
-
-The rest are a Latin hypercube — each coordinate's range is cut into \code{n}
-equal strata and each is used exactly once, so the starts cannot all cluster
-in one corner the way independent draws can. They are generated on the
-\emph{unconstrained} scale and mapped back, which is what makes bounds
-automatic: a start for a variance is drawn as a log and comes back positive,
-and no draw is ever rejected for being outside the box.
+\subsection{Starting points}{
+The first starting point is always \code{par}. The remaining \code{n - 1}
+form a Latin hypercube: each coordinate's range is divided into equal strata
+and each stratum is used exactly once, which spreads the starts more evenly
+than independent draws. They are generated on the \emph{unconstrained} scale
+and mapped back through the bounds, so every start is admissible by
+construction.
 }
 
-\subsection{Parallelism, which is arranged for you}{
-The starts are independent, so they are run in parallel, and there is nothing
-to set up: \code{ncores} is a number, and everything behind it — starting the
-workers, loading the package on them, giving each an independent random
-stream, and shutting them down again — happens inside and is undone before the
-function returns. The default is
-\code{min(n, max(1, parallel::detectCores() - 2))}: as many processes as
-there are starts to run, but never so many that the machine has nothing left
-for anything else. Two cores are held back rather than one because the
-process doing the asking is one of them.
+\subsection{Parallel execution}{
+The starts are independent and are run in parallel over \code{ncores}
+processes. The default is \code{min(n, max(1, parallel::detectCores() - 2))}.
+Worker creation, package loading, random-stream assignment and shutdown are
+handled internally: on Unix-alikes the workers are forks, on Windows a socket
+cluster, and if the workers cannot load the package the run warns and
+proceeds sequentially. Processes are used rather than threads because the
+stopping rule is an R object consulted at every iteration, and R cannot be
+called from multiple threads.
 
-The mechanism differs by platform and the difference is not visible from
-outside. On Linux and macOS the workers are forks, which start in
-microseconds and inherit this session entire — including a package loaded
-with \pkg{pkgload}, which is why development works there without installing
-anything. Windows has no \code{fork}, so a socket cluster is started instead
-and \pkg{optimizers7} is loaded on each worker; if that fails, because the
-package is not installed anywhere the workers can see it, the run says so and
-continues sequentially rather than failing.
-
-Threading inside C++ is not an option, and the reason is worth stating
-because it is not about the objective. \strong{The stopping rule is an R
-object}, by design, and it is consulted at every iteration — that is the
-feature this package was built around. Every run therefore returns to R, and R
-is single-threaded, so calling it from several threads is undefined behaviour
-that crashes rather than errors. Separate processes have no such problem.
-
-\code{\link{set.seed}} reproduces a parallel run exactly, and reproduces it
-across platforms and across values of \code{ncores}: the starting points are
-drawn here, before anything is dispatched, and each worker is handed a stream
-derived from this session's, so the same seed gives the same answer whether
-the work was split eight ways or not at all.
+The starting points are drawn in the calling session before dispatch, and
+each worker receives a random stream derived from the session's seed, so
+\code{\link{set.seed}} reproduces the run identically for any value of
+\code{ncores} and on any platform.
 }
 
-\subsection{A start that fails is not a run that fails}{
-A random start can easily land where the objective is undefined. Such a start
-is recorded as failed and the others carry on; only if \emph{every} start
-fails is that an error. Otherwise one bad draw would throw away nineteen good
-answers.
+\subsection{Failed starts}{
+A start where the objective is undefined is recorded as failed and the
+remaining starts proceed; an error is raised only when every start fails.
 }
 }
 \examples{

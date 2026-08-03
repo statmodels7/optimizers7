@@ -31,8 +31,8 @@ dimension of the problem.}
 \item{step}{Initial step length offered to the line search. Defaults to
 \code{1}.}
 
-\item{line_search}{Defaults to \code{wolfe(c2 = 0.1)}, and see Details —
-neither the search nor that constant is a free choice.}
+\item{line_search}{Defaults to \code{wolfe(c2 = 0.1)}; the convergence
+theory of the method assumes a strong Wolfe step, see Details.}
 
 \item{maxit}{Maximum iterations. Defaults to 1000.}
 
@@ -62,19 +62,19 @@ Hessian, so the method terminates in \eqn{p} steps exactly — \emph{without
 ever forming that Hessian}, which is the point. The storage is two vectors
 against \code{\link{bfgs}}'s \eqn{p \times p} matrix.
 
-\subsection{Which beta}{
+\subsection{Choice of beta}{
 All four agree on a quadratic with an exact line search and differ everywhere
 else. \code{"fr"} has the cleanest convergence theory and the well-known
 practical fault of stalling for many iterations after a poor step.
 \code{"pr"} recovers from a poor step immediately, because a small
 \eqn{y = g_k - g_{k-1}} sends \eqn{\beta} towards zero and the method back to
-steepest descent; it can fail to converge in theory, and the standard repair
-is to clamp \eqn{\beta} at zero, which is what this does. The clamp is not a
-fudge — \eqn{\beta = 0} \emph{is} a restart, and it is reported as one in the
-trace. \code{"hs"} and \code{"dy"} are the other two standard choices.
+steepest descent; its known theoretical non-convergence is repaired by
+clamping \eqn{\beta} at zero, which restarts the method and is recorded as a
+restart in the trace. \code{"hs"} and \code{"dy"} are the other two standard
+choices.
 }
 
-\subsection{The line search is not optional, and neither is its tolerance}{
+\subsection{Line search}{
 The theory behind every one of these formulas assumes a step satisfying the
 \strong{strong} Wolfe conditions, and uses it to prove that the direction
 produced is a descent direction at all. Backtracking gives no such guarantee,

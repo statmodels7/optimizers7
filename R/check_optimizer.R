@@ -60,7 +60,7 @@ NULL
 #' }
 #' }
 #'
-#' \subsection{Reading the battery}{
+#' \subsection{The problem battery}{
 #' The table reports the gap between the value reached and the known minimum,
 #' and it is information rather than judgement. A large gap on
 #' \code{rastrigin} or \code{himmelblau} means the method found a different

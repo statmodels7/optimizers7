@@ -40,8 +40,8 @@ the same relative test \code{\link{bfgs}} applies to the same quantity.}
 \item{step}{Initial multiplier offered to the line search. Defaults to
 \code{1}, so the Barzilai-Borwein step is tried unaltered first.}
 
-\item{line_search}{Defaults to \code{\link{nonmonotone}}, and that is not
-an incidental choice; see Details.}
+\item{line_search}{The acceptance test for a trial step. Defaults to
+\code{\link{nonmonotone}}; see Details.}
 
 \item{maxit}{Maximum iterations. Defaults to 1000.}
 
@@ -58,9 +58,8 @@ An S7 object of class \code{Bb}, inheriting from
 \code{\link{optimizer}}.
 }
 \description{
-Gradient descent with one number changed, and the number is what makes it
-work: the step length is a curvature estimate taken from the previous step
-rather than found by searching.
+Gradient descent whose step length is a scalar curvature estimate computed
+from the previous step's secant pair rather than found by searching.
 }
 \details{
 Take the direction \eqn{-\alpha g} with
@@ -72,78 +71,41 @@ direction just travelled, so this is a quasi-Newton method that has discarded
 everything except one scalar. On a quadratic, where the curvature is
 constant, that scalar is exactly right.
 
-It reaches every smooth minimum in \code{\link{test_problems}} to machine
-precision while storing two vectors and doing no linear algebra at all, and
-it solves a quadratic in two iterations, because the first secant pair
-already contains the answer.
+On a quadratic, where the curvature is constant, the estimate is exact and
+the method converges in two iterations; on a general smooth objective it
+typically needs more iterations than \code{\link{bfgs}} while storing a
+single scalar instead of a matrix.
 
-On Rosenbrock it takes 68 iterations and 77 objective evaluations, against 65
-for \code{\link{bfgs}} and \code{\link{lbfgs}} and 353 for \code{\link{cg}} —
-from one stored number rather than a matrix, a list of secant pairs or a
-direction. For a method of this size that is a remarkable place to be.
-
-\subsection{Which variant}{
-\code{"bb1"} and \code{"bb2"} are the two quotients, and \code{"alternate"}
-switches between them at each iteration, which is the usual recommendation and
-the default: they estimate the same curvature from different ends, and taking
-them in turn is more robust than trusting either.
+\subsection{Variants}{
+\code{"bb1"} and \code{"bb2"} are the two quotients above, and
+\code{"alternate"}, the default, switches between them at each iteration:
+they estimate the same curvature from opposite ends, and alternating them is
+more robust than either alone.
 }
 
-\subsection{The line search, and what it is for here}{
-The step length is the method, so the line search must not be allowed to
-reshape it. The Barzilai-Borwein step is offered first and unaltered, and
-backtracking happens only when it fails the acceptance test.
-
-Which test matters. The method is \strong{non-monotone by design}: its
-efficiency comes from steps that make the objective worse now in order to be
-aligned with the curvature later, and an Armijo condition forbids exactly
-those. The default is therefore \code{\link{nonmonotone}}, which asks for
-improvement on the worst of the last several values rather than on the
-present one. Measured on Rosenbrock it accepts eleven uphill steps out of
-sixty-seven, where \code{\link{armijo}} accepts none, and finishes in 68
-iterations and 77 evaluations against 82 and 186. On the non-smooth problem
-in \code{\link{test_problems}} it ends eight orders of magnitude closer,
-though it takes 439 iterations to get there against 29 that stop early.
-
-\code{\link{nonmonotone}} with \code{memory = 0} is exactly
-\code{\link{armijo}} -- the same trace, value for value -- so the two can be
-compared without changing anything else.
+\subsection{Line search}{
+The Barzilai-Borwein step is offered to the line search first and unaltered,
+and backtracking occurs only when it fails the acceptance test. Because the
+method makes progress through steps that may increase the objective
+temporarily, the default acceptance test is \code{\link{nonmonotone}}, which
+requires improvement over the maximum of the last \code{memory} values
+rather than over the current one; a plain Armijo condition rejects exactly
+the steps the method relies on and slows it considerably.
+\code{\link{nonmonotone}} with \code{memory = 0} coincides with
+\code{\link{armijo}}.
 }
 
-\subsection{What happens when a pair carries no curvature}{
-A secant pair is usable only if it reports positive curvature, and the test
-is stated relatively -- \eqn{s^\top y \le c \lVert s \rVert \lVert y
-\rVert}{s'y <= c |s| |y|}, with \eqn{c} the \code{curv_tol} argument, the
-same test \code{\link{bfgs}} applies to the same quantity -- so that a value
-positive only by rounding does not pass. When the pair is refused the step
-length is set to \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, which asks for a
-trial displacement of order one in the parameters whatever the gradient's
-magnitude.
-
-That looks like an odd thing to reach for until one sees what the obvious
-alternatives do. Keeping the previous \eqn{\alpha} is an absorbing state: a
-short step samples curvature over a short interval, on a valley floor that
-curvature is negative, so the pair is refused, so \eqn{\alpha} stays short
-and the next pair is refused too. Measured on Rosenbrock the \code{"bb2"}
-variant fell into it at iteration six and never left: 873 refusals in 945
-iterations, the gradient norm frozen while the objective crept down by 0.002
-a step. Restarting at \code{alpha0} escapes that trap and then fails in the
-same shape wherever \code{alpha0} is itself too short to escape with -- on a
-boxed quadratic seen through its reparametrisation it cost 1395 refusals in
-1521 iterations, against 113 for keeping. Reaching for \code{alpha_max}, as
-the spectral projected gradient literature does in a setting that also
-projects and clamps differently, asks the line search to backtrack a
-direction of length \code{1e10}, which thirty halvings do not bring back into
-scale: on that same boxed problem the run stopped after eight iterations a
-whole unit from the solution while reporting success. Of the four,
-\eqn{1/\lVert g \rVert_\infty}{1/max|g|} is the only one that is never the
-worst, over Rosenbrock, Beale, Powell's quartic and the boxed quadratic; it
-cannot freeze, since it does not depend on the \eqn{\alpha} it replaces, and
-it cannot explode, since it scales with the gradient.
-
-A step length outside \code{alpha_min} and \code{alpha_max} is clamped. Both
-the reset and the clamp are named in the trace: an unbounded step is how a
-first-order method leaves the domain entirely.
+\subsection{Refused secant pairs}{
+A pair is used only if it reports positive curvature by a relative margin,
+\eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
+\eqn{c} the \code{curv_tol} argument -- the same test \code{\link{bfgs}}
+applies. When a pair is refused, the step length is reset to
+\eqn{1/\lVert g \rVert_\infty}{1/max|g|}, giving a trial displacement of
+order one in the parameters. This reset depends on the current gradient
+rather than on the step length being replaced or on a fixed constant, so it
+can neither freeze the iteration at a too-short step nor produce a step the
+backtracking cannot rescale. Steps outside \code{[alpha_min, alpha_max]} are
+clamped, and both the reset and the clamp are recorded in the trace.
 }
 }
 \examples{
@@ -154,7 +116,7 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(bb(), f, c(-1.2, 1), gr = gr)@par
 
-# two iterations on a quadratic, because one secant pair is the whole answer
+# two iterations on a quadratic: one secant pair determines the curvature
 minimize(bb(), function(p) sum((p - c(1, 2))^2), c(0, 0),
          gr = function(p) 2 * (p - c(1, 2)))@iterations
 

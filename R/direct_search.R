@@ -63,7 +63,7 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' which is why it survives a kink — and also why it is slow, since an ordering
 #' of \eqn{p+1} values is very little information about a surface.
 #'
-#' \subsection{The failure it is famous for, and the safeguard}{
+#' \subsection{Degenerate simplices}{
 #' Nelder-Mead can converge to a point that is not a minimiser. McKinnon (1998)
 #' exhibited a strictly convex function with continuous derivatives on which it
 #' performs inside contractions for ever: the simplex flattens onto a line
@@ -96,7 +96,7 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' \code{TRUE} at no cost to the small problems anyone would recognise.
 #' }
 #'
-#' \subsection{When to use it}{
+#' \subsection{Scope}{
 #' Rarely, and knowingly. If the objective is smooth, every gradient-based
 #' method here will beat it by orders of magnitude. Its place is an objective
 #' that is genuinely non-smooth or noisy and whose subgradients are not
@@ -219,7 +219,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' shrinking the radius, and the limit points of a run in which the radius goes
 #' to zero are stationary.
 #'
-#' \subsection{Which directions, and why it matters}{
+#' \subsection{Poll directions}{
 #' \describe{
 #'   \item{\code{"coordinate"}}{the \eqn{2p} signed axes: this is compass
 #'     search. Cheap, deterministic, reproducible. The theorem it enjoys assumes

@@ -33,7 +33,7 @@ which is Armijo's with the reference replaced by the largest of the last
 \eqn{m+1} values. Every step it accepts improves on the worst of recent
 memory; none is required to improve on the present.
 
-\subsection{What it is for}{
+\subsection{Purpose}{
 Some methods are efficient \emph{because} of steps that make the objective
 worse. \code{\link{bb}} is the clear case: its step length is a curvature
 estimate taken from the last secant pair, and following that estimate
@@ -49,7 +49,7 @@ correspondingly more delicate. Use it where a method asks for it, not as a
 faster default.
 }
 
-\subsection{Not available with Wolfe}{
+\subsection{Compatibility}{
 The curvature condition is a statement about the gradient at the trial point
 and has nothing to say about which value the decrease is measured against, so
 a nonmonotone Wolfe search would be a different object rather than an option

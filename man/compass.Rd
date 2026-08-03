@@ -65,7 +65,7 @@ the point rather than about the directions. A failed poll therefore licenses
 shrinking the radius, and the limit points of a run in which the radius goes
 to zero are stationary.
 
-\subsection{Which directions, and why it matters}{
+\subsection{Poll directions}{
 \describe{
 \item{\code{"coordinate"}}{the \eqn{2p} signed axes: this is compass
 search. Cheap, deterministic, reproducible. The theorem it enjoys assumes

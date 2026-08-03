@@ -65,7 +65,7 @@ No model of the function is built and no derivative is assumed to exist,
 which is why it survives a kink — and also why it is slow, since an ordering
 of \eqn{p+1} values is very little information about a surface.
 
-\subsection{The failure it is famous for, and the safeguard}{
+\subsection{Degenerate simplices}{
 Nelder-Mead can converge to a point that is not a minimiser. McKinnon (1998)
 exhibited a strictly convex function with continuous derivatives on which it
 performs inside contractions for ever: the simplex flattens onto a line
@@ -98,7 +98,7 @@ replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
 \code{TRUE} at no cost to the small problems anyone would recognise.
 }
 
-\subsection{When to use it}{
+\subsection{Scope}{
 Rarely, and knowingly. If the objective is smooth, every gradient-based
 method here will beat it by orders of magnitude. Its place is an objective
 that is genuinely non-smooth or noisy and whose subgradients are not

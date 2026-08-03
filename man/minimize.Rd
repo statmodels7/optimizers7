@@ -54,7 +54,7 @@ A gradient that is not supplied is computed by central finite differences.
 The result records which derivatives were supplied and which were
 differenced, so a run is never silently less exact than it appears.
 
-\subsection{Starting values you do not have to write out}{
+\subsection{Starters}{
 \code{par} may be a \strong{starter} rather than a vector:
 \code{\link{start_zeros}} for all zeros, \code{\link{start_runif}} for a
 uniform draw from a range you choose. Both work on the \emph{unconstrained}

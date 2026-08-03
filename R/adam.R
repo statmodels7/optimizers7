@@ -72,7 +72,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' by \eqn{1 - \beta^t} removes exactly that bias, and without it the first
 #' iterations would barely move.
 #'
-#' \subsection{Why it is not a descent method}{
+#' \subsection{Relation to descent methods}{
 #' Adam takes no line search and makes no attempt to decrease the objective at
 #' every step. That is deliberate, not an omission: the freedom to go uphill is
 #' most of why it tolerates a gradient that is only right on average. It also
@@ -88,7 +88,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' fiction.
 #' }
 #'
-#' \subsection{Minibatches belong to the caller}{
+#' \subsection{Stochastic objectives}{
 #' Adam does \strong{not} draw subsamples, and the omission is the design rather
 #' than a gap in it. An optimiser does not know what an observation is; a
 #' version that did would need a second kind of objective to be told, a rule for
@@ -115,7 +115,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' thrown away at each one.
 #' }
 #'
-#' \subsection{Stopping, and why the default is a budget}{
+#' \subsection{Stopping}{
 #' The default criterion is \code{\link{crit_never}}: the run ends when
 #' \code{maxit} is reached, and reports \code{converged = FALSE}, which is the
 #' truth about a run that nothing checked. With a fixed \code{alpha} Adam
