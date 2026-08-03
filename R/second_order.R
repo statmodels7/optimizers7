@@ -94,7 +94,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 newton <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                    hessian_mod = c("eigen", "ridge"), floor = 1e-8,
                    step = 1, line_search = armijo(),
-                   maxit = 200, max_eval = 10000,
+                   maxit = 200, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE) {
   hessian_mod <- match.arg(hessian_mod)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
@@ -178,7 +178,7 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 bfgs <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                  curv_tol = 1e-10, max_skip = 5,
                  step = 1, line_search = wolfe(),
-                 maxit = 500, max_eval = 20000,
+                 maxit = 500, max_eval = Inf,
                  verbose = FALSE, refresh = 10, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -247,7 +247,7 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 lbfgs <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                   memory = 10, curv_tol = 1e-10,
                   step = 1, line_search = wolfe(),
-                  maxit = 500, max_eval = 20000,
+                  maxit = 500, max_eval = Inf,
                   verbose = FALSE, refresh = 10, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)

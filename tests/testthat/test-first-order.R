@@ -30,12 +30,14 @@ test_that("all three solve a quadratic and Rosenbrock", {
 
 test_that("cg beats gd on the problem gd is bad at, and by a lot", {
   # The zigzag is the whole argument for the method: a narrow valley is where
-  # consecutive steepest-descent directions being orthogonal costs most.
-  a <- minimize(gd(maxit = 20000), rosen, c(-1.2, 1), gr = rosen_g)
+  # consecutive steepest-descent directions being orthogonal costs most. With
+  # no evaluation budget by default, gd is capped by iterations here: 2000 are
+  # far from enough for it and two hundred times what cg needs.
+  a <- minimize(gd(maxit = 2000), rosen, c(-1.2, 1), gr = rosen_g)
   b <- minimize(cg(maxit = 5000), rosen, c(-1.2, 1), gr = rosen_g)
   expect_lt(b@iterations, a@iterations / 10)
   expect_true(b@converged)
-  expect_false(a@converged)          # gd does not get there at all
+  expect_false(a@converged)          # gd does not get there in 2000 iterations
 })
 
 

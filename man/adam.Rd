@@ -13,7 +13,7 @@ adam(
   decay = 0,
   amsgrad = FALSE,
   maxit = 1000,
-  max_eval = 1e+05,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 100,
   keep_trace = FALSE
@@ -45,7 +45,9 @@ t)}. Defaults to \code{0}, a constant rate; see Details.}
 \item{maxit}{Maximum iterations. Defaults to 1000, higher than the other
 methods because Adam takes many small steps rather than few large ones.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to 100000.}
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
+no evaluation budget, so the run stops on the criterion or on
+\code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
 

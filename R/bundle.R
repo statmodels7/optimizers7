@@ -50,7 +50,9 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'   accelerated projected-gradient steps, stopping when the weights move by
 #'   less than \code{qp_tol}. Defaults \code{500} and \code{1e-12}.
 #' @param maxit Maximum iterations. Defaults to 500.
-#' @param max_eval Maximum objective evaluations. Defaults to 10000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 10.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -191,7 +193,7 @@ bundle <- function(criterion = crit_stationary(1e-8),
                    t0 = 1, t_min = 1e-10, t_max = 1e10,
                    m_serious = 0.1, bundle_size = 20,
                    qp_iters = 500, qp_tol = 1e-12,
-                   maxit = 500, max_eval = 10000,
+                   maxit = 500, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_tol(t0)
@@ -269,7 +271,7 @@ S7::method(minimize, Bundle) <-
       bundle_size = as.integer(optimizer@bundle_size),
       qp_iters = as.integer(optimizer@qp_iters), qp_tol = optimizer@qp_tol,
       maxit = as.integer(optimizer@maxit),
-      max_eval = as.integer(optimizer@max_eval),
+      max_eval = budget_int(optimizer@max_eval),
       verbose = optimizer@verbose,
       refresh = as.integer(optimizer@refresh),
       keep_trace = optimizer@keep_trace,

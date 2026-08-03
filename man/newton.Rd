@@ -11,7 +11,7 @@ newton(
   step = 1,
   line_search = armijo(),
   maxit = 200,
-  max_eval = 10000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE

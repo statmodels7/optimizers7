@@ -11,7 +11,7 @@ lbfgs(
   step = 1,
   line_search = wolfe(),
   maxit = 500,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE

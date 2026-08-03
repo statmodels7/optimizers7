@@ -393,6 +393,16 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
   RNGkind("L'Ecuyer-CMRG")
   iseed <- sample.int(.Machine$integer.max, 1L)
 
+  # A package loaded from source with pkgload exists only in this session: a
+  # worker process would load whatever copy is installed, which may be another
+  # version entirely, and S7 objects built here do not dispatch correctly
+  # against methods registered there. Sequential is the only correct route.
+  if (isNamespaceLoaded("optimizers7") &&
+      exists(".__DEVTOOLS__", asNamespace("optimizers7"),
+             inherits = FALSE)) {
+    return(sequential())
+  }
+
   if (.Platform$OS.type != "windows") {
     set.seed(iseed)
     return(parallel::mclapply(seq_len(n), one, mc.cores = ncores,

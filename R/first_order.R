@@ -37,7 +37,9 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #'   \code{\link{armijo}} and \code{\link{wolfe}}. Defaults to Armijo
 #'   backtracking, which is all a method with nothing to protect needs.
 #' @param maxit Maximum iterations. Defaults to 500.
-#' @param max_eval Maximum objective evaluations. Defaults to 10000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 10.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -65,7 +67,7 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' @export
 gd <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                step = 1, line_search = armijo(),
-               maxit = 500, max_eval = 10000,
+               maxit = 500, max_eval = Inf,
                verbose = FALSE, refresh = 10, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -134,7 +136,9 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' @param line_search Defaults to \code{wolfe(c2 = 0.1)}; the convergence
 #'   theory of the method assumes a strong Wolfe step, see Details.
 #' @param maxit Maximum iterations. Defaults to 1000.
-#' @param max_eval Maximum objective evaluations. Defaults to 20000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 20.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -209,7 +213,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 cg <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                beta = c("pr", "fr", "hs", "dy"), restart_every = 0,
                step = 1, line_search = wolfe(c2 = 0.1),
-               maxit = 1000, max_eval = 20000,
+               maxit = 1000, max_eval = Inf,
                verbose = FALSE, refresh = 20, keep_trace = FALSE) {
   beta <- match.arg(beta)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
@@ -292,7 +296,9 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' @param line_search The acceptance test for a trial step. Defaults to
 #'   \code{\link{nonmonotone}}; see Details.
 #' @param maxit Maximum iterations. Defaults to 1000.
-#' @param max_eval Maximum objective evaluations. Defaults to 20000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 20.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -370,7 +376,7 @@ bb <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
                alpha0 = 1e-2, alpha_min = 1e-10, alpha_max = 1e10,
                curv_tol = 1e-10,
                step = 1, line_search = nonmonotone(),
-               maxit = 1000, max_eval = 20000,
+               maxit = 1000, max_eval = Inf,
                verbose = FALSE, refresh = 20, keep_trace = FALSE) {
   variant <- match.arg(variant)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)

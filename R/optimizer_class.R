@@ -94,6 +94,10 @@ check_optimizer_args <- function(criterion, maxit, max_eval, verbose, refresh,
     }
   }
   pos(maxit, "maxit")
+  if (!is.finite(maxit)) {
+    stop("'maxit' must be finite: it is the stop of last resort.",
+         call. = FALSE)
+  }
   pos(max_eval, "max_eval")
   if (length(refresh) != 1L || !is.numeric(refresh) || is.na(refresh) ||
       refresh < 0) {

@@ -9,7 +9,7 @@ gd(
   step = 1,
   line_search = armijo(),
   maxit = 500,
-  max_eval = 10000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE
@@ -27,7 +27,9 @@ backtracking, which is all a method with nothing to protect needs.}
 
 \item{maxit}{Maximum iterations. Defaults to 500.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to 10000.}
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
+no evaluation budget, so the run stops on the criterion or on
+\code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
 

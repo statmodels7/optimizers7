@@ -257,3 +257,23 @@ test_that("newton without derivatives warns when the budget cannot carry it", {
   expect_no_warning(minimize(newton(max_eval = 2000, maxit = 3), f, rep(0, 30),
                              gr = function(p) 2 * (p - seq_len(30))))
 })
+
+
+test_that("the evaluation budget defaults to Inf and binds only when finite", {
+  for (o in list(gd(), cg(), bb(), bfgs(), lbfgs(), newton(), adam(),
+                 nelder_mead(), compass(), bundle())) {
+    expect_identical(o@max_eval, Inf, label = o@name)
+  }
+  # unlimited: the run ends on the criterion, not on any budget
+  f <- function(p) sum((p - c(1, 2))^2)
+  r <- minimize(bfgs(), f, c(0, 0), gr = function(p) 2 * (p - c(1, 2)))
+  expect_true(r@converged)
+  # a finite budget still stops the run and is reported as the reason
+  r2 <- suppressWarnings(
+    minimize(newton(max_eval = 50, maxit = 100),
+             function(p) sum((p - seq_len(10))^2), rep(0, 10)))
+  expect_false(r2@converged)
+  expect_match(r2@message, "budget")
+  # maxit stays the backstop, so it cannot be Inf
+  expect_error(gd(maxit = Inf), "finite")
+})

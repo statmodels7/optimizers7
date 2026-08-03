@@ -51,7 +51,9 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'   \code{FALSE}; see Details.
 #' @param maxit Maximum iterations. Defaults to 1000, higher than the other
 #'   methods because Adam takes many small steps rather than few large ones.
-#' @param max_eval Maximum objective evaluations. Defaults to 100000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 100.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -183,7 +185,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 adam <- function(criterion = crit_never(),
                  alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-8,
                  decay = 0, amsgrad = FALSE,
-                 maxit = 1000, max_eval = 100000,
+                 maxit = 1000, max_eval = Inf,
                  verbose = FALSE, refresh = 100, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
 
@@ -240,7 +242,7 @@ S7::method(minimize, Adam) <-
       beta2 = optimizer@beta2, eps = optimizer@eps,
       decay = optimizer@decay, amsgrad = optimizer@amsgrad,
       maxit = as.integer(optimizer@maxit),
-      max_eval = as.integer(optimizer@max_eval),
+      max_eval = budget_int(optimizer@max_eval),
       verbose = optimizer@verbose,
       refresh = as.integer(optimizer@refresh),
       keep_trace = optimizer@keep_trace,

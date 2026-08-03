@@ -12,7 +12,7 @@ compass(
   expand = 2,
   shrink = 0.5,
   maxit = 2000,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 50,
   keep_trace = FALSE
@@ -38,7 +38,9 @@ every direction? Defaults to \code{TRUE}.}
 
 \item{maxit}{Maximum iterations. Defaults to 2000.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to 20000.}
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
+no evaluation budget, so the run stops on the criterion or on
+\code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
 

@@ -50,7 +50,9 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #'   one vertex per row. Defaults to \code{NULL}, meaning build one from
 #'   \code{par} and \code{step}.
 #' @param maxit Maximum iterations. Defaults to 2000.
-#' @param max_eval Maximum objective evaluations. Defaults to 20000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 50.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -138,7 +140,7 @@ nelder_mead <- function(criterion = crit_stationary(1e-8),
                         step = 0.1, adaptive = TRUE,
                         max_restarts = 3, degenerate_tol = 1e-6,
                         simplex = NULL,
-                        maxit = 2000, max_eval = 20000,
+                        maxit = 2000, max_eval = Inf,
                         verbose = FALSE, refresh = 50, keep_trace = FALSE) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -205,7 +207,9 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #'   \code{2}.
 #' @param shrink Factor applied after a failure. Defaults to \code{0.5}.
 #' @param maxit Maximum iterations. Defaults to 2000.
-#' @param max_eval Maximum objective evaluations. Defaults to 20000.
+#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#'   no evaluation budget, so the run stops on the criterion or on
+#'   \code{maxit}. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to \code{FALSE}.
 #' @param refresh Report every this many iterations. Defaults to 50.
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
@@ -276,7 +280,7 @@ compass <- function(criterion = crit_stationary(1e-8),
                     step = 0.1,
                     directions = c("mads", "coordinate"),
                     opportunistic = TRUE, expand = 2, shrink = 0.5,
-                    maxit = 2000, max_eval = 20000,
+                    maxit = 2000, max_eval = Inf,
                     verbose = FALSE, refresh = 50, keep_trace = FALSE) {
   directions <- match.arg(directions)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
@@ -356,7 +360,7 @@ S7::method(minimize, NelderMead) <-
       degenerate_tol = optimizer@degenerate_tol,
       start_simplex = sx,
       maxit = as.integer(optimizer@maxit),
-      max_eval = as.integer(optimizer@max_eval),
+      max_eval = budget_int(optimizer@max_eval),
       verbose = optimizer@verbose,
       refresh = as.integer(optimizer@refresh),
       keep_trace = optimizer@keep_trace,
@@ -396,7 +400,7 @@ S7::method(minimize, Compass) <-
       opportunistic = optimizer@opportunistic,
       expand = optimizer@expand, shrink = optimizer@shrink,
       maxit = as.integer(optimizer@maxit),
-      max_eval = as.integer(optimizer@max_eval),
+      max_eval = budget_int(optimizer@max_eval),
       verbose = optimizer@verbose,
       refresh = as.integer(optimizer@refresh),
       keep_trace = optimizer@keep_trace,

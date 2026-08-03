@@ -12,7 +12,7 @@ nelder_mead(
   degenerate_tol = 1e-06,
   simplex = NULL,
   maxit = 2000,
-  max_eval = 20000,
+  max_eval = Inf,
   verbose = FALSE,
   refresh = 50,
   keep_trace = FALSE
@@ -40,7 +40,9 @@ one vertex per row. Defaults to \code{NULL}, meaning build one from
 
 \item{maxit}{Maximum iterations. Defaults to 2000.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to 20000.}
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
+no evaluation budget, so the run stops on the criterion or on
+\code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
 

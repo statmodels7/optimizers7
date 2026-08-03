@@ -115,6 +115,21 @@ optimizer_provides <- S7::new_generic("optimizer_provides", "optimizer",
 S7::method(optimizer_provides, optimizer) <- function(optimizer) "gradient"
 
 
+#' Translate an Evaluation Budget for the Compiled Loop
+#'
+#' @description
+#' The compiled loops hold the budget as an integer, and the default budget is
+#' \code{Inf}: no cap at all. This maps \code{Inf} to the largest representable
+#' integer, which no run reaches, and any finite value to itself.
+#'
+#' @param x The \code{max_eval} property, a single positive number or \code{Inf}.
+#' @return A single integer.
+#' @keywords internal
+budget_int <- function(x) {
+  if (is.finite(x)) as.integer(x) else .Machine$integer.max
+}
+
+
 #' Assemble the Result of a Run
 #'
 #' @description
@@ -215,7 +230,7 @@ run_descent <- function(optimizer, fn, par, gr, he, lower, upper, method) {
     method = method,
     line_search = line_search_spec(optimizer@line_search),
     maxit = as.integer(optimizer@maxit),
-    max_eval = as.integer(optimizer@max_eval),
+    max_eval = budget_int(optimizer@max_eval),
     verbose = optimizer@verbose,
     refresh = as.integer(optimizer@refresh),
     keep_trace = optimizer@keep_trace,
