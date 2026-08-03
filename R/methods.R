@@ -130,6 +130,72 @@ budget_int <- function(x) {
 }
 
 
+#' Warn When a Supplied Gradient Does Not Belong to the Objective
+#'
+#' @description
+#' Compares the directional derivative of \code{fn} along the gradient
+#' direction at \code{par}, obtained from one central difference, with the rate
+#' the supplied \code{gr} predicts. A gradient computed from a different model
+#' than the objective -- a fixed predictor where the objective uses the
+#' parameter, a stale copy of the data -- makes the two disagree grossly, and
+#' the symptom downstream is otherwise a mute line-search failure at the first
+#' iteration.
+#'
+#' @details
+#' The check costs one call to \code{gr} and two to \code{fn}, runs once per
+#' \code{\link{minimize}} call, and is skipped whenever it cannot be decisive:
+#' a non-function objective, a zero or non-finite gradient at \code{par}, an
+#' objective that is not finite at the probe points. The tolerance is
+#' deliberately loose -- a relative disagreement above one half -- so that
+#' finite-difference error or a subgradient of a non-smooth objective does not
+#' trip it; it exists to catch the wrong function, not the eighth digit.
+#'
+#' Setting \code{options(optimizers7.check_gradient = FALSE)} disables it, and
+#' \code{\link{multistart}} disables it for its inner runs after the first.
+#'
+#' @param fn The objective.
+#' @param gr The supplied gradient.
+#' @param par The starting point, numeric.
+#'
+#' @return Invisibly \code{TRUE}; warns on a gross mismatch.
+#'
+#' @keywords internal
+check_gradient_consistency <- function(fn, gr, par) {
+  if (!isTRUE(getOption("optimizers7.check_gradient", TRUE))) {
+    return(invisible(TRUE))
+  }
+  if (!is.function(fn) || !is.function(gr) || !is.numeric(par) || !length(par)) {
+    return(invisible(TRUE))
+  }
+  g0 <- tryCatch(as.numeric(gr(par)), error = function(e) NULL)
+  if (is.null(g0) || length(g0) != length(par) || !all(is.finite(g0))) {
+    return(invisible(TRUE))
+  }
+  nrm <- sqrt(sum(g0^2))
+  if (nrm == 0) return(invisible(TRUE))
+  d <- g0 / nrm
+  h <- .Machine$double.eps^(1/3) * (1 + sqrt(sum(par^2)))
+  fp <- tryCatch(fn(par + h * d), error = function(e) NA_real_)
+  fm <- tryCatch(fn(par - h * d), error = function(e) NA_real_)
+  if (length(fp) != 1L || length(fm) != 1L ||
+      !is.finite(fp) || !is.finite(fm)) {
+    return(invisible(TRUE))
+  }
+  num <- (fp - fm) / (2 * h)
+  ana <- nrm                      # g'd with d = g/||g||
+  rel <- abs(num - ana) / max(abs(num), abs(ana))
+  if (rel > 0.5 && abs(num - ana) > 1e-6 * max(1, ana)) {
+    warning("'gr' does not appear to be the gradient of 'fn': along the ",
+            "gradient direction at 'par',\n  'fn' changes at rate ",
+            format(num, digits = 3), " where 'gr' predicts ",
+            format(ana, digits = 3), ". Check that the two\n  compute the ",
+            "same model. options(optimizers7.check_gradient = FALSE) turns ",
+            "this check off.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+
 #' Assemble the Result of a Run
 #'
 #' @description

@@ -277,3 +277,42 @@ test_that("the evaluation budget defaults to Inf and binds only when finite", {
   # maxit stays the backstop, so it cannot be Inf
   expect_error(gd(maxit = Inf), "finite")
 })
+
+
+test_that("a gradient that does not belong to the objective draws a warning", {
+  # The exact shape of the user error this exists for: an objective constant in
+  # the parameter next to a gradient that is not.
+  f_const <- function(p) 42
+  g_lin   <- function(p) 2 * (p - c(1, 2))
+  expect_warning(minimize(bfgs(maxit = 2), f_const, c(0, 0), gr = g_lin),
+                 "does not appear to be the gradient")
+
+  # a correct pair passes in silence
+  f <- function(p) sum((p - c(1, 2))^2)
+  expect_no_warning(minimize(bfgs(), f, c(0, 0), gr = g_lin))
+
+  # and so does a subgradient of a non-smooth objective, the tolerance being
+  # deliberately loose
+  z <- c(-2, -1, 0.5, 1, 3)
+  sad <- function(p) sum(abs(z - p))
+  sub <- function(p) -sum(sign(z - p))
+  expect_no_warning(minimize(bundle(), sad, 0.2, gr = sub))
+
+  # the option turns it off
+  old <- options(optimizers7.check_gradient = FALSE)
+  on.exit(options(old), add = TRUE)
+  expect_no_warning(minimize(bfgs(maxit = 2), f_const, c(0, 0), gr = g_lin))
+  options(old)
+
+  # a zero gradient at the start is not decidable and is not warned about
+  expect_no_warning(minimize(bfgs(maxit = 2), f, c(1, 2),
+                             gr = function(p) c(0, 0)))
+
+  # multistart warns once, not once per start
+  w <- 0
+  withCallingHandlers(
+    minimize(multistart(bfgs(maxit = 2), n = 5, ncores = 1),
+             f_const, c(0, 0), gr = g_lin),
+    warning = function(x) { w <<- w + 1; invokeRestart("muffleWarning") })
+  expect_equal(w, 1)
+})

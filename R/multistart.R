@@ -251,6 +251,10 @@ S7::method(minimize, MultiStart) <-
     }
 
     n <- nrow(S)
+    # The generic checked fn against gr once already, at the caller's par;
+    # repeating it from every start would print the same warning n times.
+    old_opt <- options(optimizers7.check_gradient = FALSE)
+    on.exit(options(old_opt), add = TRUE)
     one <- function(i) {
       tryCatch(minimize(inner, fn, S[i, ], gr = gr, he = he,
                         lower = lower, upper = upper),

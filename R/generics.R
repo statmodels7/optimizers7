@@ -32,7 +32,13 @@ NULL
 #'
 #' A gradient that is not supplied is computed by central finite differences.
 #' The result records which derivatives were supplied and which were
-#' differenced, so a run is never silently less exact than it appears.
+#' differenced, so a run is never silently less exact than it appears. A
+#' gradient that is supplied is checked once against the objective -- one
+#' central difference along the gradient direction at \code{par}, two
+#' evaluations -- and a gross disagreement draws a warning naming both rates,
+#' since a \code{gr} computed from a different model than \code{fn} otherwise
+#' surfaces as a mute line-search failure at the first iteration;
+#' \code{options(optimizers7.check_gradient = FALSE)} disables the check.
 #'
 #' \subsection{Starters}{
 #' \code{par} may be a \strong{starter} rather than a vector:
@@ -115,6 +121,9 @@ minimize <- S7::new_generic("minimize", "optimizer",
     # received and needs to know nothing about starters. A numeric `par` is
     # returned untouched, so the ordinary call pays nothing for this.
     par <- resolve_start(par, fn, gr, lower, upper)
+    # One central difference against the supplied gradient, here for the same
+    # reason: every method gets the guard without knowing it exists.
+    if (!is.null(gr)) check_gradient_consistency(fn, gr, par)
     S7::S7_dispatch()
   })
 
