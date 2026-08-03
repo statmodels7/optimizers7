@@ -83,7 +83,7 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' \code{"restart"} and in the result's message.
 #'
 #' The safeguard is not free: a restart costs \eqn{p+1} evaluations and can
-#' delay an honest convergence. \code{max_restarts = 0} turns it off.
+#' delay a genuine convergence. \code{max_restarts = 0} turns it off.
 #' }
 #'
 #' \subsection{Adaptive coefficients}{
@@ -245,7 +245,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' \subsection{Opportunistic polling}{
 #' Accepting the first improvement rather than the best costs a worse direction
 #' and saves up to \eqn{2p - 1} evaluations. On an expensive objective that
-#' trade is usually worth taking, so it is the default; on a cheap one,
+#' trade is usually favourable, so it is the default; on a cheap one,
 #' \code{opportunistic = FALSE} tends to need fewer iterations.
 #' }
 #'

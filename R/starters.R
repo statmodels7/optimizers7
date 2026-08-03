@@ -48,7 +48,7 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #' \strong{unconstrained} scale.
 #'
 #' @param starter A \code{\link{start_zeros}} or \code{\link{start_runif}}
-#'   object, or one of your own.
+#'   object, or a user-defined starter.
 #' @param npar The number of parameters wanted.
 #'
 #' @details
@@ -59,8 +59,8 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #' maps the result back through \code{\link{bounded_transform}} before any
 #' method sees it.
 #'
-#' Write a method for this generic to define a starter of your own; the class
-#' must inherit from \code{starter}, and everything else follows.
+#' A user-defined starter is a subclass of \code{starter} with a method for
+#' this generic; nothing else is required.
 #'
 #' @return A numeric vector of length \code{npar}.
 #'

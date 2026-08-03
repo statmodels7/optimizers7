@@ -48,7 +48,7 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 #' @param optimizer An \code{\link{optimizer}}.
 #'
 #' @details
-#' Call this at the top of a \code{\link{minimize}} method of your own. A rule
+#' Call this at the top of a user-defined \code{\link{minimize}} method. A rule
 #' needing a gradient, handed to a method that computes none, would sit testing
 #' \code{NULL} at every iteration and never fire; the run would then end on its
 #' iteration budget and report a reason nowhere near the truth. Refusing it here,
@@ -56,7 +56,7 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 #'
 #' What an optimiser can supply is declared by
 #' \code{\link{optimizer_provides}}, whose default claims a gradient. Override
-#' that if your method computes none.
+#' that when the method computes none.
 #'
 #' @return Invisibly \code{TRUE}; raises an error otherwise.
 #'
@@ -94,9 +94,9 @@ check_criterion <- function(optimizer) {
 #' goes to zero at a solution.
 #'
 #' Every optimiser evaluates the objective, so there is no token for that and
-#' rules reading it are never refused. A method of your own inherits the
+#' rules reading it are never refused. A user-defined method inherits the
 #' default, which claims a gradient; if that is not true of it, say so, because
-#' the whole refusal machinery rests on this being honest.
+#' the refusal machinery relies on this declaration being accurate.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
 #'
@@ -281,7 +281,7 @@ check_line_search <- function(x) {
 #'
 #' @return A list with one \code{c(lower, upper)} pair per parameter, or an
 #'   empty list when no bound is finite. Call it at the top of a
-#'   \code{\link{minimize}} method of your own, then hand each pair to
+#'   user-defined \code{\link{minimize}} method, then hand each pair to
 #'   \code{\link{bounded_transform}}; an empty list means there is no box and
 #'   the whole reparametrisation should be skipped.
 #'
@@ -341,7 +341,7 @@ check_bounds <- function(lower, upper, par) {
 #' @description
 #' Evaluates the reparametrisation a set of bounds implies. This is how the
 #' package removes a box, and it is exported so that a \code{\link{minimize}}
-#' method of your own can remove one the same way.
+#' user-defined method can remove one the same way.
 #'
 #' @param b A length-2 numeric vector, \code{c(lower, upper)}, using
 #'   \code{-Inf} and \code{Inf} for a side that is unbounded.
@@ -350,14 +350,14 @@ check_bounds <- function(lower, upper, par) {
 #' @details
 #' Bounds are not enforced here, they are removed: a shifted log for a one-sided
 #' bound, a scaled logit for two, and the identity for neither. Optimise in
-#' \eqn{\eta} and every point you propose is admissible by construction.
+#' \eqn{\eta} and every proposed point is admissible by construction.
 #'
-#' To honour \code{bounds} in a method of your own: map the starting value with
+#' To honour \code{bounds} in a user-defined method: map the starting value with
 #' \code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
 #' that it maps back before evaluating. The Jacobian is diagonal, so the chain
 #' rule is short —
 #' \eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'} —
-#' and \code{d2} is needed only if you transform a Hessian, where it appears on
+#' and \code{d2} is needed only when a Hessian is transformed, where it appears on
 #' the diagonal alone. Report \code{par} on the user's scale.
 #'
 #' These are \pkg{linkfunctions7}'s \code{bounded_link()}, written out in C++

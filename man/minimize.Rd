@@ -57,7 +57,7 @@ differenced, so a run is never silently less exact than it appears.
 \subsection{Starters}{
 \code{par} may be a \strong{starter} rather than a vector:
 \code{\link{start_zeros}} for all zeros, \code{\link{start_runif}} for a
-uniform draw from a range you choose. Both work on the \emph{unconstrained}
+uniform draw from a chosen range. Both work on the \emph{unconstrained}
 scale and are mapped back through the bounds, which is what makes a single
 constant sensible for every kind of parameter — zero becomes one for a
 variance, one half for a probability — and what guarantees the point is
@@ -93,7 +93,7 @@ variable. Every point it proposes is admissible by construction, so there is
 no rejection step and no boundary for a line search to trip over, and any
 method works with bounds without knowing about them.
 
-The limitation is worth knowing before it surprises you: \strong{an optimum
+One limitation follows from the construction: \strong{an optimum
 lying on a bound cannot be reached}. Getting there requires the transformed
 variable to run to infinity, so the optimiser marches off, improves by less
 and less, and stops on a budget at a point merely close to the bound. For the

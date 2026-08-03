@@ -11,7 +11,7 @@ criterion(label = character(0))
 }
 \value{
 An S7 object of class \code{criterion}. The class is abstract: use one
-of the constructors, or write your own subclass.
+of the constructors, or from a user-defined subclass.
 }
 \description{
 A stopping rule, as an object. Every optimiser carries one, and the user may

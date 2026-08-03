@@ -44,7 +44,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'
 #' @details
 #' Newton's method converges quadratically near a minimum and is unreliable away
-#' from one, and the reason is worth stating plainly: \eqn{H^{-1}g} is only a
+#' from one: \eqn{H^{-1}g} is only a
 #' descent direction when \eqn{H} is positive definite. Where the objective
 #' curves downwards the unmodified step points towards a saddle or a maximum, and
 #' no line search can rescue it — every step along an ascent direction increases

@@ -17,7 +17,7 @@ Compares what the optimiser's criterion reads against what the optimiser can
 supply, and stops if the rule asks for something absent.
 }
 \details{
-Call this at the top of a \code{\link{minimize}} method of your own. A rule
+Call this at the top of a user-defined \code{\link{minimize}} method. A rule
 needing a gradient, handed to a method that computes none, would sit testing
 \code{NULL} at every iteration and never fire; the run would then end on its
 iteration budget and report a reason nowhere near the truth. Refusing it here,
@@ -25,7 +25,7 @@ by name, is what \code{\link{check_optimizer}} tests for.
 
 What an optimiser can supply is declared by
 \code{\link{optimizer_provides}}, whose default claims a gradient. Override
-that if your method computes none.
+that when the method computes none.
 }
 \examples{
 check_criterion(bfgs())

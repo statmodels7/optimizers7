@@ -32,7 +32,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' Adam: a first-order method that gives every coordinate its own step length,
 #' inferred from the size of the gradients it has been seeing. It tolerates a
 #' gradient that points downhill only on average, which is what makes it the
-#' method to reach for when the objective is noisy.
+#' method suited to a noisy objective.
 #'
 #' @param criterion The stopping rule. Defaults to \code{\link{crit_never}}, so
 #'   the run is governed by \code{maxit}; see Details.
@@ -83,7 +83,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' The practical consequence is that Adam is the wrong tool for a small smooth
 #' problem where a Hessian is affordable. Use \code{\link{newton}} or
 #' \code{\link{bfgs}} there and reach machine precision in a dozen iterations.
-#' Adam earns its place when the parameter vector is long, when the objective is
+#' Adam is appropriate when the parameter vector is long, when the objective is
 #' noisy, or when the surface is rough enough that a quadratic model is a
 #' fiction.
 #' }
@@ -105,7 +105,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' }
 #'
 #' Adam then behaves exactly as it would on a minibatch of its own drawing, and
-#' \code{set.seed()} governs it because the draws happen in your function.
+#' \code{set.seed()} governs it because the draws happen in the caller's code.
 #'
 #' \strong{Resample inside the objective, not around the run.} It is tempting to
 #' call \code{minimize(adam(maxit = 1), ...)} in a loop, drawing a new batch each
@@ -124,8 +124,8 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'
 #' On an exact objective a real rule may be passed and will work. On a noisy one
 #' nothing based on the objective or the gradient means much, since both are
-#' then estimates; that is a fact about the objective you supplied, and the
-#' package cannot detect it for you.
+#' then estimates; that is a property of the supplied objective, which the
+#' package cannot detect.
 #' }
 #'
 #' \subsection{The safeguards}{
@@ -141,7 +141,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' single large gradient dominate the iterate long after it has passed. The
 #' maximum forbids that, at the cost of steps that only ever get shorter. It is
 #' \code{FALSE} by default so that \code{adam()} is Adam — a run that silently
-#' did something else would not reproduce anything — but it is worth turning on
+#' did something else would not reproduce anything; it can be enabled
 #' whenever a run refuses to settle.
 #'
 #' A non-finite gradient or update stops the run and says so, rather than

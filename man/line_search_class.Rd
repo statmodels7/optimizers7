@@ -17,7 +17,7 @@ being re-created.
 Comparing S7 classes by identity is object identity, so it is \code{FALSE}
 for a class rebuilt from the same definition -- which is what happens under
 any loader that re-evaluates the code rather than loading it, \pkg{covr}
-among them. The same trap in \pkg{linkfunctions7} silently turned every
+among them. The same defect in \pkg{linkfunctions7} silently turned every
 numerical fallback into a chain of first differences, and only the coverage
 job noticed.
 }

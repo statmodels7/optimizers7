@@ -18,9 +18,8 @@ valley, a few awkward polynomials, two with many minima, and one with a kink.
 Each carries its analytic gradient and its known answer.
 }
 \details{
-They are exported because they are useful to anyone writing an optimiser, not
-only to this package's own tests: \code{\link{check_optimizer}} runs them, and
-so can you.
+They are exported for use in testing optimisers generally, not only in this
+package's own tests; \code{\link{check_optimizer}} runs them.
 
 Each element is a list with \code{name}, \code{fn}, \code{gr}, \code{par}
 (a starting point), \code{solution}, \code{value}, and two flags.

@@ -62,7 +62,7 @@ and unlike every descent method here it is not misled by them.
 }
 \details{
 \subsection{Behaviour at a kink}{
-At the minimum of \eqn{\lvert x \rvert} the subgradient you evaluate is
+At the minimum of \eqn{\lvert x \rvert} the evaluated subgradient is
 \eqn{\pm 1}. A descent method therefore sees a large gradient, proposes a
 step, finds no acceptable one, and stops reporting failure while standing
 exactly on the answer — and no tolerance can fix that, because the quantity
@@ -112,7 +112,7 @@ message.
 \code{t} is halved after a null step and doubled after a serious one, within
 \code{t_min} and \code{t_max}. Kiwiel's rule chooses the factor from a
 curvature estimate and is better; this is the safeguarded version, which is
-cruder and cannot run away.
+cruder and bounded.
 }
 
 \subsection{The trust parameter t0}{

@@ -14,7 +14,7 @@ Fetched rather than captured, so that the check above cannot be fooled by the
 class being re-created.
 }
 \details{
-This is the trap recorded in \pkg{linkfunctions7}: comparing S7 classes with
+Comparing S7 classes with
 \code{identical()} is object identity, and a class rebuilt from the same
 definition is not identical to the original. Under \pkg{covr}, which
 re-evaluates the code instead of loading it, that turned every numerical

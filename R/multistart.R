@@ -32,7 +32,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'
 #' @description
 #' Wraps any optimiser and runs it from several starts, returning the best
-#' result — and, as importantly, telling you how many different answers it found.
+#' result together with the number of distinct answers found.
 #'
 #' @param optimizer The optimiser to run. Any of them, including another
 #'   \code{multistart()}.
@@ -43,14 +43,14 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' @param spread How widely the random starts are scattered, in units of the
 #'   unconstrained scale. Defaults to \code{1}.
 #' @param ncores How many processes to spread the starts over. Defaults to
-#'   \code{NULL}, meaning as many as are worth using: see Details. Pass
-#'   \code{1} to stay in this session.
+#'   \code{NULL}, meaning \code{min(n, parallel::detectCores() - 2)}. Pass
+#'   \code{1} for a sequential run.
 #' @param distinct_tol Objective values differing by less than this are counted
 #'   as the same optimum. Defaults to \code{1e-6}.
 #' @param verbose Report each start as it finishes? Defaults to \code{FALSE}.
 #' @param refresh Report every this many starts. Defaults to \code{1}.
 #' @param keep_trace Keep the per-start summary? Defaults to \code{TRUE} — it is
-#'   one row per start, not one per iteration, and it is the point of the method.
+#'   one row per start, not one per iteration.
 #'
 #' @details
 #' Every method in this package finds a local minimum. Running from several

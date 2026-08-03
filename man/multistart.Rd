@@ -30,8 +30,8 @@ verbatim; \code{n} and \code{spread} are then ignored.}
 unconstrained scale. Defaults to \code{1}.}
 
 \item{ncores}{How many processes to spread the starts over. Defaults to
-\code{NULL}, meaning as many as are worth using: see Details. Pass
-\code{1} to stay in this session.}
+\code{NULL}, meaning \code{min(n, parallel::detectCores() - 2)}. Pass
+\code{1} for a sequential run.}
 
 \item{distinct_tol}{Objective values differing by less than this are counted
 as the same optimum. Defaults to \code{1e-6}.}
@@ -41,7 +41,7 @@ as the same optimum. Defaults to \code{1e-6}.}
 \item{refresh}{Report every this many starts. Defaults to \code{1}.}
 
 \item{keep_trace}{Keep the per-start summary? Defaults to \code{TRUE} — it is
-one row per start, not one per iteration, and it is the point of the method.}
+one row per start, not one per iteration.}
 }
 \value{
 An S7 object of class \code{MultiStart}, inheriting from
@@ -49,7 +49,7 @@ An S7 object of class \code{MultiStart}, inheriting from
 }
 \description{
 Wraps any optimiser and runs it from several starts, returning the best
-result — and, as importantly, telling you how many different answers it found.
+result together with the number of distinct answers found.
 }
 \details{
 Every method in this package finds a local minimum. Running from several

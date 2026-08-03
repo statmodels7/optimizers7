@@ -91,7 +91,7 @@ The cost is reproducibility: a random poll draws from \R's generator, so
 \subsection{Opportunistic polling}{
 Accepting the first improvement rather than the best costs a worse direction
 and saves up to \eqn{2p - 1} evaluations. On an expensive objective that
-trade is usually worth taking, so it is the default; on a cheap one,
+trade is usually favourable, so it is the default; on a cheap one,
 \code{opportunistic = FALSE} tends to need fewer iterations.
 }
 }

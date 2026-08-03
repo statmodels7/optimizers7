@@ -18,19 +18,19 @@ A list with \code{h} (the parameter), \code{d1} and \code{d2}.
 \description{
 Evaluates the reparametrisation a set of bounds implies. This is how the
 package removes a box, and it is exported so that a \code{\link{minimize}}
-method of your own can remove one the same way.
+user-defined method can remove one the same way.
 }
 \details{
 Bounds are not enforced here, they are removed: a shifted log for a one-sided
 bound, a scaled logit for two, and the identity for neither. Optimise in
-\eqn{\eta} and every point you propose is admissible by construction.
+\eqn{\eta} and every proposed point is admissible by construction.
 
-To honour \code{bounds} in a method of your own: map the starting value with
+To honour \code{bounds} in a user-defined method: map the starting value with
 \code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
 that it maps back before evaluating. The Jacobian is diagonal, so the chain
 rule is short —
 \eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'} —
-and \code{d2} is needed only if you transform a Hessian, where it appears on
+and \code{d2} is needed only when a Hessian is transformed, where it appears on
 the diagonal alone. Report \code{par} on the user's scale.
 
 These are \pkg{linkfunctions7}'s \code{bounded_link()}, written out in C++

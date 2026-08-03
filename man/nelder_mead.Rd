@@ -85,7 +85,7 @@ rather than starting over. Each rebuild is counted, reported in the trace as
 \code{"restart"} and in the result's message.
 
 The safeguard is not free: a restart costs \eqn{p+1} evaluations and can
-delay an honest convergence. \code{max_restarts = 0} turns it off.
+delay a genuine convergence. \code{max_restarts = 0} turns it off.
 }
 
 \subsection{Adaptive coefficients}{

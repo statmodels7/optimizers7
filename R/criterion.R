@@ -19,7 +19,7 @@
 #' @param label A short character label, used when reporting which rule fired.
 #'
 #' @return An S7 object of class \code{criterion}. The class is abstract: use one
-#'   of the constructors, or write your own subclass.
+#'   of the constructors, or from a user-defined subclass.
 #'
 #' @examples
 #' # The class is abstract, so it cannot be instantiated directly...
@@ -346,9 +346,9 @@ S7::method(crit_met, CritStationary) <- function(criterion, state) {
 #' A gradient-based method knows it has arrived because \eqn{\nabla f} vanishes.
 #' None of the derivative-free methods can use that test, and for the
 #' non-smooth problems they exist to solve it would not be the right test even
-#' if they could: at the minimum of \eqn{\lvert x \rvert} the subgradient you
-#' happen to evaluate is \eqn{\pm 1}, so \code{\link{crit_grad}} would sit there
-#' forever while sitting exactly on the answer.
+#' if they could: at the minimum of \eqn{\lvert x \rvert} any evaluated
+#' subgradient is \eqn{\pm 1}, so \code{\link{crit_grad}} would never fire at
+#' the solution itself.
 #'
 #' Each such method therefore reports a non-negative scalar of its own that goes
 #' to zero as it converges, and this rule tests that. What the scalar
