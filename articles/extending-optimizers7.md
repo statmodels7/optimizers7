@@ -1,20 +1,20 @@
 # Extending optimizers7
 
 A toolkit that only worked for the algorithms it ships with would have
-solved nothing. This is the other half: what you can add, and what the
-package guarantees about the pieces you add.
+solved nothing. This vignette covers the other half: what can be added,
+and what the package guarantees about the added pieces.
 
-There are three things you might want to replace — the stopping rule,
-the objective, and the algorithm — and they are separate on purpose, so
-that replacing one costs nothing in the other two.
+Three components can be replaced: the stopping rule, the objective, and
+the algorithm. They are separate on purpose, so that replacing one costs
+nothing in the other two.
 
-## A stopping rule of your own
+## A user-defined stopping rule
 
 The alternative to an object here would be an argument taking a string
 and a `switch` inside every algorithm. That arrangement fixes, at the
 moment the package is written, what everyone downstream is allowed to
-mean by *finished* — and convergence is not a detail, it is the
-definition of the answer.
+mean by *finished*, and convergence is the definition of the answer
+rather than a detail.
 
 A criterion is one class and one method. The method receives the whole
 state of the iteration and returns a single logical:
@@ -46,7 +46,7 @@ minimize(bfgs(criterion = tiny), f, c(0, 0), gr = gr)@criterion_met
 `state` carries `iter`, `f_new`, `f_old`, `x_new`, `x_old`, `gradient`
 and `stationarity`. The last two are not always there, and that matters.
 
-### Saying what your rule needs
+### Declaring what a rule needs
 
 A rule that reads the gradient, handed to a method that computes none,
 would sit testing `NULL` at every iteration and quietly never fire; the
@@ -62,7 +62,8 @@ minimize(nelder_mead(criterion = crit_grad()), f, c(0, 0))
 #>   Choose a criterion this optimiser can evaluate, or a method that provides it.
 ```
 
-If your rule reads something optional, say so:
+A rule that reads something optional declares it through
+[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md):
 
 ``` r
 
@@ -105,7 +106,7 @@ minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 #> 3 2 0
 ```
 
-With no gradient supplied, one is obtained by central differences — and
+With no gradient supplied, one is obtained by central differences, and
 the result says so, so a run is never silently less exact than it
 appears:
 
@@ -139,28 +140,25 @@ mean(y)
 #> [1] 2.986045
 ```
 
-There was once a `finite_sum()` class here, by which an objective
-declared that it was a sum over observations so that
+An earlier version of the package had a `finite_sum()` class, by which
+an objective declared that it was a sum over observations so that
 [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
-could ask it for a subset. It is gone, and its removal is worth a
-paragraph because it is the same judgement repeated all through this
-package.
+could ask it for a subset. It was removed. Supporting it meant a second
+kind of objective, a rule for which stopping rules that objective
+permitted, a way of reporting which was in force, and a branch in the
+compiled loop. All of that served something the caller can do in one
+line and do better, since the caller is the one who knows what an
+observation is. An optimiser that knows about observations has stopped
+being a general one; the batch is drawn where the knowledge is.
 
-Supporting it meant a second kind of objective, a rule for which
-stopping rules that objective permitted, a way of reporting which was in
-force, and a branch in the compiled loop — all so that the optimiser
-could do something the caller could do in one line, and do better, since
-the caller is the one who knows what an observation is. **An optimiser
-that knows about observations is an optimiser that has stopped being a
-general one.** Draw the batch where the knowledge is.
+One detail matters when writing such an objective. The resampling
+belongs *inside* the objective, not around the run. Calling
+`minimize(adam(maxit = 1), ...)` in a loop resets and to zero and the
+bias correction to at every call. Each call then takes a first step of
+length , and the accumulated moments, which are the whole of the method,
+are thrown away each time.
 
-One thing to get right when you do. Resample *inside* the objective, not
-around the run: calling `minimize(adam(maxit = 1), ...)` in a loop
-resets and to zero and the bias correction to at every call, so each one
-takes a first step of length and the accumulated moments — which are the
-whole of the method — are thrown away each time.
-
-### Your own kind of objective
+### A user-defined kind of objective
 
 There is one shipped shape, and
 [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md)
@@ -179,32 +177,28 @@ S7::method(as_objective, MyModel) <- function(fn, gr = NULL, he = NULL, ...) {
 }
 ```
 
-There was a second shipped shape, `cpp_objective()`, taking a pair of
-external pointers so the iteration never returned to R. It is gone, and
-the reasoning is worth recording because it is easy to assume the
-opposite.
+An earlier version also shipped a second shape, `cpp_objective()`,
+taking a pair of external pointers so that the iteration never returned
+to R. It was removed for two reasons.
 
-It could not carry data. The pointer type was
-`double(*)(const arma::vec&)` — a bare function pointer with no closure
-and no user-data argument — so any real statistical objective had to
-keep its `y` and its `X` in C++ globals. That is not reentrant, it means
-one model at a time, and it rules out running several starts in one
-process.
+First, it could not carry data. The pointer type was
+`double(*)(const arma::vec&)`, a bare function pointer with no closure
+and no user-data argument, so any real statistical objective had to keep
+its `y` and its `X` in C++ globals. That is not reentrant, it means one
+model at a time, and it rules out running several starts in one process.
 
-And it did not pay. Measured on a Gamma regression against the same
-objective written in vectorised R, the compiled version was *slower*
-below about twenty thousand observations and never better than about
-twice as fast above it. The reason is structural rather than incidental:
-assembling a gradient or a Hessian from model terms is `crossprod(Z, s)`
-and `crossprod(Z, W * Z)`, and R’s matrix arithmetic and Armadillo’s
-call the same BLAS. On the operation that dominates a real fit the two
-languages are the same code.
+Second, it was not faster where it matters. Measured on a Gamma
+regression against the same objective written in vectorised R, the
+compiled version was *slower* below about twenty thousand observations
+and never better than about twice as fast above it. The reason is
+structural: assembling a gradient or a Hessian from model terms is
+`crossprod(Z, s)` and `crossprod(Z, W * Z)`, and R’s matrix arithmetic
+and Armadillo’s call the same BLAS, so on the operation that dominates a
+real fit the two languages run the same code. Compiled kernels pay where
+the arithmetic is elementwise and irregular, which is where puts them,
+in the fourth-order derivative expressions of each family.
 
-Compiled kernels earn their keep where the arithmetic is genuinely
-elementwise and irregular — which is exactly where puts them, in the
-fourth-order derivative expressions of each family. Not here.
-
-## An algorithm of your own
+## A user-defined algorithm
 
 An optimiser is a subclass of `optimizer` carrying its own settings,
 plus a method on
@@ -213,7 +207,9 @@ Here is one the package does not ship — the heavy-ball method, gradient
 descent with momentum, which adds a fraction of the previous
 *displacement* to each step:
 
-\$\$x\_{k+1} = x_k - lpha g_k + eta (x_k - x\_{k-1}).\$\$
+``` math
+x_{k+1} = x_k - \alpha g_k + \beta (x_k - x_{k-1}).
+```
 
 The momentum term is what carries the iterate along a valley floor
 instead of across it, and it is the ancestor of the moment estimate in
@@ -287,15 +283,14 @@ c(par = r@par, iterations = r@iterations, converged = r@converged)
 ## Checking it
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-exists for exactly this moment. It separates two questions that are easy
-to confuse: whether the optimiser keeps its **contract**, and how
-**powerful** it is. Those are different, and conflating them would make
-the function useless — gradient descent does not solve Rosenbrock in
-five hundred iterations and is not broken, it is slow.
+separates two questions that are easy to confuse: whether the optimiser
+keeps its **contract**, and how **powerful** it is. Conflating them
+would make the function useless, since gradient descent does not solve
+Rosenbrock in five hundred iterations and is not broken but slow.
 
-So the numbered checks are statements every optimiser must satisfy
-however weak it is, and the battery underneath is a table of gaps,
-information rather than verdict:
+The numbered checks are therefore statements every optimiser must
+satisfy however weak it is, and the battery underneath is a table of
+gaps, reported as information rather than as a verdict:
 
 ``` r
 
@@ -327,24 +322,23 @@ res <- check_optimizer(heavy_ball(alpha = 0.01))
 #>     abs_sum      gap  3.39e-02  -        4001 evals  non-smooth
 ```
 
-Read the battery first, and read it as information rather than as a
-verdict. A fixed step length is a real limitation: on the problems whose
-curvature varies by orders of magnitude this method crawls, and that is
-a fair description of heavy ball rather than a defect in it.
-[`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) —
-which the package does ship — is the same shape of method with the step
+The battery shows a real limitation: a fixed step length makes this
+method crawl on problems whose curvature varies by orders of magnitude,
+and that is a fair description of heavy ball rather than a defect in it.
+[`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
+which the package does ship, is the same shape of method with the step
 length estimated from the last secant pair instead of fixed, and it
 solves those same problems to machine precision.
 
-And read the two failed checks second, because they are the more useful
-half. Nothing above is wrong with the *algorithm*. What is wrong is that
-the method accepted two arguments and did nothing with them.
+The two failed checks are the more useful half of the output. Nothing
+above is wrong with the *algorithm*; the method accepted two arguments
+and did nothing with them.
 
-**It ignored `lower` and `upper`.** The signature has to include them —
-S7 requires a method’s formals to contain every named argument of the
-generic — and the easiest thing to do with an argument you did not plan
-for is to let it sit there. A caller then passes a box, gets no error,
-and receives an answer outside it.
+**It ignored `lower` and `upper`.** The signature has to include them,
+since S7 requires a method’s formals to contain every named argument of
+the generic, and an argument the author did not plan for is easily left
+sitting there. A caller then passes a box, gets no error, and receives
+an answer outside it.
 
 Removing the box is a few lines, because
 [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
@@ -391,8 +385,7 @@ evaluate, instead of accepting one that would test `NULL` for ever. What
 a method *can* supply is declared by
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md),
 whose default claims a gradient and an objective. This one has both, so
-the default is honest; a derivative-free method of your own would need
-one line:
+the default is honest; a derivative-free method would need one line:
 
 ``` r
 
@@ -410,12 +403,12 @@ all(check_optimizer(heavy_ball(alpha = 0.01),
 #> [1] TRUE
 ```
 
-That is the whole point of the numbered checks. The algorithm was right
-from the first line; what was missing was two promises the package makes
-on every optimiser’s behalf, and neither omission would have shown
-itself in any run that happened to succeed.
+The algorithm was right from the first line. What was missing was two
+promises the package makes on every optimiser’s behalf, and neither
+omission would have shown itself in any run that happened to succeed;
+the numbered checks exist to expose exactly this kind of gap.
 
-## The test problems are yours too
+## The test problems
 
 [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
 is exported because a battery is useful to anyone writing an optimiser,
@@ -442,7 +435,7 @@ p$solution
 ```
 
 Two of them are marked `multimodal`, where a local method reaching a
-different minimum is behaving correctly rather than failing, and one is
+different minimum is behaving correctly rather than failing. One is
 marked non-`smooth`, where a method that assumes a derivative exists
 will walk to the answer and then be unable to certify it:
 

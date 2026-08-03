@@ -4,20 +4,20 @@ Almost every R package that fits a model carries its own optimiser,
 written inside the function that needs it: a loop, a
 `while (!converged)`, a tolerance compared against whatever quantity the
 author had to hand. Nothing outside can reuse it, extend it, or ask it
-for anything its author did not happen to need — and the stopping rule,
-which decides what the whole thing means by *finished*, is usually a
+for anything its author did not happen to need. The stopping rule, which
+decides what the whole procedure means by *finished*, is usually a
 number buried three levels down.
 
 [optimizers7](https://statmodels7.github.io/optimizers7/) writes them
 once, as objects. An optimiser carries its algorithm and every setting
-that algorithm obeys; a stopping rule is a separate object you can
-replace, combine, or write yourself; and every algorithm is written once
-against one objective interface.
+that algorithm obeys; a stopping rule is a separate object that can be
+replaced, combined, or written from scratch; and every algorithm is
+written once against one objective interface.
 
-It is deliberately narrow. An optimiser here minimises the function it
-is given and knows nothing else — not what an observation is, not where
-the data came from, not what the parameters mean. Everything that needs
-that knowledge belongs to the caller that has it.
+The package is deliberately narrow. An optimiser here minimises the
+function it is given and knows nothing else: not what an observation is,
+not where the data came from, not what the parameters mean. Everything
+that needs that knowledge belongs to the caller that has it.
 
 It is the optimisation layer of
 [statmodels7](https://statmodels7.github.io), alongside
@@ -47,6 +47,7 @@ minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #>   value      : 2.04447e-20
 #>   par        : 1 1
 #>   iterations : 33   evaluations: f 65, g 45
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 ```
 
@@ -65,9 +66,9 @@ minimize(nelder_mead(), f, c(-1.2, 1))@par
 
 ## The stopping rule is an object
 
-This is the part that is not a convenience. A rule buried inside an
-algorithm fixes, at the moment the package is written, what everyone
-downstream is allowed to mean by convergence. Here it is a value:
+A rule buried inside an algorithm fixes, at the moment the package is
+written, what everyone downstream is allowed to mean by convergence.
+Here it is a value:
 
 ``` r
 
@@ -75,8 +76,7 @@ crit_any(crit_grad(1e-10), crit_rel_obj(1e-14))
 #> <criterion> gradient (max-norm) < 1e-10 or |df| < 1e-14 (relative)
 ```
 
-Rules compose, and a rule the authors never thought of is a first-class
-citizen — one class, one method:
+Rules compose, and a new rule is one class and one method:
 
 ``` r
 
@@ -104,9 +104,9 @@ minimize(nelder_mead(criterion = crit_grad()), f, c(-1.2, 1))
 ## Bounds are removed, not enforced
 
 Each bounded coordinate is reparametrised onto the whole real line, so
-every point proposed is admissible by construction — no rejection step,
-no boundary for a line search to trip over, and any method gets bounds
-without knowing they exist:
+every point proposed is admissible by construction: there is no
+rejection step, no boundary for a line search to trip over, and any
+method gets bounds without knowing they exist:
 
 ``` r
 
@@ -119,13 +119,13 @@ sqrt(mean(y^2))
 #> [1] 1.854906
 ```
 
-## Starting values you do not have to write out
+## Starting values that need not be written out
 
-`par` may be a starter rather than a vector. Both work on the
-*unconstrained* scale and are mapped back through the bounds, which is
-what makes one constant sensible for every kind of parameter — zero
-becomes one for a variance and one half for a probability — and what
-makes it impossible for a draw to land outside its box:
+`par` may be a starter rather than a vector. Both starters work on the
+*unconstrained* scale and are mapped back through the bounds. Working on
+that scale makes one constant sensible for every kind of parameter,
+since zero becomes one for a variance and one half for a probability,
+and it makes it impossible for a draw to land outside its box:
 
 ``` r
 
@@ -139,22 +139,23 @@ minimize(bfgs(), rss, start_runif(-2, 2))@par   # or drawn, on that scale
 #> [1]  0.5175641 -1.0649279  1.9870314
 ```
 
-How many parameters there are is settled by whichever of three things
-the caller was willing to say: `start_zeros(npar = 3)`, or bounds with
-one element per parameter, or — as above — the objective itself, probed
-once before the run. `X %*% p` of the wrong length is an error rather
-than a number, so a model of any kind answers the question on its own. A
-vectorised toy that accepts every length cannot, and is told so by name
-rather than guessed at.
+The number of parameters is settled by whichever of three things the
+caller supplies: `start_zeros(npar = 3)`, bounds with one element per
+parameter, or, as above, the objective itself, probed once before the
+run. `X %*% p` of the wrong length is an error rather than a number, so
+a model of any kind answers the question on its own. A vectorised toy
+that accepts every length cannot, and the refusal names the problem
+rather than guessing.
 
 ## When the derivative does not exist
 
 A descent method walks to the minimum of a sum of absolute deviations
-and then reports that it did not converge — correctly, because the
-subgradient it evaluates there has norm 1 and never becomes small.
+and then reports that it did not converge. The report is correct,
+because the subgradient it evaluates there has norm 1 and never becomes
+small.
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 keeps a *collection* of subgradients and tests whether zero lies in
-their convex hull, which is the statement that actually holds:
+their convex hull, which is the statement that holds at the minimiser:
 
 ``` r
 
@@ -187,7 +188,7 @@ c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 | stopping rules | [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md), [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md), [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md), [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md), [`crit_rel_par()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_par.md), [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md), [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md), and [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md) / [`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md) to combine them |
 
 Every method reports which safeguards fired, counts its own evaluations,
-and sets `converged` only when the stopping rule was satisfied — never
+and sets `converged` only when the stopping rule was satisfied, never
 because the iteration budget ran out.
 
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
@@ -195,18 +196,19 @@ runs its starts in parallel and there is nothing to set up: `ncores` is
 a number, defaulting to as many processes as there are starts and never
 more than the machine can spare. Starting the workers, loading the
 package on them, giving each an independent stream and shutting them
-down again all happen inside and are undone before it returns — forks on
-Linux and macOS, a socket cluster on Windows, and
-[`set.seed()`](https://rdrr.io/r/base/Random.html) reproducing the run
-identically whichever it was and however many cores were used.
+down again all happen inside and are undone before it returns. The
+implementation uses forks on Linux and macOS and a socket cluster on
+Windows, and [`set.seed()`](https://rdrr.io/r/base/Random.html)
+reproduces the run identically on either, however many cores were used.
 
-## Checking an optimiser of your own
+## Validating an optimiser
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-verifies the contract — that `value` is the objective at `par`, that a
+verifies the contract: that `value` is the objective at `par`, that a
 reported gradient is the gradient there, that bounds hold *strictly*,
-that a run repeats — and then reports how the method did on the standard
-test problems, separately, because those are different questions:
+and that a run repeats. It then reports how the method did on the
+standard test problems, separately, because performance and correctness
+are different questions:
 
 ``` r
 
@@ -244,5 +246,5 @@ check_optimizer(bfgs())
   functions with exact derivatives to fourth order
 - [distributions7](https://statmodels7.github.io/distributions7) —
   distributions carrying exact derivatives of the log-likelihood
-- [the book](https://statmodels7.github.io/book/) — the mathematics,
-  derived
+- [the book](https://statmodels7.github.io/book/) — the mathematics
+  behind the toolkit

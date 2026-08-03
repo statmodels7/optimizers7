@@ -168,7 +168,7 @@ minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #>   value      : 1.66933e-18
 #>   par        : 1 2
 #>   iterations : 68   evaluations: f 133, g 0
-#>   elapsed    : 5 ms
+#>   elapsed    : 6 ms
 #>   converged  : yes (stationarity < 1e-08)
 
 # what it is actually for: a sum of absolute deviations, whose minimiser is

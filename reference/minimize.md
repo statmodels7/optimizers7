@@ -150,7 +150,7 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 3, g 2
-#>   elapsed    : 0 us
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 
 # and without, so the gradient is differenced
@@ -192,7 +192,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 #>   value      : 3.26661e-23
 #>   par        : 1 2
 #>   iterations : 19   evaluations: f 236, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

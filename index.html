@@ -69,9 +69,9 @@
 <img src="logo.png" class="logo" alt=""><h1 id="optimizers7-">optimizers7 <a class="anchor" aria-label="anchor" href="#optimizers7-"></a>
 </h1>
 </div>
-<p>Almost every R package that fits a model carries its own optimiser, written inside the function that needs it: a loop, a <code>while (!converged)</code>, a tolerance compared against whatever quantity the author had to hand. Nothing outside can reuse it, extend it, or ask it for anything its author did not happen to need — and the stopping rule, which decides what the whole thing means by <em>finished</em>, is usually a number buried three levels down.</p>
-<p><a href="https://statmodels7.github.io/optimizers7/">optimizers7</a> writes them once, as objects. An optimiser carries its algorithm and every setting that algorithm obeys; a stopping rule is a separate object you can replace, combine, or write yourself; and every algorithm is written once against one objective interface.</p>
-<p>It is deliberately narrow. An optimiser here minimises the function it is given and knows nothing else — not what an observation is, not where the data came from, not what the parameters mean. Everything that needs that knowledge belongs to the caller that has it.</p>
+<p>Almost every R package that fits a model carries its own optimiser, written inside the function that needs it: a loop, a <code>while (!converged)</code>, a tolerance compared against whatever quantity the author had to hand. Nothing outside can reuse it, extend it, or ask it for anything its author did not happen to need. The stopping rule, which decides what the whole procedure means by <em>finished</em>, is usually a number buried three levels down.</p>
+<p><a href="https://statmodels7.github.io/optimizers7/">optimizers7</a> writes them once, as objects. An optimiser carries its algorithm and every setting that algorithm obeys; a stopping rule is a separate object that can be replaced, combined, or written from scratch; and every algorithm is written once against one objective interface.</p>
+<p>The package is deliberately narrow. An optimiser here minimises the function it is given and knows nothing else: not what an observation is, not where the data came from, not what the parameters mean. Everything that needs that knowledge belongs to the caller that has it.</p>
 <p>It is the optimisation layer of <a href="https://statmodels7.github.io" class="external-link">statmodels7</a>, alongside <a href="https://statmodels7.github.io/linkfunctions7" class="external-link">linkfunctions7</a> and <a href="https://statmodels7.github.io/distributions7" class="external-link">distributions7</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -94,6 +94,7 @@
 <span><span class="co">#&gt;   value      : 2.04447e-20</span></span>
 <span><span class="co">#&gt;   par        : 1 1</span></span>
 <span><span class="co">#&gt;   iterations : 33   evaluations: f 65, g 45</span></span>
+<span><span class="co">#&gt;   elapsed    : 0 us</span></span>
 <span><span class="co">#&gt;   converged  : yes (gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative))</span></span></code></pre></div>
 <p>Swapping the algorithm changes one word, because every optimiser carries the same settings:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -107,11 +108,11 @@
 <div class="section level2">
 <h2 id="the-stopping-rule-is-an-object">The stopping rule is an object<a class="anchor" aria-label="anchor" href="#the-stopping-rule-is-an-object"></a>
 </h2>
-<p>This is the part that is not a convenience. A rule buried inside an algorithm fixes, at the moment the package is written, what everyone downstream is allowed to mean by convergence. Here it is a value:</p>
+<p>A rule buried inside an algorithm fixes, at the moment the package is written, what everyone downstream is allowed to mean by convergence. Here it is a value:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="reference/crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="fl">1e-10</span><span class="op">)</span>, <span class="fu"><a href="reference/crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="fl">1e-14</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;criterion&gt; gradient (max-norm) &lt; 1e-10 or |df| &lt; 1e-14 (relative)</span></span></code></pre></div>
-<p>Rules compose, and a rule the authors never thought of is a first-class citizen — one class, one method:</p>
+<p>Rules compose, and a new rule is one class and one method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">CritTiny</span> <span class="op">&lt;-</span> <span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/new_class.html" class="external-link">new_class</a></span><span class="op">(</span><span class="st">"CritTiny"</span>, parent <span class="op">=</span> <span class="va">criterion</span>,</span>
 <span>                          properties <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>tol <span class="op">=</span> <span class="fu">S7</span><span class="fu">::</span><span class="va"><a href="https://rconsortium.github.io/S7/reference/base_classes.html" class="external-link">class_numeric</a></span><span class="op">)</span><span class="op">)</span></span>
@@ -131,7 +132,7 @@
 <div class="section level2">
 <h2 id="bounds-are-removed-not-enforced">Bounds are removed, not enforced<a class="anchor" aria-label="anchor" href="#bounds-are-removed-not-enforced"></a>
 </h2>
-<p>Each bounded coordinate is reparametrised onto the whole real line, so every point proposed is admissible by construction — no rejection step, no boundary for a line search to trip over, and any method gets bounds without knowing they exist:</p>
+<p>Each bounded coordinate is reparametrised onto the whole real line, so every point proposed is admissible by construction: there is no rejection step, no boundary for a line search to trip over, and any method gets bounds without knowing they exist:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">nll</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">p</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
@@ -142,9 +143,9 @@
 <span><span class="co">#&gt; [1] 1.854906</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="starting-values-you-do-not-have-to-write-out">Starting values you do not have to write out<a class="anchor" aria-label="anchor" href="#starting-values-you-do-not-have-to-write-out"></a>
+<h2 id="starting-values-that-need-not-be-written-out">Starting values that need not be written out<a class="anchor" aria-label="anchor" href="#starting-values-that-need-not-be-written-out"></a>
 </h2>
-<p><code>par</code> may be a starter rather than a vector. Both work on the <em>unconstrained</em> scale and are mapped back through the bounds, which is what makes one constant sensible for every kind of parameter — zero becomes one for a variance and one half for a probability — and what makes it impossible for a draw to land outside its box:</p>
+<p><code>par</code> may be a starter rather than a vector. Both starters work on the <em>unconstrained</em> scale and are mapped back through the bounds. Working on that scale makes one constant sensible for every kind of parameter, since zero becomes one for a variance and one half for a probability, and it makes it impossible for a draw to land outside its box:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">60</span><span class="op">)</span>, <span class="fl">30</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/drop.html" class="external-link">drop</a></span><span class="op">(</span><span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">30</span>, sd <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
@@ -154,12 +155,12 @@
 <span><span class="co">#&gt; [1]  0.5175641 -1.0649279  1.9870314</span></span>
 <span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">rss</span>, <span class="fu"><a href="reference/start_runif.html">start_runif</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span>   <span class="co"># or drawn, on that scale</span></span>
 <span><span class="co">#&gt; [1]  0.5175641 -1.0649279  1.9870314</span></span></code></pre></div>
-<p>How many parameters there are is settled by whichever of three things the caller was willing to say: <code>start_zeros(npar = 3)</code>, or bounds with one element per parameter, or — as above — the objective itself, probed once before the run. <code>X %*% p</code> of the wrong length is an error rather than a number, so a model of any kind answers the question on its own. A vectorised toy that accepts every length cannot, and is told so by name rather than guessed at.</p>
+<p>The number of parameters is settled by whichever of three things the caller supplies: <code>start_zeros(npar = 3)</code>, bounds with one element per parameter, or, as above, the objective itself, probed once before the run. <code>X %*% p</code> of the wrong length is an error rather than a number, so a model of any kind answers the question on its own. A vectorised toy that accepts every length cannot, and the refusal names the problem rather than guessing.</p>
 </div>
 <div class="section level2">
 <h2 id="when-the-derivative-does-not-exist">When the derivative does not exist<a class="anchor" aria-label="anchor" href="#when-the-derivative-does-not-exist"></a>
 </h2>
-<p>A descent method walks to the minimum of a sum of absolute deviations and then reports that it did not converge — correctly, because the subgradient it evaluates there has norm 1 and never becomes small. <code><a href="reference/bundle.html">bundle()</a></code> keeps a <em>collection</em> of subgradients and tests whether zero lies in their convex hull, which is the statement that actually holds:</p>
+<p>A descent method walks to the minimum of a sum of absolute deviations and then reports that it did not converge. The report is correct, because the subgradient it evaluates there has norm 1 and never becomes small. <code><a href="reference/bundle.html">bundle()</a></code> keeps a <em>collection</em> of subgradients and tests whether zero lies in their convex hull, which is the statement that holds at the minimiser:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span>
 <span><span class="va">sad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">z</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span></span>
@@ -233,13 +234,13 @@
 </tr>
 </tbody>
 </table>
-<p>Every method reports which safeguards fired, counts its own evaluations, and sets <code>converged</code> only when the stopping rule was satisfied — never because the iteration budget ran out.</p>
-<p><code><a href="reference/multistart.html">multistart()</a></code> runs its starts in parallel and there is nothing to set up: <code>ncores</code> is a number, defaulting to as many processes as there are starts and never more than the machine can spare. Starting the workers, loading the package on them, giving each an independent stream and shutting them down again all happen inside and are undone before it returns — forks on Linux and macOS, a socket cluster on Windows, and <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproducing the run identically whichever it was and however many cores were used.</p>
+<p>Every method reports which safeguards fired, counts its own evaluations, and sets <code>converged</code> only when the stopping rule was satisfied, never because the iteration budget ran out.</p>
+<p><code><a href="reference/multistart.html">multistart()</a></code> runs its starts in parallel and there is nothing to set up: <code>ncores</code> is a number, defaulting to as many processes as there are starts and never more than the machine can spare. Starting the workers, loading the package on them, giving each an independent stream and shutting them down again all happen inside and are undone before it returns. The implementation uses forks on Linux and macOS and a socket cluster on Windows, and <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproduces the run identically on either, however many cores were used.</p>
 </div>
 <div class="section level2">
-<h2 id="checking-an-optimiser-of-your-own">Checking an optimiser of your own<a class="anchor" aria-label="anchor" href="#checking-an-optimiser-of-your-own"></a>
+<h2 id="validating-an-optimiser">Validating an optimiser<a class="anchor" aria-label="anchor" href="#validating-an-optimiser"></a>
 </h2>
-<p><code><a href="reference/check_optimizer.html">check_optimizer()</a></code> verifies the contract — that <code>value</code> is the objective at <code>par</code>, that a reported gradient is the gradient there, that bounds hold <em>strictly</em>, that a run repeats — and then reports how the method did on the standard test problems, separately, because those are different questions:</p>
+<p><code><a href="reference/check_optimizer.html">check_optimizer()</a></code> verifies the contract: that <code>value</code> is the objective at <code>par</code>, that a reported gradient is the gradient there, that bounds hold <em>strictly</em>, and that a run repeats. It then reports how the method did on the standard test problems, separately, because performance and correctness are different questions:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/check_optimizer.html">check_optimizer</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Checking optimizer: BFGS</span></span>
@@ -277,7 +278,7 @@
 <li>
 <a href="https://statmodels7.github.io/distributions7" class="external-link">distributions7</a> — distributions carrying exact derivatives of the log-likelihood</li>
 <li>
-<a href="https://statmodels7.github.io/book/" class="external-link">the book</a> — the mathematics, derived</li>
+<a href="https://statmodels7.github.io/book/" class="external-link">the book</a> — the mathematics behind the toolkit</li>
 </ul>
 </div>
 </div>
