@@ -44,8 +44,8 @@ data came from, not what the parameters mean. Everything that needs that
 knowledge belongs to the caller that has it.
 
 It is the optimisation layer of [statmodels7](https://statmodels7.github.io),
-alongside [linkfunctions7](https://statmodels7.github.io/linkfunctions7) and
-[distributions7](https://statmodels7.github.io/distributions7).
+alongside [linkfunctions7](https://statmodels7.github.io/linkfunctions7/) and
+[distributions7](https://statmodels7.github.io/distributions7/).
 
 ## Installation
 
@@ -203,9 +203,9 @@ check_optimizer(bfgs())
 
 ## Related
 
-- [linkfunctions7](https://statmodels7.github.io/linkfunctions7) — link functions
+- [linkfunctions7](https://statmodels7.github.io/linkfunctions7/) — link functions
   with exact derivatives to fourth order
-- [distributions7](https://statmodels7.github.io/distributions7) — distributions
+- [distributions7](https://statmodels7.github.io/distributions7/) — distributions
   carrying exact derivatives of the log-likelihood
 - [the book](https://statmodels7.github.io/book/) — the mathematics behind
   the toolkit

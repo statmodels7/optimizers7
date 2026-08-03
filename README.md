@@ -35,8 +35,8 @@ that needs that knowledge belongs to the caller that has it.
 
 It is the optimisation layer of
 [statmodels7](https://statmodels7.github.io), alongside
-[linkfunctions7](https://statmodels7.github.io/linkfunctions7) and
-[distributions7](https://statmodels7.github.io/distributions7).
+[linkfunctions7](https://statmodels7.github.io/linkfunctions7/) and
+[distributions7](https://statmodels7.github.io/distributions7/).
 
 ## Installation
 
@@ -59,7 +59,7 @@ minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #>   value      : 2.04447e-20
 #>   par        : 1 1
 #>   iterations : 33   evaluations: f 65, g 45
-#>   elapsed    : 0 us
+#>   elapsed    : 10 ms
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 ```
 
@@ -243,9 +243,9 @@ check_optimizer(bfgs())
 
 ## Related
 
-- [linkfunctions7](https://statmodels7.github.io/linkfunctions7) — link
+- [linkfunctions7](https://statmodels7.github.io/linkfunctions7/) — link
   functions with exact derivatives to fourth order
-- [distributions7](https://statmodels7.github.io/distributions7) —
+- [distributions7](https://statmodels7.github.io/distributions7/) —
   distributions carrying exact derivatives of the log-likelihood
 - [the book](https://statmodels7.github.io/book/) — the mathematics
   behind the toolkit
