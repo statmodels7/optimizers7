@@ -308,6 +308,21 @@ test_that("a gradient that does not belong to the objective draws a warning", {
   expect_no_warning(minimize(bfgs(maxit = 2), f, c(1, 2),
                              gr = function(p) c(0, 0)))
 
+  # Nor is a gradient merely NEGLIGIBLE against the size of the objective. A
+  # caller who starts at the optimum is doing the best possible thing, and the
+  # difference of fn along a direction of no slope is its own truncation error,
+  # so the comparison has no signal. This warned before the guard existed.
+  big <- function(p) 400 + 1e4 * sum((p - c(1, 2))^4)
+  big_gr <- function(p) 4e4 * (p - c(1, 2))^3
+  expect_no_warning(minimize(bfgs(maxit = 2), big, c(1, 2), gr = big_gr))
+  # and the same pair away from the optimum still gets checked, so the guard
+  # has not simply switched the check off
+  expect_no_warning(minimize(bfgs(maxit = 2), big, c(3, 4), gr = big_gr))
+  expect_warning(
+    minimize(bfgs(maxit = 2), big, c(3, 4), gr = function(p) -big_gr(p)),
+    "does not appear to be the gradient"
+  )
+
   # multistart warns once, not once per start
   w <- 0
   withCallingHandlers(

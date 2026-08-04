@@ -59,7 +59,7 @@ minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #>   value      : 2.04447e-20
 #>   par        : 1 1
 #>   iterations : 33   evaluations: f 65, g 45
-#>   elapsed    : 10 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
 ```
 

@@ -28,8 +28,11 @@ iteration.
 \details{
 The check costs one call to \code{gr} and two to \code{fn}, runs once per
 \code{\link{minimize}} call, and is skipped whenever it cannot be decisive:
-a non-function objective, a zero or non-finite gradient at \code{par}, an
-objective that is not finite at the probe points. The tolerance is
+a non-function objective, a non-finite gradient at \code{par}, an objective
+that is not finite at the probe points, and a gradient too small to be
+distinguished from the truncation error of the difference it is compared
+with --- which is what a caller who starts at the optimum supplies. The
+tolerance is
 deliberately loose -- a relative disagreement above one half -- so that
 finite-difference error or a subgradient of a non-smooth objective does not
 trip it; it exists to catch the wrong function, not the eighth digit.

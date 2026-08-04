@@ -144,8 +144,11 @@ budget_int <- function(x) {
 #' @details
 #' The check costs one call to \code{gr} and two to \code{fn}, runs once per
 #' \code{\link{minimize}} call, and is skipped whenever it cannot be decisive:
-#' a non-function objective, a zero or non-finite gradient at \code{par}, an
-#' objective that is not finite at the probe points. The tolerance is
+#' a non-function objective, a non-finite gradient at \code{par}, an objective
+#' that is not finite at the probe points, and a gradient too small to be
+#' distinguished from the truncation error of the difference it is compared
+#' with --- which is what a caller who starts at the optimum supplies. The
+#' tolerance is
 #' deliberately loose -- a relative disagreement above one half -- so that
 #' finite-difference error or a subgradient of a non-smooth objective does not
 #' trip it; it exists to catch the wrong function, not the eighth digit.
@@ -181,6 +184,14 @@ check_gradient_consistency <- function(fn, gr, par) {
       !is.finite(fp) || !is.finite(fm)) {
     return(invisible(TRUE))
   }
+  # A stationary starting point carries no signal. The difference of `fn` along
+  # a direction of no slope is its own truncation error, and comparing that
+  # with a gradient of the same order is comparing two kinds of nothing: the
+  # check fired on a caller who had done the best possible thing, handing in
+  # the exact maximum likelihood estimate as the start. The scale a difference
+  # can resolve is set by the size of the objective, not by 1.
+  scale_f <- max(abs(fp), abs(fm), 1)
+  if (nrm < 1e-6 * scale_f) return(invisible(TRUE))
   num <- (fp - fm) / (2 * h)
   ana <- nrm                      # g'd with d = g/||g||
   rel <- abs(num - ana) / max(abs(num), abs(ana))
