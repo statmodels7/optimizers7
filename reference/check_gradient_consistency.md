@@ -37,11 +37,14 @@ Invisibly `TRUE`; warns on a gross mismatch.
 The check costs one call to `gr` and two to `fn`, runs once per
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 call, and is skipped whenever it cannot be decisive: a non-function
-objective, a zero or non-finite gradient at `par`, an objective that is
-not finite at the probe points. The tolerance is deliberately loose – a
-relative disagreement above one half – so that finite-difference error
-or a subgradient of a non-smooth objective does not trip it; it exists
-to catch the wrong function, not the eighth digit.
+objective, a non-finite gradient at `par`, an objective that is not
+finite at the probe points, and a gradient too small to be distinguished
+from the truncation error of the difference it is compared with — which
+is what a caller who starts at the optimum supplies. The tolerance is
+deliberately loose – a relative disagreement above one half – so that
+finite-difference error or a subgradient of a non-smooth objective does
+not trip it; it exists to catch the wrong function, not the eighth
+digit.
 
 Setting `options(optimizers7.check_gradient = FALSE)` disables it, and
 [`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
