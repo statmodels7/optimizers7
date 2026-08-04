@@ -96,7 +96,7 @@ f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(bb(line_search = armijo()), f, c(-1.2, 1), gr = gr)@iterations
-#> [1] 82
+#> [1] 80
 minimize(bb(), f, c(-1.2, 1), gr = gr)@iterations
-#> [1] 68
+#> [1] 63
 ```

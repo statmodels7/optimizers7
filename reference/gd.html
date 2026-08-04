@@ -47,7 +47,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">gd</span><span class="op">(</span></span>
-<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="fl">1e-08</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="fl">1e-12</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="fu"><a href="armijo.html">armijo</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">500</span>,</span>
@@ -124,7 +124,7 @@ in far fewer iterations.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">gd</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; gradient descent</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)</span>
 <span class="r-in"><span><span class="fu">gd</span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="fl">1e-10</span><span class="op">)</span>, maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span></span>
@@ -140,7 +140,7 @@ in far fewer iterations.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 1   evaluations: f 3, g 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

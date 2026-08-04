@@ -37,7 +37,7 @@ print(res)
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 print(res, digits = 2, max_par = 1)
 #> <optimizer_result> gradient descent
@@ -45,6 +45,6 @@ print(res, digits = 2, max_par = 1)
 #>   par        : 1 ... (1 of 2 shown)
 #>   iterations : 1   evaluations: f 11, g 0
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

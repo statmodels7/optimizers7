@@ -7,7 +7,7 @@ Steepest descent: the search direction is the negative gradient
 
 ``` r
 gd(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   step = 1,
   line_search = armijo(),
   maxit = 500,
@@ -90,7 +90,7 @@ converges in far fewer iterations.
 ``` r
 gd()
 #> <optimizer> gradient descent
-#>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
 #>   budgets   : maxit 500, evaluations Inf
 #>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
 gd(criterion = crit_grad(1e-10), maxit = 2000)
@@ -106,5 +106,5 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 3, g 2
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 ```

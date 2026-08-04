@@ -47,7 +47,7 @@ pairs are kept, and the direction comes from the two-loop recursion.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">lbfgs</span><span class="op">(</span></span>
-<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="fl">1e-08</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="fl">1e-12</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  memory <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  curv_tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -116,7 +116,7 @@ be worse than no information. Ten is the conventional choice for good reason.</p
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 34   evaluations: f 253, g 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 2 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

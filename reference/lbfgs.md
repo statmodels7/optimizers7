@@ -7,7 +7,7 @@ pairs are kept, and the direction comes from the two-loop recursion.
 
 ``` r
 lbfgs(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   memory = 10,
   curv_tol = 1e-10,
   step = 1,
@@ -77,6 +77,6 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 #>   par        : 1 1
 #>   iterations : 34   evaluations: f 253, g 0
 #>   elapsed    : 2 ms
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

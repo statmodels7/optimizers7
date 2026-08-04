@@ -150,8 +150,8 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 3, g 2
-#>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   elapsed    : 1e+03 us
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 
 # and without, so the gradient is differenced
 minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
@@ -160,7 +160,7 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
 # one bound for every parameter: a scale that must stay positive
@@ -170,7 +170,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
 #>   par        : 1 2
 #>   iterations : 7   evaluations: f 42, g 0
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
 # or one per parameter. The unconstrained minimum is at (1, 2), so the
@@ -180,19 +180,19 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 #> <optimizer_result> BFGS
 #>   value      : 1
 #>   par        : 1 1
-#>   iterations : 30   evaluations: f 161, g 0
-#>   elapsed    : 1e+03 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   iterations : 22   evaluations: f 121, g 0
+#>   elapsed    : 1 ms
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
 # no starting value at all: the bounds say there are two parameters
 minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
          lower = c(0, 0), upper = c(5, 10))
 #> <optimizer_result> BFGS
-#>   value      : 3.26661e-23
+#>   value      : 8.30993e-15
 #>   par        : 1 2
-#>   iterations : 19   evaluations: f 236, g 0
-#>   elapsed    : 1 ms
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   iterations : 18   evaluations: f 231, g 0
+#>   elapsed    : 1e+03 us
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

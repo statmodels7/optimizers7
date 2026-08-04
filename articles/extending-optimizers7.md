@@ -429,7 +429,7 @@ str(p, max.level = 1)
 #>  $ smooth    : logi TRUE
 
 minimize(bfgs(), p$fn, p$par, gr = p$gr)@par
-#> [1] 3.0 0.5
+#> [1] 3.0000005 0.5000001
 p$solution
 #> [1] 3.0 0.5
 ```

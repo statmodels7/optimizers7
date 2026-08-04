@@ -7,7 +7,7 @@ positive definite, and then line searches along it.
 
 ``` r
 newton(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   hessian_mod = c("eigen", "ridge"),
   floor = 1e-08,
   step = 1,
@@ -121,6 +121,6 @@ minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 1 ms
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   elapsed    : 2 ms
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 ```

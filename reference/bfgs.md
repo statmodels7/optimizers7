@@ -8,7 +8,7 @@ derivatives are ever required.
 
 ``` r
 bfgs(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   curv_tol = 1e-10,
   max_skip = 5,
   step = 1,
@@ -87,10 +87,10 @@ when a Hessian is available.
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 minimize(bfgs(), rosen, c(-1.2, 1))
 #> <optimizer_result> BFGS
-#>   value      : 1.6802e-18
+#>   value      : 4.25987e-18
 #>   par        : 1 1
-#>   iterations : 37   evaluations: f 385, g 0
-#>   elapsed    : 2 ms
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   iterations : 33   evaluations: f 255, g 0
+#>   elapsed    : 3 ms
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

@@ -83,6 +83,6 @@ maximize(gd(), function(p) -sum((p - c(1, 2))^2), c(0, 0))
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

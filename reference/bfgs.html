@@ -50,7 +50,7 @@ required.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bfgs</span><span class="op">(</span></span>
-<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="fl">1e-08</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="fl">1e-12</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  curv_tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  max_skip <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -125,11 +125,11 @@ Hessian is available.</p></div>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">rosen</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bfgs</span><span class="op">(</span><span class="op">)</span>, <span class="va">rosen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer_result&gt; BFGS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 1.6802e-18</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 4.25987e-18</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 37   evaluations: f 385, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 2 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-08 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 33   evaluations: f 255, g 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 3 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

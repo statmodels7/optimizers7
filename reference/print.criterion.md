@@ -22,5 +22,5 @@ Print Method for Criteria
 
 ``` r
 print(crit_any(crit_grad(), crit_rel_obj()))
-#> <criterion> gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
+#> <criterion> gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
 ```

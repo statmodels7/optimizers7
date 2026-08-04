@@ -9,7 +9,7 @@ suits problems too large for a Hessian.
 
 ``` r
 cg(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   beta = c("pr", "fr", "hs", "dy"),
   restart_every = 0,
   step = 1,
@@ -149,12 +149,12 @@ Optimization* **10**, 177–182.
 ``` r
 cg()
 #> <optimizer> conjugate gradients (pr)
-#>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
 #>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : beta = pr, restart_every = 0, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
 cg(beta = "fr", restart_every = 10)
 #> <optimizer> conjugate gradients (fr)
-#>   stop when : gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
 #>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : beta = fr, restart_every = 10, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
 
