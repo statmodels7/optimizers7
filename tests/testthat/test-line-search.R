@@ -158,3 +158,32 @@ test_that("Wolfe's curvature condition actually holds where it claims", {
   expect_lte(rosen(x_new), rosen(x) + c1 * s * sum(g * d))          # Armijo
   expect_lte(abs(sum(rosen_gr(x_new) * d)), c2 * abs(sum(g * d)))   # curvature
 })
+
+
+test_that("a search that cannot move at a stationary point reports convergence", {
+  # A caller that starts from a closed-form estimate hands the optimiser the
+  # answer, and every line search then rejects every step. That is not a
+  # failure: the stopping rule is asked before the run gives up, with no
+  # previous iterate, so only the state at the point can end it.
+  f  <- function(p) sum((p - c(1, 2))^2)
+  gr <- function(p) 2 * (p - c(1, 2))
+
+  for (o in list(bfgs(), lbfgs(), cg(), gd(), newton(), bb())) {
+    r <- minimize(o, f, c(1, 2), gr = gr)
+    expect_true(r@converged)
+    expect_identical(r@message, "")
+    expect_true(nzchar(r@criterion_met))
+  }
+})
+
+test_that("a search that cannot move away from a stationary point still fails", {
+  # The counterexample: a mis-stated gradient makes the direction ascend, so
+  # no step is acceptable at a point that is nowhere near stationary. The
+  # gradient rule cannot fire there and the failure must survive.
+  f <- function(p) sum((p - c(1, 2))^2)
+  r <- suppressWarnings(
+    minimize(bfgs(), f, c(-3, 4), gr = function(p) -2 * (p - c(1, 2)))
+  )
+  expect_false(r@converged)
+  expect_match(r@message, "no acceptable step")
+})

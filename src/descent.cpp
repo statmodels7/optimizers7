@@ -103,6 +103,18 @@ Rcpp::List descent_run(Rcpp::List spec,
 
     LineSearchResult res = run_line_search(ls, *obj, x, f, g, d, step, f_ref);
     if (!res.ok) {
+      // A search that cannot improve on the current point is a failure only if
+      // the point is not already an answer, and it routinely is: a caller that
+      // starts from a closed-form estimate hands the optimiser the solution.
+      // The rule is asked with no previous iterate, so a criterion reading a
+      // change in the objective returns FALSE and only the state at x -- its
+      // gradient, its stationarity -- can declare the run finished.
+      if (ask_criterion(crit_fn, criterion, it, f, f, x, x, g, true, false)) {
+        converged = true;
+        stopped_by = "criterion";
+        if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
+        break;
+      }
       note = "the line search found no acceptable step";
       stopped_by = "failed";
       if (res.guard != "none") guard = res.guard;
