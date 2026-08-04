@@ -66,7 +66,7 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #'
 #' @seealso \code{\link{cg}}, \code{\link{bb}}, \code{\link{bfgs}}
 #' @export
-gd <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
+gd <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                step = 1, line_search = armijo(),
                maxit = 500, max_eval = Inf,
                verbose = FALSE, refresh = 10, keep_trace = FALSE) {
@@ -212,7 +212,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #'
 #' @seealso \code{\link{gd}}, \code{\link{lbfgs}}, \code{\link{bb}}
 #' @export
-cg <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
+cg <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                beta = c("pr", "fr", "hs", "dy"), restart_every = 0,
                step = 1, line_search = wolfe(c2 = 0.1),
                maxit = 1000, max_eval = Inf,
@@ -374,7 +374,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'
 #' @seealso \code{\link{gd}}, \code{\link{cg}}, \code{\link{lbfgs}}
 #' @export
-bb <- function(criterion = crit_any(crit_grad(1e-8), crit_rel_obj(1e-12)),
+bb <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                variant = c("alternate", "bb1", "bb2"),
                alpha0 = 1e-2, alpha_min = 1e-10, alpha_max = 1e10,
                curv_tol = 1e-10,

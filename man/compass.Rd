@@ -5,7 +5,7 @@
 \title{Pattern Search, With Coordinate or Random Polling}
 \usage{
 compass(
-  criterion = crit_stationary(1e-08),
+  criterion = crit_stationary(),
   step = 0.1,
   directions = c("mads", "coordinate"),
   opportunistic = TRUE,

@@ -4,10 +4,10 @@
 \alias{crit_grad}
 \title{Stop When the Gradient Is Small}
 \usage{
-crit_grad(tol = 1e-08, norm = c("max", "2"))
+crit_grad(tol = 1e-06, norm = c("max", "2"))
 }
 \arguments{
-\item{tol}{Numeric tolerance. Defaults to \code{1e-8}.}
+\item{tol}{Numeric tolerance. Defaults to \code{1e-6}.}
 
 \item{norm}{\code{"max"} (default) or \code{"2"}.}
 }
@@ -20,9 +20,26 @@ The rule \eqn{\lVert \nabla f \rVert < \texttt{tol}}.
 \details{
 The max-norm is the default because it does not grow with the dimension the
 way the 2-norm does: the same tolerance then means the same thing for a
-two-parameter problem and a two-hundred-parameter one, whereas \code{1e-8} in
+two-parameter problem and a two-hundred-parameter one, whereas \code{1e-6} in
 the 2-norm is a far stricter demand in high dimension. Both are available, so
 the choice is only a default.
+
+How small a gradient a run can actually reach is set by the objective, not
+by the method. A line search accepts a step only when the objective
+decreases by a definite amount, and near a minimum that decrease is about
+\eqn{\lVert \nabla f \rVert^{2} / (2\lambda)} for a curvature \eqn{\lambda}.
+Once it drops below the rounding of the objective itself, about
+\eqn{\varepsilon \lvert f \rvert}, no step in any direction can be verified
+and the search stops, so the smallest attainable gradient is around
+\eqn{\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}} and grows with the
+value at the solution. On conjugate gradients applied to Rosenbrock, adding
+a constant to the objective --- which moves neither the minimiser nor the
+gradient --- takes the attainable gradient from \code{1.9e-9} at
+\eqn{f^{*} = 0} to \code{4.4e-8} at \eqn{f^{*} = 1} and \code{6.5e-5} at
+\eqn{f^{*} = 10^{6}}. The default suits an objective of order one at its
+solution, which is what a log-likelihood per observation is; an objective
+that lands in the millions needs a correspondingly looser tolerance, and one
+that lands at zero can be asked for much more.
 
 Only usable by a method that computes a gradient; a derivative-free optimiser
 refuses it rather than accepting a rule that can never fire.

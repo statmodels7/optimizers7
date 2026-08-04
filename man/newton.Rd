@@ -5,7 +5,7 @@
 \title{Newton's Method with a Modified Hessian}
 \usage{
 newton(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   hessian_mod = c("eigen", "ridge"),
   floor = 1e-08,
   step = 1,

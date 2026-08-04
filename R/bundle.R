@@ -192,7 +192,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @seealso \code{\link{nelder_mead}}, \code{\link{compass}},
 #'   \code{\link{crit_stationary}}
 #' @export
-bundle <- function(criterion = crit_stationary(1e-8),
+bundle <- function(criterion = crit_stationary(),
                    t0 = 1, t_min = 1e-10, t_max = 1e10,
                    m_serious = 0.1, bundle_size = 20,
                    qp_iters = 500, qp_tol = 1e-12,

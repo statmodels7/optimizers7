@@ -5,7 +5,7 @@
 \title{The Nelder-Mead Simplex Method}
 \usage{
 nelder_mead(
-  criterion = crit_stationary(1e-08),
+  criterion = crit_stationary(),
   step = 0.1,
   adaptive = TRUE,
   max_restarts = 3,

@@ -5,7 +5,7 @@
 \title{The Proximal Bundle Method}
 \usage{
 bundle(
-  criterion = crit_stationary(1e-08),
+  criterion = crit_stationary(),
   t0 = 1,
   t_min = 1e-10,
   t_max = 1e+10,

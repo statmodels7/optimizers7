@@ -136,7 +136,7 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' @seealso \code{\link{compass}}, \code{\link{bundle}},
 #'   \code{\link{crit_stationary}}
 #' @export
-nelder_mead <- function(criterion = crit_stationary(1e-8),
+nelder_mead <- function(criterion = crit_stationary(),
                         step = 0.1, adaptive = TRUE,
                         max_restarts = 3, degenerate_tol = 1e-6,
                         simplex = NULL,
@@ -276,7 +276,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' @seealso \code{\link{nelder_mead}}, \code{\link{bundle}},
 #'   \code{\link{crit_stationary}}
 #' @export
-compass <- function(criterion = crit_stationary(1e-8),
+compass <- function(criterion = crit_stationary(),
                     step = 0.1,
                     directions = c("mads", "coordinate"),
                     opportunistic = TRUE, expand = 2, shrink = 0.5,

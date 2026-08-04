@@ -5,7 +5,7 @@
 \title{Limited-Memory BFGS}
 \usage{
 lbfgs(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   memory = 10,
   curv_tol = 1e-10,
   step = 1,

@@ -27,10 +27,13 @@ test_that("zeros are zeros on the UNCONSTRAINED scale, which is the point", {
   r <- minimize(bfgs(), quad, start_zeros(3), gr = quad_g, lower = 0)
   expect_equal(r@par, c(1, 2, 3), tolerance = 1e-6)
 
-  # and a doubly bounded parameter starts in the middle of its interval
+  # and a doubly bounded parameter starts in the middle of its interval. The
+  # tolerance is on the parameter, so it follows the stopping rule: a gradient
+  # of 1e-6 on a unit curvature locates the minimiser to about that, and this
+  # run differentiates numerically as well.
   f <- function(p) (p - 0.3)^2
   r2 <- minimize(bfgs(), f, start_zeros(1), lower = 0, upper = 1)
-  expect_equal(r2@par, 0.3, tolerance = 1e-6)
+  expect_equal(r2@par, 0.3, tolerance = 1e-5)
 
   # the value actually handed to the objective, checked directly
   seen <- NULL

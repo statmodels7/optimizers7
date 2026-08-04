@@ -5,7 +5,7 @@
 \title{Nonlinear Conjugate Gradients}
 \usage{
 cg(
-  criterion = crit_any(crit_grad(1e-08), crit_rel_obj(1e-12)),
+  criterion = crit_any(crit_grad(), crit_rel_obj()),
   beta = c("pr", "fr", "hs", "dy"),
   restart_every = 0,
   step = 1,
