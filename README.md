@@ -56,11 +56,11 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 
 minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #> <optimizer_result> BFGS
-#>   value      : 2.04447e-20
+#>   value      : 7.53493e-17
 #>   par        : 1 1
-#>   iterations : 33   evaluations: f 65, g 45
+#>   iterations : 32   evaluations: f 64, g 44
 #>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-08 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 ```
 
 Swapping the algorithm changes one word, because every optimiser carries
@@ -232,11 +232,11 @@ check_optimizer(bfgs())
 #> 
 #>   battery (gap from the known minimum; information, not a verdict)
 #>     sphere       gap  0.00e+00  conv        3 evals  
-#>     rosenbrock   gap  2.04e-20  conv       65 evals  
+#>     rosenbrock   gap  7.53e-17  conv       64 evals  
 #>     booth        gap  4.80e-18  conv       15 evals  
-#>     beale        gap  2.40e-17  conv       21 evals  
-#>     powell       gap  3.65e-16  conv       75 evals  
-#>     himmelblau   gap  3.04e-19  conv       19 evals  multimodal
+#>     beale        gap  4.11e-14  conv       20 evals  
+#>     powell       gap  2.86e-13  conv       60 evals  
+#>     himmelblau   gap  5.54e-15  conv       18 evals  multimodal
 #>     rastrigin    gap  7.96e+00  conv       15 evals  multimodal
 #>     abs_sum      gap  1.26e-02  -          84 evals  non-smooth
 ```
