@@ -32,6 +32,14 @@ It is the optimisation layer of
 pak::pak("statmodels7/optimizers7")
 ```
 
+Or the whole toolkit at once, which also installs the four sibling
+packages:
+
+``` r
+
+pak::pak("statmodels7/statmodels7")
+```
+
 ## The shape of it
 
 Everything minimises, always, through one generic:
