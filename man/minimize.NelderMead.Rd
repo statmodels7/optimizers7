@@ -2,7 +2,7 @@
 % Please edit documentation in R/direct_search.R
 \name{minimize.NelderMead}
 \alias{minimize.NelderMead}
-\title{Minimise by Nelder-Mead}
+\title{Minimize by Nelder-Mead}
 \arguments{
 \item{optimizer}{A \code{NelderMead} object.}
 

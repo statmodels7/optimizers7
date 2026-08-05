@@ -2,7 +2,7 @@
 % Please edit documentation in R/direct_search.R
 \name{minimize.Compass}
 \alias{minimize.Compass}
-\title{Minimise by Pattern Search}
+\title{Minimize by Pattern Search}
 \arguments{
 \item{optimizer}{A \code{Compass} object.}
 

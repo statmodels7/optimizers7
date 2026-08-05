@@ -68,11 +68,11 @@ which is why it survives a kink — and also why it is slow, since an ordering
 of \eqn{p+1} values is very little information about a surface.
 
 \subsection{Degenerate simplices}{
-Nelder-Mead can converge to a point that is not a minimiser. McKinnon (1998)
+Nelder-Mead can converge to a point that is not a minimizer. McKinnon (1998)
 exhibited a strictly convex function with continuous derivatives on which it
 performs inside contractions for ever: the simplex flattens onto a line
 through a point where the gradient is not zero, every vertex agrees, and
-every ordinary stopping rule reports success. There is no defence in the
+every ordinary stopping rule reports success. There is no defense in the
 \emph{values} — they behave exactly as convergence would — because what has
 gone wrong is the \emph{shape} of the simplex.
 
@@ -97,7 +97,7 @@ parameters. In higher dimension a fixed expansion of 2 makes the simplex
 overshoot along whichever direction it happened to try. Gao and Han (2012)
 replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
 \eqn{p = 2} reduce \emph{exactly} to the classical values — so the default is
-\code{TRUE} at no cost to the small problems anyone would recognise.
+\code{TRUE} at no cost to the small problems anyone would recognize.
 }
 
 \subsection{Scope}{
@@ -114,7 +114,7 @@ nelder_mead()
 # a smooth problem, to show it works and to show what it costs
 minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 
-# what it is actually for: a sum of absolute deviations, whose minimiser is
+# what it is actually for: a sum of absolute deviations, whose minimizer is
 # the median and whose derivative does not exist there
 set.seed(1)
 y <- rcauchy(101)

@@ -10,11 +10,11 @@ optimizer_class()
 The \code{\link{optimizer}} class object.
 }
 \description{
-The same, for the optimiser class itself.
+The same, for the optimizer class itself.
 }
 \details{
 Wanted by \code{\link{multistart}} and \code{\link{check_optimizer}},
-both of which accept an arbitrary optimiser and must be able to say whether
+both of which accept an arbitrary optimizer and must be able to say whether
 that is what they were given.
 }
 \keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/result_class.R
 \name{plot.optimizer_result}
 \alias{plot.optimizer_result}
-\title{Plot Method for an Optimisation Result}
+\title{Plot Method for an Optimization Result}
 \arguments{
 \item{x}{An \code{\link{optimizer_result}}.}
 

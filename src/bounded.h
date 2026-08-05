@@ -1,11 +1,11 @@
 #ifndef OPTIMIZERS7_BOUNDED_H
 #define OPTIMIZERS7_BOUNDED_H
 
-// Box bounds, by reparametrisation.
+// Box bounds, by reparametrization.
 //
 // The toolkit's answer to a constraint is never to enforce it but to remove it:
-// map the box onto the whole real line, optimise there, and map back. Every
-// point the optimiser proposes is then admissible by construction, so there is
+// map the box onto the whole real line, optimize there, and map back. Every
+// point the optimizer proposes is then admissible by construction, so there is
 // no rejection step, no projection, and no boundary for a line search to trip
 // over.
 //
@@ -49,7 +49,7 @@ struct Coord {
 
 // The last ulp before the bound.
 //
-// The reparametrisation makes an admissible point out of every eta IN EXACT
+// The reparametrization makes an admissible point out of every eta IN EXACT
 // ARITHMETIC, and that is not quite the same as in double precision: plogis
 // returns exactly 1 for eta above about 37, and lwr + W * p rounds to lwr as
 // soon as W * p falls below half an ulp of lwr. Either way theta lands EXACTLY
@@ -59,7 +59,7 @@ struct Coord {
 //
 // The correction is the smallest one that can work, and it is derived rather
 // than chosen: the constraint that binds is "strictly inside the box", and the
-// nearest double satisfying it is the neighbour of the bound. No tolerance is
+// nearest double satisfying it is the neighbor of the bound. No tolerance is
 // invented, nothing is scaled by a constant that happens to look small, and the
 // result is still the closest approach to the bound the machine can represent.
 //

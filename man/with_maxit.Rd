@@ -3,7 +3,7 @@
 \name{with_maxit}
 \alias{with_maxit}
 \alias{with_maxit.MultiStart}
-\title{Rebuild an Optimiser With a Different Iteration Budget}
+\title{Rebuild an Optimizer With a Different Iteration Budget}
 \usage{
 with_maxit(optimizer, maxit)
 }
@@ -13,9 +13,9 @@ with_maxit(optimizer, maxit)
 \item{maxit}{The new budget.}
 }
 \value{
-An optimiser of the same class.
+An optimizer of the same class.
 }
 \description{
-Rebuild an Optimiser With a Different Iteration Budget
+Rebuild an Optimizer With a Different Iteration Budget
 }
 \keyword{internal}

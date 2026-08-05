@@ -3,10 +3,10 @@
 #' @include methods.R
 NULL
 
-#' @title Check That an Optimiser Keeps Its Promises
+#' @title Check That an Optimizer Keeps Its Promises
 #'
 #' @description
-#' Runs an optimiser through a series of checks on what it \emph{reports}, and
+#' Runs an optimizer through a series of checks on what it \emph{reports}, and
 #' then through the standard test problems. Written for whoever adds a method of
 #' their own, and run against every method here.
 #'
@@ -22,11 +22,11 @@ NULL
 #' descent does not solve Rosenbrock in five hundred iterations, and it is not
 #' broken — it is slow, which is a documented property of the method and not a
 #' defect for a validator to report. So the numbered checks are all statements an
-#' optimiser must satisfy however weak it is, and how strong it is comes
+#' optimizer must satisfy however weak it is, and how strong it is comes
 #' afterwards, as a table of gaps rather than as a verdict.
 #'
 #' The one performance requirement among the numbered checks is that the
-#' optimiser minimises a quadratic. That is a floor no correct method can fail.
+#' optimizer minimizes a quadratic. That is a floor no correct method can fail.
 #'
 #' \subsection{The checks}{
 #' \enumerate{
@@ -34,11 +34,11 @@ NULL
 #'     value from a point it has since left is the kind of defect that survives
 #'     every test written in terms of the value alone.
 #'   \item the reported gradient is the gradient at \code{par}, checked only for
-#'     optimisers that offer \code{"gradient"} to a stopping rule and so are
+#'     optimizers that offer \code{"gradient"} to a stopping rule and so are
 #'     claiming it is one. \code{\link{bundle}} reports an aggregate subgradient
 #'     and does not make that claim, so it is not held to it.
 #'   \item \code{converged} follows the stopping rule and is never inferred from
-#'     the run having ended. Checked by starving the optimiser of iterations: a
+#'     the run having ended. Checked by starving the optimizer of iterations: a
 #'     run cut off after one must not report success.
 #'   \item budgets are respected — \code{iterations} never exceeds \code{maxit}.
 #'   \item evaluations are counted; a method reporting zero of them did not
@@ -52,11 +52,11 @@ NULL
 #'     twice; a stochastic one must give it again from the seed it recorded,
 #'     which tests the recording as well as the repeatability.
 #'   \item \code{\link{maximize}} is \code{\link{minimize}} of the negative.
-#'   \item a stopping rule the optimiser cannot evaluate is refused, rather than
+#'   \item a stopping rule the optimizer cannot evaluate is refused, rather than
 #'     accepted and left never to fire.
 #'   \item a starting point where the objective is not finite is an error, not a
 #'     run that quietly returns \code{NaN}.
-#'   \item it minimises a quadratic.
+#'   \item it minimizes a quadratic.
 #' }
 #' }
 #'
@@ -64,7 +64,7 @@ NULL
 #' The table reports the gap between the value reached and the known minimum,
 #' and it is information rather than judgement. A large gap on
 #' \code{rastrigin} or \code{himmelblau} means the method found a different
-#' local minimum, which for a local method is correct behaviour; a large gap on
+#' local minimum, which for a local method is correct behavior; a large gap on
 #' \code{abs_sum} means it was defeated by a kink, which is what
 #' \code{\link{bundle}} and the derivative-free methods are for.
 #' }
@@ -102,11 +102,11 @@ check_optimizer <- function(optimizer, problems = test_problems(),
     "evaluations are counted", "trace is well formed",
     "bounds are respected strictly", "the run repeats",
     "maximize mirrors minimize", "an unevaluable rule is refused",
-    "a bad starting point is an error", "it minimises a quadratic"))
+    "a bad starting point is an error", "it minimizes a quadratic"))
 
   base <- run(optimizer, sph)
   if (failed(base)) {
-    stop("The optimiser could not run the simplest problem in the battery: ",
+    stop("The optimizer could not run the simplest problem in the battery: ",
          conditionMessage(base), call. = FALSE)
   }
 
@@ -114,7 +114,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
   ok[1] <- abs(base@value - sph$fn(base@par)) <= tol * (1 + abs(base@value))
   ok[12] <- max(abs(base@par - sph$solution)) <= 1e-3
 
-  # [2] only for an optimiser that offers its gradient to a stopping rule, and
+  # [2] only for an optimizer that offers its gradient to a stopping rule, and
   # is therefore claiming the thing it reports IS the gradient at par.
   ok[2] <- if (!("gradient" %in% provides)) TRUE
            else !is.null(base@gradient) &&
@@ -126,11 +126,11 @@ check_optimizer <- function(optimizer, problems = test_problems(),
     !identical(starved@criterion_met, optimizer@criterion@label)
 
   # [4] Against the budget the object itself carries, not against the number
-  # passed in. For an ordinary optimiser they are the same and this asserts
+  # passed in. For an ordinary optimizer they are the same and this asserts
   # `<= 3`; for a wrapper they are not, since multistart()'s own maxit counts
-  # STARTS while the budget being varied belongs to the optimiser inside.
+  # STARTS while the budget being varied belongs to the optimizer inside.
   # Comparing the outer iteration count against the inner budget was the first
-  # version of this check, and it failed a correct optimiser.
+  # version of this check, and it failed a correct optimizer.
   capped_o <- with_maxit(optimizer, 3)
   capped <- run(capped_o, ros)
   ok[4] <- !failed(capped) && capped@iterations <= capped_o@maxit
@@ -171,8 +171,8 @@ check_optimizer <- function(optimizer, problems = test_problems(),
     isTRUE(all.equal(mx@par, base@par, tolerance = 1e-5)) &&
     abs(mx@value + base@value) <= tol * (1 + abs(base@value))
 
-  # [10] Every state component the optimiser does NOT provide must have its
-  # criterion refused. An optimiser providing everything passes vacuously.
+  # [10] Every state component the optimizer does NOT provide must have its
+  # criterion refused. An optimizer providing everything passes vacuously.
   rules <- list(gradient = crit_grad(), stationarity = crit_stationary())
   unmet <- setdiff(names(rules), provides)
   ok[10] <- all(vapply(unmet, function(nm) {
@@ -192,7 +192,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
 }
 
 
-#' Run an Optimiser Over the Battery
+#' Run an Optimizer Over the Battery
 #'
 #' @description
 #' The gap from each known minimum, as information rather than as a verdict.
@@ -228,7 +228,7 @@ run_battery <- function(optimizer, problems) {
 
 #' Print the Report of check_optimizer
 #'
-#' @param optimizer The optimiser checked.
+#' @param optimizer The optimizer checked.
 #' @param ok The logical vector of checks.
 #' @param battery The data frame of gaps.
 #'
@@ -260,17 +260,17 @@ print_optimizer_check <- function(optimizer, ok, battery) {
 }
 
 
-# --- rebuilding an optimiser with one setting changed -----------------------
+# --- rebuilding an optimizer with one setting changed -----------------------
 #
 # check_optimizer has to vary maxit, the trace and the criterion on whatever
-# optimiser it was handed, without knowing its class. S7::set_props does that
+# optimizer it was handed, without knowing its class. S7::set_props does that
 # for an ordinary one; a wrapper has to pass the change inwards as well, which
 # is what the MultiStart methods below are for.
 
-#' Rebuild an Optimiser With a Different Iteration Budget
+#' Rebuild an Optimizer With a Different Iteration Budget
 #' @param optimizer The \code{\link{optimizer}}.
 #' @param maxit The new budget.
-#' @return An optimiser of the same class.
+#' @return An optimizer of the same class.
 #' @keywords internal
 with_maxit <- S7::new_generic("with_maxit", "optimizer",
                               function(optimizer, maxit) S7::S7_dispatch())
@@ -279,9 +279,9 @@ S7::method(with_maxit, optimizer) <- function(optimizer, maxit)
   S7::set_props(optimizer, maxit = maxit)
 
 
-#' Rebuild an Optimiser With the Trace Switched On
+#' Rebuild an Optimizer With the Trace Switched On
 #' @param optimizer The \code{\link{optimizer}}.
-#' @return An optimiser of the same class.
+#' @return An optimizer of the same class.
 #' @keywords internal
 with_trace <- S7::new_generic("with_trace", "optimizer",
                               function(optimizer) S7::S7_dispatch())
@@ -290,7 +290,7 @@ S7::method(with_trace, optimizer) <- function(optimizer)
   S7::set_props(optimizer, keep_trace = TRUE)
 
 
-#' Rebuild an Optimiser With a Different Stopping Rule
+#' Rebuild an Optimizer With a Different Stopping Rule
 #'
 #' @description
 #' Replaces the criterion, and for a wrapper replaces the one that will actually
@@ -299,13 +299,13 @@ S7::method(with_trace, optimizer) <- function(optimizer)
 #' @details
 #' The distinction matters. \code{\link{multistart}} carries a criterion only so
 #' that printing it tells the truth; the rule that is evaluated belongs to the
-#' optimiser inside. Setting the outer one and expecting a different run is the
+#' optimizer inside. Setting the outer one and expecting a different run is the
 #' sort of thing that makes a check pass while testing nothing.
 #'
 #' @param optimizer The \code{\link{optimizer}}.
 #' @param criterion The new rule.
 #'
-#' @return An optimiser of the same class.
+#' @return An optimizer of the same class.
 #'
 #' @keywords internal
 with_criterion <- S7::new_generic("with_criterion", "optimizer",

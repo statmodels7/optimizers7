@@ -2,7 +2,7 @@
 % Please edit documentation in R/result_class.R
 \name{optimizer_result}
 \alias{optimizer_result}
-\title{S7 Class for the Result of an Optimisation}
+\title{S7 Class for the Result of an Optimization}
 \usage{
 optimizer_result(
   par = integer(0),
@@ -20,7 +20,7 @@ optimizer_result(
 )
 }
 \arguments{
-\item{par}{The minimiser.}
+\item{par}{The minimizer.}
 
 \item{value}{The objective there.}
 
@@ -56,10 +56,10 @@ enough of the run to diagnose it when it was not reached.
 \details{
 \code{converged} is \code{TRUE} only when the stopping rule was satisfied. It
 is \strong{never} \code{TRUE} because the iteration budget ran out — that is
-the commonest defect in hand-written optimisation loops, and it turns a
+the commonest defect in hand-written optimization loops, and it turns a
 failure into a silently wrong answer.
 
-\code{trace}, present when the optimiser was built with
+\code{trace}, present when the optimizer was built with
 \code{keep_trace = TRUE}, records for each iteration the objective, the
 quantity the criterion is watching, the step actually taken, and the name of
 any safeguard that fired. That last column is what turns "it did not

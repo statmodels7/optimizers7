@@ -9,7 +9,7 @@ build_result(out, optimizer, spec, elapsed, seed = NULL)
 \arguments{
 \item{out}{The list from the C++ driver.}
 
-\item{optimizer}{The optimiser that ran.}
+\item{optimizer}{The optimizer that ran.}
 
 \item{spec}{The objective handle, consulted for whether the gradient was
 supplied or differenced.}
@@ -28,7 +28,7 @@ Turns what the C++ loop returned into an \code{\link{optimizer_result}}.
 \details{
 The one judgement here is the meaning of \code{converged}: it is taken
 straight from whether the stopping rule fired, and never inferred from the
-run having ended. An optimiser that exhausted its iterations has not
+run having ended. An optimizer that exhausted its iterations has not
 converged, and saying otherwise turns a failure into a wrong answer that
 looks right.
 }

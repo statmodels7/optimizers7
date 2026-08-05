@@ -5,7 +5,7 @@ NULL
 
 # Starting values that the caller does not have to write down.
 #
-# Every optimiser needs a point to start from, and for a model with a dozen
+# Every optimizer needs a point to start from, and for a model with a dozen
 # parameters writing that point out is busywork of the least interesting kind --
 # the more so because the natural thing to write, a vector of zeros, is wrong on
 # the parameter scale as soon as a variance is involved. A starter is an object
@@ -14,7 +14,7 @@ NULL
 # unconstrained scale, and mapped back through the box.
 #
 # Resolution happens in the BODY of the minimize() generic, before dispatch, in
-# the same way distributions7 intercepts its link scale. Every optimiser
+# the same way distributions7 intercepts its link scale. Every optimizer
 # therefore accepts a starter, user-written ones included, and no method has to
 # know that starters exist.
 
@@ -33,7 +33,7 @@ starter <- S7::new_class("starter", abstract = TRUE,
 
 
 #' @title The Number of Parameters a Starter Was Given
-#' @description The class of an optimiser is not the place to look for this, so
+#' @description The class of an optimizer is not the place to look for this, so
 #'   it has a name.
 #' @param x Any object.
 #' @return \code{TRUE} for a starter.
@@ -52,7 +52,7 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #' @param npar The number of parameters wanted.
 #'
 #' @details
-#' The unconstrained scale is the one the optimiser actually works on when there
+#' The unconstrained scale is the one the optimizer actually works on when there
 #' are bounds, so this is where a starter is entitled to be simple: zero means
 #' the middle of an interval, one for a variance, one half for a probability,
 #' and there is no way for it to fall outside a bound. \code{\link{minimize}}
@@ -274,13 +274,13 @@ recycle_to <- function(v, n, nm) {
 #' the gradient comes back with the same length as its argument.
 #'
 #' What decides it is whether the objective genuinely rejects the wrong
-#' length, and the objective a modelling package hands over usually does:
+#' length, and the objective a modeling package hands over usually does:
 #' \code{X \%*\% beta} with a parameter of the wrong length is an error rather
 #' than a number, so a regression of any kind is settled at once. A gradient
 #' helps when it spells its components out, since such a gradient returns a fixed
 #' number of them whatever it is handed.
 #'
-#' A vectorised objective written in terms of the parameter alone is another
+#' A vectorized objective written in terms of the parameter alone is another
 #' matter, and it is worth being precise about why, because both plausible
 #' guesses about \R are wrong. Recycling warns only when the shorter length is
 #' not a \emph{divisor} of the longer, so \code{sum((p - c(1, 2, 3))^2)} accepts

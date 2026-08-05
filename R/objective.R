@@ -15,7 +15,7 @@ NULL
 # own minibatches: an objective that resamples is a closure, and needs no class.
 
 
-#' @title Normalise an Objective for the Optimisers
+#' @title Normalize an Objective for the Optimizers
 #'
 #' @description
 #' Turns the objective into the single handle the algorithms are written

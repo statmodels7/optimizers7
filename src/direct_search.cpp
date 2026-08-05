@@ -152,7 +152,7 @@ Rcpp::List nelder_mead_run(Rcpp::List spec,
 
     // THE McKINNON SAFEGUARD.
     //
-    // Nelder-Mead can converge to a point that is not a minimiser at all:
+    // Nelder-Mead can converge to a point that is not a minimizer at all:
     // McKinnon (1998) exhibited a strictly convex function on which it performs
     // inside contractions for ever, the simplex flattening onto a line through
     // a non-stationary point while every ordinary stopping rule reports

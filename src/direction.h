@@ -139,7 +139,7 @@ private:
 //     d = -alpha_BB g,     alpha_BB = (s's)/(s'y)   or   (s'y)/(y'y),
 //
 // the two Rayleigh quotients of the secant pair. Either is an estimate of the
-// inverse curvature along the direction just travelled, so the method is a
+// inverse curvature along the direction just traveled, so the method is a
 // quasi-Newton one that has thrown away everything but a scalar -- and on a
 // quadratic, where the curvature is constant, that scalar is exactly right and
 // the first step lands on the answer.
@@ -181,7 +181,7 @@ public:
     // gradient norm frozen at 1.596 while the objective crept down by 0.002 a
     // step. RESTARTING at alpha0 escapes that one and then fails identically
     // wherever alpha0 is itself too short to escape with: on a boxed quadratic
-    // seen through its reparametrisation it cost 1395 refusals in 1521
+    // seen through its reparametrization it cost 1395 refusals in 1521
     // iterations, against 113 for keeping. Reaching for alpha_max, which is
     // what the SPG literature does in a setting that also projects and clamps
     // differently, asks the line search to backtrack a direction of length

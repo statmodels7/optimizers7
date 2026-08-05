@@ -10,7 +10,7 @@
 A character vector.
 }
 \description{
-Whatever the inner optimiser offers, since it is the inner optimiser that
+Whatever the inner optimizer offers, since it is the inner optimizer that
 evaluates the rule.
 }
 \keyword{internal}

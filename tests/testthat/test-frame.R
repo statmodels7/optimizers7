@@ -52,7 +52,7 @@ test_that("a resampling objective is just an objective", {
 test_that("criteria are objects, compose, and can be written by a user", {
   expect_s3_class(crit_grad(), "S7_object")
   expect_equal(crit_needs(crit_grad()), "gradient")
-  # Every optimiser evaluates the objective, so a rule that reads it needs
+  # Every optimizer evaluates the objective, so a rule that reads it needs
   # nothing declared and can never be refused. There was a token for it while
   # Adam drew its own minibatches and the objective could be an estimate; with
   # that gone the token could never be unsatisfied, so it went too.
@@ -91,9 +91,9 @@ test_that("a criterion the method cannot evaluate is refused, not ignored", {
   # NULL every iteration and never fire; the run would end on the budget and
   # report a reason nowhere near the truth.
   NoGrad <- S7::new_class("NoGrad", parent = optimizer)
-  # It computes no gradient and says so. What an optimiser declares is what it
+  # It computes no gradient and says so. What an optimizer declares is what it
   # can honestly supply, so a rule reading a gradient is refused while one
-  # reading the objective is not -- every optimiser evaluates that.
+  # reading the objective is not -- every optimizer evaluates that.
   S7::method(optimizer_provides, NoGrad) <- function(optimizer) character()
   # The signature must include every named argument of the generic, bounds
   # among them, or S7 refuses to register the method.
@@ -236,7 +236,7 @@ test_that("print shows the leading parameters, rounded, and the elapsed time", {
   out <- capture.output(print(r))
   expect_true(any(grepl("(6 of 10 shown)", out, fixed = TRUE)))
   expect_true(any(grepl("elapsed", out)))
-  # max_par and digits are honoured
+  # max_par and digits are honored
   out2 <- capture.output(print(r, digits = 2, max_par = 3))
   expect_true(any(grepl("(3 of 10 shown)", out2, fixed = TRUE)))
   # nothing is truncated when the vector is short

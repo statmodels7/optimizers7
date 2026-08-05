@@ -17,8 +17,8 @@ prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
 The objective handle from \code{\link{as_objective}}.
 }
 \description{
-Normalises the objective, checks the stopping rule can actually be evaluated
-by this optimiser, and checks the starting value.
+Normalizes the objective, checks the stopping rule can actually be evaluated
+by this optimizer, and checks the starting value.
 }
 \details{
 The criterion check is the interesting one. A rule needing a gradient handed

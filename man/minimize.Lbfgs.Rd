@@ -2,7 +2,7 @@
 % Please edit documentation in R/second_order.R
 \name{minimize.Lbfgs}
 \alias{minimize.Lbfgs}
-\title{Minimise by Limited-Memory BFGS}
+\title{Minimize by Limited-Memory BFGS}
 \arguments{
 \item{optimizer}{An \code{Lbfgs} object.}
 
@@ -12,6 +12,6 @@
 An \code{\link{optimizer_result}}.
 }
 \description{
-Minimise by Limited-Memory BFGS
+Minimize by Limited-Memory BFGS
 }
 \keyword{internal}

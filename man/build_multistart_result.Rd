@@ -21,13 +21,13 @@ build_multistart_result(res, S, optimizer, seed, elapsed)
 An \code{\link{optimizer_result}}.
 }
 \description{
-Picks the best run, and summarises what the others found.
+Picks the best run, and summarizes what the others found.
 }
 \details{
 The count of distinct optima is the reason to run this at all, so it is
 computed rather than left to the caller: the values reached are sorted and
 cut wherever consecutive ones differ by more than \code{distinct_tol}. It is
-a statement about the objective, not about the optimiser, and it is the one
+a statement about the objective, not about the optimizer, and it is the one
 piece of evidence a single run can never supply.
 }
 \keyword{internal}

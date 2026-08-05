@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimizer_class.R
 \name{print.optimizer}
 \alias{print.optimizer}
-\title{Print Method for Optimisers}
+\title{Print Method for Optimizers}
 \arguments{
 \item{x}{An \code{\link{optimizer}} object.}
 
@@ -12,7 +12,7 @@
 \code{x}, invisibly.
 }
 \description{
-Print Method for Optimisers
+Print Method for Optimizers
 }
 \examples{
 print(gd())

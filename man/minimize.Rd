@@ -2,7 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{minimize}
 \alias{minimize}
-\title{Minimise a Function}
+\title{Minimize a Function}
 \usage{
 minimize(
   optimizer,
@@ -40,12 +40,12 @@ every parameter — or one value per parameter. Default \code{-Inf} and
 An \code{\link{optimizer_result}}.
 }
 \description{
-The entry point of the package. Everything here minimises; see
+The entry point of the package. Everything here minimizes; see
 \code{\link{maximize}} for the other direction.
 }
 \details{
 The generic dispatches on \code{optimizer} alone, so each algorithm is
-written once. The objective is normalised separately by
+written once. The objective is normalized separately by
 \code{\link{as_objective}}, which dispatches on \code{fn}, so a caller with
 its own kind of objective registers one method there and every algorithm
 accepts it.
@@ -78,11 +78,11 @@ accepted and costs at most fifty evaluations, once, before the run begins.
 
 That last route settles any objective with a fixed width built into it,
 which is most real ones: \code{X \%*\% beta} with a parameter of the wrong
-length is an error rather than a number. It cannot settle a vectorised toy,
+length is an error rather than a number. It cannot settle a vectorized toy,
 since \R recycles a shorter vector silently whenever its length divides, so
 \code{sum((p - c(1, 2, 3))^2)} is a perfectly finite function of one
 parameter as well as of three. It then refuses, naming the lengths it found,
-rather than optimising a different problem from the one asked.
+rather than optimizing a different problem from the one asked.
 }
 
 \code{lower} and \code{upper} are two vectors rather than a list of pairs,
@@ -93,15 +93,15 @@ per parameter and nothing between, since anything else is far more likely to
 be a mistake than a request.
 
 \strong{Bounds are removed, not enforced.} Each bounded coordinate is
-reparametrised onto the whole real line — a shifted log for one-sided bounds,
-a scaled logit for two — and the optimiser runs unconstrained in the new
+reparametrized onto the whole real line — a shifted log for one-sided bounds,
+a scaled logit for two — and the optimizer runs unconstrained in the new
 variable. Every point it proposes is admissible by construction, so there is
 no rejection step and no boundary for a line search to trip over, and any
 method works with bounds without knowing about them.
 
 One limitation follows from the construction: \strong{an optimum
 lying on a bound cannot be reached}. Getting there requires the transformed
-variable to run to infinity, so the optimiser marches off, improves by less
+variable to run to infinity, so the optimizer marches off, improves by less
 and less, and stops on a budget at a point merely close to the bound. For the
 statistical use this exists to serve — a positive variance, a probability
 inside the unit interval — the optimum is interior and this never arises. For

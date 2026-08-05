@@ -2,7 +2,7 @@
 % Please edit documentation in R/first_order.R
 \name{minimize.Bb}
 \alias{minimize.Bb}
-\title{Minimise by Barzilai-Borwein}
+\title{Minimize by Barzilai-Borwein}
 \arguments{
 \item{optimizer}{A \code{Bb} object.}
 

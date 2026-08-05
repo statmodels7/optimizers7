@@ -84,7 +84,7 @@ inline LineSearchResult armijo_search(Objective& obj,
       if (k > 0) out.guard = "step shortened";
       return out;
     }
-    // A non-finite trial is a refusal, not a failure: the optimiser is entitled
+    // A non-finite trial is a refusal, not a failure: the optimizer is entitled
     // to probe a point where the objective does not exist, and the line search
     // simply does not go there.
     if (!std::isfinite(ft)) out.guard = "objective non-finite";

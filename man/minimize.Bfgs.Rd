@@ -2,7 +2,7 @@
 % Please edit documentation in R/second_order.R
 \name{minimize.Bfgs}
 \alias{minimize.Bfgs}
-\title{Minimise by BFGS}
+\title{Minimize by BFGS}
 \arguments{
 \item{optimizer}{A \code{Bfgs} object.}
 
@@ -12,6 +12,6 @@
 An \code{\link{optimizer_result}}.
 }
 \description{
-Minimise by BFGS
+Minimize by BFGS
 }
 \keyword{internal}

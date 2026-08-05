@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_optimizer.R
 \name{run_battery}
 \alias{run_battery}
-\title{Run an Optimiser Over the Battery}
+\title{Run an Optimizer Over the Battery}
 \usage{
 run_battery(optimizer, problems)
 }

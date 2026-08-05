@@ -2,7 +2,7 @@
 % Please edit documentation in R/first_order.R
 \name{minimize.Cg}
 \alias{minimize.Cg}
-\title{Minimise by Conjugate Gradients}
+\title{Minimize by Conjugate Gradients}
 \arguments{
 \item{optimizer}{A \code{Cg} object.}
 

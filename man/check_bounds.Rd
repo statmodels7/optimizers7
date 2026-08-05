@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{check_bounds}
 \alias{check_bounds}
-\title{Normalise Box Constraints}
+\title{Normalize Box Constraints}
 \usage{
 check_bounds(lower, upper, par)
 }
@@ -16,7 +16,7 @@ A list with one \code{c(lower, upper)} pair per parameter, or an
 empty list when no bound is finite. Call it at the top of a
 user-defined \code{\link{minimize}} method, then hand each pair to
 \code{\link{bounded_transform}}; an empty list means there is no box and
-the whole reparametrisation should be skipped.
+the whole reparametrization should be skipped.
 }
 \description{
 Recycles \code{lower} and \code{upper} to the length of \code{par}, checks
@@ -35,7 +35,7 @@ Recycling is length one or length \code{p} and nothing between: a
 mistake than a request, and R's ordinary recycling would silently oblige.
 
 The starting value must be strictly interior, and refusing a boundary start
-is not pedantry. The reparametrisation sends a bound to an infinite value of
+is not pedantry. The reparametrization sends a bound to an infinite value of
 the transformed variable, so a run started exactly on one begins at infinity:
 every subsequent quantity is non-finite and the failure surfaces far from its
 cause. Saying so here, naming the coordinate, costs one check.

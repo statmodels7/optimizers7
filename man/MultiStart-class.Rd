@@ -22,7 +22,7 @@ MultiStart(
 )
 }
 \arguments{
-\item{optimizer}{The inner optimiser, run from each starting point.}
+\item{optimizer}{The inner optimizer, run from each starting point.}
 
 \item{n}{How many starts.}
 

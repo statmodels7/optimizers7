@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{optimizer_provides}
 \alias{optimizer_provides}
-\title{What an Optimiser Can Offer a Stopping Rule}
+\title{What an Optimizer Can Offer a Stopping Rule}
 \usage{
 optimizer_provides(optimizer)
 }
@@ -14,7 +14,7 @@ A character vector. The names the shipped criteria read are
 \code{"gradient"} and \code{"stationarity"}.
 }
 \description{
-The names of the \code{state} components an optimiser is able to fill in, so
+The names of the \code{state} components an optimizer is able to fill in, so
 that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
 }
 \details{
@@ -22,7 +22,7 @@ Gradient-based methods provide a gradient. The derivative-free ones provide
 a stationarity measure instead, since no single derivative they could report
 goes to zero at a solution.
 
-Every optimiser evaluates the objective, so there is no token for that and
+Every optimizer evaluates the objective, so there is no token for that and
 rules reading it are never refused. A user-defined method inherits the
 default, which claims a gradient; if that is not true of it, say so, because
 the refusal machinery relies on this declaration being accurate.

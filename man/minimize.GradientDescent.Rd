@@ -2,7 +2,7 @@
 % Please edit documentation in R/first_order.R
 \name{minimize.GradientDescent}
 \alias{minimize.GradientDescent}
-\title{Minimise by Gradient Descent}
+\title{Minimize by Gradient Descent}
 \arguments{
 \item{optimizer}{A \code{GradientDescent} object.}
 

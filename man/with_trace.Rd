@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_optimizer.R
 \name{with_trace}
 \alias{with_trace}
-\title{Rebuild an Optimiser With the Trace Switched On}
+\title{Rebuild an Optimizer With the Trace Switched On}
 \usage{
 with_trace(optimizer)
 }
@@ -10,9 +10,9 @@ with_trace(optimizer)
 \item{optimizer}{The \code{\link{optimizer}}.}
 }
 \value{
-An optimiser of the same class.
+An optimizer of the same class.
 }
 \description{
-Rebuild an Optimiser With the Trace Switched On
+Rebuild an Optimizer With the Trace Switched On
 }
 \keyword{internal}

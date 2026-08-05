@@ -1,7 +1,7 @@
 # check_optimizer(), the battery, and the defects the validator must catch.
 #
 # A validator nobody has tried to fool proves nothing, so half of this file is
-# optimisers that lie in one specific way each. The other half confirms the
+# optimizers that lie in one specific way each. The other half confirms the
 # honest ones still pass, which is what stops the checks from being satisfied by
 # failing everything.
 
@@ -41,7 +41,7 @@ test_that("test_problems() selects and refuses by name", {
 })
 
 
-# --- every shipped optimiser keeps the contract -----------------------------
+# --- every shipped optimizer keeps the contract -----------------------------
 
 all_optimizers <- function() {
   list(gd(), newton(), bfgs(), lbfgs(),
@@ -50,7 +50,7 @@ all_optimizers <- function() {
        bundle(), multistart(bfgs(), n = 6))
 }
 
-test_that("every optimiser in the package passes all twelve checks", {
+test_that("every optimizer in the package passes all twelve checks", {
   set.seed(1)
   for (o in all_optimizers()) {
     res <- check_optimizer(o, problems = test_problems("sphere"),
@@ -155,7 +155,7 @@ test_that("a run that can no longer shrink its trust region stops saying so", {
 })
 
 
-# --- optimisers that lie -----------------------------------------------------
+# --- optimizers that lie -----------------------------------------------------
 
 # Each one runs BFGS honestly and then corrupts exactly one thing it reports,
 # so that a check failing identifies the lie rather than a general malaise.
@@ -219,7 +219,7 @@ test_that("reporting no evaluations is caught", {
 })
 
 
-test_that("an honest optimiser of the same shape passes, so the checks are not trivial", {
+test_that("an honest optimizer of the same shape passes, so the checks are not trivial", {
   # Without this, every check above could be satisfied by a validator that
   # simply always fails.
   # A class of its own rather than another method on Liar: re-registering one
@@ -241,7 +241,7 @@ test_that("an honest optimiser of the same shape passes, so the checks are not t
 })
 
 
-test_that("check_optimizer refuses something that is not an optimiser", {
+test_that("check_optimizer refuses something that is not an optimizer", {
   expect_error(check_optimizer(bfgs), "must be an optimizer")
   expect_error(check_optimizer("bfgs"), "must be an optimizer")
 })
@@ -249,7 +249,7 @@ test_that("check_optimizer refuses something that is not an optimiser", {
 
 test_that("with_criterion reaches the rule that is actually consulted", {
   # multistart carries a criterion only so that printing it tells the truth; the
-  # rule evaluated belongs to the optimiser inside. Setting the outer one and
+  # rule evaluated belongs to the optimizer inside. Setting the outer one and
   # expecting a different run is how a check passes while testing nothing.
   m <- multistart(nelder_mead(), n = 3)
   m2 <- with_criterion(m, crit_grad())

@@ -31,13 +31,13 @@ raises neither an error nor a warning, and, if \code{gr} was supplied, when
 the gradient comes back with the same length as its argument.
 
 What decides it is whether the objective genuinely rejects the wrong
-length, and the objective a modelling package hands over usually does:
+length, and the objective a modeling package hands over usually does:
 \code{X \%*\% beta} with a parameter of the wrong length is an error rather
 than a number, so a regression of any kind is settled at once. A gradient
 helps when it spells its components out, since such a gradient returns a fixed
 number of them whatever it is handed.
 
-A vectorised objective written in terms of the parameter alone is another
+A vectorized objective written in terms of the parameter alone is another
 matter, and it is worth being precise about why, because both plausible
 guesses about \R are wrong. Recycling warns only when the shorter length is
 not a \emph{divisor} of the longer, so \code{sum((p - c(1, 2, 3))^2)} accepts

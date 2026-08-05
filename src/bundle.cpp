@@ -12,9 +12,9 @@
 //
 // The bundle method uses the derivatives and is not fooled by them. It keeps a
 // COLLECTION of subgradients from the points it has visited, and builds from
-// them a piecewise-linear model of f -- the maximum of the linearisations -- which
+// them a piecewise-linear model of f -- the maximum of the linearizations -- which
 // represents a kink as a kink instead of trying to smooth one away. The step is
-// then the minimiser of that model plus a proximal term, and the term is what
+// then the minimizer of that model plus a proximal term, and the term is what
 // keeps the step inside the region where the model is believed.
 //
 // Written for a CONVEX f, which is the case with a theorem. It runs on a
@@ -138,8 +138,8 @@ Rcpp::List bundle_run(Rcpp::List spec,
 
   // Each bundle element is stored as the AFFINE FUNCTION it defines,
   // l_j(x) = a_j + g_j' x, rather than as the point it came from. The
-  // linearisation error at the current centre is then f(xhat) - l_j(xhat), one
-  // subtraction, and nothing has to be recomputed when the centre moves. It
+  // linearization error at the current center is then f(xhat) - l_j(xhat), one
+  // subtraction, and nothing has to be recomputed when the center moves. It
   // also lets the aggregate be stored exactly like an ordinary element, which
   // is what makes bundle compression a one-line operation below.
   std::vector<arma::vec> Gs;
@@ -157,7 +157,7 @@ Rcpp::List bundle_run(Rcpp::List spec,
   // subgradient at 1e196.
   //
   // Dividing by the gradient's size makes the first step of length t0 in
-  // PARAMETER space, which is the same normalisation a line search performs
+  // PARAMETER space, which is the same normalization a line search performs
   // when it starts at 1 along a unit direction. The bounds move with it, since
   // they bound the same quantity. After it: all eight battery problems solved.
   double tscale = 1.0;
@@ -215,7 +215,7 @@ Rcpp::List bundle_run(Rcpp::List spec,
 
     // The OPTIMALITY ESTIMATE, which is what the stopping rule watches, and it
     // is deliberately not -v. Both are non-negative and both vanish when 0 lies
-    // in the convex hull of the collected subgradients with no linearisation
+    // in the convex hull of the collected subgradients with no linearization
     // error -- the computable stand-in for 0 being in the subdifferential -- but
     // -v carries a factor of t, and t is halved at every null step. So -v can
     // be driven below any tolerance by the TRUST PARAMETER SHRINKING rather

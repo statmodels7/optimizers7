@@ -2,7 +2,7 @@
 % Please edit documentation in R/second_order.R
 \name{minimize.Newton}
 \alias{minimize.Newton}
-\title{Minimise by Newton's Method}
+\title{Minimize by Newton's Method}
 \arguments{
 \item{optimizer}{A \code{Newton} object.}
 
@@ -12,6 +12,6 @@
 An \code{\link{optimizer_result}}.
 }
 \description{
-Minimise by Newton's Method
+Minimize by Newton's Method
 }
 \keyword{internal}

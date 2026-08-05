@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_optimizer.R
 \name{check_optimizer}
 \alias{check_optimizer}
-\title{Check That an Optimiser Keeps Its Promises}
+\title{Check That an Optimizer Keeps Its Promises}
 \usage{
 check_optimizer(
   optimizer,
@@ -26,7 +26,7 @@ Invisibly, a named list: \code{checks}, a logical vector with one
 entry per numbered check, and \code{battery}, a data frame of gaps.
 }
 \description{
-Runs an optimiser through a series of checks on what it \emph{reports}, and
+Runs an optimizer through a series of checks on what it \emph{reports}, and
 then through the standard test problems. Written for whoever adds a method of
 their own, and run against every method here.
 }
@@ -36,11 +36,11 @@ questions and conflating them would make the function useless: gradient
 descent does not solve Rosenbrock in five hundred iterations, and it is not
 broken — it is slow, which is a documented property of the method and not a
 defect for a validator to report. So the numbered checks are all statements an
-optimiser must satisfy however weak it is, and how strong it is comes
+optimizer must satisfy however weak it is, and how strong it is comes
 afterwards, as a table of gaps rather than as a verdict.
 
 The one performance requirement among the numbered checks is that the
-optimiser minimises a quadratic. That is a floor no correct method can fail.
+optimizer minimizes a quadratic. That is a floor no correct method can fail.
 
 \subsection{The checks}{
 \enumerate{
@@ -48,11 +48,11 @@ optimiser minimises a quadratic. That is a floor no correct method can fail.
 value from a point it has since left is the kind of defect that survives
 every test written in terms of the value alone.
 \item the reported gradient is the gradient at \code{par}, checked only for
-optimisers that offer \code{"gradient"} to a stopping rule and so are
+optimizers that offer \code{"gradient"} to a stopping rule and so are
 claiming it is one. \code{\link{bundle}} reports an aggregate subgradient
 and does not make that claim, so it is not held to it.
 \item \code{converged} follows the stopping rule and is never inferred from
-the run having ended. Checked by starving the optimiser of iterations: a
+the run having ended. Checked by starving the optimizer of iterations: a
 run cut off after one must not report success.
 \item budgets are respected — \code{iterations} never exceeds \code{maxit}.
 \item evaluations are counted; a method reporting zero of them did not
@@ -66,11 +66,11 @@ usually to divide by it.
 twice; a stochastic one must give it again from the seed it recorded,
 which tests the recording as well as the repeatability.
 \item \code{\link{maximize}} is \code{\link{minimize}} of the negative.
-\item a stopping rule the optimiser cannot evaluate is refused, rather than
+\item a stopping rule the optimizer cannot evaluate is refused, rather than
 accepted and left never to fire.
 \item a starting point where the objective is not finite is an error, not a
 run that quietly returns \code{NaN}.
-\item it minimises a quadratic.
+\item it minimizes a quadratic.
 }
 }
 
@@ -78,7 +78,7 @@ run that quietly returns \code{NaN}.
 The table reports the gap between the value reached and the known minimum,
 and it is information rather than judgement. A large gap on
 \code{rastrigin} or \code{himmelblau} means the method found a different
-local minimum, which for a local method is correct behaviour; a large gap on
+local minimum, which for a local method is correct behavior; a large gap on
 \code{abs_sum} means it was defeated by a kink, which is what
 \code{\link{bundle}} and the derivative-free methods are for.
 }

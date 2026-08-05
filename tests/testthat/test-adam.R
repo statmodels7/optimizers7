@@ -27,7 +27,7 @@ test_that("a budget run reports converged = FALSE, because nothing checked", {
 })
 
 
-test_that("a real criterion is honoured on the full sample", {
+test_that("a real criterion is honored on the full sample", {
   r <- minimize(adam(alpha = 0.1, criterion = crit_grad(1e-7), maxit = 5000),
                 quad, c(0, 0), gr = quad_g)
   expect_true(r@converged)
@@ -88,7 +88,7 @@ test_that("decay shortens the steps monotonically", {
 # --- a noisy objective, which is now the caller's business -------------------
 #
 # Adam no longer draws minibatches. It does not need to: an objective that
-# resamples is a closure, and Adam optimising a noisy objective is what
+# resamples is a closure, and Adam optimizing a noisy objective is what
 # subsampling ever was. These tests are the same claims as before, made through
 # the interface that replaced the machinery.
 
@@ -190,7 +190,7 @@ test_that("the constructor refuses nonsense", {
   expect_error(adam(beta2 = -0.1), "'beta2'")
   expect_error(adam(decay = -1), "'decay'")
   expect_error(adam(amsgrad = 1), "'amsgrad'")
-  # resample is gone: an optimiser does not know what an observation is
+  # resample is gone: an optimizer does not know what an observation is
   expect_error(adam(resample = 0.5), "unused argument")
 })
 

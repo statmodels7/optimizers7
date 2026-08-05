@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{check_criterion}
 \alias{check_criterion}
-\title{Refuse a Stopping Rule an Optimiser Cannot Evaluate}
+\title{Refuse a Stopping Rule an Optimizer Cannot Evaluate}
 \usage{
 check_criterion(optimizer)
 }
@@ -13,7 +13,7 @@ check_criterion(optimizer)
 Invisibly \code{TRUE}; raises an error otherwise.
 }
 \description{
-Compares what the optimiser's criterion reads against what the optimiser can
+Compares what the optimizer's criterion reads against what the optimizer can
 supply, and stops if the rule asks for something absent.
 }
 \details{
@@ -23,7 +23,7 @@ needing a gradient, handed to a method that computes none, would sit testing
 iteration budget and report a reason nowhere near the truth. Refusing it here,
 by name, is what \code{\link{check_optimizer}} tests for.
 
-What an optimiser can supply is declared by
+What an optimizer can supply is declared by
 \code{\link{optimizer_provides}}, whose default claims a gradient. Override
 that when the method computes none.
 }

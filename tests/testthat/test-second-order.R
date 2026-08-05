@@ -40,7 +40,7 @@ test_that("all three solve Rosenbrock, and far faster than first order", {
 test_that("Newton repairs an indefinite Hessian and says that it did", {
   # At the starting point the Hessian has a negative eigenvalue, so the
   # unmodified Newton direction points away from the minimum. Both repairs must
-  # reach a true minimiser, and both must record what they did.
+  # reach a true minimizer, and both must record what they did.
   expect_lt(min(eigen(saddle_he(c(0.05, 0.6)))$values), 0)
 
   for (mod in c("eigen", "ridge")) {
@@ -140,7 +140,7 @@ test_that("each carries its own settings and prints them", {
 })
 
 
-test_that("every method reaches the same minimiser of a shared problem", {
+test_that("every method reaches the same minimizer of a shared problem", {
   # A stronger statement than each being right on its own: they must agree.
   f  <- function(p) sum((p - c(3, -2, 0.5))^2) + 0.1 * sum(p^4)
   g  <- function(p) 2 * (p - c(3, -2, 0.5)) + 0.4 * p^3

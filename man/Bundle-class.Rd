@@ -30,7 +30,7 @@ Bundle(
 \item{m_serious}{Fraction of the predicted decrease a serious step must
 achieve.}
 
-\item{bundle_size}{Largest number of linearisations kept.}
+\item{bundle_size}{Largest number of linearizations kept.}
 
 \item{qp_iters, qp_tol}{Effort spent on the subproblem.}
 }

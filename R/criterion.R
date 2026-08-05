@@ -2,7 +2,7 @@
 #'
 #' @import S7
 #' @description
-#' A stopping rule, as an object. Every optimiser carries one, and the user may
+#' A stopping rule, as an object. Every optimizer carries one, and the user may
 #' replace it, combine several, or write a new kind.
 #'
 #' @details
@@ -155,7 +155,7 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' and the search stops, so the smallest attainable gradient is around
 #' \eqn{\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}} and grows with the
 #' value at the solution. On conjugate gradients applied to Rosenbrock, adding
-#' a constant to the objective --- which moves neither the minimiser nor the
+#' a constant to the objective --- which moves neither the minimizer nor the
 #' gradient --- takes the attainable gradient from \code{1.9e-9} at
 #' \eqn{f^{*} = 0} to \code{4.4e-8} at \eqn{f^{*} = 1} and \code{6.5e-5} at
 #' \eqn{f^{*} = 10^{6}}. The default suits an objective of order one at its
@@ -163,7 +163,7 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' that lands in the millions needs a correspondingly looser tolerance, and one
 #' that lands at zero can be asked for much more.
 #'
-#' Only usable by a method that computes a gradient; a derivative-free optimiser
+#' Only usable by a method that computes a gradient; a derivative-free optimizer
 #' refuses it rather than accepting a rule that can never fire.
 #'
 #' @return A \code{\link{criterion}} object.
@@ -378,7 +378,7 @@ S7::method(crit_met, CritStationary) <- function(criterion, state) {
 #'     \eqn{\Delta \to 0} are Clarke stationary.}
 #'   \item{\code{\link{bundle}}}{the optimality estimate
 #'     \eqn{\lVert p \rVert^2 + \alpha}, which vanishes exactly when zero lies
-#'     in the convex hull of the collected subgradients with no linearisation
+#'     in the convex hull of the collected subgradients with no linearization
 #'     error. Note that this is \emph{not} the predicted decrease, which
 #'     carries a factor of the trust parameter and can therefore be driven to
 #'     zero by that parameter shrinking rather than by the point becoming

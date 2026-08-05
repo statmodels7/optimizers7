@@ -2,7 +2,7 @@
 % Please edit documentation in R/multistart.R
 \name{minimize.MultiStart}
 \alias{minimize.MultiStart}
-\title{Minimise From Many Starting Points}
+\title{Minimize From Many Starting Points}
 \arguments{
 \item{optimizer}{A \code{MultiStart} object.}
 

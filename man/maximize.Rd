@@ -2,7 +2,7 @@
 % Please edit documentation in R/generics.R
 \name{maximize}
 \alias{maximize}
-\title{Maximise a Function}
+\title{Maximize a Function}
 \usage{
 maximize(
   optimizer,
@@ -45,7 +45,7 @@ Runs \code{\link{minimize}} on the negated objective and reports the value
 with its sign restored.
 }
 \details{
-Every algorithm in the package minimises, always; that is the convention and
+Every algorithm in the package minimizes, always; that is the convention and
 the names say so. This is the thin wrapper for the other direction, and it
 exists so that nobody has to remember to negate a log-likelihood by hand and
 then negate the answer back.

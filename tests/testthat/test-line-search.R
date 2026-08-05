@@ -57,7 +57,7 @@ test_that("the two searches cost what they are supposed to cost", {
   expect_lt(w@iterations, a@iterations)
 
   # measured 0.86 on this problem; the assertion is only that the trade is
-  # favourable at all, since the exact ratio is not a contract
+  # favorable at all, since the exact ratio is not a contract
   work <- function(r) r@counts[["f"]] + r@counts[["g"]]
   expect_lt(work(w), work(a))
 })
@@ -76,7 +76,7 @@ test_that("Armijo demands sufficient decrease, not mere non-increase", {
 test_that("a direction that is not one of descent is reported, not searched", {
   # No step along an ascent direction can decrease the objective, so a search
   # that merely shrank would burn its whole budget before admitting it.
-  # Maximising with a *minimising* driver produces exactly that situation.
+  # Maximizing with a *minimizing* driver produces exactly that situation.
   f <- function(p) -sum(p^2)          # unbounded below along -g from anywhere
   res <- minimize(gd(step = 1, keep_trace = TRUE, maxit = 5),
                   f, c(1, 1), gr = function(p) -2 * p)
@@ -136,7 +136,7 @@ test_that("the spec handed to C++ has one shape whichever search it describes", 
 
 
 test_that("Wolfe's curvature condition actually holds where it claims", {
-  # Checked directly rather than through the optimiser: at the accepted point,
+  # Checked directly rather than through the optimizer: at the accepted point,
   # |g'd| must have shrunk by the factor c2. This is the property BFGS will
   # depend on, so it is worth asserting on its own.
   x <- c(-1.2, 1)
@@ -161,7 +161,7 @@ test_that("Wolfe's curvature condition actually holds where it claims", {
 
 
 test_that("a search that cannot move at a stationary point reports convergence", {
-  # A caller that starts from a closed-form estimate hands the optimiser the
+  # A caller that starts from a closed-form estimate hands the optimizer the
   # answer, and every line search then rejects every step. That is not a
   # failure: the stopping rule is asked before the run gives up, with no
   # previous iterate, so only the state at the point can end it.

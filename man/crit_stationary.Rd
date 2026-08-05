@@ -34,7 +34,7 @@ rule with a theorem behind it: the limit points of a pattern search with
 \eqn{\Delta \to 0} are Clarke stationary.}
 \item{\code{\link{bundle}}}{the optimality estimate
 \eqn{\lVert p \rVert^2 + \alpha}, which vanishes exactly when zero lies
-in the convex hull of the collected subgradients with no linearisation
+in the convex hull of the collected subgradients with no linearization
 error. Note that this is \emph{not} the predicted decrease, which
 carries a factor of the trust parameter and can therefore be driven to
 zero by that parameter shrinking rather than by the point becoming

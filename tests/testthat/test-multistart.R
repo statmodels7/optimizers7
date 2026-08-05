@@ -107,7 +107,7 @@ test_that("a Latin hypercube uses each stratum once", {
   # cluster in one part of the range. With m = n - 1 random starts, one falls in
   # each of the m equal strata of the sampling interval.
   set.seed(8)
-  # make_starts takes the NORMALISED shape, one pair per parameter, which is
+  # make_starts takes the NORMALIZED shape, one pair per parameter, which is
   # what check_bounds() produces from lower and upper. An empty list is no box.
   S <- make_starts(par = 0, n = 21, spread = 1, bounds = list())
   x <- S[-1, 1]
@@ -258,7 +258,7 @@ test_that("the workers are cleaned up, whatever happened", {
 })
 
 
-test_that("it prints the inner optimiser by name", {
+test_that("it prints the inner optimizer by name", {
   out <- capture.output(print(multistart(bfgs(), n = 4)))
   expect_true(any(grepl("multistart", out)))
   expect_true(any(grepl("optimizer = BFGS", out)))

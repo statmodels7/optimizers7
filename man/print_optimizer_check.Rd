@@ -7,7 +7,7 @@
 print_optimizer_check(optimizer, ok, battery)
 }
 \arguments{
-\item{optimizer}{The optimiser checked.}
+\item{optimizer}{The optimizer checked.}
 
 \item{ok}{The logical vector of checks.}
 

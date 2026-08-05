@@ -9,8 +9,8 @@ NULL
 #' Prepare an Objective for an Algorithm
 #'
 #' @description
-#' Normalises the objective, checks the stopping rule can actually be evaluated
-#' by this optimiser, and checks the starting value.
+#' Normalizes the objective, checks the stopping rule can actually be evaluated
+#' by this optimizer, and checks the starting value.
 #'
 #' @details
 #' The criterion check is the interesting one. A rule needing a gradient handed
@@ -39,10 +39,10 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 }
 
 
-#' @title Refuse a Stopping Rule an Optimiser Cannot Evaluate
+#' @title Refuse a Stopping Rule an Optimizer Cannot Evaluate
 #'
 #' @description
-#' Compares what the optimiser's criterion reads against what the optimiser can
+#' Compares what the optimizer's criterion reads against what the optimizer can
 #' supply, and stops if the rule asks for something absent.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
@@ -54,7 +54,7 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 #' iteration budget and report a reason nowhere near the truth. Refusing it here,
 #' by name, is what \code{\link{check_optimizer}} tests for.
 #'
-#' What an optimiser can supply is declared by
+#' What an optimizer can supply is declared by
 #' \code{\link{optimizer_provides}}, whose default claims a gradient. Override
 #' that when the method computes none.
 #'
@@ -73,7 +73,7 @@ check_criterion <- function(optimizer) {
   if (length(missing)) {
     msg <- sprintf(
       paste0("The stopping rule needs %s, which %s does not provide.\n",
-             "  Choose a criterion this optimiser can evaluate, or a method ",
+             "  Choose a criterion this optimizer can evaluate, or a method ",
              "that provides it."),
       paste(missing, collapse = ", "), optimizer@name)
     stop(msg, call. = FALSE)
@@ -82,10 +82,10 @@ check_criterion <- function(optimizer) {
 }
 
 
-#' @title What an Optimiser Can Offer a Stopping Rule
+#' @title What an Optimizer Can Offer a Stopping Rule
 #'
 #' @description
-#' The names of the \code{state} components an optimiser is able to fill in, so
+#' The names of the \code{state} components an optimizer is able to fill in, so
 #' that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
 #'
 #' @details
@@ -93,7 +93,7 @@ check_criterion <- function(optimizer) {
 #' a stationarity measure instead, since no single derivative they could report
 #' goes to zero at a solution.
 #'
-#' Every optimiser evaluates the objective, so there is no token for that and
+#' Every optimizer evaluates the objective, so there is no token for that and
 #' rules reading it are never refused. A user-defined method inherits the
 #' default, which claims a gradient; if that is not true of it, say so, because
 #' the refusal machinery relies on this declaration being accurate.
@@ -215,12 +215,12 @@ check_gradient_consistency <- function(fn, gr, par) {
 #' @details
 #' The one judgement here is the meaning of \code{converged}: it is taken
 #' straight from whether the stopping rule fired, and never inferred from the
-#' run having ended. An optimiser that exhausted its iterations has not
+#' run having ended. An optimizer that exhausted its iterations has not
 #' converged, and saying otherwise turns a failure into a wrong answer that
 #' looks right.
 #'
 #' @param out The list from the C++ driver.
-#' @param optimizer The optimiser that ran.
+#' @param optimizer The optimizer that ran.
 #' @param spec The objective handle, consulted for whether the gradient was
 #'   supplied or differenced.
 #' @param elapsed Seconds.
@@ -278,7 +278,7 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
 #'
 #' @description
 #' The body of every method that has a direction: prepares the objective, hands
-#' the compiled loop the optimiser's settings and the description of its
+#' the compiled loop the optimizer's settings and the description of its
 #' direction, and assembles the result.
 #'
 #' @details
@@ -344,7 +344,7 @@ check_line_search <- function(x) {
 }
 
 
-#' @title Normalise Box Constraints
+#' @title Normalize Box Constraints
 #'
 #' @description
 #' Recycles \code{lower} and \code{upper} to the length of \code{par}, checks
@@ -363,7 +363,7 @@ check_line_search <- function(x) {
 #' mistake than a request, and R's ordinary recycling would silently oblige.
 #'
 #' The starting value must be strictly interior, and refusing a boundary start
-#' is not pedantry. The reparametrisation sends a bound to an infinite value of
+#' is not pedantry. The reparametrization sends a bound to an infinite value of
 #' the transformed variable, so a run started exactly on one begins at infinity:
 #' every subsequent quantity is non-finite and the failure surfaces far from its
 #' cause. Saying so here, naming the coordinate, costs one check.
@@ -375,7 +375,7 @@ check_line_search <- function(x) {
 #'   empty list when no bound is finite. Call it at the top of a
 #'   user-defined \code{\link{minimize}} method, then hand each pair to
 #'   \code{\link{bounded_transform}}; an empty list means there is no box and
-#'   the whole reparametrisation should be skipped.
+#'   the whole reparametrization should be skipped.
 #'
 #' @examples
 #' check_bounds(0, Inf, par = c(1, 2))
@@ -407,7 +407,7 @@ check_bounds <- function(lower, upper, par) {
   up <- fix(upper, "upper")
 
   # Nothing finite means no box at all, and the compiled loop then skips the
-  # whole reparametrisation rather than composing with the identity p times.
+  # whole reparametrization rather than composing with the identity p times.
   if (all(!is.finite(lo)) && all(!is.finite(up))) return(list())
 
   out <- vector("list", p)
@@ -431,7 +431,7 @@ check_bounds <- function(lower, upper, par) {
 #' @title The Bound Transform, and Its First Two Derivatives
 #'
 #' @description
-#' Evaluates the reparametrisation a set of bounds implies. This is how the
+#' Evaluates the reparametrization a set of bounds implies. This is how the
 #' package removes a box, and it is exported so that a \code{\link{minimize}}
 #' user-defined method can remove one the same way.
 #'
@@ -441,10 +441,10 @@ check_bounds <- function(lower, upper, par) {
 #'
 #' @details
 #' Bounds are not enforced here, they are removed: a shifted log for a one-sided
-#' bound, a scaled logit for two, and the identity for neither. Optimise in
+#' bound, a scaled logit for two, and the identity for neither. Optimize in
 #' \eqn{\eta} and every proposed point is admissible by construction.
 #'
-#' To honour \code{bounds} in a user-defined method: map the starting value with
+#' To honor \code{bounds} in a user-defined method: map the starting value with
 #' \code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
 #' that it maps back before evaluating. The Jacobian is diagonal, so the chain
 #' rule is short —

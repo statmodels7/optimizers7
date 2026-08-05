@@ -51,7 +51,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' the objective. This is not an edge case; it is the ordinary situation far from
 #' the solution.
 #'
-#' Both repairs begin with an attempted Cholesky factorisation, which when it
+#' Both repairs begin with an attempted Cholesky factorization, which when it
 #' succeeds is simultaneously the test for positive definiteness and the solve.
 #' When it fails:
 #'
@@ -61,7 +61,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'     where the curvature is trustworthy, and gradient-like in the rest. Costs a
 #'     symmetric eigendecomposition and gives the best-conditioned repair.}
 #'   \item{\code{"ridge"}}{add \eqn{\tau I} with \eqn{\tau} doubling until the
-#'     factorisation succeeds. This is Levenberg's idea: it interpolates between
+#'     factorization succeeds. This is Levenberg's idea: it interpolates between
 #'     the Newton step at \eqn{\tau = 0} and a scaled steepest-descent step for
 #'     large \eqn{\tau}. Cheaper, and blunter.}
 #' }
@@ -265,7 +265,7 @@ lbfgs <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
 # Each names its direction and hands everything else to run_descent(); that they
 # are three lines apiece is the point of the frame.
 
-#' @title Minimise by Newton's Method
+#' @title Minimize by Newton's Method
 #' @name minimize.Newton
 #' @param optimizer A \code{Newton} object.
 #' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
@@ -299,7 +299,7 @@ S7::method(minimize, Newton) <-
                      floor = optimizer@floor))
   }
 
-#' @title Minimise by BFGS
+#' @title Minimize by BFGS
 #' @name minimize.Bfgs
 #' @param optimizer A \code{Bfgs} object.
 #' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
@@ -313,7 +313,7 @@ S7::method(minimize, Bfgs) <-
                      max_skip = as.integer(optimizer@max_skip)))
   }
 
-#' @title Minimise by Limited-Memory BFGS
+#' @title Minimize by Limited-Memory BFGS
 #' @name minimize.Lbfgs
 #' @param optimizer An \code{Lbfgs} object.
 #' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.

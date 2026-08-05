@@ -14,7 +14,7 @@ An S7 object of class \code{criterion}. The class is abstract: use one
 of the constructors, or from a user-defined subclass.
 }
 \description{
-A stopping rule, as an object. Every optimiser carries one, and the user may
+A stopping rule, as an object. Every optimizer carries one, and the user may
 replace it, combine several, or write a new kind.
 }
 \details{

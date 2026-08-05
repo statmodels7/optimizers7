@@ -2,7 +2,7 @@
 % Please edit documentation in R/objective.R
 \name{as_objective}
 \alias{as_objective}
-\title{Normalise an Objective for the Optimisers}
+\title{Normalize an Objective for the Optimizers}
 \usage{
 as_objective(fn, gr = NULL, he = NULL, ...)
 }

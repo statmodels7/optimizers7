@@ -9,9 +9,9 @@ template:
     code_font: {google: "JetBrains Mono"}
 
 home:
-  title: Optimisation algorithms as reusable objects
+  title: Optimization algorithms as reusable objects
   description: >
-    Optimisers written once, as objects any package can use: the algorithm and
+    Optimizers written once, as objects any package can use: the algorithm and
     its safeguards in one object, the stopping rule in another you can replace
     or write yourself, and the objective in whichever of three shapes you
     already have it.
@@ -29,7 +29,7 @@ navbar:
       href: https://statmodels7.github.io
 
 reference:
-- title: Running an optimisation
+- title: Running an optimization
   desc: >
     One generic for every algorithm. Which of the three shapes the objective
     arrived in is settled separately, so an algorithm is written once.
@@ -67,9 +67,9 @@ reference:
   - nelder_mead
   - compass
 
-- title: Wrapping an optimiser
+- title: Wrapping an optimizer
   desc: >
-    Multi-start is itself an optimiser, so it composes with everything above.
+    Multi-start is itself an optimizer, so it composes with everything above.
     What it reports that a single run cannot is the number of distinct optima.
   contents:
   - multistart
@@ -77,7 +77,7 @@ reference:
 - title: Stopping rules
   desc: >
     A criterion is an object implementing one generic, so a rule the authors
-    never thought of is a first-class citizen. An optimiser refuses a rule it
+    never thought of is a first-class citizen. An optimizer refuses a rule it
     cannot evaluate rather than accepting one that never fires.
   contents:
   - criterion
@@ -124,7 +124,7 @@ reference:
   contents:
   - as_objective
 
-- title: Writing an optimiser of your own
+- title: Writing an optimizer of your own
   desc: >
     What a `minimize()` method of your own has to promise, and the pieces that
     let it. `check_optimizer()` tests the contract; the battery under it reports

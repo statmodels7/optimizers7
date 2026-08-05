@@ -12,11 +12,11 @@
 //     freedom is most of why it copes with a gradient that points downhill
 //     only on average.
 //
-// WHAT IT DELIBERATELY DOES NOT DO IS DRAW ITS OWN SUBSAMPLES. An optimiser
+// WHAT IT DELIBERATELY DOES NOT DO IS DRAW ITS OWN SUBSAMPLES. An optimizer
 // does not know what an observation is, and a version that did would have to be
 // told -- which means a second kind of objective, a second kind of criterion,
 // and a rule for which combinations are allowed. All of that belonged to
-// whichever caller already knows the answer. Adam here optimises the objective
+// whichever caller already knows the answer. Adam here optimizes the objective
 // it is given; if that objective is stochastic, Adam is stochastic, and neither
 // side needs to negotiate about it.
 //

@@ -9,7 +9,7 @@ NULL
 #' @param t_min,t_max Bounds on it.
 #' @param m_serious Fraction of the predicted decrease a serious step must
 #'   achieve.
-#' @param bundle_size Largest number of linearisations kept.
+#' @param bundle_size Largest number of linearizations kept.
 #' @param qp_iters,qp_tol Effort spent on the subproblem.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{bundle}}
@@ -33,7 +33,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @description
 #' Proximal bundle method for convex non-smooth objectives: subgradients
 #' collected at the visited points define a cutting-plane model, a proximal
-#' term keeps the step near the stability centre, and convergence is tested on
+#' term keeps the step near the stability center, and convergence is tested on
 #' the aggregate subgradient rather than on any single one, which does not
 #' vanish at a kink.
 #'
@@ -47,7 +47,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'   \code{1e-10} and \code{1e10}.
 #' @param m_serious Fraction of the predicted decrease that a step must actually
 #'   deliver to be accepted, in \eqn{(0, 1)}. Defaults to \code{0.1}.
-#' @param bundle_size Largest number of linearisations kept before the oldest
+#' @param bundle_size Largest number of linearizations kept before the oldest
 #'   are replaced by their aggregate. Defaults to \code{20}.
 #' @param qp_iters,qp_tol Effort spent on the subproblem: at most this many
 #'   accelerated projected-gradient steps, stopping when the weights move by
@@ -61,7 +61,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
 #'
 #' @details
-#' \subsection{Behaviour at a kink}{
+#' \subsection{Behavior at a kink}{
 #' At the minimum of \eqn{\lvert x \rvert} the evaluated subgradient is
 #' \eqn{\pm 1}. A descent method therefore sees a large gradient, proposes a
 #' step, finds no acceptable one, and stops reporting failure while standing
@@ -71,15 +71,15 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' The bundle method does not test any single subgradient. It keeps a
 #' \emph{collection} of them, from the points it has visited, and builds the
 #' piecewise-linear model \eqn{\max_j \{ f_j + g_j'(x - x_j) \}} — the largest of
-#' the linearisations. A kink is exactly what such a model represents well: two
-#' linearisations meeting. At the minimum of \eqn{\lvert x \rvert} the bundle
+#' the linearizations. A kink is exactly what such a model represents well: two
+#' linearizations meeting. At the minimum of \eqn{\lvert x \rvert} the bundle
 #' holds subgradients near \eqn{+1} and near \eqn{-1}, and \eqn{0} is a convex
 #' combination of them, which is precisely the statement that \eqn{0} lies in
 #' the subdifferential.
 #'
 #' That is what is tested. The step solves
 #' \deqn{\min_d\ \max_j \{ -\alpha_j + g_j'd \} + \frac{1}{2t}\lVert d \rVert^2,}
-#' where \eqn{\alpha_j \ge 0} measures how badly linearisation \eqn{j} misses
+#' where \eqn{\alpha_j \ge 0} measures how badly linearization \eqn{j} misses
 #' the current point and the quadratic term keeps the step inside the region
 #' where the model is believed. Its optimal value \eqn{v \le 0} is the
 #' \emph{predicted decrease}, which is what the acceptance test below uses.
@@ -125,7 +125,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'
 #' \code{t0} is therefore divided by the size of the gradient at the starting
 #' point, which makes the first step of length \code{t0} in parameter space.
-#' It is the same normalisation a line search performs when it starts at 1 along
+#' It is the same normalization a line search performs when it starts at 1 along
 #' a unit direction, and \code{t_min} and \code{t_max} move with it since they
 #' bound the same quantity. Raise \code{t0} for a problem whose optimum is far
 #' away, lower it for one where the model is trustworthy only nearby.
@@ -137,7 +137,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'
 #' \subsection{Bounded memory}{
 #' Left alone the bundle grows without limit. When it reaches
-#' \code{bundle_size} the oldest linearisations are replaced by the
+#' \code{bundle_size} the oldest linearizations are replaced by the
 #' \emph{aggregate} — the single affine function the subproblem's solution
 #' defines — rather than discarded. Discarding loses what they knew and can stall
 #' the method; the aggregate keeps a summary of all of it in one element, which
@@ -145,11 +145,11 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' }
 #'
 #' \subsection{Convexity requirement}{
-#' The theory is for convex \eqn{f}, where the linearisation errors
+#' The theory is for convex \eqn{f}, where the linearization errors
 #' \eqn{\alpha_j} are non-negative automatically. On a non-convex objective they
 #' can come out negative and are clipped at zero. The method then still runs and
 #' usually works, but that clip is exactly where the guarantee stops: a negative
-#' error is the model reporting that \eqn{f} lies below its own linearisation,
+#' error is the model reporting that \eqn{f} lies below its own linearization,
 #' and setting it to zero suppresses the information rather than using it.
 #' }
 #'
@@ -158,7 +158,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' although a difference is a perfectly good gradient wherever \eqn{f} is
 #' differentiable — which is almost everywhere, so a run mostly gets away with
 #' it — a difference taken \emph{across} a kink is not a subgradient of anything
-#' and the model will be built from a number that belongs to no linearisation.
+#' and the model will be built from a number that belongs to no linearization.
 #' }
 #'
 #' @return An S7 object of class \code{Bundle}, inheriting from
@@ -175,7 +175,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @examples
 #' bundle()
 #'
-#' # the median, as the minimiser of a sum of absolute deviations: the objective
+#' # the median, as the minimizer of a sum of absolute deviations: the objective
 #' # has a kink at every observation, and one of them is the answer
 #' set.seed(1)
 #' y <- rnorm(101)
@@ -249,7 +249,7 @@ S7::method(optimizer_provides, Bundle) <- function(optimizer)
   "stationarity"
 
 
-#' @title Minimise by the Proximal Bundle Method
+#' @title Minimize by the Proximal Bundle Method
 #' @name minimize.Bundle
 #' @description Runs \code{\link{bundle}} on the objective.
 #' @param optimizer A \code{Bundle} object.

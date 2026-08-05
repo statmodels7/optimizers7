@@ -2,7 +2,7 @@
 % Please edit documentation in R/bundle.R
 \name{minimize.Bundle}
 \alias{minimize.Bundle}
-\title{Minimise by the Proximal Bundle Method}
+\title{Minimize by the Proximal Bundle Method}
 \arguments{
 \item{optimizer}{A \code{Bundle} object.}
 

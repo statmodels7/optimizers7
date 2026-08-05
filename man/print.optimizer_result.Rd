@@ -2,13 +2,13 @@
 % Please edit documentation in R/result_class.R
 \name{print.optimizer_result}
 \alias{print.optimizer_result}
-\title{Print Method for an Optimisation Result}
+\title{Print Method for an Optimization Result}
 \arguments{
 \item{x}{An \code{\link{optimizer_result}}.}
 
 \item{digits}{Decimal places the parameters are rounded to. Defaults to 4.}
 
-\item{max_par}{How many parameters to show; any remainder is summarised as
+\item{max_par}{How many parameters to show; any remainder is summarized as
 a count. Defaults to 6.}
 
 \item{...}{Unused.}

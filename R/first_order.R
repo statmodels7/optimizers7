@@ -46,7 +46,7 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
 #'
 #' @details
-#' The direction \eqn{-g} minimises \eqn{g^\top d} over directions of a given
+#' The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
 #' Euclidean length. Under an exact line search consecutive directions are
 #' orthogonal, so on an ill-conditioned objective the iterates zigzag and
 #' converge slowly; \code{\link{cg}} corrects this by combining each direction
@@ -82,7 +82,7 @@ gd <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
 }
 
 
-#' @title Minimise by Gradient Descent
+#' @title Minimize by Gradient Descent
 #' @name minimize.GradientDescent
 #' @description Runs \code{\link{gd}} on the objective.
 #' @param optimizer A \code{GradientDescent} object.
@@ -235,7 +235,7 @@ cg <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
 }
 
 
-#' @title Minimise by Conjugate Gradients
+#' @title Minimize by Conjugate Gradients
 #' @name minimize.Cg
 #' @description Runs \code{\link{cg}} on the objective.
 #' @param optimizer A \code{Cg} object.
@@ -312,7 +312,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'       \alpha_{BB2} = \frac{s^\top y}{y^\top y},}
 #' the two Rayleigh quotients of the secant pair \eqn{s = x_k - x_{k-1}},
 #' \eqn{y = g_k - g_{k-1}}. Both estimate the inverse curvature along the
-#' direction just travelled, so this is a quasi-Newton method that has discarded
+#' direction just traveled, so this is a quasi-Newton method that has discarded
 #' everything except one scalar. On a quadratic, where the curvature is
 #' constant, that scalar is exactly right.
 #'
@@ -403,7 +403,7 @@ bb <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
 }
 
 
-#' @title Minimise by Barzilai-Borwein
+#' @title Minimize by Barzilai-Borwein
 #' @name minimize.Bb
 #' @description Runs \code{\link{bb}} on the objective.
 #' @param optimizer A \code{Bb} object.

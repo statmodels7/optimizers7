@@ -20,7 +20,7 @@ An \code{\link{optimizer_result}}.
 }
 \description{
 The body of every method that has a direction: prepares the objective, hands
-the compiled loop the optimiser's settings and the description of its
+the compiled loop the optimizer's settings and the description of its
 direction, and assembles the result.
 }
 \details{

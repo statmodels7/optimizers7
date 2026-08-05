@@ -2,7 +2,7 @@
 #
 # The two tests that matter most are the ones where an unguarded implementation
 # gives a plausible wrong answer: McKinnon's function, on which Nelder-Mead
-# converges to a point that is not a minimiser while every value-based rule
+# converges to a point that is not a minimizer while every value-based rule
 # reports success, and a kinked objective, on which a descent method arrives at
 # the answer and then reports that it did not.
 
@@ -35,7 +35,7 @@ mckinnon <- function(p, tau = 2, theta = 6, phi = 60) {
 mck_simplex <- rbind(c(0, 0), c((1 + sqrt(33)) / 8, (1 - sqrt(33)) / 8), c(1, 1))
 
 
-test_that("Nelder-Mead converges to a non-minimiser without the safeguard", {
+test_that("Nelder-Mead converges to a non-minimizer without the safeguard", {
   # The failure must be reproduced before the fix for it can be believed.
   r <- minimize(nelder_mead(simplex = mck_simplex, max_restarts = 0),
                 mckinnon, par = c(0, 0))
@@ -109,7 +109,7 @@ test_that("complete polling needs fewer iterations than opportunistic", {
 
 test_that("bundle finds the median, where a descent method cannot certify it", {
   set.seed(1)
-  y <- rnorm(101)                       # odd, so the minimiser is unique
+  y <- rnorm(101)                       # odd, so the minimizer is unique
   f <- function(p) sum(abs(y - p))
   g <- function(p) -sum(sign(y - p))
 
@@ -126,10 +126,10 @@ test_that("bundle finds the median, where a descent method cannot certify it", {
 })
 
 
-test_that("with an even sample the minimiser is a segment, and it lands in it", {
+test_that("with an even sample the minimizer is a segment, and it lands in it", {
   # sum|y - mu| is piecewise linear with slope (#below - #above), which is
   # exactly zero between the two middle order statistics. Every point of that
-  # segment is a minimiser; median() returns its midpoint by convention. Testing
+  # segment is a minimizer; median() returns its midpoint by convention. Testing
   # against median() with a tolerance would therefore be testing a convention,
   # and would report an error where there is none.
   set.seed(5)

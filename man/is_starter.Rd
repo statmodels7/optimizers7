@@ -13,7 +13,7 @@ is_starter(x)
 \code{TRUE} for a starter.
 }
 \description{
-The class of an optimiser is not the place to look for this, so
+The class of an optimizer is not the place to look for this, so
 it has a name.
 }
 \keyword{internal}

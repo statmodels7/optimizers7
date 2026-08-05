@@ -6,7 +6,7 @@ NULL
 
 #' @title S7 Class for Multi-Start
 #' @description The class \code{\link{multistart}} instantiates.
-#' @param optimizer The inner optimiser, run from each starting point.
+#' @param optimizer The inner optimizer, run from each starting point.
 #' @param n How many starts.
 #' @param starts An optional matrix of starting points.
 #' @param spread How widely the random starts are scattered.
@@ -28,13 +28,13 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
   ))
 
 
-#' @title Run an Optimiser From Many Starting Points
+#' @title Run an Optimizer From Many Starting Points
 #'
 #' @description
-#' Wraps any optimiser and runs it from several starts, returning the best
+#' Wraps any optimizer and runs it from several starts, returning the best
 #' result together with the number of distinct answers found.
 #'
-#' @param optimizer The optimiser to run. Any of them, including another
+#' @param optimizer The optimizer to run. Any of them, including another
 #'   \code{multistart()}.
 #' @param n How many starts, the user's own \code{par} among them. Defaults
 #'   to \code{10}.
@@ -121,7 +121,7 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
     }
     n <- nrow(starts)
   }
-  # Its budgets are the inner optimiser's, except maxit, which counts starts.
+  # Its budgets are the inner optimizer's, except maxit, which counts starts.
   check_optimizer_args(optimizer@criterion, n, optimizer@max_eval, verbose,
                        refresh, keep_trace)
   check_tol(spread)
@@ -148,7 +148,7 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
 #' @title What Multi-Start Can Offer a Stopping Rule
 #' @name optimizer_provides.MultiStart
 #' @description
-#' Whatever the inner optimiser offers, since it is the inner optimiser that
+#' Whatever the inner optimizer offers, since it is the inner optimizer that
 #' evaluates the rule.
 #' @param optimizer A \code{MultiStart} object.
 #' @return A character vector.
@@ -157,10 +157,10 @@ S7::method(optimizer_provides, MultiStart) <- function(optimizer)
   optimizer_provides(optimizer@optimizer)
 
 
-# Changing a setting has to reach the optimiser that will actually use it. The
+# Changing a setting has to reach the optimizer that will actually use it. The
 # criterion is the one that matters: the outer copy exists so that printing a
 # multistart tells the truth, but the rule that is evaluated belongs to the
-# optimiser inside, so setting only the outer one would change nothing while
+# optimizer inside, so setting only the outer one would change nothing while
 # looking as though it had.
 
 #' @rdname with_criterion
@@ -223,7 +223,7 @@ make_starts <- function(par, n, spread, bounds) {
 }
 
 
-#' @title Minimise From Many Starting Points
+#' @title Minimize From Many Starting Points
 #' @name minimize.MultiStart
 #' @description Runs \code{\link{multistart}} on the objective.
 #' @param optimizer A \code{MultiStart} object.
@@ -439,13 +439,13 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
 #' Assemble the Result of a Multi-Start Run
 #'
 #' @description
-#' Picks the best run, and summarises what the others found.
+#' Picks the best run, and summarizes what the others found.
 #'
 #' @details
 #' The count of distinct optima is the reason to run this at all, so it is
 #' computed rather than left to the caller: the values reached are sorted and
 #' cut wherever consecutive ones differ by more than \code{distinct_tol}. It is
-#' a statement about the objective, not about the optimiser, and it is the one
+#' a statement about the objective, not about the optimizer, and it is the one
 #' piece of evidence a single run can never supply.
 #'
 #' @param res The list of results, entries that failed being character messages.
@@ -501,7 +501,7 @@ build_multistart_result <- function(res, S, optimizer, seed, elapsed) {
   optimizer_result(
     par = out@par, value = out@value, gradient = out@gradient,
     counts = counts,
-    # One iteration of this optimiser is one start; the inner iteration counts
+    # One iteration of this optimizer is one start; the inner iteration counts
     # are in the trace, where they can be read per start rather than summed into
     # a number that means nothing.
     iterations = length(res),

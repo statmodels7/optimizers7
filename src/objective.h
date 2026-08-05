@@ -30,7 +30,7 @@ public:
   virtual ~Objective() {}
 
   // The value at x. Implementations return a non-finite number rather than
-  // throwing when the objective is undefined there: an optimiser must be able
+  // throwing when the objective is undefined there: an optimizer must be able
   // to propose a bad point and be told so, which is a normal event in a line
   // search and not an error.
   virtual double value(const arma::vec& x) = 0;
@@ -101,7 +101,7 @@ public:
       xm[j] = x[j];
       H.col(j) = (gp - gm) / (2.0 * h);
     }
-    // Symmetrise: the two triangles differ by the differencing error, and a
+    // Symmetrize: the two triangles differ by the differencing error, and a
     // Hessian that is not exactly symmetric breaks eig_sym further on.
     return 0.5 * (H + H.t());
   }
@@ -163,7 +163,7 @@ private:
 // behind a pair of bare C++ function pointers went because it could not carry
 // data -- double(*)(const arma::vec&) has no closure, so any real statistical
 // objective had to keep y and X in globals, which is not reentrant and means one
-// model at a time. Measured, it was also SLOWER than vectorised R below about
+// model at a time. Measured, it was also SLOWER than vectorized R below about
 // twenty thousand observations and never better than about twice as fast, since
 // R's matrix arithmetic and Armadillo's call the same BLAS.
 //

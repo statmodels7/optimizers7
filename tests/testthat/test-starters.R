@@ -29,7 +29,7 @@ test_that("zeros are zeros on the UNCONSTRAINED scale, which is the point", {
 
   # and a doubly bounded parameter starts in the middle of its interval. The
   # tolerance is on the parameter, so it follows the stopping rule: a gradient
-  # of 1e-6 on a unit curvature locates the minimiser to about that, and this
+  # of 1e-6 on a unit curvature locates the minimizer to about that, and this
   # run differentiates numerically as well.
   f <- function(p) (p - 0.3)^2
   r2 <- minimize(bfgs(), f, start_zeros(1), lower = 0, upper = 1)
@@ -90,7 +90,7 @@ test_that("a gradient of fixed length pins the count exactly", {
 
 
 test_that("a model with a design matrix decides it outright, which is the real case", {
-  # The objective a modelling package actually hands over is not a toy: it
+  # The objective a modeling package actually hands over is not a toy: it
   # multiplies the parameter by something of a fixed width, and X %*% beta with
   # the wrong length is an error rather than a number. This is the case the
   # inference exists for, and it needs no gradient and no help.
@@ -105,7 +105,7 @@ test_that("a model with a design matrix decides it outright, which is the real c
 })
 
 
-test_that("a vectorised objective cannot be decided, and neither can its gradient", {
+test_that("a vectorized objective cannot be decided, and neither can its gradient", {
   # Worth pinning, because both plausible guesses about R are wrong. Recycling
   # warns only when the shorter length is not a DIVISOR of the longer, so
   # sum((p - c(1, 2, 3))^2) accepts a length-one vector in silence and returns a
@@ -132,7 +132,7 @@ test_that("a vectorised objective cannot be decided, and neither can its gradien
 
 test_that("an objective that really takes any length is refused, by name", {
   # sum((p - 1)^2) is a perfectly good function of any number of parameters.
-  # Guessing would mean optimising a different problem from the one asked.
+  # Guessing would mean optimizing a different problem from the one asked.
   expect_error(infer_npar(function(p) sum((p - 1)^2), NULL,
                           function(k) numeric(k)),
                "more than one length")
@@ -167,7 +167,7 @@ test_that("the probe stops as soon as the answer is known to be ambiguous", {
 })
 
 
-test_that("starters work with every optimiser, including multistart", {
+test_that("starters work with every optimizer, including multistart", {
   set.seed(4)
   for (o in list(gd(maxit = 3), cg(maxit = 3), bb(maxit = 3), bfgs(maxit = 3),
                  lbfgs(maxit = 3), newton(maxit = 3), adam(maxit = 3),

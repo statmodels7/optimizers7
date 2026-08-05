@@ -16,16 +16,16 @@ bounded_transform(b, eta)
 A list with \code{h} (the parameter), \code{d1} and \code{d2}.
 }
 \description{
-Evaluates the reparametrisation a set of bounds implies. This is how the
+Evaluates the reparametrization a set of bounds implies. This is how the
 package removes a box, and it is exported so that a \code{\link{minimize}}
 user-defined method can remove one the same way.
 }
 \details{
 Bounds are not enforced here, they are removed: a shifted log for a one-sided
-bound, a scaled logit for two, and the identity for neither. Optimise in
+bound, a scaled logit for two, and the identity for neither. Optimize in
 \eqn{\eta} and every proposed point is admissible by construction.
 
-To honour \code{bounds} in a user-defined method: map the starting value with
+To honor \code{bounds} in a user-defined method: map the starting value with
 \code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
 that it maps back before evaluating. The Jacobian is diagonal, so the chain
 rule is short —

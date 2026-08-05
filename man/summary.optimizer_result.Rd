@@ -2,7 +2,7 @@
 % Please edit documentation in R/result_class.R
 \name{summary.optimizer_result}
 \alias{summary.optimizer_result}
-\title{Summary Method for an Optimisation Result}
+\title{Summary Method for an Optimization Result}
 \arguments{
 \item{object}{An \code{\link{optimizer_result}}.}
 
@@ -12,7 +12,7 @@
 \code{object}, invisibly. Called for the printed summary.
 }
 \description{
-Summary Method for an Optimisation Result
+Summary Method for an Optimization Result
 }
 \examples{
 res <- minimize(gd(keep_trace = TRUE),

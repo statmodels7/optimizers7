@@ -105,7 +105,7 @@ Rcpp::List descent_run(Rcpp::List spec,
     if (!res.ok) {
       // A search that cannot improve on the current point is a failure only if
       // the point is not already an answer, and it routinely is: a caller that
-      // starts from a closed-form estimate hands the optimiser the solution.
+      // starts from a closed-form estimate hands the optimizer the solution.
       // The rule is asked with no previous iterate, so a criterion reading a
       // change in the objective returns FALSE and only the state at x -- its
       // gradient, its stationarity -- can declare the run finished.

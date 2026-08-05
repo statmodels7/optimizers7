@@ -4,14 +4,14 @@ NULL
 #' @title The Standard Test Problems
 #'
 #' @description
-#' The functions optimisation papers are argued over: a quadratic, a curved
+#' The functions optimization papers are argued over: a quadratic, a curved
 #' valley, a few awkward polynomials, two with many minima, and one with a kink.
 #' Each carries its analytic gradient and its known answer.
 #'
 #' @param which An optional character vector naming a subset.
 #'
 #' @details
-#' They are exported for use in testing optimisers generally, not only in this
+#' They are exported for use in testing optimizers generally, not only in this
 #' package's own tests; \code{\link{check_optimizer}} runs them.
 #'
 #' Each element is a list with \code{name}, \code{fn}, \code{gr}, \code{par}

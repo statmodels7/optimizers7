@@ -2,7 +2,7 @@
 % Please edit documentation in R/multistart.R
 \name{multistart}
 \alias{multistart}
-\title{Run an Optimiser From Many Starting Points}
+\title{Run an Optimizer From Many Starting Points}
 \usage{
 multistart(
   optimizer,
@@ -17,7 +17,7 @@ multistart(
 )
 }
 \arguments{
-\item{optimizer}{The optimiser to run. Any of them, including another
+\item{optimizer}{The optimizer to run. Any of them, including another
 \code{multistart()}.}
 
 \item{n}{How many starts, the user's own \code{par} among them. Defaults
@@ -48,7 +48,7 @@ An S7 object of class \code{MultiStart}, inheriting from
 \code{\link{optimizer}}.
 }
 \description{
-Wraps any optimiser and runs it from several starts, returning the best
+Wraps any optimizer and runs it from several starts, returning the best
 result together with the number of distinct answers found.
 }
 \details{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimizer_class.R
 \name{check_optimizer_args}
 \alias{check_optimizer_args}
-\title{Validate the Settings Every Optimiser Shares}
+\title{Validate the Settings Every Optimizer Shares}
 \usage{
 check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
 }

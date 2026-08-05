@@ -66,11 +66,11 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' of \eqn{p+1} values is very little information about a surface.
 #'
 #' \subsection{Degenerate simplices}{
-#' Nelder-Mead can converge to a point that is not a minimiser. McKinnon (1998)
+#' Nelder-Mead can converge to a point that is not a minimizer. McKinnon (1998)
 #' exhibited a strictly convex function with continuous derivatives on which it
 #' performs inside contractions for ever: the simplex flattens onto a line
 #' through a point where the gradient is not zero, every vertex agrees, and
-#' every ordinary stopping rule reports success. There is no defence in the
+#' every ordinary stopping rule reports success. There is no defense in the
 #' \emph{values} — they behave exactly as convergence would — because what has
 #' gone wrong is the \emph{shape} of the simplex.
 #'
@@ -95,7 +95,7 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' overshoot along whichever direction it happened to try. Gao and Han (2012)
 #' replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
 #' \eqn{p = 2} reduce \emph{exactly} to the classical values — so the default is
-#' \code{TRUE} at no cost to the small problems anyone would recognise.
+#' \code{TRUE} at no cost to the small problems anyone would recognize.
 #' }
 #'
 #' \subsection{Scope}{
@@ -126,7 +126,7 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' # a smooth problem, to show it works and to show what it costs
 #' minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #'
-#' # what it is actually for: a sum of absolute deviations, whose minimiser is
+#' # what it is actually for: a sum of absolute deviations, whose minimizer is
 #' # the median and whose derivative does not exist there
 #' set.seed(1)
 #' y <- rcauchy(101)
@@ -249,7 +249,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' \subsection{Opportunistic polling}{
 #' Accepting the first improvement rather than the best costs a worse direction
 #' and saves up to \eqn{2p - 1} evaluations. On an expensive objective that
-#' trade is usually favourable, so it is the default; on a cheap one,
+#' trade is usually favorable, so it is the default; on a cheap one,
 #' \code{opportunistic = FALSE} tends to need fewer iterations.
 #' }
 #'
@@ -328,7 +328,7 @@ S7::method(optimizer_provides, Compass) <- function(optimizer)
   "stationarity"
 
 
-#' @title Minimise by Nelder-Mead
+#' @title Minimize by Nelder-Mead
 #' @name minimize.NelderMead
 #' @description Runs \code{\link{nelder_mead}} on the objective.
 #' @param optimizer A \code{NelderMead} object.
@@ -370,7 +370,7 @@ S7::method(minimize, NelderMead) <-
   }
 
 
-#' @title Minimise by Pattern Search
+#' @title Minimize by Pattern Search
 #' @name minimize.Compass
 #' @description Runs \code{\link{compass}} on the objective.
 #' @param optimizer A \code{Compass} object.

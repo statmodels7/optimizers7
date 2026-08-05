@@ -3,7 +3,7 @@
 \name{with_criterion}
 \alias{with_criterion}
 \alias{with_criterion.MultiStart}
-\title{Rebuild an Optimiser With a Different Stopping Rule}
+\title{Rebuild an Optimizer With a Different Stopping Rule}
 \usage{
 with_criterion(optimizer, criterion)
 }
@@ -13,7 +13,7 @@ with_criterion(optimizer, criterion)
 \item{criterion}{The new rule.}
 }
 \value{
-An optimiser of the same class.
+An optimizer of the same class.
 }
 \description{
 Replaces the criterion, and for a wrapper replaces the one that will actually
@@ -22,7 +22,7 @@ be consulted.
 \details{
 The distinction matters. \code{\link{multistart}} carries a criterion only so
 that printing it tells the truth; the rule that is evaluated belongs to the
-optimiser inside. Setting the outer one and expecting a different run is the
+optimizer inside. Setting the outer one and expecting a different run is the
 sort of thing that makes a check pass while testing nothing.
 }
 \keyword{internal}

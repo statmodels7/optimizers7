@@ -2,7 +2,7 @@
 % Please edit documentation in R/adam.R
 \name{minimize.Adam}
 \alias{minimize.Adam}
-\title{Minimise by Adam}
+\title{Minimize by Adam}
 \arguments{
 \item{optimizer}{An \code{Adam} object.}
 

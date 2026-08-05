@@ -1,4 +1,4 @@
-# Box bounds by reparametrisation.
+# Box bounds by reparametrization.
 #
 # The transforms are linkfunctions7's bounded_link(), written out in C++ because
 # they are evaluated on every objective evaluation and a callback into R there
@@ -64,7 +64,7 @@ test_that("a saturated eta still lands strictly inside the box", {
 
 
 test_that("a run pressed hard against a bound reports an interior point", {
-  # The minimum is far outside the box, so the optimiser drives eta as far as it
+  # The minimum is far outside the box, so the optimizer drives eta as far as it
   # can and the reported parameter must still satisfy the constraint it was
   # given -- strictly, since a probability of exactly 1 is not one.
   f <- function(p) (p - 50)^2
@@ -122,7 +122,7 @@ test_that("an interior optimum is found exactly, bounds or not", {
 
 
 test_that("par and gradient are reported on the user's scale together", {
-  # The optimiser works in eta; reporting par in theta and the gradient in eta
+  # The optimizer works in eta; reporting par in theta and the gradient in eta
   # would give a result whose two halves refer to different things.
   f <- function(p) sum((p - c(1, 2))^2)
   g <- function(p) 2 * (p - c(1, 2))
@@ -186,7 +186,7 @@ test_that("malformed bounds are refused", {
 })
 
 
-test_that("no finite bound means no reparametrisation at all", {
+test_that("no finite bound means no reparametrization at all", {
   # The default is -Inf and Inf, and a run given those must be identical to one
   # given nothing: the whole transform is skipped rather than composed with the
   # identity once per parameter.

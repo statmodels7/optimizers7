@@ -155,7 +155,7 @@ test_that("a refused pair resets alpha to a step of order one, not to a constant
   # 1/max|g| is neither, because it depends on the gradient and not on the alpha
   # it replaces. The two witnesses are the two problems that fail under the two
   # constants: Rosenbrock, where keeping cost 873 refusals in 945 iterations,
-  # and a boxed quadratic through its reparametrisation, where restarting at
+  # and a boxed quadratic through its reparametrization, where restarting at
   # alpha0 cost 1395 in 1521.
   f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
   g  <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),

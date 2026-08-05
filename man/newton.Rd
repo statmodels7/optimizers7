@@ -51,7 +51,7 @@ no line search can rescue it — every step along an ascent direction increases
 the objective. This is not an edge case; it is the ordinary situation far from
 the solution.
 
-Both repairs begin with an attempted Cholesky factorisation, which when it
+Both repairs begin with an attempted Cholesky factorization, which when it
 succeeds is simultaneously the test for positive definiteness and the solve.
 When it fails:
 
@@ -61,7 +61,7 @@ When it fails:
 where the curvature is trustworthy, and gradient-like in the rest. Costs a
 symmetric eigendecomposition and gives the best-conditioned repair.}
 \item{\code{"ridge"}}{add \eqn{\tau I} with \eqn{\tau} doubling until the
-factorisation succeeds. This is Levenberg's idea: it interpolates between
+factorization succeeds. This is Levenberg's idea: it interpolates between
 the Newton step at \eqn{\tau = 0} and a scaled steepest-descent step for
 large \eqn{\tau}. Cheaper, and blunter.}
 }

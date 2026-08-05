@@ -1,10 +1,10 @@
 Package: optimizers7
-Title: An S7 Framework for Optimisation Algorithms
+Title: An S7 Framework for Optimization Algorithms
 Version: 0.0.0.9000
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
-Description: Optimisation algorithms as objects, built on the S7 object
-    system with the numerical work in C++. An optimiser carries its own
+Description: Optimization algorithms as objects, built on the S7 object
+    system with the numerical work in C++. An optimizer carries its own
     settings, safeguards and stopping rule, so swapping one for another changes
     a single word; the stopping rule is itself a composable object, so what a
     run means by convergence is something the caller sets rather than something

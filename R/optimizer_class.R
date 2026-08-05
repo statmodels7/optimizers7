@@ -1,10 +1,10 @@
 #' @include criterion.R
 NULL
 
-#' @title S7 Class for Optimisation Algorithms
+#' @title S7 Class for Optimization Algorithms
 #'
 #' @description
-#' An optimiser is an object carrying an algorithm and every setting that
+#' An optimizer is an object carrying an algorithm and every setting that
 #' algorithm obeys: its stopping rule, its budgets, what it reports, and what it
 #' keeps. It is created once and may be reused, inspected, stored beside a result
 #' and passed around; nothing about a run is hidden in the call that started it.
@@ -15,7 +15,7 @@ NULL
 #' the rest — adding only the settings that are genuinely its own.
 #'
 #' These properties are shared by every algorithm without exception, which is
-#' what lets a caller swap one optimiser for another without changing anything
+#' what lets a caller swap one optimizer for another without changing anything
 #' else.
 #'
 #' @param name A short character name, used when printing and reporting.
@@ -69,7 +69,7 @@ optimizer <- S7::new_class(
 )
 
 
-#' Validate the Settings Every Optimiser Shares
+#' Validate the Settings Every Optimizer Shares
 #'
 #' @description
 #' The checks each constructor would otherwise repeat, in one place and in one
@@ -137,11 +137,11 @@ criterion_class <- function() criterion
 #' The optimizer Class Object
 #'
 #' @description
-#' The same, for the optimiser class itself.
+#' The same, for the optimizer class itself.
 #'
 #' @details
 #' Wanted by \code{\link{multistart}} and \code{\link{check_optimizer}},
-#' both of which accept an arbitrary optimiser and must be able to say whether
+#' both of which accept an arbitrary optimizer and must be able to say whether
 #' that is what they were given.
 #'
 #' @return The \code{\link{optimizer}} class object.
@@ -150,7 +150,7 @@ criterion_class <- function() criterion
 optimizer_class <- function() optimizer
 
 
-#' @title Print Method for Optimisers
+#' @title Print Method for Optimizers
 #' @name print.optimizer
 #' @param x An \code{\link{optimizer}} object.
 #' @param ... Unused.

@@ -1,13 +1,13 @@
 #' @include optimizer_class.R
 NULL
 
-#' @title S7 Class for the Result of an Optimisation
+#' @title S7 Class for the Result of an Optimization
 #'
 #' @description
 #' What \code{\link{minimize}} returns: the answer, how it was reached, and
 #' enough of the run to diagnose it when it was not reached.
 #'
-#' @param par The minimiser.
+#' @param par The minimizer.
 #' @param value The objective there.
 #' @param gradient The gradient there, or \code{NULL} if the method computes none.
 #' @param counts Evaluations of the objective and of the gradient.
@@ -25,10 +25,10 @@ NULL
 #' @details
 #' \code{converged} is \code{TRUE} only when the stopping rule was satisfied. It
 #' is \strong{never} \code{TRUE} because the iteration budget ran out — that is
-#' the commonest defect in hand-written optimisation loops, and it turns a
+#' the commonest defect in hand-written optimization loops, and it turns a
 #' failure into a silently wrong answer.
 #'
-#' \code{trace}, present when the optimiser was built with
+#' \code{trace}, present when the optimizer was built with
 #' \code{keep_trace = TRUE}, records for each iteration the objective, the
 #' quantity the criterion is watching, the step actually taken, and the name of
 #' any safeguard that fired. That last column is what turns "it did not
@@ -98,14 +98,14 @@ format_elapsed <- function(sec) {
 }
 
 
-#' @title Print Method for an Optimisation Result
+#' @title Print Method for an Optimization Result
 #' @name print.optimizer_result
 #' @description
 #' Prints the objective value, the leading parameters, the evaluation counts,
 #' the elapsed time and the convergence status.
 #' @param x An \code{\link{optimizer_result}}.
 #' @param digits Decimal places the parameters are rounded to. Defaults to 4.
-#' @param max_par How many parameters to show; any remainder is summarised as
+#' @param max_par How many parameters to show; any remainder is summarized as
 #'   a count. Defaults to 6.
 #' @param ... Unused.
 #' @return \code{x}, invisibly.
@@ -149,7 +149,7 @@ S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
 }
 
 
-#' @title Summary Method for an Optimisation Result
+#' @title Summary Method for an Optimization Result
 #' @name summary.optimizer_result
 #' @param object An \code{\link{optimizer_result}}.
 #' @param ... Unused.
@@ -178,7 +178,7 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 }
 
 
-#' @title Plot Method for an Optimisation Result
+#' @title Plot Method for an Optimization Result
 #' @name plot.optimizer_result
 #'
 #' @description
@@ -200,7 +200,7 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 S7::method(plot, optimizer_result) <- function(x, ...) {
   tr <- x@trace
   if (is.null(tr) || !nrow(tr)) {
-    stop("No trace to plot; build the optimiser with keep_trace = TRUE.",
+    stop("No trace to plot; build the optimizer with keep_trace = TRUE.",
          call. = FALSE)
   }
   graphics::plot(tr$iteration, tr$value, type = "l", lwd = 2, las = 1,

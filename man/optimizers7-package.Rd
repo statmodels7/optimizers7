@@ -4,11 +4,11 @@
 \name{optimizers7-package}
 \alias{optimizers7}
 \alias{optimizers7-package}
-\title{optimizers7: An S7 Framework for Optimisation Algorithms}
+\title{optimizers7: An S7 Framework for Optimization Algorithms}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Optimisation algorithms as objects, built on the S7 object system with the numerical work in C++. An optimiser carries its own settings, safeguards and stopping rule, so swapping one for another changes a single word; the stopping rule is itself a composable object, so what a run means by convergence is something the caller sets rather than something fixed when the package was written. Eleven methods are provided, spanning second-order, first-order, derivative-free and non-smooth problems, along with multi-start. Box constraints are removed by reparameterisation instead of enforced, so every method accepts them without knowing they exist, and every method reports which of its safeguards fired.
+Optimization algorithms as objects, built on the S7 object system with the numerical work in C++. An optimizer carries its own settings, safeguards and stopping rule, so swapping one for another changes a single word; the stopping rule is itself a composable object, so what a run means by convergence is something the caller sets rather than something fixed when the package was written. Eleven methods are provided, spanning second-order, first-order, derivative-free and non-smooth problems, along with multi-start. Box constraints are removed by reparameterisation instead of enforced, so every method accepts them without knowing they exist, and every method reports which of its safeguards fired.
 }
 \seealso{
 Useful links:

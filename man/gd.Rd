@@ -47,7 +47,7 @@ Steepest descent: the search direction is the negative gradient
 \eqn{-g(x)}, and a line search chooses the step length.
 }
 \details{
-The direction \eqn{-g} minimises \eqn{g^\top d} over directions of a given
+The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
 Euclidean length. Under an exact line search consecutive directions are
 orthogonal, so on an ill-conditioned objective the iterates zigzag and
 converge slowly; \code{\link{cg}} corrects this by combining each direction
