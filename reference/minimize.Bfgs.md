@@ -1,6 +1,6 @@
-# Minimise by BFGS
+# Minimize by BFGS
 
-Minimise by BFGS
+Minimize by BFGS
 
 ## Arguments
 

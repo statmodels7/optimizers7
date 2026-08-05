@@ -1,7 +1,7 @@
 # Run the Shared Descent Loop
 
 The body of every method that has a direction: prepares the objective,
-hands the compiled loop the optimiser's settings and the description of
+hands the compiled loop the optimizer's settings and the description of
 its direction, and assembles the result.
 
 ## Usage

@@ -94,12 +94,12 @@ information about a surface.
 
 ### Degenerate simplices
 
-Nelder-Mead can converge to a point that is not a minimiser. McKinnon
+Nelder-Mead can converge to a point that is not a minimizer. McKinnon
 (1998) exhibited a strictly convex function with continuous derivatives
 on which it performs inside contractions for ever: the simplex flattens
 onto a line through a point where the gradient is not zero, every vertex
 agrees, and every ordinary stopping rule reports success. There is no
-defence in the *values* — they behave exactly as convergence would —
+defense in the *values* — they behave exactly as convergence would —
 because what has gone wrong is the *shape* of the simplex.
 
 So the shape is what is watched. The conditioning measured is \\\lvert
@@ -124,7 +124,7 @@ overshoot along whichever direction it happened to try. Gao and Han
 (2012) replace them by \\1,\\ 1 + 2/p,\\ 3/4 - 1/(2p),\\ 1 - 1/p\\,
 which at \\p = 2\\ reduce *exactly* to the classical values — so the
 default is `TRUE` at no cost to the small problems anyone would
-recognise.
+recognize.
 
 ### Scope
 
@@ -171,7 +171,7 @@ minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #>   elapsed    : 1e+03 us
 #>   converged  : yes (stationarity < 1e-08)
 
-# what it is actually for: a sum of absolute deviations, whose minimiser is
+# what it is actually for: a sum of absolute deviations, whose minimizer is
 # the median and whose derivative does not exist there
 set.seed(1)
 y <- rcauchy(101)

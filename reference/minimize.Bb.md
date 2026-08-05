@@ -1,4 +1,4 @@
-# Minimise by Barzilai-Borwein
+# Minimize by Barzilai-Borwein
 
 Runs [`bb`](https://statmodels7.github.io/optimizers7/reference/bb.md)
 on the objective.

@@ -1,6 +1,6 @@
-# Rebuild an Optimiser With a Different Iteration Budget
+# Rebuild an Optimizer With a Different Iteration Budget
 
-Rebuild an Optimiser With a Different Iteration Budget
+Rebuild an Optimizer With a Different Iteration Budget
 
 ## Usage
 
@@ -21,4 +21,4 @@ with_maxit(optimizer, maxit)
 
 ## Value
 
-An optimiser of the same class.
+An optimizer of the same class.

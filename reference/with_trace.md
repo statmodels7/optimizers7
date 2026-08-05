@@ -1,6 +1,6 @@
-# Rebuild an Optimiser With the Trace Switched On
+# Rebuild an Optimizer With the Trace Switched On
 
-Rebuild an Optimiser With the Trace Switched On
+Rebuild an Optimizer With the Trace Switched On
 
 ## Usage
 
@@ -17,4 +17,4 @@ with_trace(optimizer)
 
 ## Value
 
-An optimiser of the same class.
+An optimizer of the same class.

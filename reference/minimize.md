@@ -1,6 +1,6 @@
-# Minimise a Function
+# Minimize a Function
 
-The entry point of the package. Everything here minimises; see
+The entry point of the package. Everything here minimizes; see
 [`maximize`](https://statmodels7.github.io/optimizers7/reference/maximize.md)
 for the other direction.
 
@@ -64,7 +64,7 @@ An
 ## Details
 
 The generic dispatches on `optimizer` alone, so each algorithm is
-written once. The objective is normalised separately by
+written once. The objective is normalized separately by
 [`as_objective`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
 which dispatches on `fn`, so a caller with its own kind of objective
 registers one method there and every algorithm accepts it.
@@ -102,11 +102,11 @@ evaluations, once, before the run begins.
 
 That last route settles any objective with a fixed width built into it,
 which is most real ones: `X %*% beta` with a parameter of the wrong
-length is an error rather than a number. It cannot settle a vectorised
+length is an error rather than a number. It cannot settle a vectorized
 toy, since R recycles a shorter vector silently whenever its length
 divides, so `sum((p - c(1, 2, 3))^2)` is a perfectly finite function of
 one parameter as well as of three. It then refuses, naming the lengths
-it found, rather than optimising a different problem from the one asked.
+it found, rather than optimizing a different problem from the one asked.
 
 `lower` and `upper` are two vectors rather than a list of pairs, which
 is what [`optim`](https://rdrr.io/r/stats/optim.html) and
@@ -117,15 +117,15 @@ nothing between, since anything else is far more likely to be a mistake
 than a request.
 
 **Bounds are removed, not enforced.** Each bounded coordinate is
-reparametrised onto the whole real line — a shifted log for one-sided
-bounds, a scaled logit for two — and the optimiser runs unconstrained in
+reparametrized onto the whole real line — a shifted log for one-sided
+bounds, a scaled logit for two — and the optimizer runs unconstrained in
 the new variable. Every point it proposes is admissible by construction,
 so there is no rejection step and no boundary for a line search to trip
 over, and any method works with bounds without knowing about them.
 
 One limitation follows from the construction: **an optimum lying on a
 bound cannot be reached**. Getting there requires the transformed
-variable to run to infinity, so the optimiser marches off, improves by
+variable to run to infinity, so the optimizer marches off, improves by
 less and less, and stops on a budget at a point merely close to the
 bound. For the statistical use this exists to serve — a positive
 variance, a probability inside the unit interval — the optimum is
@@ -169,7 +169,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
 #>   value      : 4.68179e-20
 #>   par        : 1 2
 #>   iterations : 7   evaluations: f 42, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
@@ -181,7 +181,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 #>   value      : 1
 #>   par        : 1 1
 #>   iterations : 22   evaluations: f 121, g 0
-#>   elapsed    : 1e+03 us
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
@@ -192,7 +192,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 #>   value      : 8.30993e-15
 #>   par        : 1 2
 #>   iterations : 18   evaluations: f 231, g 0
-#>   elapsed    : 2 ms
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

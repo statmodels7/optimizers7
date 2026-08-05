@@ -1,6 +1,6 @@
-# Run an Optimiser From Many Starting Points
+# Run an Optimizer From Many Starting Points
 
-Wraps any optimiser and runs it from several starts, returning the best
+Wraps any optimizer and runs it from several starts, returning the best
 result together with the number of distinct answers found.
 
 ## Usage
@@ -23,7 +23,7 @@ multistart(
 
 - optimizer:
 
-  The optimiser to run. Any of them, including another `multistart()`.
+  The optimizer to run. Any of them, including another `multistart()`.
 
 - n:
 

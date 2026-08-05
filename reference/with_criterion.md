@@ -1,4 +1,4 @@
-# Rebuild an Optimiser With a Different Stopping Rule
+# Rebuild an Optimizer With a Different Stopping Rule
 
 Replaces the criterion, and for a wrapper replaces the one that will
 actually be consulted.
@@ -22,13 +22,13 @@ with_criterion(optimizer, criterion)
 
 ## Value
 
-An optimiser of the same class.
+An optimizer of the same class.
 
 ## Details
 
 The distinction matters.
 [`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 carries a criterion only so that printing it tells the truth; the rule
-that is evaluated belongs to the optimiser inside. Setting the outer one
+that is evaluated belongs to the optimizer inside. Setting the outer one
 and expecting a different run is the sort of thing that makes a check
 pass while testing nothing.

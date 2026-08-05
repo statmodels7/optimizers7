@@ -1,4 +1,4 @@
-# Minimise by Pattern Search
+# Minimize by Pattern Search
 
 Runs
 [`compass`](https://statmodels7.github.io/optimizers7/reference/compass.md)

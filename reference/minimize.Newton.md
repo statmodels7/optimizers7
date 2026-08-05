@@ -1,6 +1,6 @@
-# Minimise by Newton's Method
+# Minimize by Newton's Method
 
-Minimise by Newton's Method
+Minimize by Newton's Method
 
 ## Arguments
 

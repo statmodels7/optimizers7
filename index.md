@@ -1,6 +1,6 @@
 # optimizers7
 
-Almost every R package that fits a model carries its own optimiser,
+Almost every R package that fits a model carries its own optimizer,
 written inside the function that needs it: a loop, a
 `while (!converged)`, a tolerance compared against whatever quantity the
 author had to hand. Nothing outside can reuse it, extend it, or ask it
@@ -9,17 +9,17 @@ decides what the whole procedure means by *finished*, is usually a
 number buried three levels down.
 
 [optimizers7](https://statmodels7.github.io/optimizers7/) writes them
-once, as objects. An optimiser carries its algorithm and every setting
+once, as objects. An optimizer carries its algorithm and every setting
 that algorithm obeys; a stopping rule is a separate object that can be
 replaced, combined, or written from scratch; and every algorithm is
 written once against one objective interface.
 
-The package is deliberately narrow. An optimiser here minimises the
+The package is deliberately narrow. An optimizer here minimizes the
 function it is given and knows nothing else: not what an observation is,
 not where the data came from, not what the parameters mean. Everything
 that needs that knowledge belongs to the caller that has it.
 
-It is the optimisation layer of
+It is the optimization layer of
 [statmodels7](https://statmodels7.github.io), alongside
 [linkfunctions7](https://statmodels7.github.io/linkfunctions7/) and
 [distributions7](https://statmodels7.github.io/distributions7/).
@@ -42,7 +42,7 @@ pak::pak("statmodels7/statmodels7")
 
 ## The shape of it
 
-Everything minimises, always, through one generic:
+Everything minimizes, always, through one generic:
 
 ``` r
 
@@ -59,7 +59,7 @@ minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 ```
 
-Swapping the algorithm changes one word, because every optimiser carries
+Swapping the algorithm changes one word, because every optimizer carries
 the same settings:
 
 ``` r
@@ -98,7 +98,7 @@ minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
 #> [1] "f < 1e-8"
 ```
 
-A rule an optimiser cannot evaluate is **refused**, by name, rather than
+A rule an optimizer cannot evaluate is **refused**, by name, rather than
 accepted and left never to fire:
 
 ``` r
@@ -106,12 +106,12 @@ accepted and left never to fire:
 minimize(nelder_mead(criterion = crit_grad()), f, c(-1.2, 1))
 #> Error:
 #> ! The stopping rule needs gradient, which nelder-mead does not provide.
-#>   Choose a criterion this optimiser can evaluate, or a method that provides it.
+#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
 ```
 
 ## Bounds are removed, not enforced
 
-Each bounded coordinate is reparametrised onto the whole real line, so
+Each bounded coordinate is reparametrized onto the whole real line, so
 every point proposed is admissible by construction: there is no
 rejection step, no boundary for a line search to trip over, and any
 method gets bounds without knowing they exist:
@@ -151,7 +151,7 @@ The number of parameters is settled by whichever of three things the
 caller supplies: `start_zeros(npar = 3)`, bounds with one element per
 parameter, or, as above, the objective itself, probed once before the
 run. `X %*% p` of the wrong length is an error rather than a number, so
-a model of any kind answers the question on its own. A vectorised toy
+a model of any kind answers the question on its own. A vectorized toy
 that accepts every length cannot, and the refusal names the problem
 rather than guessing.
 
@@ -163,7 +163,7 @@ because the subgradient it evaluates there has norm 1 and never becomes
 small.
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 keeps a *collection* of subgradients and tests whether zero lies in
-their convex hull, which is the statement that holds at the minimiser:
+their convex hull, which is the statement that holds at the minimizer:
 
 ``` r
 
@@ -209,7 +209,7 @@ implementation uses forks on Linux and macOS and a socket cluster on
 Windows, and [`set.seed()`](https://rdrr.io/r/base/Random.html)
 reproduces the run identically on either, however many cores were used.
 
-## Validating an optimiser
+## Validating an optimizer
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 verifies the contract: that `value` is the objective at `par`, that a
@@ -233,7 +233,7 @@ check_optimizer(bfgs())
 #>   [ 9] maximize mirrors minimize:        [PASSED]
 #>   [10] an unevaluable rule is refused:   [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimises a quadratic:         [PASSED]
+#>   [12] it minimizes a quadratic:         [PASSED]
 #> 
 #>   All checks passed.
 #> 

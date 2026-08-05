@@ -1,6 +1,6 @@
-# Print Method for Optimisers
+# Print Method for Optimizers
 
-Print Method for Optimisers
+Print Method for Optimizers
 
 ## Arguments
 

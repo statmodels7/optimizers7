@@ -1,7 +1,7 @@
 # Prepare an Objective for an Algorithm
 
-Normalises the objective, checks the stopping rule can actually be
-evaluated by this optimiser, and checks the starting value.
+Normalizes the objective, checks the stopping rule can actually be
+evaluated by this optimizer, and checks the starting value.
 
 ## Usage
 

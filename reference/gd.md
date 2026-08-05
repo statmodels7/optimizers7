@@ -68,7 +68,7 @@ An S7 object of class `GradientDescent`, inheriting from
 
 ## Details
 
-The direction \\-g\\ minimises \\g^\top d\\ over directions of a given
+The direction \\-g\\ minimizes \\g^\top d\\ over directions of a given
 Euclidean length. Under an exact line search consecutive directions are
 orthogonal, so on an ill-conditioned objective the iterates zigzag and
 converge slowly;

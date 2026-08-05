@@ -12,7 +12,7 @@ print_optimizer_check(optimizer, ok, battery)
 
 - optimizer:
 
-  The optimiser checked.
+  The optimizer checked.
 
 - ok:
 

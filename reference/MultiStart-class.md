@@ -28,7 +28,7 @@ MultiStart(
 
 - optimizer:
 
-  The inner optimiser, run from each starting point.
+  The inner optimizer, run from each starting point.
 
 - n:
 

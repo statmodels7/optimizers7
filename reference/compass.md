@@ -120,7 +120,7 @@ The cost is reproducibility: a random poll draws from R's generator, so
 
 Accepting the first improvement rather than the best costs a worse
 direction and saves up to \\2p - 1\\ evaluations. On an expensive
-objective that trade is usually favourable, so it is the default; on a
+objective that trade is usually favorable, so it is the default; on a
 cheap one, `opportunistic = FALSE` tends to need fewer iterations.
 
 ## References

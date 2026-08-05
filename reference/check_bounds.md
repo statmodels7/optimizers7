@@ -1,4 +1,4 @@
-# Normalise Box Constraints
+# Normalize Box Constraints
 
 Recycles `lower` and `upper` to the length of `par`, checks them, and
 returns them in the shape the compiled loop reads.
@@ -26,7 +26,7 @@ when no bound is finite. Call it at the top of a user-defined
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 method, then hand each pair to
 [`bounded_transform`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md);
-an empty list means there is no box and the whole reparametrisation
+an empty list means there is no box and the whole reparametrization
 should be skipped.
 
 ## Details
@@ -44,7 +44,7 @@ length 2 for three parameters is far more likely to be a mistake than a
 request, and R's ordinary recycling would silently oblige.
 
 The starting value must be strictly interior, and refusing a boundary
-start is not pedantry. The reparametrisation sends a bound to an
+start is not pedantry. The reparametrization sends a bound to an
 infinite value of the transformed variable, so a run started exactly on
 one begins at infinity: every subsequent quantity is non-finite and the
 failure surfaces far from its cause. Saying so here, naming the

@@ -68,7 +68,7 @@ step points towards a saddle or a maximum, and no line search can rescue
 it — every step along an ascent direction increases the objective. This
 is not an edge case; it is the ordinary situation far from the solution.
 
-Both repairs begin with an attempted Cholesky factorisation, which when
+Both repairs begin with an attempted Cholesky factorization, which when
 it succeeds is simultaneously the test for positive definiteness and the
 solve. When it fails:
 
@@ -81,7 +81,7 @@ solve. When it fails:
 
 - `"ridge"`:
 
-  add \\\tau I\\ with \\\tau\\ doubling until the factorisation
+  add \\\tau I\\ with \\\tau\\ doubling until the factorization
   succeeds. This is Levenberg's idea: it interpolates between the Newton
   step at \\\tau = 0\\ and a scaled steepest-descent step for large
   \\\tau\\. Cheaper, and blunter.

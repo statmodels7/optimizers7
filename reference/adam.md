@@ -132,7 +132,7 @@ fiction.
 ### Stochastic objectives
 
 Adam does **not** draw subsamples, and the omission is the design rather
-than a gap in it. An optimiser does not know what an observation is; a
+than a gap in it. An optimizer does not know what an observation is; a
 version that did would need a second kind of objective to be told, a
 rule for which stopping rules such an objective allows, and a way to
 report which of them was in force. None of that buys anything a closure
@@ -229,7 +229,7 @@ minimize(adam(alpha = 0.1, maxit = 2000),
 #>   converged  : NO (iteration budget reached)
 
 # on a noisy objective, which is what it is for: the minibatch is drawn
-# inside the function, so the optimiser never has to know about it
+# inside the function, so the optimizer never has to know about it
 set.seed(1)
 y <- rnorm(2000, mean = 3)
 m <- 100

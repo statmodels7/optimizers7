@@ -29,7 +29,7 @@ A numeric vector of length `npar`.
 
 ## Details
 
-The unconstrained scale is the one the optimiser actually works on when
+The unconstrained scale is the one the optimizer actually works on when
 there are bounds, so this is where a starter is entitled to be simple:
 zero means the middle of an interval, one for a variance, one half for a
 probability, and there is no way for it to fall outside a bound.

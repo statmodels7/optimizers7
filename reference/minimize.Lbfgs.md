@@ -1,6 +1,6 @@
-# Minimise by Limited-Memory BFGS
+# Minimize by Limited-Memory BFGS
 
-Minimise by Limited-Memory BFGS
+Minimize by Limited-Memory BFGS
 
 ## Arguments
 

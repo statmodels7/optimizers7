@@ -1,6 +1,6 @@
-# S7 Class for Optimisation Algorithms
+# S7 Class for Optimization Algorithms
 
-An optimiser is an object carrying an algorithm and every setting that
+An optimizer is an object carrying an algorithm and every setting that
 algorithm obeys: its stopping rule, its budgets, what it reports, and
 what it keeps. It is created once and may be reused, inspected, stored
 beside a result and passed around; nothing about a run is hidden in the
@@ -69,7 +69,7 @@ in time
 and the rest — adding only the settings that are genuinely its own.
 
 These properties are shared by every algorithm without exception, which
-is what lets a caller swap one optimiser for another without changing
+is what lets a caller swap one optimizer for another without changing
 anything else.
 
 ## See also

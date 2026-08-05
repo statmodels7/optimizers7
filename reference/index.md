@@ -1,16 +1,16 @@
 # Package index
 
-## Running an optimisation
+## Running an optimization
 
 One generic for every algorithm. Which of the three shapes the objective
 arrived in is settled separately, so an algorithm is written once.
 
 - [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-  : Minimise a Function
+  : Minimize a Function
 - [`maximize()`](https://statmodels7.github.io/optimizers7/reference/maximize.md)
-  : Maximise a Function
+  : Maximize a Function
 - [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-  : S7 Class for the Result of an Optimisation
+  : S7 Class for the Result of an Optimization
 
 ## Smooth problems
 
@@ -51,19 +51,19 @@ because the subgradient it evaluates never becomes small.
 - [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
   : Pattern Search, With Coordinate or Random Polling
 
-## Wrapping an optimiser
+## Wrapping an optimizer
 
-Multi-start is itself an optimiser, so it composes with everything
+Multi-start is itself an optimizer, so it composes with everything
 above. What it reports that a single run cannot is the number of
 distinct optima.
 
 - [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-  : Run an Optimiser From Many Starting Points
+  : Run an Optimizer From Many Starting Points
 
 ## Stopping rules
 
 A criterion is an object implementing one generic, so a rule the authors
-never thought of is a first-class citizen. An optimiser refuses a rule
+never thought of is a first-class citizen. An optimizer refuses a rule
 it cannot evaluate rather than accepting one that never fires.
 
 - [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
@@ -130,9 +130,9 @@ a caller with its own kind of objective registers one method and every
 algorithm accepts it.
 
 - [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md)
-  : Normalise an Objective for the Optimisers
+  : Normalize an Objective for the Optimizers
 
-## Writing an optimiser of your own
+## Writing an optimizer of your own
 
 What a
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
@@ -142,18 +142,18 @@ tests the contract; the battery under it reports the power; they are
 separate because they are different questions.
 
 - [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
-  : S7 Class for Optimisation Algorithms
+  : S7 Class for Optimization Algorithms
 - [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-  : Refuse a Stopping Rule an Optimiser Cannot Evaluate
+  : Refuse a Stopping Rule an Optimizer Cannot Evaluate
 - [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
-  : Normalise Box Constraints
+  : Normalize Box Constraints
 - [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)
-  : What an Optimiser Can Offer a Stopping Rule
+  : What an Optimizer Can Offer a Stopping Rule
 - [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)
   : The Bound Transform, and Its First Two Derivatives
 - [`bounded_forward()`](https://statmodels7.github.io/optimizers7/reference/bounded_forward.md)
   : The Forward Bound Transform
 - [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-  : Check That an Optimiser Keeps Its Promises
+  : Check That an Optimizer Keeps Its Promises
 - [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
   : The Standard Test Problems

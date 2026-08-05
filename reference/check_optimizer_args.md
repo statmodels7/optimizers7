@@ -1,4 +1,4 @@
-# Validate the Settings Every Optimiser Shares
+# Validate the Settings Every Optimizer Shares
 
 The checks each constructor would otherwise repeat, in one place and in
 one wording.

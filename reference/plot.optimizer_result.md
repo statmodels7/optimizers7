@@ -1,4 +1,4 @@
-# Plot Method for an Optimisation Result
+# Plot Method for an Optimization Result
 
 The objective against iteration, with any iteration at which a safeguard
 fired marked. Requires `keep_trace = TRUE`.

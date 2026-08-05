@@ -42,7 +42,7 @@ verified and the search stops, so the smallest attainable gradient is
 around \\\sqrt{2 \lambda \varepsilon \lvert f^{\*} \rvert}\\ and grows
 with the value at the solution. On conjugate gradients applied to
 Rosenbrock, adding a constant to the objective — which moves neither the
-minimiser nor the gradient — takes the attainable gradient from `1.9e-9`
+minimizer nor the gradient — takes the attainable gradient from `1.9e-9`
 at \\f^{\*} = 0\\ to `4.4e-8` at \\f^{\*} = 1\\ and `6.5e-5` at \\f^{\*}
 = 10^{6}\\. The default suits an objective of order one at its solution,
 which is what a log-likelihood per observation is; an objective that
@@ -50,7 +50,7 @@ lands in the millions needs a correspondingly looser tolerance, and one
 that lands at zero can be asked for much more.
 
 Only usable by a method that computes a gradient; a derivative-free
-optimiser refuses it rather than accepting a rule that can never fire.
+optimizer refuses it rather than accepting a rule that can never fire.
 
 ## See also
 

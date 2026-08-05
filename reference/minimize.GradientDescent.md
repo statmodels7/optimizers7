@@ -1,4 +1,4 @@
-# Minimise by Gradient Descent
+# Minimize by Gradient Descent
 
 Runs [`gd`](https://statmodels7.github.io/optimizers7/reference/gd.md)
 on the objective.

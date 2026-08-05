@@ -1,6 +1,6 @@
-# Check That an Optimiser Keeps Its Promises
+# Check That an Optimizer Keeps Its Promises
 
-Runs an optimiser through a series of checks on what it *reports*, and
+Runs an optimizer through a series of checks on what it *reports*, and
 then through the standard test problems. Written for whoever adds a
 method of their own, and run against every method here.
 
@@ -48,12 +48,12 @@ questions and conflating them would make the function useless: gradient
 descent does not solve Rosenbrock in five hundred iterations, and it is
 not broken — it is slow, which is a documented property of the method
 and not a defect for a validator to report. So the numbered checks are
-all statements an optimiser must satisfy however weak it is, and how
+all statements an optimizer must satisfy however weak it is, and how
 strong it is comes afterwards, as a table of gaps rather than as a
 verdict.
 
 The one performance requirement among the numbered checks is that the
-optimiser minimises a quadratic. That is a floor no correct method can
+optimizer minimizes a quadratic. That is a floor no correct method can
 fail.
 
 ### The checks
@@ -63,14 +63,14 @@ fail.
     every test written in terms of the value alone.
 
 2.  the reported gradient is the gradient at `par`, checked only for
-    optimisers that offer `"gradient"` to a stopping rule and so are
+    optimizers that offer `"gradient"` to a stopping rule and so are
     claiming it is one.
     [`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
     reports an aggregate subgradient and does not make that claim, so it
     is not held to it.
 
 3.  `converged` follows the stopping rule and is never inferred from the
-    run having ended. Checked by starving the optimiser of iterations: a
+    run having ended. Checked by starving the optimizer of iterations: a
     run cut off after one must not report success.
 
 4.  budgets are respected — `iterations` never exceeds `maxit`.
@@ -94,20 +94,20 @@ fail.
     [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
     of the negative.
 
-10. a stopping rule the optimiser cannot evaluate is refused, rather
+10. a stopping rule the optimizer cannot evaluate is refused, rather
     than accepted and left never to fire.
 
 11. a starting point where the objective is not finite is an error, not
     a run that quietly returns `NaN`.
 
-12. it minimises a quadratic.
+12. it minimizes a quadratic.
 
 ### The problem battery
 
 The table reports the gap between the value reached and the known
 minimum, and it is information rather than judgement. A large gap on
 `rastrigin` or `himmelblau` means the method found a different local
-minimum, which for a local method is correct behaviour; a large gap on
+minimum, which for a local method is correct behavior; a large gap on
 `abs_sum` means it was defeated by a kink, which is what
 [`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 and the derivative-free methods are for.
@@ -133,7 +133,7 @@ check_optimizer(bfgs())
 #>   [ 9] maximize mirrors minimize:        [PASSED]
 #>   [10] an unevaluable rule is refused:   [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimises a quadratic:         [PASSED]
+#>   [12] it minimizes a quadratic:         [PASSED]
 #> 
 #>   All checks passed.
 #> 
@@ -162,7 +162,7 @@ check_optimizer(nelder_mead(), problems = test_problems("sphere"))
 #>   [ 9] maximize mirrors minimize:        [PASSED]
 #>   [10] an unevaluable rule is refused:   [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimises a quadratic:         [PASSED]
+#>   [12] it minimizes a quadratic:         [PASSED]
 #> 
 #>   All checks passed.
 #> 

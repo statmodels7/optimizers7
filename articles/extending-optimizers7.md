@@ -51,7 +51,7 @@ and `stationarity`. The last two are not always there, and that matters.
 A rule that reads the gradient, handed to a method that computes none,
 would sit testing `NULL` at every iteration and quietly never fire; the
 run would end on its iteration budget and report a reason nowhere near
-the truth. So a rule declares what it reads, and an optimiser that
+the truth. So a rule declares what it reads, and an optimizer that
 cannot supply it refuses the rule by name:
 
 ``` r
@@ -59,7 +59,7 @@ cannot supply it refuses the rule by name:
 minimize(nelder_mead(criterion = crit_grad()), f, c(0, 0))
 #> Error:
 #> ! The stopping rule needs gradient, which nelder-mead does not provide.
-#>   Choose a criterion this optimiser can evaluate, or a method that provides it.
+#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
 ```
 
 A rule that reads something optional declares it through
@@ -86,8 +86,8 @@ crit_any(tiny, crit_grad(1e-10))
 ## The objective
 
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-dispatches on the optimiser, so an algorithm is written once. The
-objective is normalised separately, by
+dispatches on the optimizer, so an algorithm is written once. The
+objective is normalized separately, by
 [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
 which dispatches on the objective. Each generic dispatches where there
 is real variation; dispatching
@@ -148,7 +148,7 @@ kind of objective, a rule for which stopping rules that objective
 permitted, a way of reporting which was in force, and a branch in the
 compiled loop. All of that served something the caller can do in one
 line and do better, since the caller is the one who knows what an
-observation is. An optimiser that knows about observations has stopped
+observation is. An optimizer that knows about observations has stopped
 being a general one; the batch is drawn where the knowledge is.
 
 One detail matters when writing such an objective. The resampling
@@ -188,7 +188,7 @@ its `y` and its `X` in C++ globals. That is not reentrant, it means one
 model at a time, and it rules out running several starts in one process.
 
 Second, it was not faster where it matters. Measured on a Gamma
-regression against the same objective written in vectorised R, the
+regression against the same objective written in vectorized R, the
 compiled version was *slower* below about twenty thousand observations
 and never better than about twice as fast above it. The reason is
 structural: assembling a gradient or a Hessian from model terms is
@@ -200,7 +200,7 @@ in the fourth-order derivative expressions of each family.
 
 ## A user-defined algorithm
 
-An optimiser is a subclass of `optimizer` carrying its own settings,
+An optimizer is a subclass of `optimizer` carrying its own settings,
 plus a method on
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 Here is one the package does not ship — the heavy-ball method, gradient
@@ -283,12 +283,12 @@ c(par = r@par, iterations = r@iterations, converged = r@converged)
 ## Checking it
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-separates two questions that are easy to confuse: whether the optimiser
+separates two questions that are easy to confuse: whether the optimizer
 keeps its **contract**, and how **powerful** it is. Conflating them
 would make the function useless, since gradient descent does not solve
 Rosenbrock in five hundred iterations and is not broken but slow.
 
-The numbered checks are therefore statements every optimiser must
+The numbered checks are therefore statements every optimizer must
 satisfy however weak it is, and the battery underneath is a table of
 gaps, reported as information rather than as a verdict:
 
@@ -307,7 +307,7 @@ res <- check_optimizer(heavy_ball(alpha = 0.01))
 #>   [ 9] maximize mirrors minimize:        [PASSED]
 #>   [10] an unevaluable rule is refused:   [FAILED]
 #>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimises a quadratic:         [PASSED]
+#>   [12] it minimizes a quadratic:         [PASSED]
 #> 
 #>   2 check(s) FAILED: bounds are respected strictly; an unevaluable rule is refused
 #> 
@@ -342,7 +342,7 @@ an answer outside it.
 
 Removing the box is a few lines, because
 [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
-normalises the two vectors into one pair per coordinate and
+normalizes the two vectors into one pair per coordinate and
 [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)
 does the rest:
 
@@ -357,7 +357,7 @@ S7::method(minimize, HeavyBall) <-
     bx <- check_bounds(lower, upper, par)                       # (1)
     if (!length(bx)) return(hb_run(optimizer, fn, par, gr))
 
-    # Optimise in eta, where there is no box, and map back to report. The
+    # Optimize in eta, where there is no box, and map back to report. The
     # Jacobian is diagonal, so the chain rule is one multiplication.
     hh <- function(e) vapply(seq_along(e),
             function(j) bounded_transform(bx[[j]], e[j])$h, 0)
@@ -404,14 +404,14 @@ all(check_optimizer(heavy_ball(alpha = 0.01),
 ```
 
 The algorithm was right from the first line. What was missing was two
-promises the package makes on every optimiser’s behalf, and neither
+promises the package makes on every optimizer’s behalf, and neither
 omission would have shown itself in any run that happened to succeed;
 the numbered checks exist to expose exactly this kind of gap.
 
 ## The test problems
 
 [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
-is exported because a battery is useful to anyone writing an optimiser,
+is exported because a battery is useful to anyone writing an optimizer,
 not only to this package:
 
 ``` r

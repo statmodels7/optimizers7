@@ -1,4 +1,4 @@
-# Minimise by Adam
+# Minimize by Adam
 
 Runs
 [`adam`](https://statmodels7.github.io/optimizers7/reference/adam.md) on

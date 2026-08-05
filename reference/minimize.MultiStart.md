@@ -1,4 +1,4 @@
-# Minimise From Many Starting Points
+# Minimize From Many Starting Points
 
 Runs
 [`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)

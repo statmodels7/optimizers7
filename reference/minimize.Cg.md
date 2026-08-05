@@ -1,4 +1,4 @@
-# Minimise by Conjugate Gradients
+# Minimize by Conjugate Gradients
 
 Runs [`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md)
 on the objective.

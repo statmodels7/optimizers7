@@ -1,4 +1,4 @@
-# Minimise by Nelder-Mead
+# Minimize by Nelder-Mead
 
 Runs
 [`nelder_mead`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)

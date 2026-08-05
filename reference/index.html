@@ -36,7 +36,7 @@
     </div>
 
     <div class="section level2">
-      <h2 id="running-an-optimisation">Running an optimisation<a class="anchor" aria-label="anchor" href="#running-an-optimisation"></a></h2>
+      <h2 id="running-an-optimization">Running an optimization<a class="anchor" aria-label="anchor" href="#running-an-optimization"></a></h2>
 
       <div class="section-desc"><p>One generic for every algorithm. Which of the three shapes the objective arrived in is settled separately, so an algorithm is written once.</p></div>
 
@@ -50,21 +50,21 @@
           <code><a href="minimize.html">minimize()</a></code>
 
         </dt>
-        <dd>Minimise a Function</dd>
+        <dd>Minimize a Function</dd>
 
         <dt>
 
           <code><a href="maximize.html">maximize()</a></code>
 
         </dt>
-        <dd>Maximise a Function</dd>
+        <dd>Maximize a Function</dd>
 
         <dt>
 
           <code><a href="optimizer_result.html">optimizer_result()</a></code>
 
         </dt>
-        <dd>S7 Class for the Result of an Optimisation</dd>
+        <dd>S7 Class for the Result of an Optimization</dd>
       </dl></div><div class="section level2">
       <h2 id="smooth-problems">Smooth problems<a class="anchor" aria-label="anchor" href="#smooth-problems"></a></h2>
 
@@ -163,9 +163,9 @@
         </dt>
         <dd>Pattern Search, With Coordinate or Random Polling</dd>
       </dl></div><div class="section level2">
-      <h2 id="wrapping-an-optimiser">Wrapping an optimiser<a class="anchor" aria-label="anchor" href="#wrapping-an-optimiser"></a></h2>
+      <h2 id="wrapping-an-optimizer">Wrapping an optimizer<a class="anchor" aria-label="anchor" href="#wrapping-an-optimizer"></a></h2>
 
-      <div class="section-desc"><p>Multi-start is itself an optimiser, so it composes with everything above. What it reports that a single run cannot is the number of distinct optima.</p></div>
+      <div class="section-desc"><p>Multi-start is itself an optimizer, so it composes with everything above. What it reports that a single run cannot is the number of distinct optima.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -177,11 +177,11 @@
           <code><a href="multistart.html">multistart()</a></code>
 
         </dt>
-        <dd>Run an Optimiser From Many Starting Points</dd>
+        <dd>Run an Optimizer From Many Starting Points</dd>
       </dl></div><div class="section level2">
       <h2 id="stopping-rules">Stopping rules<a class="anchor" aria-label="anchor" href="#stopping-rules"></a></h2>
 
-      <div class="section-desc"><p>A criterion is an object implementing one generic, so a rule the authors never thought of is a first-class citizen. An optimiser refuses a rule it cannot evaluate rather than accepting one that never fires.</p></div>
+      <div class="section-desc"><p>A criterion is an object implementing one generic, so a rule the authors never thought of is a first-class citizen. An optimizer refuses a rule it cannot evaluate rather than accepting one that never fires.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -360,9 +360,9 @@
           <code><a href="as_objective.html">as_objective()</a></code>
 
         </dt>
-        <dd>Normalise an Objective for the Optimisers</dd>
+        <dd>Normalize an Objective for the Optimizers</dd>
       </dl></div><div class="section level2">
-      <h2 id="writing-an-optimiser-of-your-own">Writing an optimiser of your own<a class="anchor" aria-label="anchor" href="#writing-an-optimiser-of-your-own"></a></h2>
+      <h2 id="writing-an-optimizer-of-your-own">Writing an optimizer of your own<a class="anchor" aria-label="anchor" href="#writing-an-optimizer-of-your-own"></a></h2>
 
       <div class="section-desc"><p>What a <code><a href="../reference/minimize.html">minimize()</a></code> method of your own has to promise, and the pieces that let it. <code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> tests the contract; the battery under it reports the power; they are separate because they are different questions.</p></div>
 
@@ -376,28 +376,28 @@
           <code><a href="optimizer.html">optimizer()</a></code>
 
         </dt>
-        <dd>S7 Class for Optimisation Algorithms</dd>
+        <dd>S7 Class for Optimization Algorithms</dd>
 
         <dt>
 
           <code><a href="check_criterion.html">check_criterion()</a></code>
 
         </dt>
-        <dd>Refuse a Stopping Rule an Optimiser Cannot Evaluate</dd>
+        <dd>Refuse a Stopping Rule an Optimizer Cannot Evaluate</dd>
 
         <dt>
 
           <code><a href="check_bounds.html">check_bounds()</a></code>
 
         </dt>
-        <dd>Normalise Box Constraints</dd>
+        <dd>Normalize Box Constraints</dd>
 
         <dt>
 
           <code><a href="optimizer_provides.html">optimizer_provides()</a></code>
 
         </dt>
-        <dd>What an Optimiser Can Offer a Stopping Rule</dd>
+        <dd>What an Optimizer Can Offer a Stopping Rule</dd>
 
         <dt>
 
@@ -418,7 +418,7 @@
           <code><a href="check_optimizer.html">check_optimizer()</a></code>
 
         </dt>
-        <dd>Check That an Optimiser Keeps Its Promises</dd>
+        <dd>Check That an Optimizer Keeps Its Promises</dd>
 
         <dt>
 

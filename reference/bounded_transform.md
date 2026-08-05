@@ -1,6 +1,6 @@
 # The Bound Transform, and Its First Two Derivatives
 
-Evaluates the reparametrisation a set of bounds implies. This is how the
+Evaluates the reparametrization a set of bounds implies. This is how the
 package removes a box, and it is exported so that a
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 user-defined method can remove one the same way.
@@ -30,10 +30,10 @@ A list with `h` (the parameter), `d1` and `d2`.
 
 Bounds are not enforced here, they are removed: a shifted log for a
 one-sided bound, a scaled logit for two, and the identity for neither.
-Optimise in \\\eta\\ and every proposed point is admissible by
+Optimize in \\\eta\\ and every proposed point is admissible by
 construction.
 
-To honour `bounds` in a user-defined method: map the starting value with
+To honor `bounds` in a user-defined method: map the starting value with
 [`bounded_forward`](https://statmodels7.github.io/optimizers7/reference/bounded_forward.md),
 run unconstrained, and wrap the objective so that it maps back before
 evaluating. The Jacobian is diagonal, so the chain rule is short —

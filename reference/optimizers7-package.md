@@ -1,7 +1,7 @@
-# optimizers7: An S7 Framework for Optimisation Algorithms
+# optimizers7: An S7 Framework for Optimization Algorithms
 
-Optimisation algorithms as objects, built on the S7 object system with
-the numerical work in C++. An optimiser carries its own settings,
+Optimization algorithms as objects, built on the S7 object system with
+the numerical work in C++. An optimizer carries its own settings,
 safeguards and stopping rule, so swapping one for another changes a
 single word; the stopping rule is itself a composable object, so what a
 run means by convergence is something the caller sets rather than

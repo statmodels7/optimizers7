@@ -1,4 +1,4 @@
-# Print Method for an Optimisation Result
+# Print Method for an Optimization Result
 
 Prints the objective value, the leading parameters, the evaluation
 counts, the elapsed time and the convergence status.
@@ -16,7 +16,7 @@ counts, the elapsed time and the convergence status.
 
 - max_par:
 
-  How many parameters to show; any remainder is summarised as a count.
+  How many parameters to show; any remainder is summarized as a count.
   Defaults to 6.
 
 - ...:
@@ -36,7 +36,7 @@ print(res)
 #>   value      : 2.80957e-22
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 print(res, digits = 2, max_par = 1)
@@ -44,7 +44,7 @@ print(res, digits = 2, max_par = 1)
 #>   value      : 2.80957e-22
 #>   par        : 1 ... (1 of 2 shown)
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

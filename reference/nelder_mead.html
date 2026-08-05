@@ -136,11 +136,11 @@ which is why it survives a kink — and also why it is slow, since an ordering
 of \(p+1\) values is very little information about a surface.</p>
 <div class="section">
 <h3 id="degenerate-simplices">Degenerate simplices<a class="anchor" aria-label="anchor" href="#degenerate-simplices"></a></h3>
-<p>Nelder-Mead can converge to a point that is not a minimiser. McKinnon (1998)
+<p>Nelder-Mead can converge to a point that is not a minimizer. McKinnon (1998)
 exhibited a strictly convex function with continuous derivatives on which it
 performs inside contractions for ever: the simplex flattens onto a line
 through a point where the gradient is not zero, every vertex agrees, and
-every ordinary stopping rule reports success. There is no defence in the
+every ordinary stopping rule reports success. There is no defense in the
 <em>values</em> — they behave exactly as convergence would — because what has
 gone wrong is the <em>shape</em> of the simplex.</p>
 <p>So the shape is what is watched. The conditioning measured is
@@ -164,7 +164,7 @@ parameters. In higher dimension a fixed expansion of 2 makes the simplex
 overshoot along whichever direction it happened to try. Gao and Han (2012)
 replace them by \(1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p\), which at
 \(p = 2\) reduce <em>exactly</em> to the classical values — so the default is
-<code>TRUE</code> at no cost to the small problems anyone would recognise.</p>
+<code>TRUE</code> at no cost to the small problems anyone would recognize.</p>
 </div>
 
 <div class="section">
@@ -210,7 +210,7 @@ with adaptive parameters. <em>Computational Optimization and Applications</em>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1e+03 us</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (stationarity &lt; 1e-08)</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># what it is actually for: a sum of absolute deviations, whose minimiser is</span></span></span>
+<span class="r-in"><span><span class="co"># what it is actually for: a sum of absolute deviations, whose minimizer is</span></span></span>
 <span class="r-in"><span><span class="co"># the median and whose derivative does not exist there</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Cauchy.html" class="external-link">rcauchy</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span></span>

@@ -1,4 +1,4 @@
-# S7 Class for the Result of an Optimisation
+# S7 Class for the Result of an Optimization
 
 What
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
@@ -28,7 +28,7 @@ optimizer_result(
 
 - par:
 
-  The minimiser.
+  The minimizer.
 
 - value:
 
@@ -85,10 +85,10 @@ An S7 object of class `optimizer_result`.
 
 `converged` is `TRUE` only when the stopping rule was satisfied. It is
 **never** `TRUE` because the iteration budget ran out — that is the
-commonest defect in hand-written optimisation loops, and it turns a
+commonest defect in hand-written optimization loops, and it turns a
 failure into a silently wrong answer.
 
-`trace`, present when the optimiser was built with `keep_trace = TRUE`,
+`trace`, present when the optimizer was built with `keep_trace = TRUE`,
 records for each iteration the objective, the quantity the criterion is
 watching, the step actually taken, and the name of any safeguard that
 fired. That last column is what turns "it did not converge" into a

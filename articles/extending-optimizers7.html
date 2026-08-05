@@ -116,12 +116,12 @@ not always there, and that matters.</p>
 none, would sit testing <code>NULL</code> at every iteration and quietly
 never fire; the run would end on its iteration budget and report a
 reason nowhere near the truth. So a rule declares what it reads, and an
-optimiser that cannot supply it refuses the rule by name:</p>
+optimizer that cannot supply it refuses the rule by name:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="../reference/nelder_mead.html">nelder_mead</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="../reference/crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> The stopping rule needs gradient, which nelder-mead does not provide.</span></span>
-<span><span class="co">#&gt;   Choose a criterion this optimiser can evaluate, or a method that provides it.</span></span></code></pre></div>
+<span><span class="co">#&gt;   Choose a criterion this optimizer can evaluate, or a method that provides it.</span></span></code></pre></div>
 <p>A rule that reads something optional declares it through
 <code><a href="../reference/crit_needs.html">crit_needs()</a></code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -140,8 +140,8 @@ nest:</p>
 <div class="section level2">
 <h2 id="the-objective">The objective<a class="anchor" aria-label="anchor" href="#the-objective"></a>
 </h2>
-<p><code><a href="../reference/minimize.html">minimize()</a></code> dispatches on the optimiser, so an algorithm
-is written once. The objective is normalised separately, by
+<p><code><a href="../reference/minimize.html">minimize()</a></code> dispatches on the optimizer, so an algorithm
+is written once. The objective is normalized separately, by
 <code><a href="../reference/as_objective.html">as_objective()</a></code>, which dispatches on the objective. Each
 generic dispatches where there is real variation; dispatching
 <code><a href="../reference/minimize.html">minimize()</a></code> on both would need one method per algorithm per
@@ -191,7 +191,7 @@ was removed. Supporting it meant a second kind of objective, a rule for
 which stopping rules that objective permitted, a way of reporting which
 was in force, and a branch in the compiled loop. All of that served
 something the caller can do in one line and do better, since the caller
-is the one who knows what an observation is. An optimiser that knows
+is the one who knows what an observation is. An optimizer that knows
 about observations has stopped being a general one; the batch is drawn
 where the knowledge is.</p>
 <p>One detail matters when writing such an objective. The resampling
@@ -226,7 +226,7 @@ objective had to keep its <code>y</code> and its <code>X</code> in C++
 globals. That is not reentrant, it means one model at a time, and it
 rules out running several starts in one process.</p>
 <p>Second, it was not faster where it matters. Measured on a Gamma
-regression against the same objective written in vectorised R, the
+regression against the same objective written in vectorized R, the
 compiled version was <em>slower</em> below about twenty thousand
 observations and never better than about twice as fast above it. The
 reason is structural: assembling a gradient or a Hessian from model
@@ -241,7 +241,7 @@ in the fourth-order derivative expressions of each family.</p>
 <div class="section level2">
 <h2 id="a-user-defined-algorithm">A user-defined algorithm<a class="anchor" aria-label="anchor" href="#a-user-defined-algorithm"></a>
 </h2>
-<p>An optimiser is a subclass of <code>optimizer</code> carrying its own
+<p>An optimizer is a subclass of <code>optimizer</code> carrying its own
 settings, plus a method on <code><a href="../reference/minimize.html">minimize()</a></code>. Here is one the
 package does not ship — the heavy-ball method, gradient descent with
 momentum, which adds a fraction of the previous <em>displacement</em> to
@@ -312,11 +312,11 @@ for it: <code>converged</code> is set from whether the rule fired and
 <h2 id="checking-it">Checking it<a class="anchor" aria-label="anchor" href="#checking-it"></a>
 </h2>
 <p><code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> separates two questions that are easy
-to confuse: whether the optimiser keeps its <strong>contract</strong>,
+to confuse: whether the optimizer keeps its <strong>contract</strong>,
 and how <strong>powerful</strong> it is. Conflating them would make the
 function useless, since gradient descent does not solve Rosenbrock in
 five hundred iterations and is not broken but slow.</p>
-<p>The numbered checks are therefore statements every optimiser must
+<p>The numbered checks are therefore statements every optimizer must
 satisfy however weak it is, and the battery underneath is a table of
 gaps, reported as information rather than as a verdict:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -333,7 +333,7 @@ gaps, reported as information rather than as a verdict:</p>
 <span><span class="co">#&gt;   [ 9] maximize mirrors minimize:        [PASSED]</span></span>
 <span><span class="co">#&gt;   [10] an unevaluable rule is refused:   [FAILED]</span></span>
 <span><span class="co">#&gt;   [11] a bad starting point is an error: [PASSED]</span></span>
-<span><span class="co">#&gt;   [12] it minimises a quadratic:         [PASSED]</span></span>
+<span><span class="co">#&gt;   [12] it minimizes a quadratic:         [PASSED]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   2 check(s) FAILED: bounds are respected strictly; an unevaluable rule is refused</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -362,7 +362,7 @@ generic, and an argument the author did not plan for is easily left
 sitting there. A caller then passes a box, gets no error, and receives
 an answer outside it.</p>
 <p>Removing the box is a few lines, because <code><a href="../reference/check_bounds.html">check_bounds()</a></code>
-normalises the two vectors into one pair per coordinate and
+normalizes the two vectors into one pair per coordinate and
 <code><a href="../reference/bounded_transform.html">bounded_transform()</a></code> does the rest:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressMessages</a></span><span class="op">(</span></span>
@@ -374,7 +374,7 @@ normalises the two vectors into one pair per coordinate and
 <span>    <span class="va">bx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_bounds.html">check_bounds</a></span><span class="op">(</span><span class="va">lower</span>, <span class="va">upper</span>, <span class="va">par</span><span class="op">)</span>                       <span class="co"># (1)</span></span>
 <span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">bx</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu">hb_run</span><span class="op">(</span><span class="va">optimizer</span>, <span class="va">fn</span>, <span class="va">par</span>, <span class="va">gr</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span>    <span class="co"># Optimise in eta, where there is no box, and map back to report. The</span></span>
+<span>    <span class="co"># Optimize in eta, where there is no box, and map back to report. The</span></span>
 <span>    <span class="co"># Jacobian is diagonal, so the chain rule is one multiplication.</span></span>
 <span>    <span class="va">hh</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span>,</span>
 <span>            <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="fu"><a href="../reference/bounded_transform.html">bounded_transform</a></span><span class="op">(</span><span class="va">bx</span><span class="op">[[</span><span class="va">j</span><span class="op">]</span><span class="op">]</span>, <span class="va">e</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">h</span>, <span class="fl">0</span><span class="op">)</span></span>
@@ -410,7 +410,7 @@ a derivative-free method would need one line:</p>
 <span>                    verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">$</span><span class="va">checks</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>The algorithm was right from the first line. What was missing was two
-promises the package makes on every optimiser’s behalf, and neither
+promises the package makes on every optimizer’s behalf, and neither
 omission would have shown itself in any run that happened to succeed;
 the numbered checks exist to expose exactly this kind of gap.</p>
 </div>
@@ -418,7 +418,7 @@ the numbered checks exist to expose exactly this kind of gap.</p>
 <h2 id="the-test-problems">The test problems<a class="anchor" aria-label="anchor" href="#the-test-problems"></a>
 </h2>
 <p><code><a href="../reference/test_problems.html">test_problems()</a></code> is exported because a battery is useful
-to anyone writing an optimiser, not only to this package:</p>
+to anyone writing an optimizer, not only to this package:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/test_problems.html">test_problems</a></span><span class="op">(</span><span class="st">"beale"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">p</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>

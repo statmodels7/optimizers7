@@ -1,4 +1,4 @@
-# Run an Optimiser Over the Battery
+# Run an Optimizer Over the Battery
 
 The gap from each known minimum, as information rather than as a
 verdict.

@@ -96,7 +96,7 @@ Take the direction \\-\alpha g\\ with \$\$\alpha\_{BB1} = \frac{s^\top
 s}{s^\top y}, \qquad \alpha\_{BB2} = \frac{s^\top y}{y^\top y},\$\$ the
 two Rayleigh quotients of the secant pair \\s = x_k - x\_{k-1}\\, \\y =
 g_k - g\_{k-1}\\. Both estimate the inverse curvature along the
-direction just travelled, so this is a quasi-Newton method that has
+direction just traveled, so this is a quasi-Newton method that has
 discarded everything except one scalar. On a quadratic, where the
 curvature is constant, that scalar is exactly right.
 

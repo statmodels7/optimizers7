@@ -1,6 +1,6 @@
 # The Standard Test Problems
 
-The functions optimisation papers are argued over: a quadratic, a curved
+The functions optimization papers are argued over: a quadratic, a curved
 valley, a few awkward polynomials, two with many minima, and one with a
 kink. Each carries its analytic gradient and its known answer.
 
@@ -22,7 +22,7 @@ A named list of problems.
 
 ## Details
 
-They are exported for use in testing optimisers generally, not only in
+They are exported for use in testing optimizers generally, not only in
 this package's own tests;
 [`check_optimizer`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 runs them.

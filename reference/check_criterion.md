@@ -1,6 +1,6 @@
-# Refuse a Stopping Rule an Optimiser Cannot Evaluate
+# Refuse a Stopping Rule an Optimizer Cannot Evaluate
 
-Compares what the optimiser's criterion reads against what the optimiser
+Compares what the optimizer's criterion reads against what the optimizer
 can supply, and stops if the rule asks for something absent.
 
 ## Usage
@@ -31,7 +31,7 @@ near the truth. Refusing it here, by name, is what
 [`check_optimizer`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 tests for.
 
-What an optimiser can supply is declared by
+What an optimizer can supply is declared by
 [`optimizer_provides`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md),
 whose default claims a gradient. Override that when the method computes
 none.
@@ -47,5 +47,5 @@ none.
 check_criterion(bfgs())
 try(check_criterion(nelder_mead(criterion = crit_grad())))
 #> Error : The stopping rule needs gradient, which nelder-mead does not provide.
-#>   Choose a criterion this optimiser can evaluate, or a method that provides it.
+#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
 ```

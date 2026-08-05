@@ -173,7 +173,7 @@ fiction.</p>
 <div class="section">
 <h3 id="stochastic-objectives">Stochastic objectives<a class="anchor" aria-label="anchor" href="#stochastic-objectives"></a></h3>
 <p>Adam does <strong>not</strong> draw subsamples, and the omission is the design rather
-than a gap in it. An optimiser does not know what an observation is; a
+than a gap in it. An optimizer does not know what an observation is; a
 version that did would need a second kind of objective to be told, a rule for
 which stopping rules such an objective allows, and a way to report which of
 them was in force. None of that buys anything a closure cannot do, because a
@@ -265,7 +265,7 @@ Beyond. <em>ICLR</em>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : NO (iteration budget reached)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># on a noisy objective, which is what it is for: the minibatch is drawn</span></span></span>
-<span class="r-in"><span><span class="co"># inside the function, so the optimiser never has to know about it</span></span></span>
+<span class="r-in"><span><span class="co"># inside the function, so the optimizer never has to know about it</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2000</span>, mean <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">100</span></span></span>

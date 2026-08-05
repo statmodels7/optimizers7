@@ -41,7 +41,7 @@ Bundle(
 
 - bundle_size:
 
-  Largest number of linearisations kept.
+  Largest number of linearizations kept.
 
 - qp_iters, qp_tol:
 

@@ -1,4 +1,4 @@
-# Normalise an Objective for the Optimisers
+# Normalize an Objective for the Optimizers
 
 Turns the objective into the single handle the algorithms are written
 against.

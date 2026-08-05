@@ -1,4 +1,4 @@
-# Maximise a Function
+# Maximize a Function
 
 Runs
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
@@ -65,7 +65,7 @@ the negated one.
 
 ## Details
 
-Every algorithm in the package minimises, always; that is the convention
+Every algorithm in the package minimizes, always; that is the convention
 and the names say so. This is the thin wrapper for the other direction,
 and it exists so that nobody has to remember to negate a log-likelihood
 by hand and then negate the answer back.

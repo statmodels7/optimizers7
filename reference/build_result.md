@@ -17,7 +17,7 @@ build_result(out, optimizer, spec, elapsed, seed = NULL)
 
 - optimizer:
 
-  The optimiser that ran.
+  The optimizer that ran.
 
 - spec:
 
@@ -42,6 +42,6 @@ An
 
 The one judgement here is the meaning of `converged`: it is taken
 straight from whether the stopping rule fired, and never inferred from
-the run having ended. An optimiser that exhausted its iterations has not
+the run having ended. An optimizer that exhausted its iterations has not
 converged, and saying otherwise turns a failure into a wrong answer that
 looks right.

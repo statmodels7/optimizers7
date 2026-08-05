@@ -1,6 +1,6 @@
 # S7 Class for Convergence Criteria
 
-A stopping rule, as an object. Every optimiser carries one, and the user
+A stopping rule, as an object. Every optimizer carries one, and the user
 may replace it, combine several, or write a new kind.
 
 ## Usage
