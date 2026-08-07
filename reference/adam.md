@@ -185,7 +185,7 @@ large gradient dominate the iterate long after it has passed. The
 maximum forbids that, at the cost of steps that only ever get shorter.
 It is `FALSE` by default so that `adam()` is Adam — a run that silently
 did something else would not reproduce anything; it can be enabled
-whenever a run refuses to settle.
+whenever a run rejects to settle.
 
 A non-finite gradient or update stops the run and says so, rather than
 propagating a `NaN` into every iterate after it.
@@ -225,7 +225,7 @@ minimize(adam(alpha = 0.1, maxit = 2000),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2000   evaluations: f 2002, g 2001
-#>   elapsed    : 36 ms
+#>   elapsed    : 35 ms
 #>   converged  : NO (iteration budget reached)
 
 # on a noisy objective, which is what it is for: the minibatch is drawn

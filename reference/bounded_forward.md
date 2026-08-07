@@ -31,7 +31,7 @@ Strictly inside. A value on a bound maps to an infinite \\\eta\\, so a
 run started there begins at infinity and fails far from its cause; that
 is why
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-refuses such a starting value by name.
+rejects such a starting value by name.
 
 ## See also
 

@@ -50,7 +50,7 @@ lands in the millions needs a correspondingly looser tolerance, and one
 that lands at zero can be asked for much more.
 
 Only usable by a method that computes a gradient; a derivative-free
-optimizer refuses it rather than accepting a rule that can never fire.
+optimizer rejects it rather than accepting a rule that can never fire.
 
 ## See also
 

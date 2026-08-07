@@ -60,8 +60,8 @@ every length from two upwards for the same kind of reason. None of this
 is a defect and none of it can be guessed at.
 
 So the honest summary is that the probe settles the objectives that have
-a fixed width built into them and refuses the ones that do not, naming
-the two lengths it found. When it refuses, `npar` or a vector of bounds
+a fixed width built into them and rejects the ones that do not, naming
+the two lengths it found. When it rejects, `npar` or a vector of bounds
 is one word.
 
 The search stops as soon as a *second* length is accepted, because at

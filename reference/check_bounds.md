@@ -43,7 +43,7 @@ Recycling is length one or length `p` and nothing between: a `lower` of
 length 2 for three parameters is far more likely to be a mistake than a
 request, and R's ordinary recycling would silently oblige.
 
-The starting value must be strictly interior, and refusing a boundary
+The starting value must be strictly interior, and rejecting a boundary
 start is not pedantry. The reparametrization sends a bound to an
 infinite value of the transformed variable, so a run started exactly on
 one begins at infinity: every subsequent quantity is non-finite and the
@@ -77,7 +77,7 @@ check_bounds(c(0, -5), c(1, 5), par = c(0.5, 0))
 length(check_bounds(-Inf, Inf, par = c(1, 2)))
 #> [1] 0
 
-# and a start on a bound is refused, naming the coordinate
+# and a start on a bound is rejected, naming the coordinate
 try(check_bounds(0, 1, par = c(0.5, 1)))
 #> Error : The starting value for parameter 2 must lie strictly inside its bounds (0, 1); it is 1.
 ```

@@ -52,7 +52,7 @@ A rule that reads the gradient, handed to a method that computes none,
 would sit testing `NULL` at every iteration and quietly never fire; the
 run would end on its iteration budget and report a reason nowhere near
 the truth. So a rule declares what it reads, and an optimizer that
-cannot supply it refuses the rule by name:
+cannot supply it rejects the rule by name:
 
 ``` r
 
@@ -107,7 +107,7 @@ minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 ```
 
 With no gradient supplied, one is obtained by central differences, and
-the result says so, so a run is never silently less exact than it
+the result records it, so a run is never silently less exact than it
 appears:
 
 ``` r
@@ -148,7 +148,7 @@ kind of objective, a rule for which stopping rules that objective
 permitted, a way of reporting which was in force, and a branch in the
 compiled loop. All of that served something the caller can do in one
 line and do better, since the caller is the one who knows what an
-observation is. An optimizer that knows about observations has stopped
+observation is. An optimizer that carries about observations has stopped
 being a general one; the batch is drawn where the knowledge is.
 
 One detail matters when writing such an objective. The resampling
@@ -380,12 +380,13 @@ S7::method(minimize, HeavyBall) <-
 
 **It never validated the stopping rule.**
 [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-— marked (2) — is the one line that refuses a rule the method cannot
+— marked (2) — is the one line that rejects a rule the method cannot
 evaluate, instead of accepting one that would test `NULL` for ever. What
 a method *can* supply is declared by
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md),
 whose default claims a gradient and an objective. This one has both, so
-the default is honest; a derivative-free method would need one line:
+the default reports what was actually checked; a derivative-free method
+would need one line:
 
 ``` r
 

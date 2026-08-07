@@ -133,7 +133,7 @@ bargain an Armijo condition strikes, for the same reason: accepting any
 decrease at all lets a sequence of ever tinier improvements masquerade
 as progress.
 
-When it is refused, the iteration is not wasted. The trial point
+When it is rejected, the iteration is not wasted. The trial point
 contributes its subgradient to the bundle, so the model is strictly
 better next time; this is a *null step*, and a run that reports many of
 them is refining its picture of a kink, not failing. Both counts appear

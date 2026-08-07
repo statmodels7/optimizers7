@@ -80,7 +80,7 @@ transform on the C++ side wants.</p>
 <p>Recycling is length one or length <code>p</code> and nothing between: a
 <code>lower</code> of length 2 for three parameters is far more likely to be a
 mistake than a request, and R's ordinary recycling would silently oblige.</p>
-<p>The starting value must be strictly interior, and refusing a boundary start
+<p>The starting value must be strictly interior, and rejecting a boundary start
 is not pedantry. The reparametrization sends a bound to an infinite value of
 the transformed variable, so a run started exactly on one begins at infinity:
 every subsequent quantity is non-finite and the failure surfaces far from its
@@ -112,7 +112,7 @@ cause. Saying so here, naming the coordinate, costs one check.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu">check_bounds</span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>, par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># and a start on a bound is refused, naming the coordinate</span></span></span>
+<span class="r-in"><span><span class="co"># and a start on a bound is rejected, naming the coordinate</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">check_bounds</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : The starting value for parameter 2 must lie strictly inside its bounds (0, 1); it is 1.</span>
 <span class="r-in"><span></span></span>

@@ -105,7 +105,7 @@ which is most real ones: `X %*% beta` with a parameter of the wrong
 length is an error rather than a number. It cannot settle a vectorized
 toy, since R recycles a shorter vector silently whenever its length
 divides, so `sum((p - c(1, 2, 3))^2)` is a perfectly finite function of
-one parameter as well as of three. It then refuses, naming the lengths
+one parameter as well as of three. It then rejects, naming the lengths
 it found, rather than optimizing a different problem from the one asked.
 
 `lower` and `upper` are two vectors rather than a list of pairs, which
@@ -150,7 +150,7 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 3, g 2
-#>   elapsed    : 0 us
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 
 # and without, so the gradient is differenced
@@ -181,7 +181,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 #>   value      : 1
 #>   par        : 1 1
 #>   iterations : 22   evaluations: f 121, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 

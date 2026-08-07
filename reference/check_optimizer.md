@@ -94,7 +94,7 @@ fail.
     [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
     of the negative.
 
-10. a stopping rule the optimizer cannot evaluate is refused, rather
+10. a stopping rule the optimizer cannot evaluate is rejected, rather
     than accepted and left never to fire.
 
 11. a starting point where the objective is not finite is an error, not

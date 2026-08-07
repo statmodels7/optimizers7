@@ -4,7 +4,7 @@ Validates the arguments and builds the combined criterion, so that
 [`crit_any`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
 and
 [`crit_all`](https://statmodels7.github.io/optimizers7/reference/crit_all.md)
-refuse the same nonsense in the same words.
+reject the same nonsense in the same words.
 
 ## Usage
 

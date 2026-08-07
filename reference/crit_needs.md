@@ -1,7 +1,7 @@
 # What a Criterion Needs From the Iteration
 
 The names of the `state` components a criterion requires, so that an
-algorithm can refuse a rule it cannot evaluate instead of accepting one
+algorithm can reject a rule it cannot evaluate instead of accepting one
 that never fires.
 
 ## Usage

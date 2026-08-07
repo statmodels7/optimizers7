@@ -15,7 +15,8 @@ on the objective.
   As in
   [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
   `gr` and `he` are accepted and ignored: the method uses no derivative,
-  and refusing them would force calling code to branch on the algorithm.
+  and rejecting them would force calling code to branch on the
+  algorithm.
 
 ## Value
 

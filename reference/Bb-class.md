@@ -41,7 +41,7 @@ Bb(
 
 - curv_tol:
 
-  The relative threshold below which a pair is refused.
+  The relative threshold below which a pair is rejected.
 
 ## Value
 

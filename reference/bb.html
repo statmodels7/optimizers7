@@ -90,7 +90,7 @@ and <code>1e10</code>.</p></dd>
 
 
 <dt id="arg-curv-tol">curv_tol<a class="anchor" aria-label="anchor" href="#arg-curv-tol"></a></dt>
-<dd><p>The relative curvature threshold: a secant pair is refused
+<dd><p>The relative curvature threshold: a secant pair is rejected
 when \(s^\top y \le c \lVert s \rVert \lVert y \rVert\)
 for \(c\) equal to <code>curv_tol</code>. Defaults to <code>1e-10</code>, which is
 the same relative test <code><a href="bfgs.html">bfgs</a></code> applies to the same quantity.</p></dd>
@@ -169,11 +169,11 @@ the steps the method relies on and slows it considerably.
 </div>
 
 <div class="section">
-<h3 id="refused-secant-pairs">Refused secant pairs<a class="anchor" aria-label="anchor" href="#refused-secant-pairs"></a></h3>
+<h3 id="rejected-secant-pairs">Rejected secant pairs<a class="anchor" aria-label="anchor" href="#rejected-secant-pairs"></a></h3>
 <p>A pair is used only if it reports positive curvature by a relative margin,
 \(s^\top y &gt; c \lVert s \rVert \lVert y \rVert\) with
 \(c\) the <code>curv_tol</code> argument – the same test <code><a href="bfgs.html">bfgs</a></code>
-applies. When a pair is refused, the step length is reset to
+applies. When a pair is rejected, the step length is reset to
 \(1/\lVert g \rVert_\infty\), giving a trial displacement of
 order one in the parameters. This reset depends on the current gradient
 rather than on the step length being replaced or on a fixed constant, so it

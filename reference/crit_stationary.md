@@ -22,10 +22,10 @@ object.
 
 ## Details
 
-A gradient-based method knows it has arrived because \\\nabla f\\
-vanishes. None of the derivative-free methods can use that test, and for
-the non-smooth problems they exist to solve it would not be the right
-test even if they could: at the minimum of \\\lvert x \rvert\\ any
+A gradient-based method detects its arrival through the vanishing of
+\\\nabla f\\. None of the derivative-free methods can use that test, and
+for the non-smooth problems they exist to solve it would not be the
+right test even if they could: at the minimum of \\\lvert x \rvert\\ any
 evaluated subgradient is \\\pm 1\\, so
 [`crit_grad`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 would never fire at the solution itself.

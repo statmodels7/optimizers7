@@ -14,7 +14,7 @@ A character vector.
 
 ## Details
 
-A rule reading a gradient is refused rather than left testing `NULL` at
+A rule reading a gradient is rejected rather than left testing `NULL` at
 every iteration and never firing.
 [`crit_stationary`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
 is what takes its place.

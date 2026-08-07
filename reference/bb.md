@@ -46,7 +46,7 @@ bb(
 
 - curv_tol:
 
-  The relative curvature threshold: a secant pair is refused when
+  The relative curvature threshold: a secant pair is rejected when
   \\s^\top y \le c \lVert s \rVert \lVert y \rVert\\ for \\c\\ equal to
   `curv_tol`. Defaults to `1e-10`, which is the same relative test
   [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
@@ -127,13 +127,13 @@ exactly the steps the method relies on and slows it considerably.
 with `memory = 0` coincides with
 [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md).
 
-### Refused secant pairs
+### Rejected secant pairs
 
 A pair is used only if it reports positive curvature by a relative
 margin, \\s^\top y \> c \lVert s \rVert \lVert y \rVert\\ with \\c\\ the
 `curv_tol` argument – the same test
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-applies. When a pair is refused, the step length is reset to \\1/\lVert
+applies. When a pair is rejected, the step length is reset to \\1/\lVert
 g \rVert\_\infty\\, giving a trial displacement of order one in the
 parameters. This reset depends on the current gradient rather than on
 the step length being replaced or on a fixed constant, so it can neither

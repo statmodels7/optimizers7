@@ -222,7 +222,7 @@ single large gradient dominate the iterate long after it has passed. The
 maximum forbids that, at the cost of steps that only ever get shorter. It is
 <code>FALSE</code> by default so that <code>adam()</code> is Adam — a run that silently
 did something else would not reproduce anything; it can be enabled
-whenever a run refuses to settle.</p>
+whenever a run rejects to settle.</p>
 <p>A non-finite gradient or update stops the run and says so, rather than
 propagating a <code>NaN</code> into every iterate after it.</p>
 </div>
@@ -261,7 +261,7 @@ Beyond. <em>ICLR</em>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 2000   evaluations: f 2002, g 2001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 36 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 35 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : NO (iteration budget reached)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># on a noisy objective, which is what it is for: the minibatch is drawn</span></span></span>
