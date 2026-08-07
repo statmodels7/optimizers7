@@ -106,8 +106,8 @@ minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
 #> [1] "f < 1e-8"
 ```
 
-A rule an optimizer cannot evaluate is **refused**, by name, rather than
-accepted and left never to fire:
+A rule an optimizer cannot evaluate is **rejected**, by name, rather
+than accepted and left never to fire:
 
 ``` r
 minimize(nelder_mead(criterion = crit_grad()), f, c(-1.2, 1))
@@ -157,7 +157,7 @@ caller supplies: `start_zeros(npar = 3)`, bounds with one element per
 parameter, or, as above, the objective itself, probed once before the
 run. `X %*% p` of the wrong length is an error rather than a number, so
 a model of any kind answers the question on its own. A vectorized toy
-that accepts every length cannot, and the refusal names the problem
+that accepts every length cannot, and the rejection names the problem
 rather than guessing.
 
 ## When the derivative does not exist
@@ -231,7 +231,7 @@ check_optimizer(bfgs())
 #>   [ 7] bounds are respected strictly:    [PASSED]
 #>   [ 8] the run repeats:                  [PASSED]
 #>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is refused:   [PASSED]
+#>   [10] an unevaluable rule is rejected:  [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
 #>   [12] it minimizes a quadratic:         [PASSED]
 #> 

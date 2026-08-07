@@ -101,7 +101,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
     "convergence is not assumed", "budgets are respected",
     "evaluations are counted", "trace is well formed",
     "bounds are respected strictly", "the run repeats",
-    "maximize mirrors minimize", "an unevaluable rule is refused",
+    "maximize mirrors minimize", "an unevaluable rule is rejected",
     "a bad starting point is an error", "it minimizes a quadratic"))
 
   base <- run(optimizer, sph)

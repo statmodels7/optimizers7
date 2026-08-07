@@ -104,7 +104,7 @@ minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
          f, c(-1.2, 1), gr = gr)@criterion_met
 ```
 
-A rule an optimizer cannot evaluate is **refused**, by name, rather than
+A rule an optimizer cannot evaluate is **rejected**, by name, rather than
 accepted and left never to fire:
 
 ```{r, error = TRUE}
@@ -148,7 +148,7 @@ supplies: `start_zeros(npar = 3)`, bounds with one element per parameter, or,
 as above, the objective itself, probed once before the run. `X %*% p` of the
 wrong length is an error rather than a number, so a model of any kind answers
 the question on its own. A vectorized toy that accepts every length cannot,
-and the refusal names the problem rather than guessing.
+and the rejection names the problem rather than guessing.
 
 ## When the derivative does not exist
 

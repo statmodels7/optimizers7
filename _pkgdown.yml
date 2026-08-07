@@ -54,7 +54,7 @@ reference:
   desc: >
     Adam, which tolerates a gradient that points downhill only on average. It
     draws no minibatches of its own: an objective that resamples is a closure,
-    and belongs to whoever knows what an observation is.
+    written by the caller, who knows what an observation is.
   contents:
   - adam
 
@@ -76,9 +76,9 @@ reference:
 
 - title: Stopping rules
   desc: >
-    A criterion is an object implementing one generic, so a rule the authors
-    never thought of is a first-class citizen. An optimizer refuses a rule it
-    cannot evaluate rather than accepting one that never fires.
+    A criterion is an object implementing one generic, so a user-defined rule
+    is treated like a shipped one. An optimizer rejects a rule it cannot
+    evaluate rather than accepting one that never fires.
   contents:
   - criterion
   - crit_met
