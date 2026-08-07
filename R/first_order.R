@@ -258,7 +258,7 @@ S7::method(minimize, Cg) <-
 #' @param variant Which step-length formula.
 #' @param alpha0 The step length used before there is a secant pair.
 #' @param alpha_min,alpha_max Bounds on it.
-#' @param curv_tol The relative threshold below which a pair is refused.
+#' @param curv_tol The relative threshold below which a pair is rejected.
 #' @return An S7 object inheriting from \code{\link{optimizer}}.
 #' @seealso \code{\link{bb}}
 #' @name Bb-class
@@ -290,7 +290,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'   secant pair to estimate one from. Defaults to \code{1e-2}.
 #' @param alpha_min,alpha_max Bounds on the step length. Defaults \code{1e-10}
 #'   and \code{1e10}.
-#' @param curv_tol The relative curvature threshold: a secant pair is refused
+#' @param curv_tol The relative curvature threshold: a secant pair is rejected
 #'   when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
 #'   for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
 #'   the same relative test \code{\link{bfgs}} applies to the same quantity.
@@ -340,11 +340,11 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' \code{\link{armijo}}.
 #' }
 #'
-#' \subsection{Refused secant pairs}{
+#' \subsection{Rejected secant pairs}{
 #' A pair is used only if it reports positive curvature by a relative margin,
 #' \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
 #' \eqn{c} the \code{curv_tol} argument -- the same test \code{\link{bfgs}}
-#' applies. When a pair is refused, the step length is reset to
+#' applies. When a pair is rejected, the step length is reset to
 #' \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, giving a trial displacement of
 #' order one in the parameters. This reset depends on the current gradient
 #' rather than on the step length being replaced or on a fixed constant, so it

@@ -32,7 +32,7 @@ secant pair to estimate one from. Defaults to \code{1e-2}.}
 \item{alpha_min, alpha_max}{Bounds on the step length. Defaults \code{1e-10}
 and \code{1e10}.}
 
-\item{curv_tol}{The relative curvature threshold: a secant pair is refused
+\item{curv_tol}{The relative curvature threshold: a secant pair is rejected
 when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
 for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
 the same relative test \code{\link{bfgs}} applies to the same quantity.}
@@ -98,11 +98,11 @@ the steps the method relies on and slows it considerably.
 \code{\link{armijo}}.
 }
 
-\subsection{Refused secant pairs}{
+\subsection{Rejected secant pairs}{
 A pair is used only if it reports positive curvature by a relative margin,
 \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
 \eqn{c} the \code{curv_tol} argument -- the same test \code{\link{bfgs}}
-applies. When a pair is refused, the step length is reset to
+applies. When a pair is rejected, the step length is reset to
 \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, giving a trial displacement of
 order one in the parameters. This reset depends on the current gradient
 rather than on the step length being replaced or on a fixed constant, so it

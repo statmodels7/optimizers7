@@ -152,7 +152,7 @@ single large gradient dominate the iterate long after it has passed. The
 maximum forbids that, at the cost of steps that only ever get shorter. It is
 \code{FALSE} by default so that \code{adam()} is Adam — a run that silently
 did something else would not reproduce anything; it can be enabled
-whenever a run refuses to settle.
+whenever a run rejects to settle.
 
 A non-finite gradient or update stops the run and says so, rather than
 propagating a \code{NaN} into every iterate after it.

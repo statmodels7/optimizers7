@@ -312,7 +312,7 @@ compass <- function(criterion = crit_stationary(),
 #' @description
 #' The objective and a stationarity measure, but no gradient.
 #' @details
-#' A rule reading a gradient is refused rather than left testing \code{NULL} at
+#' A rule reading a gradient is rejected rather than left testing \code{NULL} at
 #' every iteration and never firing. \code{\link{crit_stationary}} is what
 #' takes its place.
 #' @param optimizer A \code{NelderMead} or \code{Compass} object.
@@ -334,7 +334,7 @@ S7::method(optimizer_provides, Compass) <- function(optimizer)
 #' @param optimizer A \code{NelderMead} object.
 #' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}. \code{gr} and
 #'   \code{he} are accepted and ignored: the method uses no derivative, and
-#'   refusing them would force calling code to branch on the algorithm.
+#'   rejecting them would force calling code to branch on the algorithm.
 #' @return An \code{\link{optimizer_result}}.
 #' @keywords internal
 S7::method(minimize, NelderMead) <-

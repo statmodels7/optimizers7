@@ -8,7 +8,7 @@
 
 \item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} and
 \code{he} are accepted and ignored: the method uses no derivative, and
-refusing them would force calling code to branch on the algorithm.}
+rejecting them would force calling code to branch on the algorithm.}
 }
 \value{
 An \code{\link{optimizer_result}}.

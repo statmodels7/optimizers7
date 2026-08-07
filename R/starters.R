@@ -292,8 +292,8 @@ recycle_to <- function(v, n, nm) {
 #' guessed at.
 #'
 #' So the honest summary is that the probe settles the objectives that have a
-#' fixed width built into them and refuses the ones that do not, naming the two
-#' lengths it found. When it refuses, \code{npar} or a vector of bounds is one
+#' fixed width built into them and rejects the ones that do not, naming the two
+#' lengths it found. When it rejects, \code{npar} or a vector of bounds is one
 #' word.
 #'
 #' The search stops as soon as a \emph{second} length is accepted, because at

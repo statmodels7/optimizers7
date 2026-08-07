@@ -16,7 +16,7 @@ A \code{\link{criterion}} object.
 }
 \description{
 Validates the arguments and builds the combined criterion, so that
-\code{\link{crit_any}} and \code{\link{crit_all}} refuse the same nonsense
+\code{\link{crit_any}} and \code{\link{crit_all}} reject the same nonsense
 in the same words.
 }
 \keyword{internal}

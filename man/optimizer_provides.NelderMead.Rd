@@ -14,7 +14,7 @@ A character vector.
 The objective and a stationarity measure, but no gradient.
 }
 \details{
-A rule reading a gradient is refused rather than left testing \code{NULL} at
+A rule reading a gradient is rejected rather than left testing \code{NULL} at
 every iteration and never firing. \code{\link{crit_stationary}} is what
 takes its place.
 }

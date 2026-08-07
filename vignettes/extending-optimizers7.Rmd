@@ -59,7 +59,7 @@ minimize(bfgs(criterion = tiny), f, c(0, 0), gr = gr)@criterion_met
 A rule that reads the gradient, handed to a method that computes none, would sit
 testing `NULL` at every iteration and quietly never fire; the run would end on
 its iteration budget and report a reason nowhere near the truth. So a rule
-declares what it reads, and an optimizer that cannot supply it refuses the rule
+declares what it reads, and an optimizer that cannot supply it rejects the rule
 by name:
 
 ```{r, error = TRUE}
@@ -97,7 +97,7 @@ minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 ```
 
 With no gradient supplied, one is obtained by central differences, and the
-result says so, so a run is never silently less exact than it appears:
+result records it, so a run is never silently less exact than it appears:
 
 ```{r}
 minimize(bfgs(), f, c(0, 0))@message
@@ -127,7 +127,7 @@ ask it for a subset. It was removed. Supporting it meant a second kind of
 objective, a rule for which stopping rules that objective permitted, a way of
 reporting which was in force, and a branch in the compiled loop. All of that
 served something the caller can do in one line and do better, since the
-caller is the one who knows what an observation is. An optimizer that knows
+caller is the one who knows what an observation is. An optimizer that carries
 about observations has stopped being a general one; the batch is drawn where
 the knowledge is.
 
@@ -315,10 +315,11 @@ S7::method(minimize, HeavyBall) <-
 ```
 
 **It never validated the stopping rule.** `check_criterion()` — marked (2) — is
-the one line that refuses a rule the method cannot evaluate, instead of
+the one line that rejects a rule the method cannot evaluate, instead of
 accepting one that would test `NULL` for ever. What a method *can* supply is
 declared by `optimizer_provides()`, whose default claims a gradient and an
-objective. This one has both, so the default is honest; a derivative-free
+objective. This one has both, so the default reports what was actually
+checked; a derivative-free
 method would need one line:
 
 ```r

@@ -29,7 +29,7 @@ Bb(
 
 \item{alpha_min, alpha_max}{Bounds on it.}
 
-\item{curv_tol}{The relative threshold below which a pair is refused.}
+\item{curv_tol}{The relative threshold below which a pair is rejected.}
 }
 \value{
 An S7 object inheriting from \code{\link{optimizer}}.

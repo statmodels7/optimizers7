@@ -14,7 +14,7 @@ A character vector, possibly empty.
 }
 \description{
 The names of the \code{state} components a criterion requires, so that an
-algorithm can refuse a rule it cannot evaluate instead of accepting one that
+algorithm can reject a rule it cannot evaluate instead of accepting one that
 never fires.
 }
 \details{

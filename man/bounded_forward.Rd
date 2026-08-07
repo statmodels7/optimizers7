@@ -22,7 +22,7 @@ value goes through before an unconstrained run.
 \details{
 Strictly inside. A value on a bound maps to an infinite \eqn{\eta}, so a run
 started there begins at infinity and fails far from its cause; that is why
-\code{\link{minimize}} refuses such a starting value by name.
+\code{\link{minimize}} rejects such a starting value by name.
 }
 \examples{
 bounded_forward(c(0, Inf), c(0.5, 1, 8))

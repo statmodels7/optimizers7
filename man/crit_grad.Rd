@@ -42,7 +42,7 @@ that lands in the millions needs a correspondingly looser tolerance, and one
 that lands at zero can be asked for much more.
 
 Only usable by a method that computes a gradient; a derivative-free optimizer
-refuses it rather than accepting a rule that can never fire.
+rejects it rather than accepting a rule that can never fire.
 }
 \examples{
 crit_grad()

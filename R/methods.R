@@ -86,7 +86,7 @@ check_criterion <- function(optimizer) {
 #'
 #' @description
 #' The names of the \code{state} components an optimizer is able to fill in, so
-#' that \code{\link{check_criterion}} can refuse a rule it could never satisfy.
+#' that \code{\link{check_criterion}} can reject a rule it could never satisfy.
 #'
 #' @details
 #' Gradient-based methods provide a gradient. The derivative-free ones provide
@@ -94,9 +94,9 @@ check_criterion <- function(optimizer) {
 #' goes to zero at a solution.
 #'
 #' Every optimizer evaluates the objective, so there is no token for that and
-#' rules reading it are never refused. A user-defined method inherits the
+#' rules reading it are never rejected. A user-defined method inherits the
 #' default, which claims a gradient; if that is not true of it, say so, because
-#' the refusal machinery relies on this declaration being accurate.
+#' the rejection machinery relies on this declaration being accurate.
 #'
 #' @param optimizer An \code{\link{optimizer}}.
 #'
@@ -362,7 +362,7 @@ check_line_search <- function(x) {
 #' \code{lower} of length 2 for three parameters is far more likely to be a
 #' mistake than a request, and R's ordinary recycling would silently oblige.
 #'
-#' The starting value must be strictly interior, and refusing a boundary start
+#' The starting value must be strictly interior, and rejecting a boundary start
 #' is not pedantry. The reparametrization sends a bound to an infinite value of
 #' the transformed variable, so a run started exactly on one begins at infinity:
 #' every subsequent quantity is non-finite and the failure surfaces far from its
@@ -384,7 +384,7 @@ check_line_search <- function(x) {
 #' # no finite bound is no box at all
 #' length(check_bounds(-Inf, Inf, par = c(1, 2)))
 #'
-#' # and a start on a bound is refused, naming the coordinate
+#' # and a start on a bound is rejected, naming the coordinate
 #' try(check_bounds(0, 1, par = c(0.5, 1)))
 #'
 #' @seealso \code{\link{bounded_transform}}, \code{\link{minimize}}
@@ -488,7 +488,7 @@ bounded_transform <- function(b, eta) bounded_transform_cpp(b, as.numeric(eta))
 #' @details
 #' Strictly inside. A value on a bound maps to an infinite \eqn{\eta}, so a run
 #' started there begins at infinity and fails far from its cause; that is why
-#' \code{\link{minimize}} refuses such a starting value by name.
+#' \code{\link{minimize}} rejects such a starting value by name.
 #'
 #' @return A numeric vector on the unconstrained scale.
 #'

@@ -61,7 +61,7 @@ NULL
 #' length is an error rather than a number. It cannot settle a vectorized toy,
 #' since \R recycles a shorter vector silently whenever its length divides, so
 #' \code{sum((p - c(1, 2, 3))^2)} is a perfectly finite function of one
-#' parameter as well as of three. It then refuses, naming the lengths it found,
+#' parameter as well as of three. It then rejects, naming the lengths it found,
 #' rather than optimizing a different problem from the one asked.
 #' }
 #'

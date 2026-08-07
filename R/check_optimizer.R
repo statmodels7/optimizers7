@@ -52,7 +52,7 @@ NULL
 #'     twice; a stochastic one must give it again from the seed it recorded,
 #'     which tests the recording as well as the repeatability.
 #'   \item \code{\link{maximize}} is \code{\link{minimize}} of the negative.
-#'   \item a stopping rule the optimizer cannot evaluate is refused, rather than
+#'   \item a stopping rule the optimizer cannot evaluate is rejected, rather than
 #'     accepted and left never to fire.
 #'   \item a starting point where the objective is not finite is an error, not a
 #'     run that quietly returns \code{NaN}.

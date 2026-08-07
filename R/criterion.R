@@ -84,7 +84,7 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #'
 #' @description
 #' The names of the \code{state} components a criterion requires, so that an
-#' algorithm can refuse a rule it cannot evaluate instead of accepting one that
+#' algorithm can reject a rule it cannot evaluate instead of accepting one that
 #' never fires.
 #'
 #' @details
@@ -164,7 +164,7 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' that lands at zero can be asked for much more.
 #'
 #' Only usable by a method that computes a gradient; a derivative-free optimizer
-#' refuses it rather than accepting a rule that can never fire.
+#' rejects it rather than accepting a rule that can never fire.
 #'
 #' @return A \code{\link{criterion}} object.
 #'
@@ -360,7 +360,8 @@ S7::method(crit_met, CritStationary) <- function(criterion, state) {
 #' @param tol Numeric tolerance. Defaults to \code{1e-8}.
 #'
 #' @details
-#' A gradient-based method knows it has arrived because \eqn{\nabla f} vanishes.
+#' A gradient-based method detects its arrival through the vanishing of
+#' \eqn{\nabla f}.
 #' None of the derivative-free methods can use that test, and for the
 #' non-smooth problems they exist to solve it would not be the right test even
 #' if they could: at the minimum of \eqn{\lvert x \rvert} any evaluated
@@ -469,7 +470,7 @@ S7::method(crit_met, CritCombine) <- function(criterion, state) {
 #'
 #' @description
 #' Validates the arguments and builds the combined criterion, so that
-#' \code{\link{crit_any}} and \code{\link{crit_all}} refuse the same nonsense
+#' \code{\link{crit_any}} and \code{\link{crit_all}} reject the same nonsense
 #' in the same words.
 #'
 #' @param dots A list of \code{\link{criterion}} objects.

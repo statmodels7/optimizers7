@@ -16,7 +16,8 @@ A \code{\link{criterion}} object.
 The stopping rule for a method that has no gradient to test.
 }
 \details{
-A gradient-based method knows it has arrived because \eqn{\nabla f} vanishes.
+A gradient-based method detects its arrival through the vanishing of
+\eqn{\nabla f}.
 None of the derivative-free methods can use that test, and for the
 non-smooth problems they exist to solve it would not be the right test even
 if they could: at the minimum of \eqn{\lvert x \rvert} any evaluated
