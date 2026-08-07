@@ -54,7 +54,7 @@ alongside [linkfunctions7](https://statmodels7.github.io/linkfunctions7/) and
 pak::pak("statmodels7/optimizers7")
 ```
 
-Or the whole toolkit at once, which also installs the four sibling
+Or the whole toolkit at once, which also installs the six sibling
 packages:
 
 ```{r eval=FALSE}
