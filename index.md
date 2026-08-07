@@ -32,7 +32,7 @@ It is the optimization layer of
 pak::pak("statmodels7/optimizers7")
 ```
 
-Or the whole toolkit at once, which also installs the four sibling
+Or the whole toolkit at once, which also installs the six sibling
 packages:
 
 ``` r

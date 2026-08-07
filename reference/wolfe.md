@@ -69,7 +69,7 @@ minimize(gd(line_search = wolfe(), maxit = 200),
 #>   value      : 2.34837e-05
 #>   par        : 1.0048 1.0097
 #>   iterations : 200   evaluations: f 2796, g 0
-#>   elapsed    : 17 ms
+#>   elapsed    : 20 ms
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```
