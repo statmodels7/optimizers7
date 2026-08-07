@@ -305,11 +305,11 @@ res <- check_optimizer(heavy_ball(alpha = 0.01))
 #>   [ 7] bounds are respected strictly:    [FAILED]
 #>   [ 8] the run repeats:                  [PASSED]
 #>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is refused:   [FAILED]
+#>   [10] an unevaluable rule is rejected:  [FAILED]
 #>   [11] a bad starting point is an error: [PASSED]
 #>   [12] it minimizes a quadratic:         [PASSED]
 #> 
-#>   2 check(s) FAILED: bounds are respected strictly; an unevaluable rule is refused
+#>   2 check(s) FAILED: bounds are respected strictly; an unevaluable rule is rejected
 #> 
 #>   battery (gap from the known minimum; information, not a verdict)
 #>     sphere       gap  8.47e-18  conv      677 evals  

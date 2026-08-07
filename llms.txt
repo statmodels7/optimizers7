@@ -98,8 +98,8 @@ minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
 #> [1] "f < 1e-8"
 ```
 
-A rule an optimizer cannot evaluate is **refused**, by name, rather than
-accepted and left never to fire:
+A rule an optimizer cannot evaluate is **rejected**, by name, rather
+than accepted and left never to fire:
 
 ``` r
 
@@ -152,7 +152,7 @@ caller supplies: `start_zeros(npar = 3)`, bounds with one element per
 parameter, or, as above, the objective itself, probed once before the
 run. `X %*% p` of the wrong length is an error rather than a number, so
 a model of any kind answers the question on its own. A vectorized toy
-that accepts every length cannot, and the refusal names the problem
+that accepts every length cannot, and the rejection names the problem
 rather than guessing.
 
 ## When the derivative does not exist
@@ -231,7 +231,7 @@ check_optimizer(bfgs())
 #>   [ 7] bounds are respected strictly:    [PASSED]
 #>   [ 8] the run repeats:                  [PASSED]
 #>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is refused:   [PASSED]
+#>   [10] an unevaluable rule is rejected:  [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
 #>   [12] it minimizes a quadratic:         [PASSED]
 #> 
@@ -293,7 +293,7 @@ the objective is smooth, and misled when it is not.
 
 Adam, which tolerates a gradient that points downhill only on average.
 It draws no minibatches of its own: an objective that resamples is a
-closure, and belongs to whoever knows what an observation is.
+closure, written by the caller, who knows what an observation is.
 
 - [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
   : Adaptive Moment Estimation
@@ -321,9 +321,9 @@ distinct optima.
 
 ## Stopping rules
 
-A criterion is an object implementing one generic, so a rule the authors
-never thought of is a first-class citizen. An optimizer refuses a rule
-it cannot evaluate rather than accepting one that never fires.
+A criterion is an object implementing one generic, so a user-defined
+rule is treated like a shipped one. An optimizer rejects a rule it
+cannot evaluate rather than accepting one that never fires.
 
 - [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
   : S7 Class for Convergence Criteria

@@ -119,7 +119,7 @@
       </dl></div><div class="section level2">
       <h2 id="noisy-and-large-problems">Noisy and large problems<a class="anchor" aria-label="anchor" href="#noisy-and-large-problems"></a></h2>
 
-      <div class="section-desc"><p>Adam, which tolerates a gradient that points downhill only on average. It draws no minibatches of its own: an objective that resamples is a closure, and belongs to whoever knows what an observation is.</p></div>
+      <div class="section-desc"><p>Adam, which tolerates a gradient that points downhill only on average. It draws no minibatches of its own: an objective that resamples is a closure, written by the caller, who knows what an observation is.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -181,7 +181,7 @@
       </dl></div><div class="section level2">
       <h2 id="stopping-rules">Stopping rules<a class="anchor" aria-label="anchor" href="#stopping-rules"></a></h2>
 
-      <div class="section-desc"><p>A criterion is an object implementing one generic, so a rule the authors never thought of is a first-class citizen. An optimizer refuses a rule it cannot evaluate rather than accepting one that never fires.</p></div>
+      <div class="section-desc"><p>A criterion is an object implementing one generic, so a user-defined rule is treated like a shipped one. An optimizer rejects a rule it cannot evaluate rather than accepting one that never fires.</p></div>
 
       <dl></dl></div><div class="section level2">
 

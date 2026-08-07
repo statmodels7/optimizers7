@@ -34,7 +34,7 @@ the objective is smooth, and misled when it is not.
 
 Adam, which tolerates a gradient that points downhill only on average.
 It draws no minibatches of its own: an objective that resamples is a
-closure, and belongs to whoever knows what an observation is.
+closure, written by the caller, who knows what an observation is.
 
 - [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
   : Adaptive Moment Estimation
@@ -62,9 +62,9 @@ distinct optima.
 
 ## Stopping rules
 
-A criterion is an object implementing one generic, so a rule the authors
-never thought of is a first-class citizen. An optimizer refuses a rule
-it cannot evaluate rather than accepting one that never fires.
+A criterion is an object implementing one generic, so a user-defined
+rule is treated like a shipped one. An optimizer rejects a rule it
+cannot evaluate rather than accepting one that never fires.
 
 - [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
   : S7 Class for Convergence Criteria

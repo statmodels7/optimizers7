@@ -131,7 +131,7 @@ check_optimizer(bfgs())
 #>   [ 7] bounds are respected strictly:    [PASSED]
 #>   [ 8] the run repeats:                  [PASSED]
 #>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is refused:   [PASSED]
+#>   [10] an unevaluable rule is rejected:  [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
 #>   [12] it minimizes a quadratic:         [PASSED]
 #> 
@@ -160,7 +160,7 @@ check_optimizer(nelder_mead(), problems = test_problems("sphere"))
 #>   [ 7] bounds are respected strictly:    [PASSED]
 #>   [ 8] the run repeats:                  [PASSED]
 #>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is refused:   [PASSED]
+#>   [10] an unevaluable rule is rejected:  [PASSED]
 #>   [11] a bad starting point is an error: [PASSED]
 #>   [12] it minimizes a quadratic:         [PASSED]
 #> 

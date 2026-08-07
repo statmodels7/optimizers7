@@ -125,7 +125,7 @@
 <span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu">CritTiny</span><span class="op">(</span>label <span class="op">=</span> <span class="st">"f &lt; 1e-8"</span>, tol <span class="op">=</span> <span class="fl">1e-8</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>         <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">criterion_met</span></span>
 <span><span class="co">#&gt; [1] "f &lt; 1e-8"</span></span></code></pre></div>
-<p>A rule an optimizer cannot evaluate is <strong>refused</strong>, by name, rather than accepted and left never to fire:</p>
+<p>A rule an optimizer cannot evaluate is <strong>rejected</strong>, by name, rather than accepted and left never to fire:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/nelder_mead.html">nelder_mead</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="reference/crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error:</span></span>
@@ -158,7 +158,7 @@
 <span><span class="co">#&gt; [1]  0.5175641 -1.0649279  1.9870314</span></span>
 <span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">rss</span>, <span class="fu"><a href="reference/start_runif.html">start_runif</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span>   <span class="co"># or drawn, on that scale</span></span>
 <span><span class="co">#&gt; [1]  0.5175641 -1.0649279  1.9870314</span></span></code></pre></div>
-<p>The number of parameters is settled by whichever of three things the caller supplies: <code>start_zeros(npar = 3)</code>, bounds with one element per parameter, or, as above, the objective itself, probed once before the run. <code>X %*% p</code> of the wrong length is an error rather than a number, so a model of any kind answers the question on its own. A vectorized toy that accepts every length cannot, and the refusal names the problem rather than guessing.</p>
+<p>The number of parameters is settled by whichever of three things the caller supplies: <code>start_zeros(npar = 3)</code>, bounds with one element per parameter, or, as above, the objective itself, probed once before the run. <code>X %*% p</code> of the wrong length is an error rather than a number, so a model of any kind answers the question on its own. A vectorized toy that accepts every length cannot, and the rejection names the problem rather than guessing.</p>
 </div>
 <div class="section level2">
 <h2 id="when-the-derivative-does-not-exist">When the derivative does not exist<a class="anchor" aria-label="anchor" href="#when-the-derivative-does-not-exist"></a>
@@ -256,7 +256,7 @@
 <span><span class="co">#&gt;   [ 7] bounds are respected strictly:    [PASSED]</span></span>
 <span><span class="co">#&gt;   [ 8] the run repeats:                  [PASSED]</span></span>
 <span><span class="co">#&gt;   [ 9] maximize mirrors minimize:        [PASSED]</span></span>
-<span><span class="co">#&gt;   [10] an unevaluable rule is refused:   [PASSED]</span></span>
+<span><span class="co">#&gt;   [10] an unevaluable rule is rejected:  [PASSED]</span></span>
 <span><span class="co">#&gt;   [11] a bad starting point is an error: [PASSED]</span></span>
 <span><span class="co">#&gt;   [12] it minimizes a quadratic:         [PASSED]</span></span>
 <span><span class="co">#&gt; </span></span>
