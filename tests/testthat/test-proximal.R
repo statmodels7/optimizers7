@@ -73,7 +73,17 @@ test_that("acceleration pays where the problem is ill conditioned", {
                    fn = fn, gr = gr, par = rep(0, p))
   expect_true(slow@converged && fast@converged)
   expect_equal(fast@par, slow@par, tolerance = 1e-4)
-  expect_lt(fast@iterations, slow@iterations / 10)
+
+  # The RATIO is platform-dependent, and by more than one might expect: the
+  # plain method takes 4153 iterations here and 652 on macOS from the same
+  # start, the arithmetic of the products differing enough to change the
+  # trajectory on an ill-conditioned problem. The accelerated one is steadier
+  # (126 and 133). What is asserted is therefore the structural claim with
+  # room, and the counts are printed so that a failure on a platform this
+  # machine is not can be read rather than guessed at.
+  report <- sprintf("plain %d iterations, accelerated %d",
+                    slow@iterations, fast@iterations)
+  expect_lt(fast@iterations, slow@iterations / 2, label = report)
 })
 
 test_that("with no non-smooth part the method is gradient descent", {
