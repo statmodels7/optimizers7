@@ -135,6 +135,7 @@ reference:
   - check_criterion
   - check_bounds
   - optimizer_provides
+  - optimizer_bounded
   - bounded_transform
   - bounded_forward
   - check_optimizer

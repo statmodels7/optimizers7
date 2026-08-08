@@ -4,7 +4,7 @@
 \alias{optimizer_bounded}
 \title{Whether an Optimizer Takes Box Bounds}
 \usage{
-optimizer_bounded(optimizer, ...)
+optimizer_bounded(optimizer)
 }
 \arguments{
 \item{optimizer}{An \code{\link{optimizer}}.}

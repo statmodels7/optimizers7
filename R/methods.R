@@ -139,7 +139,8 @@ S7::method(optimizer_provides, optimizer) <- function(optimizer) "gradient"
 #'
 #' @seealso \code{\link{optimizer_provides}}
 #' @export
-optimizer_bounded <- S7::new_generic("optimizer_bounded", "optimizer")
+optimizer_bounded <- S7::new_generic("optimizer_bounded", "optimizer",
+                                     function(optimizer) S7::S7_dispatch())
 
 S7::method(optimizer_bounded, optimizer) <- function(optimizer) TRUE
 
