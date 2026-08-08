@@ -159,7 +159,7 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 #>   value      : 2.80957e-22
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
@@ -169,7 +169,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
 #>   value      : 4.68179e-20
 #>   par        : 1 2
 #>   iterations : 7   evaluations: f 42, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
@@ -181,7 +181,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 #>   value      : 1
 #>   par        : 1 1
 #>   iterations : 22   evaluations: f 121, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
@@ -192,7 +192,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 #>   value      : 8.30993e-15
 #>   par        : 1 2
 #>   iterations : 18   evaluations: f 231, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

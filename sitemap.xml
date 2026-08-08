@@ -27,6 +27,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/NelderMead-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Newton-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/NonmonotoneSearch.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/ProxGrad-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/UniformStart-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/WolfeSearch.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/ZeroStart-class.html</loc></url>
@@ -70,6 +71,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/crit_stationary.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/criterion.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/criterion_class.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/fd_gradient.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/format_elapsed.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/gd.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/index.html</loc></url>
@@ -92,12 +94,14 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.MultiStart.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.NelderMead.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Newton.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.ProxGrad.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/multistart.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/nelder_mead.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/newton.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/nonmonotone.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/optimizer.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/optimizer_bounded.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/optimizer_class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/optimizer_provides.Bundle.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/optimizer_provides.MultiStart.html</loc></url>
@@ -112,6 +116,8 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print.optimizer.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print.optimizer_result.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print_optimizer_check.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/prox_grad.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/prox_grad_run.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/recycle_to.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/resolve_ncores.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/resolve_start.html</loc></url>

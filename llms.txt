@@ -305,6 +305,8 @@ because the subgradient it evaluates never becomes small.
 
 - [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
   : The Proximal Bundle Method
+- [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
+  : Proximal Gradient Method
 - [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
   : The Nelder-Mead Simplex Method
 - [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
@@ -408,6 +410,8 @@ separate because they are different questions.
   : Normalize Box Constraints
 - [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)
   : What an Optimizer Can Offer a Stopping Rule
+- [`optimizer_bounded()`](https://statmodels7.github.io/optimizers7/reference/optimizer_bounded.md)
+  : Whether an Optimizer Takes Box Bounds
 - [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)
   : The Bound Transform, and Its First Two Derivatives
 - [`bounded_forward()`](https://statmodels7.github.io/optimizers7/reference/bounded_forward.md)
