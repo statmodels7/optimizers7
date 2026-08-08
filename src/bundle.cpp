@@ -283,7 +283,7 @@ Rcpp::List bundle_run(Rcpp::List spec,
         guard = "null";
       }
     } else {
-      // Stepped outside the domain. Nothing is learnt, so nothing is added --
+      // Stepped outside the domain. Nothing is learned, so nothing is added --
       // only the trust region shrinks.
       const double t_new = std::max(t * 0.5, t_min);
       if (t_new == t) {

@@ -136,7 +136,7 @@ bound the same quantity. Raise \code{t0} for a problem whose optimum is far
 away, lower it for one where the model is trustworthy only nearby.
 
 Should a subgradient overflow anyway — possible for an objective that grows
-fast enough — the run stops and says so, rather than spending its budget on a
+fast enough — the run stops with a message, rather than spending its budget on a
 subproblem whose matrix contains an infinity.
 }
 

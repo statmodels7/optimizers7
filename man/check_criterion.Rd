@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{check_criterion}
 \alias{check_criterion}
-\title{Refuse a Stopping Rule an Optimizer Cannot Evaluate}
+\title{Reject a Stopping Rule an Optimizer Cannot Evaluate}
 \usage{
 check_criterion(optimizer)
 }
@@ -20,7 +20,7 @@ supply, and stops if the rule asks for something absent.
 Call this at the top of a user-defined \code{\link{minimize}} method. A rule
 needing a gradient, handed to a method that computes none, would sit testing
 \code{NULL} at every iteration and never fire; the run would then end on its
-iteration budget and report a reason nowhere near the truth. Refusing it here,
+iteration budget and report a reason nowhere near the truth. Rejecting it here,
 by name, is what \code{\link{check_optimizer}} tests for.
 
 What an optimizer can supply is declared by

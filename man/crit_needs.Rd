@@ -20,7 +20,7 @@ never fires.
 \details{
 A derivative-free method has no gradient, so \code{\link{crit_grad}} would sit
 there testing \code{NULL} at every iteration and quietly never stop the run.
-Refusing it at construction is the same discipline that makes
+Rejecting it at construction is the same discipline that makes
 \code{check_link()} in \pkg{linkfunctions7} report a numerical derivative
 order as numerical rather than as passed: a check that cannot be evaluated
 must say so.

@@ -121,15 +121,14 @@ minimize(adam(alpha = 0.05, decay = 0.005, maxit = 3000),
 mean(y)
 ```
 
-An earlier version of the package had a `finite_sum()` class, by which an
-objective declared that it was a sum over observations so that `adam()` could
-ask it for a subset. It was removed. Supporting it meant a second kind of
-objective, a rule for which stopping rules that objective permitted, a way of
-reporting which was in force, and a branch in the compiled loop. All of that
-served something the caller can do in one line and do better, since the
-caller is the one who knows what an observation is. An optimizer that carries
-about observations has stopped being a general one; the batch is drawn where
-the knowledge is.
+The package deliberately has no objective class that declares itself a sum
+over observations for `adam()` to subset. Supporting one would require a
+second kind of objective, a rule for which stopping rules that objective
+permits, a way of reporting which is in force, and a branch in the compiled
+loop, all serving a task the caller can do in one line and do better, since
+the caller is the one who knows what an observation is. An optimizer with
+its own notion of an observation has stopped being a general one; the batch
+is drawn in the layer that owns the notion.
 
 One detail matters when writing such an objective. The resampling belongs
 *inside* the objective, not around the run. Calling
@@ -154,9 +153,8 @@ S7::method(as_objective, MyModel) <- function(fn, gr = NULL, he = NULL, ...) {
 }
 ```
 
-An earlier version also shipped a second shape, `cpp_objective()`, taking a
-pair of external pointers so that the iteration never returned to R. It was
-removed for two reasons.
+A second shape, `cpp_objective()`, taking a pair of external pointers so
+that the iteration never returns to R, is also absent, for two reasons.
 
 First, it could not carry data. The pointer type was
 `double(*)(const arma::vec&)`, a bare function pointer with no closure and no

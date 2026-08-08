@@ -2,7 +2,7 @@
 % Please edit documentation in R/starters.R
 \name{recycle_to}
 \alias{recycle_to}
-\title{Recycle a Length-One Vector, and Refuse Any Other Mismatch}
+\title{Recycle a Length-One Vector, and Reject Any Other Mismatch}
 \usage{
 recycle_to(v, n, nm)
 }
@@ -17,6 +17,6 @@ recycle_to(v, n, nm)
 A numeric vector of length \code{n}.
 }
 \description{
-Recycle a Length-One Vector, and Refuse Any Other Mismatch
+Recycle a Length-One Vector, and Reject Any Other Mismatch
 }
 \keyword{internal}

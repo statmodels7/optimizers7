@@ -66,8 +66,8 @@ the Newton step at \eqn{\tau = 0} and a scaled steepest-descent step for
 large \eqn{\tau}. Cheaper, and blunter.}
 }
 
-Which repair fired is recorded in the trace, so a run that spent its time
-repairing rather than converging says so.
+Which repair fired is recorded in the trace, so the trace shows a run
+that spent its time repairing rather than converging.
 
 \strong{On the Hessian itself.} If \code{he} is not supplied to
 \code{\link{minimize}}, the Hessian is obtained by differencing the gradient.

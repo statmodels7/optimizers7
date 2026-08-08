@@ -10,8 +10,8 @@
 #' every algorithm. That is exactly the arrangement this toolkit exists to
 #' replace: it fixes the set of rules at the moment the package is written, and
 #' nothing outside can add to it. A criterion here is an object implementing one
-#' generic, \code{\link{crit_met}}, so a rule the authors never thought of is a
-#' first-class citizen.
+#' generic, \code{\link{crit_met}}, so a user-defined rule is treated like
+#' a shipped one.
 #'
 #' Criteria are combined with \code{\link{crit_any}} and \code{\link{crit_all}},
 #' which are themselves criteria, so combinations nest.
@@ -90,7 +90,7 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' @details
 #' A derivative-free method has no gradient, so \code{\link{crit_grad}} would sit
 #' there testing \code{NULL} at every iteration and quietly never stop the run.
-#' Refusing it at construction is the same discipline that makes
+#' Rejecting it at construction is the same discipline that makes
 #' \code{check_link()} in \pkg{linkfunctions7} report a numerical derivative
 #' order as numerical rather than as passed: a check that cannot be evaluated
 #' must say so.

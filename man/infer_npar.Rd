@@ -38,7 +38,7 @@ helps when it spells its components out, since such a gradient returns a fixed
 number of them whatever it is handed.
 
 A vectorized objective written in terms of the parameter alone is another
-matter, and it is worth being precise about why, because both plausible
+matter: both plausible
 guesses about \R are wrong. Recycling warns only when the shorter length is
 not a \emph{divisor} of the longer, so \code{sum((p - c(1, 2, 3))^2)} accepts
 a length-one vector in silence and returns a perfectly finite 14; and its
@@ -48,7 +48,7 @@ argument, so the gradient rule passes it too. Rosenbrock's
 for the same kind of reason. None of this is a defect and none of it can be
 guessed at.
 
-So the honest summary is that the probe settles the objectives that have a
+The probe therefore settles the objectives that have a
 fixed width built into them and rejects the ones that do not, naming the two
 lengths it found. When it rejects, \code{npar} or a vector of bounds is one
 word.
