@@ -131,21 +131,3 @@ test_that("the constructor and the method reject what they cannot honour", {
              par = c(1, 1), lower = 0),
     "through the proximal operator")
 })
-
-test_that("penalties7 supplies the operator a run can use directly", {
-  skip_if_not_installed("penalties7")
-  pr <- lasso_problem(p = 6)
-  pen <- penalties7::lasso_penalty(n_coef = 6)
-  th <- list(lambda = pr$lambda)
-  fit <- minimize(
-    prox_grad(prox = function(v, t) penalties7::penalty_prox(pen, v, t, th),
-              g = function(b) penalties7::penalty_value(pen, b, th),
-              criterion = crit_grad(1e-8)),
-    fn = pr$fn, gr = pr$gr, par = rep(0, 6))
-  expect_true(fit@converged)
-  # the penalty keeps its normalizing constant, so the objective differs from
-  # the bare lasso by that constant and the MINIMIZER does not
-  ref <- minimize(prox_grad(pr$prox, pr$g, criterion = crit_grad(1e-8)),
-                  fn = pr$fn, gr = pr$gr, par = rep(0, 6))
-  expect_equal(fit@par, ref@par, tolerance = 1e-6)
-})

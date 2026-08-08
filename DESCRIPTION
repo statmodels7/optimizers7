@@ -53,7 +53,6 @@ Remotes:
     statmodels7/linkfunctions7
 Suggests:
     linkfunctions7,
-    penalties7,
     pkgdown,
     testthat (>= 3.0.0),
     knitr,
