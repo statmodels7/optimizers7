@@ -27,7 +27,7 @@ A character vector, possibly empty.
 A derivative-free method has no gradient, so
 [`crit_grad`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 would sit there testing `NULL` at every iteration and quietly never stop
-the run. Refusing it at construction is the same discipline that makes
+the run. Rejecting it at construction is the same discipline that makes
 `check_link()` in linkfunctions7 report a numerical derivative order as
 numerical rather than as passed: a check that cannot be evaluated must
 say so.

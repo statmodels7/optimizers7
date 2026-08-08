@@ -86,8 +86,8 @@ solve. When it fails:
   step at \\\tau = 0\\ and a scaled steepest-descent step for large
   \\\tau\\. Cheaper, and blunter.
 
-Which repair fired is recorded in the trace, so a run that spent its
-time repairing rather than converging says so.
+Which repair fired is recorded in the trace, so the trace shows a run
+that spent its time repairing rather than converging.
 
 **On the Hessian itself.** If `he` is not supplied to
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md),

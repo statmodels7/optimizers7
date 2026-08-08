@@ -1,4 +1,4 @@
-# Refuse a Stopping Rule an Optimizer Cannot Evaluate
+# Reject a Stopping Rule an Optimizer Cannot Evaluate
 
 Compares what the optimizer's criterion reads against what the optimizer
 can supply, and stops if the rule asks for something absent.
@@ -27,7 +27,7 @@ Call this at the top of a user-defined
 method. A rule needing a gradient, handed to a method that computes
 none, would sit testing `NULL` at every iteration and never fire; the
 run would then end on its iteration budget and report a reason nowhere
-near the truth. Refusing it here, by name, is what
+near the truth. Rejecting it here, by name, is what
 [`check_optimizer`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 tests for.
 

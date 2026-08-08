@@ -144,7 +144,7 @@ separate because they are different questions.
 - [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
   : S7 Class for Optimization Algorithms
 - [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-  : Refuse a Stopping Rule an Optimizer Cannot Evaluate
+  : Reject a Stopping Rule an Optimizer Cannot Evaluate
 - [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
   : Normalize Box Constraints
 - [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)

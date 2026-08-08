@@ -34,7 +34,7 @@ The objective handle from
 The criterion check is the interesting one. A rule needing a gradient
 handed to a method that computes none would sit there testing `NULL` at
 every iteration and never fire, so the run would end on the iteration
-budget and report failure for a reason nowhere near the truth. Refusing
+budget and report failure for a reason nowhere near the truth. Rejecting
 it here, by name, is the same discipline as `check_link()` in
 linkfunctions7 reporting a numerical derivative order as numerical
 rather than as passed: a check that cannot be evaluated must say so

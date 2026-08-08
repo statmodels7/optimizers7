@@ -1,6 +1,6 @@
-# Recycle a Length-One Vector, and Refuse Any Other Mismatch
+# Recycle a Length-One Vector, and Reject Any Other Mismatch
 
-Recycle a Length-One Vector, and Refuse Any Other Mismatch
+Recycle a Length-One Vector, and Reject Any Other Mismatch
 
 ## Usage
 

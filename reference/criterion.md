@@ -28,7 +28,7 @@ exists to replace: it fixes the set of rules at the moment the package
 is written, and nothing outside can add to it. A criterion here is an
 object implementing one generic,
 [`crit_met`](https://statmodels7.github.io/optimizers7/reference/crit_met.md),
-so a rule the authors never thought of is a first-class citizen.
+so a user-defined rule is treated like a shipped one.
 
 Criteria are combined with
 [`crit_any`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)

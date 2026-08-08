@@ -184,16 +184,15 @@ function:</p>
 <span><span class="co">#&gt; [1] 2.986939</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2.986045</span></span></code></pre></div>
-<p>An earlier version of the package had a <code>finite_sum()</code>
-class, by which an objective declared that it was a sum over
-observations so that <code><a href="../reference/adam.html">adam()</a></code> could ask it for a subset. It
-was removed. Supporting it meant a second kind of objective, a rule for
-which stopping rules that objective permitted, a way of reporting which
-was in force, and a branch in the compiled loop. All of that served
-something the caller can do in one line and do better, since the caller
-is the one who knows what an observation is. An optimizer that carries
-about observations has stopped being a general one; the batch is drawn
-where the knowledge is.</p>
+<p>The package deliberately has no objective class that declares itself
+a sum over observations for <code><a href="../reference/adam.html">adam()</a></code> to subset. Supporting
+one would require a second kind of objective, a rule for which stopping
+rules that objective permits, a way of reporting which is in force, and
+a branch in the compiled loop, all serving a task the caller can do in
+one line and do better, since the caller is the one who knows what an
+observation is. An optimizer with its own notion of an observation has
+stopped being a general one; the batch is drawn in the layer that owns
+the notion.</p>
 <p>One detail matters when writing such an objective. The resampling
 belongs <em>inside</em> the objective, not around the run. Calling
 <code>minimize(adam(maxit = 1), ...)</code> in a loop resets and to zero
@@ -216,9 +215,9 @@ accepts it:</p>
 <span>       he <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>       has_gradient <span class="op">=</span> <span class="cn">TRUE</span>, has_hessian <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>An earlier version also shipped a second shape,
-<code>cpp_objective()</code>, taking a pair of external pointers so that
-the iteration never returned to R. It was removed for two reasons.</p>
+<p>A second shape, <code>cpp_objective()</code>, taking a pair of
+external pointers so that the iteration never returns to R, is also
+absent, for two reasons.</p>
 <p>First, it could not carry data. The pointer type was
 <code>double(*)(const arma::vec&amp;)</code>, a bare function pointer
 with no closure and no user-data argument, so any real statistical

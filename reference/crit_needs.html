@@ -68,7 +68,7 @@ never fires.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>A derivative-free method has no gradient, so <code><a href="crit_grad.html">crit_grad</a></code> would sit
 there testing <code>NULL</code> at every iteration and quietly never stop the run.
-Refusing it at construction is the same discipline that makes
+Rejecting it at construction is the same discipline that makes
 <code>check_link()</code> in <span class="pkg">linkfunctions7</span> report a numerical derivative
 order as numerical rather than as passed: a check that cannot be evaluated
 must say so.</p>

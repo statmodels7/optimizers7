@@ -49,9 +49,8 @@ gradient helps when it spells its components out, since such a gradient
 returns a fixed number of them whatever it is handed.
 
 A vectorized objective written in terms of the parameter alone is
-another matter, and it is worth being precise about why, because both
-plausible guesses about R are wrong. Recycling warns only when the
-shorter length is not a *divisor* of the longer, so
+another matter: both plausible guesses about R are wrong. Recycling
+warns only when the shorter length is not a *divisor* of the longer, so
 `sum((p - c(1, 2, 3))^2)` accepts a length-one vector in silence and
 returns a perfectly finite 14; and its gradient `2 * (p - c(1, 2, 3))`
 returns six components for a length-six argument, so the gradient rule
@@ -59,10 +58,9 @@ passes it too. Rosenbrock's `100 (p_2 - p_1^2)^2 + (1 - p_1)^2` accepts
 every length from two upwards for the same kind of reason. None of this
 is a defect and none of it can be guessed at.
 
-So the honest summary is that the probe settles the objectives that have
-a fixed width built into them and rejects the ones that do not, naming
-the two lengths it found. When it rejects, `npar` or a vector of bounds
-is one word.
+The probe therefore settles the objectives that have a fixed width built
+into them and rejects the ones that do not, naming the two lengths it
+found. When it rejects, `npar` or a vector of bounds is one word.
 
 The search stops as soon as a *second* length is accepted, because at
 that point the answer is already known to be ambiguous and there is no

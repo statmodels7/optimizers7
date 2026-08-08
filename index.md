@@ -15,9 +15,9 @@ replaced, combined, or written from scratch; and every algorithm is
 written once against one objective interface.
 
 The package is deliberately narrow. An optimizer here minimizes the
-function it is given and knows nothing else: not what an observation is,
-not where the data came from, not what the parameters mean. Everything
-that needs that knowledge belongs to the caller that has it.
+function it is given, with no notion of an observation, of where the
+data came from, or of what the parameters mean. Everything that needs
+that knowledge belongs to the caller that has it.
 
 It is the optimization layer of
 [statmodels7](https://statmodels7.github.io), alongside
