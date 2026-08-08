@@ -115,6 +115,35 @@ optimizer_provides <- S7::new_generic("optimizer_provides", "optimizer",
 S7::method(optimizer_provides, optimizer) <- function(optimizer) "gradient"
 
 
+#' @title Whether an Optimizer Takes Box Bounds
+#'
+#' @description
+#' \code{TRUE} when the optimizer honours the \code{lower} and \code{upper}
+#' arguments of \code{\link{minimize}}, so that
+#' \code{\link{check_optimizer}} tests them, and \code{FALSE} for a method
+#' that takes its constraint another way.
+#'
+#' @details
+#' Every method of the package removes bounds by reparametrization and
+#' answers \code{TRUE}, which is the default. A proximal method is the
+#' exception: a constraint reaches it inside the proximal operator, where it
+#' composes with the term already there, so bounds beside the objective would
+#' be a second and conflicting route to the same thing.
+#'
+#' @param optimizer An \code{\link{optimizer}}.
+#'
+#' @return A single logical.
+#'
+#' @examples
+#' optimizer_bounded(bfgs())
+#'
+#' @seealso \code{\link{optimizer_provides}}
+#' @export
+optimizer_bounded <- S7::new_generic("optimizer_bounded", "optimizer")
+
+S7::method(optimizer_bounded, optimizer) <- function(optimizer) TRUE
+
+
 #' Translate an Evaluation Budget for the Compiled Loop
 #'
 #' @description

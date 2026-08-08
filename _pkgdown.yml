@@ -64,6 +64,7 @@ reference:
     the subgradient it evaluates never becomes small.
   contents:
   - bundle
+  - prox_grad
   - nelder_mead
   - compass
 

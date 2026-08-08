@@ -147,11 +147,14 @@ check_optimizer <- function(optimizer, problems = test_problems(),
           traced@trace$iteration[1] == 1 &&
           !is.unsorted(traced@trace$iteration)))
 
-  # [7] A box whose ceiling binds, so the transform is pushed hard.
+  # [7] A box whose ceiling binds, so the transform is pushed hard. Vacuous
+  # for a method that declares it takes its constraint another way.
   far <- list(fn = function(p) sum((p - 50)^2), gr = function(p) 2 * (p - 50),
               par = c(0, 0, 0))
-  bnd <- run(optimizer, far, lower = -5, upper = 5)
-  ok[7] <- !failed(bnd) && all(bnd@par > -5) && all(bnd@par < 5)
+  ok[7] <- if (!optimizer_bounded(optimizer)) TRUE else {
+    bnd <- run(optimizer, far, lower = -5, upper = 5)
+    !failed(bnd) && all(bnd@par > -5) && all(bnd@par < 5)
+  }
 
   # [8] Deterministic twice over, or stochastic and repeatable from its own
   # recorded seed -- which tests the recording at the same time.

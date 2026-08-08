@@ -45,6 +45,7 @@ Collate:
     'line_search.R'
     'multistart.R'
     'optimizers7-package.R'
+    'proximal.R'
     'second_order.R'
     'starters.R'
     'zzz.R'
@@ -52,6 +53,7 @@ Remotes:
     statmodels7/linkfunctions7
 Suggests:
     linkfunctions7,
+    penalties7,
     pkgdown,
     testthat (>= 3.0.0),
     knitr,
