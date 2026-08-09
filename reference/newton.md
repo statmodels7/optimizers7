@@ -100,6 +100,14 @@ served by
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
 which never needs a Hessian at all.
 
+## References
+
+Gill, P. E., Murray, W. and Wright, M. H. (1981). *Practical
+Optimization*. Academic Press, London.
+
+Nocedal, J. and Wright, S. J. (2006). *Numerical Optimization*, 2nd
+edition. Springer, New York.
+
 ## See also
 
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),

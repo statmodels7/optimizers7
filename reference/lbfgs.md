@@ -63,6 +63,14 @@ at points the iterate has left, and on a strongly nonlinear objective
 they can be worse than no information. Ten is the conventional choice
 for good reason.
 
+## References
+
+Nocedal, J. (1980). Updating quasi-Newton matrices with limited storage.
+*Mathematics of Computation* **35**, 773–782.
+
+Liu, D. C. and Nocedal, J. (1989). On the limited memory BFGS method for
+large scale optimization. *Mathematical Programming* **45**, 503–528.
+
 ## See also
 
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
@@ -76,7 +84,7 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 #>   value      : 5.34216e-17
 #>   par        : 1 1
 #>   iterations : 34   evaluations: f 253, g 0
-#>   elapsed    : 5 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

@@ -112,6 +112,12 @@ A start where the objective is undefined is recorded as failed and the
 remaining starts proceed; an error is raised only when every start
 fails.
 
+## References
+
+McKay, M. D., Beckman, R. J. and Conover, W. J. (1979). A comparison of
+three methods for selecting values of input variables in the analysis of
+output from a computer code. *Technometrics* **21**, 239–245.
+
 ## See also
 
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md),

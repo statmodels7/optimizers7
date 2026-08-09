@@ -74,6 +74,16 @@ y^\top y\\. Without it the first quasi-Newton step is taken with a unit
 Hessian, which on a badly scaled problem has entirely the wrong
 magnitude and wastes a line search discovering so.
 
+## References
+
+Broyden, C. G. (1970). The convergence of a class of double-rank
+minimization algorithms. *IMA Journal of Applied Mathematics* **6**,
+76–90. The update was obtained independently the same year by Fletcher,
+Goldfarb and Shanno, whence the name.
+
+Nocedal, J. and Wright, S. J. (2006). *Numerical Optimization*, 2nd
+edition. Springer, New York.
+
 ## See also
 
 [`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)

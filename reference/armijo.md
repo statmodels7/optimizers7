@@ -47,6 +47,15 @@ gradient. That is enough for a method that only needs to make progress,
 and not enough for a quasi-Newton method, which needs
 [`wolfe`](https://statmodels7.github.io/optimizers7/reference/wolfe.md).
 
+## References
+
+Armijo, L. (1966). Minimization of functions having Lipschitz continuous
+first partial derivatives. *Pacific Journal of Mathematics* **16**, 1–3.
+
+Zoutendijk, G. (1970). Nonlinear programming, computational methods. In
+J. Abadie (ed.), *Integer and Nonlinear Programming*, 37–86.
+North-Holland, Amsterdam.
+
 ## See also
 
 [`wolfe`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)

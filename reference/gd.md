@@ -79,6 +79,13 @@ baseline: on smooth problems
 [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 converges in far fewer iterations.
 
+## References
+
+Cauchy's method is the oldest of them; the modern treatment, including
+why its rate is linear in the condition number, is chapter 3 of Nocedal,
+J. and Wright, S. J. (2006). *Numerical Optimization*, 2nd edition.
+Springer, New York.
+
 ## See also
 
 [`cg`](https://statmodels7.github.io/optimizers7/reference/cg.md),

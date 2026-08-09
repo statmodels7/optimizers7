@@ -54,6 +54,14 @@ It costs gradient evaluations at trial points, which
 does not, so it is the more expensive choice per iteration and usually
 the cheaper one per problem.
 
+## References
+
+Wolfe, P. (1969). Convergence conditions for ascent methods. *SIAM
+Review* **11**, 226–235.
+
+Nocedal, J. and Wright, S. J. (2006). *Numerical Optimization*, 2nd
+edition. Springer, New York.
+
 ## See also
 
 [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
@@ -69,7 +77,7 @@ minimize(gd(line_search = wolfe(), maxit = 200),
 #>   value      : 2.34837e-05
 #>   par        : 1.0048 1.0097
 #>   iterations : 200   evaluations: f 2796, g 0
-#>   elapsed    : 22 ms
+#>   elapsed    : 14 ms
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```
