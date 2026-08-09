@@ -75,6 +75,7 @@ criterion <- S7::new_class(
 #' crit_met(crit_grad(1e-8), st)
 #' crit_met(crit_abs_obj(1e-12), st)
 #'
+#' @seealso \code{\link{as_objective}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
 #' @export
 crit_met <- S7::new_generic("crit_met", "criterion",
                             function(criterion, state) S7::S7_dispatch())
@@ -103,6 +104,7 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' crit_needs(crit_grad(1e-8))
 #' crit_needs(crit_rel_obj(1e-10))
 #'
+#' @seealso \code{\link{as_objective}}, \code{\link{crit_met}}, \code{\link{check_criterion}}
 #' @export
 crit_needs <- S7::new_generic("crit_needs", "criterion",
                               function(criterion) S7::S7_dispatch())

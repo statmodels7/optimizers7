@@ -36,6 +36,7 @@ NULL
 #' str(as_objective(function(p) sum(p^2)))
 #' str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #'
+#' @seealso \code{\link{crit_met}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
                                 function(fn, gr = NULL, he = NULL, ...)

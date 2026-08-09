@@ -40,3 +40,6 @@ crit_met(crit_grad(1e-8), st)
 crit_met(crit_abs_obj(1e-12), st)
 
 }
+\seealso{
+\code{\link{as_objective}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
+}
