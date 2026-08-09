@@ -56,6 +56,12 @@ derivative-free method — must say so through
 [`crit_needs`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md)
 rather than silently never firing.
 
+## See also
+
+[`as_objective`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
+[`crit_needs`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
+[`check_criterion`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
+
 ## Examples
 
 ``` r

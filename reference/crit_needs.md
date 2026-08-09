@@ -32,6 +32,12 @@ the run. Rejecting it at construction is the same discipline that makes
 numerical rather than as passed: a check that cannot be evaluated must
 say so.
 
+## See also
+
+[`as_objective`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
+[`crit_met`](https://statmodels7.github.io/optimizers7/reference/crit_met.md),
+[`check_criterion`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
+
 ## Examples
 
 ``` r

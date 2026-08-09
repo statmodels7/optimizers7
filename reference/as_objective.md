@@ -34,6 +34,12 @@ A list describing the objective to the C++ side: `kind`, the pieces
 belonging to that kind, and flags saying which derivatives were supplied
 rather than differenced.
 
+## See also
+
+[`crit_met`](https://statmodels7.github.io/optimizers7/reference/crit_met.md),
+[`crit_needs`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
+[`check_criterion`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
+
 ## Examples
 
 ``` r
