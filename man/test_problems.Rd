@@ -32,6 +32,25 @@ then be unable to certify it.
 The starting points are the ones customarily used, which for
 \code{rosenbrock} and \code{powell} means the deliberately unhelpful ones the
 functions were designed around.
+
+Every problem here has \eqn{f(x^{\ast}) = 0}, which is a property of the
+battery and not of optimization, and it hides one effect. A line search
+accepts a step only when the objective decreases by a definite amount,
+and near the optimum that decrease is about
+\eqn{\lVert g \rVert^{2} / (2\lambda)}; once it falls below the rounding
+of the objective itself, \eqn{\varepsilon \lvert f \rvert}, no step can
+be verified and the search refuses all of them. The smallest gradient a
+run can reach is therefore of order
+
+\deqn{\lVert g \rVert_{\text{floor}} \approx
+  \sqrt{2 \lambda \varepsilon \lvert f(x^{\ast}) \rvert},}
+
+which grows with the value at the solution and is exactly zero for every
+problem below. A log-likelihood is the opposite case, being of order one
+at its optimum, so an optimizer that reaches \code{1e-15} here may stop
+at \code{1e-8} there; the defaults of \code{\link{crit_grad}} allow for
+that. Adding a constant to any of these objectives moves neither the
+minimizer nor the gradient and reproduces the effect.
 }
 \examples{
 names(test_problems())
