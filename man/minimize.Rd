@@ -44,6 +44,16 @@ The entry point of the package. Everything here minimizes; see
 \code{\link{maximize}} for the other direction.
 }
 \details{
+The problem solved is
+
+\deqn{\min_{x \in \mathbb{R}^{p}} f(x)
+  \qquad \text{subject to} \quad l \le x \le u,}
+
+with \eqn{f} the objective, \eqn{l} and \eqn{u} the bounds, and the
+inequalities read coordinatewise. Every method reports a point where it
+stopped together with the rule that stopped it; convergence is what the
+stopping rule says and is never inferred from the run having ended.
+
 The generic dispatches on \code{optimizer} alone, so each algorithm is
 written once. The objective is normalized separately by
 \code{\link{as_objective}}, which dispatches on \code{fn}, so a caller with

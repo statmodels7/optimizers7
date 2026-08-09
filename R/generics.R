@@ -24,6 +24,16 @@ NULL
 #' @param ... Passed to methods.
 #'
 #' @details
+#' The problem solved is
+#'
+#' \deqn{\min_{x \in \mathbb{R}^{p}} f(x)
+#'   \qquad \text{subject to} \quad l \le x \le u,}
+#'
+#' with \eqn{f} the objective, \eqn{l} and \eqn{u} the bounds, and the
+#' inequalities read coordinatewise. Every method reports a point where it
+#' stopped together with the rule that stopped it; convergence is what the
+#' stopping rule says and is never inferred from the run having ended.
+#'
 #' The generic dispatches on \code{optimizer} alone, so each algorithm is
 #' written once. The objective is normalized separately by
 #' \code{\link{as_objective}}, which dispatches on \code{fn}, so a caller with
@@ -137,6 +147,12 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' @inheritParams minimize
 #'
 #' @details
+#' \deqn{\arg\max_{x} f(x) = \arg\min_{x} \{-f(x)\},
+#'   \qquad \max_{x} f(x) = -\min_{x}\{-f(x)\},}
+#'
+#' so the point is the one \code{\link{minimize}} returns and the value, the
+#' gradient and the traced objective have their sign restored.
+#'
 #' Every algorithm in the package minimizes, always; that is the convention and
 #' the names say so. This is the thin wrapper for the other direction, and it
 #' exists so that nobody has to remember to negate a log-likelihood by hand and

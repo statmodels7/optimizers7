@@ -28,7 +28,7 @@ make things worse now in order to be better placed later.
 }
 \details{
 The condition is Grippo, Lampariello and Lucidi's:
-\deqn{f(x_k + s d_k) \le \max_{0 \le j \le m} f(x_{k-j}) + c_1 s\, g_k^	op d_k,}
+\deqn{f(x_k + s d_k) \le \max_{0 \le j \le m} f(x_{k-j}) + c_1 s\, g_k^\top d_k,}
 which is Armijo's with the reference replaced by the largest of the last
 \eqn{m+1} values. Every step it accepts improves on the worst of recent
 memory; none is required to improve on the present.

@@ -12,6 +12,24 @@ NULL
 #' BFGS and L-BFGS share one carefully written answer instead of each carrying
 #' its own, and what lets a user change the answer without touching the method.
 #'
+#' At a point \eqn{x} with gradient \eqn{g} and a direction \eqn{d} satisfying
+#' \eqn{g^\top d < 0}, a line search returns a step length \eqn{s > 0}. What
+#' every subclass guarantees is \emph{sufficient decrease}, Armijo's condition
+#'
+#' \deqn{f(x + s d) \le f(x) + c_1 s\, g^\top d,
+#'   \qquad 0 < c_1 < 1,}
+#'
+#' which asks for a fraction \eqn{c_1} of the decrease the linear model
+#' predicts and so rules out steps that shrink the objective by an amount
+#' vanishing faster than the step itself. \code{\link{wolfe}} adds the strong
+#' curvature condition
+#'
+#' \deqn{\lvert \nabla f(x + s d)^\top d \rvert \le c_2 \lvert g^\top d \rvert,
+#'   \qquad c_1 < c_2 < 1,}
+#'
+#' which excludes steps too short to have moved the directional derivative and
+#' is what makes the secant pair of \code{\link{bfgs}} carry usable curvature.
+#'
 #' The class is abstract; use \code{\link{armijo}} or \code{\link{wolfe}}.
 #'
 #' @param label A short character label, used when printing.
@@ -230,7 +248,7 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #'
 #' @details
 #' The condition is Grippo, Lampariello and Lucidi's:
-#' \deqn{f(x_k + s d_k) \le \max_{0 \le j \le m} f(x_{k-j}) + c_1 s\, g_k^	op d_k,}
+#' \deqn{f(x_k + s d_k) \le \max_{0 \le j \le m} f(x_{k-j}) + c_1 s\, g_k^\top d_k,}
 #' which is Armijo's with the reference replaced by the largest of the last
 #' \eqn{m+1} values. Every step it accepts improves on the worst of recent
 #' memory; none is required to improve on the present.

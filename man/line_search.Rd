@@ -21,6 +21,24 @@ separate question with its own theory. Separating the two is what lets Newton,
 BFGS and L-BFGS share one carefully written answer instead of each carrying
 its own, and what lets a user change the answer without touching the method.
 
+At a point \eqn{x} with gradient \eqn{g} and a direction \eqn{d} satisfying
+\eqn{g^\top d < 0}, a line search returns a step length \eqn{s > 0}. What
+every subclass guarantees is \emph{sufficient decrease}, Armijo's condition
+
+\deqn{f(x + s d) \le f(x) + c_1 s\, g^\top d,
+  \qquad 0 < c_1 < 1,}
+
+which asks for a fraction \eqn{c_1} of the decrease the linear model
+predicts and so rules out steps that shrink the objective by an amount
+vanishing faster than the step itself. \code{\link{wolfe}} adds the strong
+curvature condition
+
+\deqn{\lvert \nabla f(x + s d)^\top d \rvert \le c_2 \lvert g^\top d \rvert,
+  \qquad c_1 < c_2 < 1,}
+
+which excludes steps too short to have moved the directional derivative and
+is what makes the secant pair of \code{\link{bfgs}} carry usable curvature.
+
 The class is abstract; use \code{\link{armijo}} or \code{\link{wolfe}}.
 }
 \examples{

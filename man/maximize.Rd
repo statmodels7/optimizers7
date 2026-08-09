@@ -45,6 +45,12 @@ Runs \code{\link{minimize}} on the negated objective and reports the value
 with its sign restored.
 }
 \details{
+\deqn{\arg\max_{x} f(x) = \arg\min_{x} \{-f(x)\},
+  \qquad \max_{x} f(x) = -\min_{x}\{-f(x)\},}
+
+so the point is the one \code{\link{minimize}} returns and the value, the
+gradient and the traced objective have their sign restored.
+
 Every algorithm in the package minimizes, always; that is the convention and
 the names say so. This is the thin wrapper for the other direction, and it
 exists so that nobody has to remember to negate a log-likelihood by hand and
