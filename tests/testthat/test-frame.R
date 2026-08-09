@@ -38,6 +38,13 @@ test_that("a resampling objective is just an objective", {
   # observations so that a stochastic method could ask it for a subset, and it
   # had exactly one caller. An objective that resamples is a closure and needs
   # no class, which is what this asserts.
+  # The gradient check compares one difference of fn against gr, and these
+  # two draw different subsets, so they disagree by construction: the check
+  # does not apply to a stochastic objective and is turned off rather than
+  # left to warn, which would bury a warning that meant something.
+  op <- options(optimizers7.check_gradient = FALSE)
+  on.exit(options(op), add = TRUE)
+
   set.seed(42)
   y <- rnorm(200, mean = 3)
   batch <- function(par) { i <- sample.int(200, 40); sum((y[i] - par)^2) / 2 }

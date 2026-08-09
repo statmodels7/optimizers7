@@ -93,6 +93,11 @@ test_that("decay shortens the steps monotonically", {
 # the interface that replaced the machinery.
 
 test_that("Adam finds the mean through the noise of a resampling objective", {
+  # A stochastic objective and its gradient draw different subsets, so the
+  # consistency check compares two quantities that disagree by construction.
+  op <- options(optimizers7.check_gradient = FALSE)
+  on.exit(options(op), add = TRUE)
+
   set.seed(11)
   y <- rnorm(1000, mean = 3)
   m <- 50
@@ -106,6 +111,11 @@ test_that("Adam finds the mean through the noise of a resampling objective", {
 
 
 test_that("set.seed governs it, because the draws happen in the objective", {
+  # Same reason as above, and here the check would also consume draws and
+  # so change what the two runs being compared actually see.
+  op <- options(optimizers7.check_gradient = FALSE)
+  on.exit(options(op), add = TRUE)
+
   set.seed(13)
   y <- rnorm(300, mean = -1)
   bf <- function(p) { i <- sample.int(300, 30); sum((y[i] - p)^2) / 2 }
