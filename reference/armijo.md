@@ -71,7 +71,7 @@ minimize(gd(line_search = armijo(shrink = 0.2)),
 #>   value      : 2.44368e-13
 #>   par        : 1 2
 #>   iterations : 30   evaluations: f 185, g 0
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```
