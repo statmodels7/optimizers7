@@ -43,6 +43,15 @@ minimize(gd(line_search = armijo(shrink = 0.2)),
          function(p) sum((p - 1:2)^2), c(0, 0))
 
 }
+\references{
+Armijo, L. (1966). Minimization of functions having Lipschitz
+continuous first partial derivatives. \emph{Pacific Journal of
+Mathematics} \strong{16}, 1--3.
+
+Zoutendijk, G. (1970). Nonlinear programming, computational methods.
+In J. Abadie (ed.), \emph{Integer and Nonlinear Programming},
+37--86. North-Holland, Amsterdam.
+}
 \seealso{
 \code{\link{wolfe}}
 }

@@ -67,6 +67,15 @@ rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 minimize(bfgs(), rosen, c(-1.2, 1))
 
 }
+\references{
+Broyden, C. G. (1970). The convergence of a class of double-rank
+minimization algorithms. \emph{IMA Journal of Applied Mathematics}
+\strong{6}, 76--90. The update was obtained independently the same
+year by Fletcher, Goldfarb and Shanno, whence the name.
+
+Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+2nd edition. Springer, New York.
+}
 \seealso{
 \code{\link{lbfgs}} for many parameters, \code{\link{newton}} when a
 Hessian is available.

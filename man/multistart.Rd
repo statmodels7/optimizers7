@@ -103,6 +103,12 @@ r@message
 table(round(r@trace$value, 6))
 
 }
+\references{
+McKay, M. D., Beckman, R. J. and Conover, W. J. (1979). A
+comparison of three methods for selecting values of input variables
+in the analysis of output from a computer code.
+\emph{Technometrics} \strong{21}, 239--245.
+}
 \seealso{
 \code{\link{minimize}}, \code{\link{bfgs}}
 }

@@ -90,6 +90,13 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #'
 #' @seealso \code{\link{bfgs}}, \code{\link{lbfgs}}, \code{\link{minimize}}
+#' @references
+#' Gill, P. E., Murray, W. and Wright, M. H. (1981).
+#' \emph{Practical Optimization}. Academic Press, London.
+#'
+#' Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+#' 2nd edition. Springer, New York.
+#'
 #' @export
 newton <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                    hessian_mod = c("eigen", "ridge"), floor = 1e-8,
@@ -174,6 +181,15 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'
 #' @seealso \code{\link{lbfgs}} for many parameters, \code{\link{newton}} when a
 #'   Hessian is available.
+#' @references
+#' Broyden, C. G. (1970). The convergence of a class of double-rank
+#' minimization algorithms. \emph{IMA Journal of Applied Mathematics}
+#' \strong{6}, 76--90. The update was obtained independently the same
+#' year by Fletcher, Goldfarb and Shanno, whence the name.
+#'
+#' Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+#' 2nd edition. Springer, New York.
+#'
 #' @export
 bfgs <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                  curv_tol = 1e-10, max_skip = 5,
@@ -243,6 +259,14 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 #'
 #' @seealso \code{\link{bfgs}}
+#' @references
+#' Nocedal, J. (1980). Updating quasi-Newton matrices with limited
+#' storage. \emph{Mathematics of Computation} \strong{35}, 773--782.
+#'
+#' Liu, D. C. and Nocedal, J. (1989). On the limited memory BFGS method
+#' for large scale optimization. \emph{Mathematical Programming}
+#' \strong{45}, 503--528.
+#'
 #' @export
 lbfgs <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                   memory = 10, curv_tol = 1e-10,

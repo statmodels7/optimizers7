@@ -57,6 +57,14 @@ rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 
 }
+\references{
+Nocedal, J. (1980). Updating quasi-Newton matrices with limited
+storage. \emph{Mathematics of Computation} \strong{35}, 773--782.
+
+Liu, D. C. and Nocedal, J. (1989). On the limited memory BFGS method
+for large scale optimization. \emph{Mathematical Programming}
+\strong{45}, 503--528.
+}
 \seealso{
 \code{\link{bfgs}}
 }

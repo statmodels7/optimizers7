@@ -49,6 +49,13 @@ minimize(gd(line_search = wolfe(), maxit = 200),
          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
 
 }
+\references{
+Wolfe, P. (1969). Convergence conditions for ascent methods.
+\emph{SIAM Review} \strong{11}, 226--235.
+
+Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+2nd edition. Springer, New York.
+}
 \seealso{
 \code{\link{armijo}}
 }

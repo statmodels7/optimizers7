@@ -88,6 +88,13 @@ rosen_he <- function(p) matrix(
 minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 
 }
+\references{
+Gill, P. E., Murray, W. and Wright, M. H. (1981).
+\emph{Practical Optimization}. Academic Press, London.
+
+Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+2nd edition. Springer, New York.
+}
 \seealso{
 \code{\link{bfgs}}, \code{\link{lbfgs}}, \code{\link{minimize}}
 }

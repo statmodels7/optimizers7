@@ -107,6 +107,12 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' table(round(r@trace$value, 6))
 #'
 #' @seealso \code{\link{minimize}}, \code{\link{bfgs}}
+#' @references
+#' McKay, M. D., Beckman, R. J. and Conover, W. J. (1979). A
+#' comparison of three methods for selecting values of input variables
+#' in the analysis of output from a computer code.
+#' \emph{Technometrics} \strong{21}, 239--245.
+#'
 #' @export
 multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
                        ncores = NULL, distinct_tol = 1e-6,

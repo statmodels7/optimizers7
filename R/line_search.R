@@ -106,6 +106,15 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #'          function(p) sum((p - 1:2)^2), c(0, 0))
 #'
 #' @seealso \code{\link{wolfe}}
+#' @references
+#' Armijo, L. (1966). Minimization of functions having Lipschitz
+#' continuous first partial derivatives. \emph{Pacific Journal of
+#' Mathematics} \strong{16}, 1--3.
+#'
+#' Zoutendijk, G. (1970). Nonlinear programming, computational methods.
+#' In J. Abadie (ed.), \emph{Integer and Nonlinear Programming},
+#' 37--86. North-Holland, Amsterdam.
+#'
 #' @export
 armijo <- function(c1 = 1e-4, shrink = 0.5, max_step = 30) {
   check_unit(c1, "c1")
@@ -170,6 +179,13 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #'          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
 #'
 #' @seealso \code{\link{armijo}}
+#' @references
+#' Wolfe, P. (1969). Convergence conditions for ascent methods.
+#' \emph{SIAM Review} \strong{11}, 226--235.
+#'
+#' Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+#' 2nd edition. Springer, New York.
+#'
 #' @export
 wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30) {
   check_unit(c1, "c1")

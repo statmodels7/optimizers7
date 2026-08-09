@@ -63,6 +63,13 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),
          gr = function(p) 2 * (p - c(1, 2)))
 
 }
+\references{
+Cauchy's method is the oldest of them; the modern treatment,
+including why its rate is linear in the condition number, is
+chapter 3 of
+Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+2nd edition. Springer, New York.
+}
 \seealso{
 \code{\link{cg}}, \code{\link{bb}}, \code{\link{bfgs}}
 }

@@ -65,6 +65,13 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #'          gr = function(p) 2 * (p - c(1, 2)))
 #'
 #' @seealso \code{\link{cg}}, \code{\link{bb}}, \code{\link{bfgs}}
+#' @references
+#' Cauchy's method is the oldest of them; the modern treatment,
+#' including why its rate is linear in the condition number, is
+#' chapter 3 of
+#' Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+#' 2nd edition. Springer, New York.
+#'
 #' @export
 gd <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
                step = 1, line_search = armijo(),
