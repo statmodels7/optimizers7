@@ -100,7 +100,7 @@ minimize(bfgs(), rosen, c(-1.2, 1))
 #>   value      : 4.25987e-18
 #>   par        : 1 1
 #>   iterations : 33   evaluations: f 255, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 3 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```
