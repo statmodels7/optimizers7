@@ -102,7 +102,14 @@ every parameter — or one value per parameter. Default <code>-Inf</code> and
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The generic dispatches on <code>optimizer</code> alone, so each algorithm is
+    <p>The problem solved is</p>
+<p>$$\min_{x \in \mathbb{R}^{p}} f(x)
+  \qquad \text{subject to} \quad l \le x \le u,$$</p>
+<p>with \(f\) the objective, \(l\) and \(u\) the bounds, and the
+inequalities read coordinatewise. Every method reports a point where it
+stopped together with the rule that stopped it; convergence is what the
+stopping rule says and is never inferred from the run having ended.</p>
+<p>The generic dispatches on <code>optimizer</code> alone, so each algorithm is
 written once. The objective is normalized separately by
 <code><a href="as_objective.html">as_objective</a></code>, which dispatches on <code>fn</code>, so a caller with
 its own kind of objective registers one method there and every algorithm
@@ -195,7 +202,7 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 4.68179e-20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 7   evaluations: f 42, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1e+03 us</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
@@ -218,7 +225,7 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 8.30993e-15</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 18   evaluations: f 231, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 2 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>

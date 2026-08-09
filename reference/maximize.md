@@ -65,6 +65,14 @@ the negated one.
 
 ## Details
 
+\$\$\arg\max\_{x} f(x) = \arg\min\_{x} \\-f(x)\\, \qquad \max\_{x} f(x)
+= -\min\_{x}\\-f(x)\\,\$\$
+
+so the point is the one
+[`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
+returns and the value, the gradient and the traced objective have their
+sign restored.
+
 Every algorithm in the package minimizes, always; that is the convention
 and the names say so. This is the thin wrapper for the other direction,
 and it exists so that nobody has to remember to negate a log-likelihood
@@ -82,7 +90,7 @@ maximize(gd(), function(p) -sum((p - c(1, 2))^2), c(0, 0))
 #>   value      : -2.80957e-22
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

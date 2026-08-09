@@ -39,7 +39,7 @@ object.
 ## Details
 
 The condition is Grippo, Lampariello and Lucidi's: \$\$f(x_k + s d_k)
-\le \max\_{0 \le j \le m} f(x\_{k-j}) + c_1 s\\ g_k^ op d_k,\$\$ which
+\le \max\_{0 \le j \le m} f(x\_{k-j}) + c_1 s\\ g_k^\top d_k,\$\$ which
 is Armijo's with the reference replaced by the largest of the last
 \\m+1\\ values. Every step it accepts improves on the worst of recent
 memory; none is required to improve on the present.

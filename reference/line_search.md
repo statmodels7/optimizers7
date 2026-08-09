@@ -26,6 +26,26 @@ Newton, BFGS and L-BFGS share one carefully written answer instead of
 each carrying its own, and what lets a user change the answer without
 touching the method.
 
+At a point \\x\\ with gradient \\g\\ and a direction \\d\\ satisfying
+\\g^\top d \< 0\\, a line search returns a step length \\s \> 0\\. What
+every subclass guarantees is *sufficient decrease*, Armijo's condition
+
+\$\$f(x + s d) \le f(x) + c_1 s\\ g^\top d, \qquad 0 \< c_1 \< 1,\$\$
+
+which asks for a fraction \\c_1\\ of the decrease the linear model
+predicts and so rules out steps that shrink the objective by an amount
+vanishing faster than the step itself.
+[`wolfe`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
+adds the strong curvature condition
+
+\$\$\lvert \nabla f(x + s d)^\top d \rvert \le c_2 \lvert g^\top d
+\rvert, \qquad c_1 \< c_2 \< 1,\$\$
+
+which excludes steps too short to have moved the directional derivative
+and is what makes the secant pair of
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+carry usable curvature.
+
 The class is abstract; use
 [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
 or

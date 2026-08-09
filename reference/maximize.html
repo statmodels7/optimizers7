@@ -103,7 +103,11 @@ every parameter — or one value per parameter. Default <code>-Inf</code> and
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Every algorithm in the package minimizes, always; that is the convention and
+    <p>$$\arg\max_{x} f(x) = \arg\min_{x} \{-f(x)\},
+  \qquad \max_{x} f(x) = -\min_{x}\{-f(x)\},$$</p>
+<p>so the point is the one <code><a href="minimize.html">minimize</a></code> returns and the value, the
+gradient and the traced objective have their sign restored.</p>
+<p>Every algorithm in the package minimizes, always; that is the convention and
 the names say so. This is the thin wrapper for the other direction, and it
 exists so that nobody has to remember to negate a log-likelihood by hand and
 then negate the answer back.</p>
@@ -120,7 +124,7 @@ then negate the answer back.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : -2.80957e-22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 1   evaluations: f 11, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1e+03 us</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
