@@ -312,14 +312,26 @@ because the subgradient it evaluates never becomes small.
 - [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
   : Pattern Search, With Coordinate or Random Polling
 
+## Searching before descending
+
+A global search for the problems where the answer depends on which basin
+the run began in. It is meant to hand its result to a local method
+rather than to finish the job itself.
+
+- [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) :
+  Simulated Annealing With an Adaptive Step
+
 ## Wrapping an optimizer
 
-Multi-start is itself an optimizer, so it composes with everything
-above. What it reports that a single run cannot is the number of
-distinct optima.
+Both are themselves optimizers, so they compose with everything above
+and with each other. Multi-start reports what a single run cannot, the
+number of distinct optima; a chain runs its stages in order, each
+starting where the previous finished.
 
 - [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
   : Run an Optimizer From Many Starting Points
+- [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
+  : Run Optimizers One After Another
 
 ## Stopping rules
 

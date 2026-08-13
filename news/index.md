@@ -1,5 +1,52 @@
 # Changelog
 
+## optimizers7 0.2.0
+
+- [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md),
+  simulated annealing with an adaptive step. The parameters move one
+  coordinate at a time and each coordinate’s step is adjusted every few
+  sweeps to hold its acceptance rate near a target (Corana et al. 1987),
+  which is what makes the method usable on a statistical objective,
+  whose unconstrained coordinates sit on scales orders of magnitude
+  apart. The proposal is uniform or Cauchy, the second being fast
+  simulated annealing (Szu and Hartley 1987) and the `q = 2` member of
+  the Tsallis family; the general Tsallis visiting distribution is
+  deliberately absent, its generator being one that could not be
+  validated against anything already here. The initial temperature is
+  calibrated from the objective’s own variation unless the caller sets
+  it, so the same problem scaled by a million is solved as well. What
+  the run returns is the best point SEEN and not the last, and
+  `converged` is never inferred from the schedule finishing: the
+  stationarity reported is Corana’s own termination rule, so
+  [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
+  is that rule rather than a second convention beside it.
+  [`sa_run_r()`](https://statmodels7.github.io/optimizers7/reference/sa_run_r.md)
+  is the R twin the compiled loop is held to – the two draw from R’s
+  generator in the same order, so from one seed they are the same run
+  and the test needs no tolerance. Measured, the port is worth 1.74x on
+  an objective costing 0.7 microseconds and 1.34x on one costing 3.8; on
+  an objective of half a millisecond, which is what a modelling layer’s
+  inner one costs, the loop’s overhead is a quarter of a per cent and
+  the port buys nothing.
+
+- [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md),
+  which runs optimizers one after another, each starting where the
+  previous finished: `chain(sa(), lbfgs())` explores and then descends,
+  and neither method knows about the other. It is the second wrapper of
+  this shape after
+  [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md),
+  and the two compose. Each stage carries its own criterion and budgets;
+  the point, the value and `converged` are the last stage’s, the work is
+  summed, and the trace carries a `stage` column.
+
+- [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)’s
+  ninth check runs its `maximize` comparison from the SAME random stream
+  as the `minimize` it is compared against, as the eighth check already
+  re-seeded. Without it the check silently required the optimizer to
+  converge tightly enough that two independent runs agree to 1e-5, which
+  the mesh-shrinking methods happen to do – so it passed for the wrong
+  reason everywhere and failed for the wrong reason on a global search.
+
 ## optimizers7 0.1.0
 
 ### Methods

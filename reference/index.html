@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -170,9 +170,25 @@
         </dt>
         <dd>Pattern Search, With Coordinate or Random Polling</dd>
       </dl></div><div class="section level2">
+      <h2 id="searching-before-descending">Searching before descending<a class="anchor" aria-label="anchor" href="#searching-before-descending"></a></h2>
+
+      <div class="section-desc"><p>A global search for the problems where the answer depends on which basin the run began in. It is meant to hand its result to a local method rather than to finish the job itself.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="sa.html">sa()</a></code>
+
+        </dt>
+        <dd>Simulated Annealing With an Adaptive Step</dd>
+      </dl></div><div class="section level2">
       <h2 id="wrapping-an-optimizer">Wrapping an optimizer<a class="anchor" aria-label="anchor" href="#wrapping-an-optimizer"></a></h2>
 
-      <div class="section-desc"><p>Multi-start is itself an optimizer, so it composes with everything above. What it reports that a single run cannot is the number of distinct optima.</p></div>
+      <div class="section-desc"><p>Both are themselves optimizers, so they compose with everything above and with each other. Multi-start reports what a single run cannot, the number of distinct optima; a chain runs its stages in order, each starting where the previous finished.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -185,6 +201,13 @@
 
         </dt>
         <dd>Run an Optimizer From Many Starting Points</dd>
+
+        <dt>
+
+          <code><a href="chain.html">chain()</a></code>
+
+        </dt>
+        <dd>Run Optimizers One After Another</dd>
       </dl></div><div class="section level2">
       <h2 id="stopping-rules">Stopping rules<a class="anchor" aria-label="anchor" href="#stopping-rules"></a></h2>
 

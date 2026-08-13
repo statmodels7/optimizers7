@@ -150,7 +150,7 @@ compass()
 # a kink running diagonally, which no coordinate direction descends
 f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
 minimize(compass(), f, c(1, 0.5))@value
-#> [1] 0.002114785
+#> [1] 0.01028872
 set.seed(1)
 minimize(compass(directions = "mads"), f, c(1, 0.5))@value
 #> [1] 0.02685585
