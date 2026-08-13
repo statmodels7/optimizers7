@@ -5,6 +5,10 @@ adam_run <- function(spec, par, criterion, crit_fn, alpha, beta1, beta2, eps, de
     .Call(`_optimizers7_adam_run`, spec, par, criterion, crit_fn, alpha, beta1, beta2, eps, decay, amsgrad, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 
+sa_run <- function(spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_sa_run`, spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit, max_eval, verbose, refresh, keep_trace, bounds)
+}
+
 bounded_transform_cpp <- function(b, eta) {
     .Call(`_optimizers7_bounded_transform_cpp`, b, eta)
 }

@@ -1,6 +1,6 @@
 Package: optimizers7
 Title: An S7 Framework for Optimization Algorithms
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Optimization algorithms as objects, built on the S7 object
@@ -37,9 +37,11 @@ Collate:
     'generics.R'
     'methods.R'
     'adam.R'
+    'annealing.R'
     'bundle.R'
     'test_problems.R'
     'check_optimizer.R'
+    'chain.R'
     'direct_search.R'
     'first_order.R'
     'line_search.R'

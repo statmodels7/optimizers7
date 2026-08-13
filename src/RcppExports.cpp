@@ -37,6 +37,35 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sa_run
+Rcpp::List sa_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, bool cauchy, double t0, double cooling, int cycles, int steps, double step, double target_accept, double adjust, int n_eps, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_sa_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP cauchySEXP, SEXP t0SEXP, SEXP coolingSEXP, SEXP cyclesSEXP, SEXP stepsSEXP, SEXP stepSEXP, SEXP target_acceptSEXP, SEXP adjustSEXP, SEXP n_epsSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type spec(specSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type par(parSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type criterion(criterionSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type crit_fn(crit_fnSEXP);
+    Rcpp::traits::input_parameter< bool >::type cauchy(cauchySEXP);
+    Rcpp::traits::input_parameter< double >::type t0(t0SEXP);
+    Rcpp::traits::input_parameter< double >::type cooling(coolingSEXP);
+    Rcpp::traits::input_parameter< int >::type cycles(cyclesSEXP);
+    Rcpp::traits::input_parameter< int >::type steps(stepsSEXP);
+    Rcpp::traits::input_parameter< double >::type step(stepSEXP);
+    Rcpp::traits::input_parameter< double >::type target_accept(target_acceptSEXP);
+    Rcpp::traits::input_parameter< double >::type adjust(adjustSEXP);
+    Rcpp::traits::input_parameter< int >::type n_eps(n_epsSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
+    Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
+    rcpp_result_gen = Rcpp::wrap(sa_run(spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    return rcpp_result_gen;
+END_RCPP
+}
 // bounded_transform_cpp
 Rcpp::List bounded_transform_cpp(Rcpp::NumericVector b, arma::vec eta);
 RcppExport SEXP _optimizers7_bounded_transform_cpp(SEXP bSEXP, SEXP etaSEXP) {
@@ -164,6 +193,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_optimizers7_adam_run", (DL_FUNC) &_optimizers7_adam_run, 16},
+    {"_optimizers7_sa_run", (DL_FUNC) &_optimizers7_sa_run, 19},
     {"_optimizers7_bounded_transform_cpp", (DL_FUNC) &_optimizers7_bounded_transform_cpp, 2},
     {"_optimizers7_bounded_forward_cpp", (DL_FUNC) &_optimizers7_bounded_forward_cpp, 2},
     {"_optimizers7_bundle_run", (DL_FUNC) &_optimizers7_bundle_run, 17},

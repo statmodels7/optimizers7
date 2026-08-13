@@ -166,7 +166,17 @@ check_optimizer <- function(optimizer, problems = test_problems(),
   }
   ok[8] <- !failed(again) && isTRUE(all.equal(base@par, again@par))
 
-  # [9]
+  # [9] From the SAME random stream as the run it is compared against, for the
+  # reason check [8] re-seeds: the property under test is that maximize mirrors
+  # minimize, and for a stochastic method that statement is only meaningful
+  # given the same draws. Without it the check silently required the optimizer
+  # to converge tightly enough that two independent runs agree to 1e-5 --
+  # which the mesh-shrinking methods happen to do and a global search does not,
+  # so the check passed for the wrong reason everywhere and failed for the
+  # wrong reason on simulated annealing.
+  if (!is.null(base@seed)) {
+    assign(".Random.seed", base@seed, envir = globalenv())
+  }
   mx <- tryCatch(maximize(optimizer, function(p) -sph$fn(p), sph$par,
                           gr = function(p) -sph$gr(p)),
                  error = function(e) e)
