@@ -74,8 +74,8 @@ f <- function(p) sum((p - c(1, 2))^2)
 g <- function(p) 2 * (p - c(1, 2))
 minimize(bfgs(line_search = armijo()), f, c(0, 0), gr = g)@counts
 #> f g h 
-#> 3 2 0 
+#> 3 3 0 
 minimize(bfgs(line_search = wolfe()), f, c(0, 0), gr = g)@counts
 #> f g h 
-#> 3 2 0 
+#> 3 3 0 
 ```

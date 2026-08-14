@@ -198,5 +198,5 @@ set.seed(1)
 minimize(sa(), rastrigin, c(4.4, -3.6))@value
 #> [1] 0.9141033
 minimize(bfgs(), rastrigin, c(4.4, -3.6))@value
-#> [1] 33.82832
+#> [1] 7.959662
 ```

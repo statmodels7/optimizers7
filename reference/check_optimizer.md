@@ -138,13 +138,13 @@ check_optimizer(bfgs())
 #>   All checks passed.
 #> 
 #>   battery (gap from the known minimum; information, not a verdict)
-#>     sphere       gap  0.00e+00  conv        3 evals  
-#>     rosenbrock   gap  7.49e-17  conv       64 evals  
-#>     booth        gap  4.80e-18  conv       15 evals  
-#>     beale        gap  4.11e-14  conv       20 evals  
-#>     powell       gap  2.86e-13  conv       60 evals  
-#>     himmelblau   gap  5.54e-15  conv       18 evals  multimodal
-#>     rastrigin    gap  7.96e+00  conv       15 evals  multimodal
+#>     sphere       gap  4.62e-33  conv        3 evals  
+#>     rosenbrock   gap  1.30e-21  conv       50 evals  
+#>     booth        gap  1.73e-17  conv        8 evals  
+#>     beale        gap  3.18e-15  conv       17 evals  
+#>     powell       gap  4.59e-12  conv       42 evals  
+#>     himmelblau   gap  3.64e-17  conv       18 evals  multimodal
+#>     rastrigin    gap  0.00e+00  conv       11 evals  multimodal
 #>     abs_sum      gap  1.26e-02  -          84 evals  non-smooth
 
 # a method that does not compute a gradient is held to fewer claims, and to

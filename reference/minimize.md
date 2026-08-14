@@ -176,9 +176,9 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0))
 # one bound for every parameter: a scale that must stay positive
 minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
 #> <optimizer_result> BFGS
-#>   value      : 4.68179e-20
+#>   value      : 4.68178e-20
 #>   par        : 1 2
-#>   iterations : 7   evaluations: f 42, g 0
+#>   iterations : 7   evaluations: f 48, g 0
 #>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
@@ -199,10 +199,10 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5),
 minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
          lower = c(0, 0), upper = c(5, 10))
 #> <optimizer_result> BFGS
-#>   value      : 8.30993e-15
+#>   value      : 3.05571e-16
 #>   par        : 1 2
-#>   iterations : 18   evaluations: f 231, g 0
-#>   elapsed    : 2 ms
+#>   iterations : 12   evaluations: f 65, g 0
+#>   elapsed    : 1e+03 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

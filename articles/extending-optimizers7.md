@@ -103,7 +103,7 @@ callback into R.
 
 minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 #> f g h 
-#> 3 2 0
+#> 3 3 0
 ```
 
 With no gradient supplied, one is obtained by central differences, and
@@ -429,7 +429,7 @@ str(p, max.level = 1)
 #>  $ smooth    : logi TRUE
 
 minimize(bfgs(), p$fn, p$par, gr = p$gr)@par
-#> [1] 3.0000005 0.5000001
+#> [1] 3.0 0.5
 p$solution
 #> [1] 3.0 0.5
 ```

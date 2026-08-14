@@ -97,9 +97,9 @@ when a Hessian is available.
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 minimize(bfgs(), rosen, c(-1.2, 1))
 #> <optimizer_result> BFGS
-#>   value      : 4.25987e-18
+#>   value      : 1.67048e-13
 #>   par        : 1 1
-#>   iterations : 33   evaluations: f 255, g 0
+#>   iterations : 35   evaluations: f 210, g 0
 #>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences

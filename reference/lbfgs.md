@@ -81,9 +81,9 @@ large scale optimization. *Mathematical Programming* **45**, 503–528.
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
 #> <optimizer_result> L-BFGS
-#>   value      : 5.34216e-17
+#>   value      : 6.56587e-17
 #>   par        : 1 1
-#>   iterations : 34   evaluations: f 253, g 0
+#>   iterations : 37   evaluations: f 214, g 0
 #>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences

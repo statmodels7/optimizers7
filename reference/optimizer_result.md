@@ -122,5 +122,5 @@ res@criterion_met
 #> [1] "gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)"
 res@counts
 #> f g h 
-#> 3 2 0 
+#> 3 3 0 
 ```
