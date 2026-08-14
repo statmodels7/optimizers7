@@ -91,7 +91,16 @@ test_that("the battery separates power from correctness", {
 
 
 test_that("a local method finding another local minimum is not a failure", {
-  res <- check_optimizer(bfgs(), problems = test_problems("rastrigin"),
+  # The start is the test's own and not the shipped problem's, because from
+  # rastrigin's default start bfgs now reaches the GLOBAL minimum: scaling the
+  # first quasi-Newton direction to a step of order one in the parameters
+  # keeps it in that basin where the unscaled gradient step left it. That is
+  # an improvement and not the claim being made here, which is that the
+  # twelve checks pass whatever the battery's gap says -- so the start is one
+  # whose basin is not the global one.
+  ras <- test_problems("rastrigin")[[1L]]
+  ras$par <- c(0.6, 0.6)
+  res <- check_optimizer(bfgs(), problems = list(rastrigin = ras),
                          verbose = FALSE)
   expect_gt(res$battery$gap, 1)        # it found a different minimum
   expect_true(all(res$checks))         # and behaved correctly throughout

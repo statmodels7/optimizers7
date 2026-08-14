@@ -157,3 +157,45 @@ test_that("every method reaches the same minimizer of a shared problem", {
     expect_lt(diff(range(pars[, j])), 1e-5)
   }
 })
+
+
+test_that("the first quasi-Newton step is of order one in the parameters", {
+  # A quasi-Newton direction is scaled so that step = 1 means the NEWTON step,
+  # which is why bfgs() and lbfgs() default to it. On the first iteration
+  # there is no curvature and the direction degenerates to -g, for which one
+  # is not a natural unit: the trial displacement IS the gradient, so on a
+  # badly scaled objective the first point tried is an arbitrary distance
+  # away and the line search pays to backtrack all the way in.
+  #
+  # A quadratic 0.5*c*|x|^2 makes the arithmetic explicit. From x0 = 1 the
+  # gradient is c and the minimizer along -g sits at alpha = 1/c, so an
+  # unscaled first direction needs about log2(c) halvings to reach it, while
+  # a direction of unit max-norm reaches it at alpha = 1 and the line search
+  # accepts immediately.
+  cs <- 1e4
+  f <- function(p) 0.5 * cs * sum(p^2)
+  g <- function(p) cs * p
+  x0 <- c(1, 1)
+
+  for (o in list(bfgs(), lbfgs())) {
+    r <- minimize(o, f, x0, gr = g)
+    lab <- o@name
+    expect_true(r@converged, info = lab)
+    # Measured with the scaling and without it, on this problem: one
+    # iteration and 4 evaluations against two iterations and 19, for both
+    # methods. Ten separates them with room on either side.
+    expect_lt(sum(as.numeric(r@counts)), 10, label = lab)
+  }
+
+  # and it only ever SHORTENS: a problem whose gradient at the start is
+  # already of order one takes the identical path, which is what makes this
+  # safe to change under two packages that depend on the default. Here
+  # max|g| = 0.6 at the start, so the scaling does not fire -- measured, 2
+  # iterations and 6 evaluations either way.
+  f2 <- function(p) 0.15 * sum(p^2)
+  g2 <- function(p) 0.3 * p
+  r2 <- minimize(lbfgs(), f2, c(2, -1), gr = g2)
+  expect_true(r2@converged)
+  expect_lt(max(abs(r2@par)), 1e-6)
+  expect_identical(r2@iterations, 2L)
+})

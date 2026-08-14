@@ -1,3 +1,42 @@
+# optimizers7 0.3.0
+
+* `bfgs()` and `lbfgs()` scale their FIRST direction to a step of order one
+  in the parameters. A quasi-Newton direction is scaled so that `step = 1`
+  means the Newton step, which is why both default to it; on the first
+  iteration -- and after a reset -- there is no curvature information and the
+  direction degenerates to `-g`, for which one is not a natural unit at all.
+  The trial displacement is then the gradient itself, so on a badly scaled
+  objective the first point tried is an arbitrary distance away and the line
+  search pays to backtrack all the way in.
+
+  It is the rule `bb()` already uses when its secant pair reports no
+  curvature, adopted there after being measured against three alternatives,
+  and for the same two reasons: `1/||g||_inf` cannot freeze, not depending on
+  the step it replaces, and cannot explode, scaling with the gradient. It
+  only ever SHORTENS -- `min(1, 1/||g||_inf)` -- so a problem whose gradient
+  at the start is already of order one takes the identical path, which is
+  what makes this safe to change under the packages that depend on the
+  default.
+
+  `gd()` and `cg()` are deliberately unchanged: there the direction is the
+  gradient by design and the step length is the line search's whole job, so
+  `step = 1` was never claiming to be a Newton unit.
+
+  Measured on `test_problems()`, before against after: the same 14 of 16
+  converged, total evaluations 984 to 883, and the gradient at the reported
+  solution equal or better on every problem (rosenbrock under bfgs, 1.15e-07
+  to 4.37e-10). Per problem, rosenbrock 108 to 90, booth 26 to 16, powell 112
+  to 84. On `0.5*1e4*|x|^2` from `x0 = 1`, where the arithmetic is explicit,
+  19 evaluations become 4.
+
+  What prompted it was statmodels7's marginal criterion over a score-driven
+  panel, whose derivative grows with the number of penalized coordinates: a
+  gradient of 12.3 on a log-scale hyperparameter put the first trial value at
+  `exp(-12.3)` of the start, and the search spent itself backtracking through
+  a region where the inner fit could not be evaluated. Four panels that
+  needed a derivative-free search, or failed outright, now fit in 5 to 8
+  criterion evaluations against 23 to 55.
+
 # optimizers7 0.2.0
 
 * `sa()`, simulated annealing with an adaptive step. The parameters move one

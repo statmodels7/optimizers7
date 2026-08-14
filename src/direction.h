@@ -33,6 +33,41 @@ public:
 };
 
 
+// --- the first step of a quasi-Newton method ---------------------------------
+//
+// A quasi-Newton direction is scaled so that step = 1 means the Newton step,
+// and that is why bfgs() and lbfgs() default to it. On the FIRST iteration --
+// and after a reset -- there is no curvature information at all and the
+// direction degenerates to -g, for which one is not a natural unit: the trial
+// displacement is then the gradient itself, so on a badly scaled objective the
+// first point tried is an arbitrary distance away. Measured on statmodels7's
+// marginal criterion over a score-driven panel, whose derivative grows with
+// the number of penalized coordinates: a gradient of 12.3 on a log-scale
+// hyperparameter put the first trial value at exp(-12.3) of the start, and the
+// line search spent itself backtracking through a region where the inner fit
+// could not be evaluated.
+//
+// Asking instead for a step of order one in the PARAMETERS is the rule bb()
+// already uses when its secant pair reports no curvature, adopted there for
+// the same two reasons after being measured against three alternatives: it
+// cannot freeze, not depending on the step it replaces, and it cannot explode,
+// scaling with the gradient.
+//
+// It only ever SHORTENS. min(1, 1/||g||_inf) leaves every problem whose
+// gradient is already of order one exactly as it was, so this cannot lengthen
+// a first step that was working -- which is what makes it safe to change a
+// default two packages depend on.
+//
+// gd() and cg() are deliberately NOT changed: there the direction is the
+// gradient by design and the step length is the line search's whole job, so
+// step = 1 was never claiming to be a Newton unit.
+inline arma::vec first_descent(const arma::vec& g) {
+  const double gmax = arma::norm(g, "inf");
+  if (!std::isfinite(gmax) || gmax <= 1.0) return -g;
+  return -g / gmax;
+}
+
+
 // --- steepest descent -------------------------------------------------------
 
 class SteepestDescent : public Direction {
@@ -336,12 +371,15 @@ public:
 
   arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
                     std::string& guard) {
+    // until a pair has been accepted Binv_ is the identity, so the direction
+    // IS the gradient and step = 1 is not a Newton unit: see first_descent()
+    if (first_) return first_descent(g);
     arma::vec d = -(Binv_ * g);
     if (!d.is_finite() || arma::dot(g, d) >= 0.0) {
       guard = "bfgs reset";
       Binv_.eye();
       skips_ = 0;
-      d = -g;
+      d = first_descent(g);
     }
     return d;
   }
@@ -401,7 +439,9 @@ public:
 
   arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
                     std::string& guard) {
-    if (S_.empty()) return -g;
+    // no pairs yet, so the two-loop recursion has nothing to recur over and
+    // the direction is the gradient: see first_descent()
+    if (S_.empty()) return first_descent(g);
 
     arma::vec q = g;
     const std::size_t k = S_.size();
@@ -428,7 +468,7 @@ public:
     if (!d.is_finite() || arma::dot(g, d) >= 0.0) {
       guard = "lbfgs reset";
       S_.clear(); Y_.clear(); rho_.clear();
-      d = -g;
+      d = first_descent(g);
     }
     return d;
   }

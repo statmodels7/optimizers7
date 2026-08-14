@@ -138,14 +138,29 @@ check_optimizer <- function(optimizer, problems = test_problems(),
   # [5]
   ok[5] <- is.numeric(base@counts) && base@counts[["f"]] > 0
 
-  # [6]
+  # [6] A trace is one row per STEP for a descent method and one row per START
+  # for multistart(), so the key is `iteration` in the first case and `start`
+  # in the second; whichever it is must begin at one and not go backwards.
+  #
+  # ⚠️ This read `traced@trace$iteration`, and `$` on a data frame PARTIALLY
+  # MATCHES: on a multistart trace, whose columns are start/value/converged/
+  # iterations, it silently returned the `iterations` column and compared the
+  # first start's iteration COUNT against one. That passed for as long as the
+  # inner method happened to solve the sphere in a single iteration and broke
+  # the moment it took two, which is how it was found. `[[` does not partial
+  # match, and asking for the key the trace actually has is the check.
   traced <- run(with_trace(optimizer), sph)
   ok[6] <- !failed(traced) &&
     (is.null(traced@trace) ||
-       (is.data.frame(traced@trace) && nrow(traced@trace) > 0 &&
-          !is.null(traced@trace$iteration) &&
-          traced@trace$iteration[1] == 1 &&
-          !is.unsorted(traced@trace$iteration)))
+       local({
+         tr <- traced@trace
+         if (!is.data.frame(tr) || !nrow(tr)) return(FALSE)
+         key <- if ("iteration" %in% names(tr)) "iteration" else
+                if ("start" %in% names(tr)) "start" else NA_character_
+         if (is.na(key)) return(FALSE)
+         v <- tr[[key]]
+         is.numeric(v) && v[1] == 1 && !is.unsorted(v)
+       }))
 
   # [7] A box whose ceiling binds, so the transform is pushed hard. Vacuous
   # for a method that declares it takes its constraint another way.
