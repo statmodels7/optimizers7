@@ -115,6 +115,21 @@ Rcpp::List descent_run(Rcpp::List spec,
         if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
         break;
       }
+      // A search that stopped because the decrease it must verify fell below
+      // what the objective can RESOLVE has not failed: it has established that
+      // no step along a descent direction improves on this point by anything
+      // this objective can show. That is convergence to the accuracy the
+      // objective has, and it is reported in those words rather than as a
+      // criterion being met, so a reader is told the weaker true thing and not
+      // the stronger false one. It is reachable only where the caller declared
+      // a resolution; the default of zero leaves this branch dead.
+      if (res.unresolvable) {
+        converged = true;
+        stopped_by = "resolution";
+        if (res.guard != "none") guard = res.guard;
+        if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
+        break;
+      }
       note = "the line search found no acceptable step";
       stopped_by = "failed";
       if (res.guard != "none") guard = res.guard;

@@ -4,7 +4,7 @@
 \alias{wolfe}
 \title{Line Search Satisfying the Strong Wolfe Conditions}
 \usage{
-wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30)
+wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
 }
 \arguments{
 \item{c1}{Sufficient-decrease constant. Defaults to \code{1e-4}.}
@@ -16,6 +16,12 @@ line search.}
 
 \item{max_step}{Maximum trial steps in each of the bracketing and zoom
 phases. Defaults to 30.}
+
+\item{resolution}{The smallest difference in the objective that means
+anything, in the objective's own units, or a function of no arguments
+returning it where it moves as the run goes. Defaults to \code{0}, which
+does not ask the question; see \code{\link{armijo}} for what it is for and
+why it is asked at the full step rather than during the search.}
 }
 \value{
 A \code{\link{line_search}} object.

@@ -9,7 +9,8 @@ NonmonotoneSearch(
   c1 = integer(0),
   shrink = integer(0),
   memory = integer(0),
-  max_step = integer(0)
+  max_step = integer(0),
+  resolution = NULL
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ NonmonotoneSearch(
 \item{memory}{How many earlier values the reference looks back over.}
 
 \item{max_step}{The most backtracks allowed.}
+
+\item{resolution}{What the objective can tell apart.}
 }
 \value{
 An S7 object inheriting from \code{\link{line_search}}.

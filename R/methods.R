@@ -277,10 +277,11 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
   }
 
   stopped <- switch(out$stopped_by,
-    criterion = optimizer@criterion@label,
-    maxit     = "iteration budget reached",
-    max_eval  = "evaluation budget reached",
-    failed    = "stopped without converging",
+    criterion  = optimizer@criterion@label,
+    maxit      = "iteration budget reached",
+    max_eval   = "evaluation budget reached",
+    failed     = "stopped without converging",
+    resolution = "no decrease above the objective's resolution",
     out$stopped_by
   )
 

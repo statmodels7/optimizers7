@@ -8,7 +8,8 @@ WolfeSearch(
   label = character(0),
   c1 = integer(0),
   c2 = integer(0),
-  max_step = integer(0)
+  max_step = integer(0),
+  resolution = NULL
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ WolfeSearch(
 \item{c2}{The curvature constant.}
 
 \item{max_step}{The most trial steps allowed.}
+
+\item{resolution}{What the objective can tell apart.}
 }
 \value{
 An S7 object inheriting from \code{\link{line_search}}.

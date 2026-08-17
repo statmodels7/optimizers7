@@ -187,3 +187,163 @@ test_that("a search that cannot move away from a stationary point still fails", 
   expect_false(r@converged)
   expect_match(r@message, "no acceptable step")
 })
+
+
+test_that("a resolution stops a search that cannot verify a smaller decrease", {
+  # An objective computed by a procedure returns slightly different values for
+  # the same argument. Below that spread its values carry no information, and
+  # the Armijo demand c1 * s * |g'd| shrinks with the step, so every remaining
+  # backtrack compares numbers the objective cannot tell apart.
+  mk <- function(jitter) {
+    A <- diag(c(1, 12))
+    k <- 0L
+    list(
+      fn = function(z) {
+        k <<- k + 1L
+        3e4 + 0.5 * drop(t(z) %*% A %*% z) +
+          jitter * sin(k * 2.399963229728653)
+      },
+      gr = function(z) drop(A %*% z))
+  }
+
+  # with no resolution declared the run reports failure at a point it is not
+  # leaving, which is the behaviour this exists to correct
+  o <- mk(1e-3)
+  bare <- suppressWarnings(minimize(lbfgs(), o$fn, c(3, -2), gr = o$gr))
+  expect_false(bare@converged)
+
+  o <- mk(1e-3)
+  told <- suppressWarnings(
+    minimize(lbfgs(line_search = wolfe(resolution = 1e-3)), o$fn, c(3, -2),
+             gr = o$gr))
+  expect_true(told@converged)
+  expect_match(told@criterion_met, "resolution")
+  # the same ANSWER, reached for less. Both runs end where the objective stops
+  # carrying information, so they agree to the size of the jitter and not to
+  # machine precision, which is the whole point of declaring one
+  expect_equal(told@value, bare@value, tolerance = 1e-3)
+  expect_true(max(abs(told@par)) < 1e-2)
+  expect_lt(told@counts[["f"]], bare@counts[["f"]])
+})
+
+
+test_that("a declared resolution does not rescue a genuine failure", {
+  # THE CONTROL THAT REFUTED THE FIRST DESIGN. A mis-stated gradient makes the
+  # direction ascend at a point nowhere near stationary. With the resolution
+  # asked inside the backtracking loop this run was promoted to converged,
+  # because a vanishing step stops resolving the change whichever of the two
+  # is wrong. Asked at the full step the predicted improvement is 10 against a
+  # resolution of 1e-3, so the failure survives.
+  f <- function(p) sum((p - c(1, 2))^2)
+  for (res in c(1e-3, 1e-1)) {
+    r <- suppressWarnings(
+      minimize(bfgs(line_search = wolfe(resolution = res)), f, c(-3, 4),
+               gr = function(p) -2 * (p - c(1, 2)))
+    )
+    expect_false(r@converged)
+    expect_match(r@message, "no acceptable step")
+  }
+})
+
+
+test_that("the resolution is off by default and validated", {
+  expect_identical(armijo()@resolution, 0)
+  expect_identical(wolfe()@resolution, 0)
+  expect_identical(nonmonotone()@resolution, 0)
+  expect_identical(line_search_spec(armijo(resolution = 2))$resolution, 2)
+  expect_identical(line_search_spec(wolfe(resolution = 2))$resolution, 2)
+  expect_identical(line_search_spec(nonmonotone(resolution = 2))$resolution, 2)
+  for (bad in list(-1, c(1, 2), NA_real_, Inf, "x")) {
+    expect_error(armijo(resolution = bad), "non-negative finite")
+    expect_error(wolfe(resolution = bad), "non-negative finite")
+    expect_error(nonmonotone(resolution = bad), "non-negative finite")
+  }
+  # and with it at zero every method reaches the same answer it always did
+  f <- function(p) sum((p - c(1, 2))^2)
+  gr <- function(p) 2 * (p - c(1, 2))
+  a <- minimize(bfgs(line_search = wolfe()), f, c(-3, 4), gr = gr)
+  b <- minimize(bfgs(line_search = wolfe(resolution = 0)), f, c(-3, 4), gr = gr)
+  expect_identical(a@par, b@par)
+  expect_identical(a@counts, b@counts)
+})
+
+
+test_that("armijo takes a resolution on its own backtracking", {
+  # bb() runs a nonmonotone Armijo search, so the armijo branch of the kernel
+  # is the one exercised here rather than wolfe's zoom.
+  mk <- function(jitter) {
+    k <- 0L
+    list(fn = function(z) {
+           k <<- k + 1L
+           3e4 + 0.5 * sum(c(1, 12) * z^2) + jitter * sin(k * 2.3999632297)
+         },
+         gr = function(z) c(1, 12) * z)
+  }
+  o <- mk(1e-3)
+  bare <- suppressWarnings(
+    minimize(gd(line_search = armijo(), maxit = 200L), o$fn, c(3, -2),
+             gr = o$gr))
+  o <- mk(1e-3)
+  told <- suppressWarnings(
+    minimize(gd(line_search = armijo(resolution = 1e-3), maxit = 200L),
+             o$fn, c(3, -2), gr = o$gr))
+  expect_true(told@converged)
+  expect_match(told@criterion_met, "resolution")
+  expect_lt(told@counts[["f"]], bare@counts[["f"]])
+})
+
+
+test_that("a resolution that moves is asked again at every iteration", {
+  # An objective that settles as the run goes -- a fit warm-started from the
+  # previous evaluation locates its answer better each time -- has a
+  # resolution that improves with it, and the reading taken once at the start
+  # is the one from the worst point of the whole run.
+  mk <- function() {
+    A <- diag(c(1, 12)); k <- 0L
+    list(fn = function(z) {
+           k <<- k + 1L
+           3e4 + 0.5 * drop(t(z) %*% A %*% z) + 1e-3 * sin(k * 2.3999632297)
+         },
+         gr = function(z) drop(A %*% z))
+  }
+
+  asked <- 0L
+  moving <- function() { asked <<- asked + 1L; 1e-3 }
+  o <- mk()
+  r <- suppressWarnings(
+    minimize(lbfgs(line_search = wolfe(resolution = moving)), o$fn, c(3, -2),
+             gr = o$gr))
+  expect_true(r@converged)
+  expect_match(r@criterion_met, "resolution")
+  # once per invocation of the search, so once an iteration and not once per
+  # trial: the count tracks the iterations rather than the evaluations
+  expect_gt(asked, 0L)
+  expect_lte(asked, r@iterations + 1L)
+
+  # a constant function and the number itself are the same run
+  o <- mk()
+  a <- suppressWarnings(
+    minimize(lbfgs(line_search = wolfe(resolution = 1e-3)), o$fn, c(3, -2),
+             gr = o$gr))
+  o <- mk()
+  b <- suppressWarnings(
+    minimize(lbfgs(line_search = wolfe(resolution = function() 1e-3)), o$fn,
+             c(3, -2), gr = o$gr))
+  expect_identical(a@par, b@par)
+  expect_identical(a@counts, b@counts)
+  expect_identical(a@converged, b@converged)
+
+  # what is not finite and positive asks nothing, which is how a caller with
+  # no reading yet says so without a branch of its own
+  o <- mk()
+  none <- suppressWarnings(
+    minimize(lbfgs(line_search = wolfe(resolution = function() NA_real_)),
+             o$fn, c(3, -2), gr = o$gr))
+  expect_false(none@converged)
+
+  # a function that takes arguments is refused at construction, where the
+  # caller can see it, rather than at the first iteration
+  expect_error(wolfe(resolution = function(x) 1), "no arguments")
+  expect_error(armijo(resolution = function(x) 1), "no arguments")
+  expect_error(nonmonotone(resolution = function(x) 1), "no arguments")
+})

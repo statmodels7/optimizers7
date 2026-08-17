@@ -1,3 +1,47 @@
+# optimizers7 0.4.0
+
+* `armijo()`, `wolfe()` and `nonmonotone()` take a `resolution`: the smallest
+  difference in the objective that means anything, in the objective's own
+  units. It defaults to `0`, which does not ask the question, so nothing
+  changes for a caller who does not set one.
+
+* It may be a FUNCTION of no arguments rather than a number, for an objective
+  whose resolution moves as the run goes -- a fit warm-started from the
+  previous evaluation locates its own answer better each time, so the reading
+  at the start is the one from the worst point of the whole run. Measured on a
+  penalized smooth, the cold-start reading is 14 to 22 times the best later
+  one. It is asked once per invocation of the search rather than once per
+  trial, so it costs one call an iteration, and an answer that is not finite
+  and positive is read as `0`.
+
+* It is for an objective computed by a PROCEDURE rather than by a formula --
+  a fit warm-started from wherever the last evaluation ended, a quadrature
+  whose panels move, a simulation -- which returns slightly different values
+  for the same argument. Below that spread its values carry no information,
+  and a search that keeps backtracking spends its whole budget arriving back
+  where it started: measured on a marginal likelihood whose coefficients are
+  refitted at every evaluation, 30 evaluations, the backtracking budget
+  exactly, each one a whole inner fit.
+
+* **The question is asked once, of the full step, and not inside the
+  backtracking loop.** The quantity is the improvement the method's own linear
+  model predicts, `s0 * |g'd|`, and where that is below the resolution the
+  search returns immediately: the point is optimal to the accuracy the
+  objective has, reported as `no decrease above the objective's resolution`
+  rather than as a stopping rule being met.
+
+* ⚠️ Asking it inside the loop was tried first and is UNSAFE. There the two
+  situations cannot be told apart, `x + s d` tending to `x` as the step shrinks
+  whether the point is optimal or the DIRECTION is wrong; measured, a
+  mis-stated gradient at a point nowhere near stationary was promoted to a
+  converged run. Tested at the full step the two separate, a bad direction
+  predicting a large improvement and still being reported as the failure it is.
+  Both cases are in the tests.
+
+* The quantity is the predicted decrease and not the Armijo demand
+  `c1 * s0 * |g'd|`, which is four orders smaller and would fire where the
+  method still had real progress to make.
+
 # optimizers7 0.3.0
 
 * `bfgs()` and `lbfgs()` scale their FIRST direction to a step of order one

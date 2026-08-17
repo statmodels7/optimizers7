@@ -4,7 +4,7 @@
 \alias{armijo}
 \title{Backtracking Line Search with the Armijo Condition}
 \usage{
-armijo(c1 = 1e-04, shrink = 0.5, max_step = 30)
+armijo(c1 = 1e-04, shrink = 0.5, max_step = 30, resolution = 0)
 }
 \arguments{
 \item{c1}{Sufficient-decrease constant, in \eqn{(0, 1)}. Defaults to
@@ -16,6 +16,11 @@ sensible step.}
 \code{0.5}.}
 
 \item{max_step}{Maximum backtracks before the search gives up. Defaults to 30.}
+
+\item{resolution}{The smallest difference in the objective that means
+anything, in the objective's own units, or a function of no arguments
+returning it where it moves as the run goes. Defaults to \code{0}, which
+does not ask the question. See the section below.}
 }
 \value{
 A \code{\link{line_search}} object.
@@ -37,6 +42,45 @@ Cheap: it evaluates the objective at trial points and never the gradient. That
 is enough for a method that only needs to make progress, and not enough for a
 quasi-Newton method, which needs \code{\link{wolfe}}.
 }
+\section{What the objective can resolve}{
+
+An objective computed by a procedure rather than by a formula returns
+slightly different values for the same argument -- a fit warm-started from
+wherever the last evaluation ended, a quadrature whose panels move, a
+simulation. Below that spread its values carry no information.
+
+The test is made ONCE, before any trial is paid for, on the improvement the
+method's own linear model predicts over the full step,
+\eqn{s_0 \lvert g^\top d\rvert}. Where that is below \code{resolution} the
+search returns immediately: the point is optimal to the accuracy the
+objective has, which is a weaker statement than a stopping rule being met
+and is reported in different words.
+
+\strong{It is not asked inside the backtracking loop, and that is what makes
+it safe.} There the two situations cannot be told apart, since
+\eqn{x + s d \to x} as the step shrinks and the objective stops resolving
+the change whether the point is optimal or the DIRECTION is wrong. Tested at
+the full step they separate: a bad direction predicts a large improvement
+and is still reported as the failure it is. Measured, with the test inside
+the loop a mis-stated gradient at a point nowhere near stationary was
+promoted to a converged run.
+
+The quantity is the predicted decrease and not the Armijo demand
+\eqn{c_1 s_0 \lvert g^\top d\rvert}, which is four orders smaller and would
+fire where the method still had real progress to make.
+
+\subsection{A resolution that moves}{
+Where the objective settles as the run goes -- a fit warm-started from the
+previous evaluation locates its own answer better each time -- the
+resolution at the start is the reading from the worst point of the whole
+run. Passing a FUNCTION of no arguments instead of a number has it asked
+again at every iteration, once per invocation of the search and not once per
+trial, so it costs one call an iteration. What the function returns is the
+resolution in force for the step about to be taken; a value that is not
+finite and positive is read as \code{0}, which asks nothing.
+}
+}
+
 \examples{
 armijo()
 minimize(gd(line_search = armijo(shrink = 0.2)),

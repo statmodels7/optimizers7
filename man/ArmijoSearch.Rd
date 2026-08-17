@@ -8,7 +8,8 @@ ArmijoSearch(
   label = character(0),
   c1 = integer(0),
   shrink = integer(0),
-  max_step = integer(0)
+  max_step = integer(0),
+  resolution = NULL
 )
 }
 \arguments{
@@ -17,6 +18,8 @@ ArmijoSearch(
 \item{shrink}{The factor the step is multiplied by on each backtrack.}
 
 \item{max_step}{The most backtracks allowed.}
+
+\item{resolution}{What the objective can tell apart.}
 }
 \value{
 An S7 object inheriting from \code{\link{line_search}}.

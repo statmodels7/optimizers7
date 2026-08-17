@@ -63,12 +63,14 @@ line_search <- S7::new_class(
 #' @param c1 The sufficient-decrease constant.
 #' @param shrink The factor the step is multiplied by on each backtrack.
 #' @param max_step The most backtracks allowed.
+#' @param resolution What the objective can tell apart.
 #' @return An S7 object inheriting from \code{\link{line_search}}.
 #' @seealso \code{\link{armijo}}
 #' @keywords internal
 ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
   properties = list(c1 = S7::class_numeric, shrink = S7::class_numeric,
-                    max_step = S7::class_numeric))
+                    max_step = S7::class_numeric,
+                    resolution = S7::class_any))
 
 
 #' @title Backtracking Line Search with the Armijo Condition
@@ -84,6 +86,47 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' @param shrink Factor applied on each backtrack, in \eqn{(0, 1)}. Defaults to
 #'   \code{0.5}.
 #' @param max_step Maximum backtracks before the search gives up. Defaults to 30.
+#' @param resolution The smallest difference in the objective that means
+#'   anything, in the objective's own units, or a function of no arguments
+#'   returning it where it moves as the run goes. Defaults to \code{0}, which
+#'   does not ask the question. See the section below.
+#'
+#' @section What the objective can resolve:
+#' An objective computed by a procedure rather than by a formula returns
+#' slightly different values for the same argument -- a fit warm-started from
+#' wherever the last evaluation ended, a quadrature whose panels move, a
+#' simulation. Below that spread its values carry no information.
+#'
+#' The test is made ONCE, before any trial is paid for, on the improvement the
+#' method's own linear model predicts over the full step,
+#' \eqn{s_0 \lvert g^\top d\rvert}. Where that is below \code{resolution} the
+#' search returns immediately: the point is optimal to the accuracy the
+#' objective has, which is a weaker statement than a stopping rule being met
+#' and is reported in different words.
+#'
+#' \strong{It is not asked inside the backtracking loop, and that is what makes
+#' it safe.} There the two situations cannot be told apart, since
+#' \eqn{x + s d \to x} as the step shrinks and the objective stops resolving
+#' the change whether the point is optimal or the DIRECTION is wrong. Tested at
+#' the full step they separate: a bad direction predicts a large improvement
+#' and is still reported as the failure it is. Measured, with the test inside
+#' the loop a mis-stated gradient at a point nowhere near stationary was
+#' promoted to a converged run.
+#'
+#' The quantity is the predicted decrease and not the Armijo demand
+#' \eqn{c_1 s_0 \lvert g^\top d\rvert}, which is four orders smaller and would
+#' fire where the method still had real progress to make.
+#'
+#' \subsection{A resolution that moves}{
+#' Where the objective settles as the run goes -- a fit warm-started from the
+#' previous evaluation locates its own answer better each time -- the
+#' resolution at the start is the reading from the worst point of the whole
+#' run. Passing a FUNCTION of no arguments instead of a number has it asked
+#' again at every iteration, once per invocation of the search and not once per
+#' trial, so it costs one call an iteration. What the function returns is the
+#' resolution in force for the step about to be taken; a value that is not
+#' finite and positive is read as \code{0}, which asks nothing.
+#' }
 #'
 #' @details
 #' The \eqn{c_1 s\, g^\top d} term is essential, and dropping it — testing
@@ -116,12 +159,53 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' 37--86. North-Holland, Amsterdam.
 #'
 #' @export
-armijo <- function(c1 = 1e-4, shrink = 0.5, max_step = 30) {
+armijo <- function(c1 = 1e-4, shrink = 0.5, max_step = 30, resolution = 0) {
   check_unit(c1, "c1")
   check_unit(shrink, "shrink")
   check_count(max_step, "max_step")
+  check_resolution(resolution)
   ArmijoSearch(label = paste0("Armijo backtracking (c1 = ", format(c1), ")"),
-               c1 = c1, shrink = shrink, max_step = max_step)
+               c1 = c1, shrink = shrink, max_step = max_step,
+               resolution = resolution)
+}
+
+
+#' Check a Line Search's Resolution
+#'
+#' @description
+#' A single non-negative finite number, zero meaning the question is not asked,
+#' or a function of no arguments returning one.
+#'
+#' @details
+#' The function form is for an objective whose resolution MOVES. It is asked
+#' once per invocation of the search rather than per trial, so it costs one
+#' call an iteration, and it is what lets a caller whose objective settles as
+#' it goes report the resolution of the current point instead of the reading
+#' from the worst-located point of the run.
+#'
+#' @param x What the constructor was given.
+#'
+#' @return \code{NULL}, invisibly; called for the error.
+#'
+#' @seealso \code{\link{armijo}}
+#'
+#' @keywords internal
+check_resolution <- function(x) {
+  if (is.function(x)) {
+    if (length(formals(x))) {
+      stop(paste0("a 'resolution' given as a function must take no arguments;",
+                  " it is called\n  for the resolution in force at the",
+                  " iteration about to be taken."), call. = FALSE)
+    }
+    return(invisible(NULL))
+  }
+  if (length(x) != 1L || !is.numeric(x) || is.na(x) || x < 0 ||
+      !is.finite(x)) {
+    stop(paste0("'resolution' must be a single non-negative finite number,",
+                " 0 to leave it unasked,\n  or a function of no arguments",
+                " returning one."), call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 
@@ -130,12 +214,14 @@ armijo <- function(c1 = 1e-4, shrink = 0.5, max_step = 30) {
 #' @param c1 The sufficient-decrease constant.
 #' @param c2 The curvature constant.
 #' @param max_step The most trial steps allowed.
+#' @param resolution What the objective can tell apart.
 #' @return An S7 object inheriting from \code{\link{line_search}}.
 #' @seealso \code{\link{wolfe}}
 #' @keywords internal
 WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
   properties = list(c1 = S7::class_numeric, c2 = S7::class_numeric,
-                    max_step = S7::class_numeric))
+                    max_step = S7::class_numeric,
+                    resolution = S7::class_any))
 
 
 #' @title Line Search Satisfying the Strong Wolfe Conditions
@@ -152,6 +238,11 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #'   line search.
 #' @param max_step Maximum trial steps in each of the bracketing and zoom
 #'   phases. Defaults to 30.
+#' @param resolution The smallest difference in the objective that means
+#'   anything, in the objective's own units, or a function of no arguments
+#'   returning it where it moves as the run goes. Defaults to \code{0}, which
+#'   does not ask the question; see \code{\link{armijo}} for what it is for and
+#'   why it is asked at the full step rather than during the search.
 #'
 #' @details
 #' The curvature condition is what \code{\link{armijo}} cannot provide, and it is
@@ -187,7 +278,7 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #' 2nd edition. Springer, New York.
 #'
 #' @export
-wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30) {
+wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30, resolution = 0) {
   check_unit(c1, "c1")
   check_unit(c2, "c2")
   if (c2 <= c1) {
@@ -195,9 +286,11 @@ wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30) {
          "otherwise.", call. = FALSE)
   }
   check_count(max_step, "max_step")
+  check_resolution(resolution)
   WolfeSearch(label = paste0("strong Wolfe (c1 = ", format(c1),
                              ", c2 = ", format(c2), ")"),
-              c1 = c1, c2 = c2, max_step = max_step)
+              c1 = c1, c2 = c2, max_step = max_step,
+              resolution = resolution)
 }
 
 
@@ -220,12 +313,14 @@ line_search_spec <- S7::new_generic("line_search_spec", "x",
 
 S7::method(line_search_spec, ArmijoSearch) <- function(x) {
   list(type = "armijo", c1 = x@c1, c2 = 0.9, shrink = x@shrink,
-       max_step = as.integer(x@max_step), memory = 0L)
+       max_step = as.integer(x@max_step), memory = 0L,
+       resolution = x@resolution)
 }
 
 S7::method(line_search_spec, WolfeSearch) <- function(x) {
   list(type = "wolfe", c1 = x@c1, c2 = x@c2, shrink = 0.5,
-       max_step = as.integer(x@max_step), memory = 0L)
+       max_step = as.integer(x@max_step), memory = 0L,
+       resolution = x@resolution)
 }
 
 
@@ -235,15 +330,17 @@ S7::method(line_search_spec, WolfeSearch) <- function(x) {
 #' @param shrink The factor the step is multiplied by on each backtrack.
 #' @param memory How many earlier values the reference looks back over.
 #' @param max_step The most backtracks allowed.
+#' @param resolution What the objective can tell apart.
 #' @return An S7 object inheriting from \code{\link{line_search}}.
 #' @seealso \code{\link{nonmonotone}}
 #' @keywords internal
 NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
   properties = list(
-    c1       = S7::class_numeric,
-    shrink   = S7::class_numeric,
-    memory   = S7::class_numeric,
-    max_step = S7::class_numeric
+    c1         = S7::class_numeric,
+    shrink     = S7::class_numeric,
+    memory     = S7::class_numeric,
+    max_step   = S7::class_numeric,
+    resolution = S7::class_any
   ))
 
 
@@ -261,6 +358,11 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #'   \code{10}; \code{0} makes this ordinary \code{\link{armijo}}.
 #' @param max_step Most backtracks before the search gives up. Defaults to
 #'   \code{30}.
+#' @param resolution The smallest difference in the objective that means
+#'   anything, in the objective's own units, or a function of no arguments
+#'   returning it where it moves as the run goes. Defaults to \code{0}, which
+#'   does not ask the question; see \code{\link{armijo}} for what it is for and
+#'   why it is asked at the full step rather than during the search.
 #'
 #' @details
 #' The condition is Grippo, Lampariello and Lucidi's:
@@ -316,17 +418,20 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #'
 #' @seealso \code{\link{armijo}}, \code{\link{bb}}
 #' @export
-nonmonotone <- function(c1 = 1e-4, shrink = 0.5, memory = 10, max_step = 30) {
+nonmonotone <- function(c1 = 1e-4, shrink = 0.5, memory = 10, max_step = 30,
+                        resolution = 0) {
   check_unit(c1, "c1")
   check_unit(shrink, "shrink")
   check_count(max_step, "max_step")
+  check_resolution(resolution)
   if (length(memory) != 1L || !is.numeric(memory) || is.na(memory) ||
       memory < 0 || memory != round(memory)) {
     stop("'memory' must be a single non-negative whole number.", call. = FALSE)
   }
   NonmonotoneSearch(
     label = paste0("nonmonotone backtracking (memory = ", format(memory), ")"),
-    c1 = c1, shrink = shrink, memory = memory, max_step = max_step)
+    c1 = c1, shrink = shrink, memory = memory, max_step = max_step,
+    resolution = resolution)
 }
 
 
@@ -335,7 +440,8 @@ nonmonotone <- function(c1 = 1e-4, shrink = 0.5, memory = 10, max_step = 30) {
 #' @keywords internal
 S7::method(line_search_spec, NonmonotoneSearch) <- function(x) {
   list(type = "armijo", c1 = x@c1, c2 = 0.9, shrink = x@shrink,
-       max_step = as.integer(x@max_step), memory = as.integer(x@memory))
+       max_step = as.integer(x@max_step), memory = as.integer(x@memory),
+       resolution = x@resolution)
 }
 
 #' @title Print Method for Line Searches

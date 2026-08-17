@@ -4,7 +4,13 @@
 \alias{nonmonotone}
 \title{Nonmonotone Backtracking}
 \usage{
-nonmonotone(c1 = 1e-04, shrink = 0.5, memory = 10, max_step = 30)
+nonmonotone(
+  c1 = 1e-04,
+  shrink = 0.5,
+  memory = 10,
+  max_step = 30,
+  resolution = 0
+)
 }
 \arguments{
 \item{c1}{Sufficient-decrease constant. Defaults to \code{1e-4}.}
@@ -17,6 +23,12 @@ nonmonotone(c1 = 1e-04, shrink = 0.5, memory = 10, max_step = 30)
 
 \item{max_step}{Most backtracks before the search gives up. Defaults to
 \code{30}.}
+
+\item{resolution}{The smallest difference in the objective that means
+anything, in the objective's own units, or a function of no arguments
+returning it where it moves as the run goes. Defaults to \code{0}, which
+does not ask the question; see \code{\link{armijo}} for what it is for and
+why it is asked at the full step rather than during the search.}
 }
 \value{
 A \code{\link{line_search}} object.

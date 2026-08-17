@@ -23,6 +23,12 @@ struct LineSearchResult {
   bool ok = false;
   int evaluations = 0;
   std::string guard = "none";
+  // Set when the search stopped because the decrease it must verify fell below
+  // what the objective can RESOLVE, rather than because no such decrease
+  // exists. The two are different answers and the caller reads them
+  // differently: the first says the point is as good as this objective can
+  // show, the second that the iteration failed.
+  bool unresolvable = false;
 };
 
 
@@ -36,6 +42,29 @@ struct LineSearchResult {
 // of grinding through thirty shrinkages before giving up.
 inline double directional_derivative(const arma::vec& g, const arma::vec& d) {
   return arma::dot(g, d);
+}
+
+
+// Whether the method's OWN predicted improvement is smaller than the objective
+// can show, asked once before any trial is paid for.
+//
+// The quantity is the linear model's predicted decrease over the full step,
+// s0 * |g'd|, and NOT the Armijo demand c1 * s0 * |g'd|: c1 is 1e-4, so the
+// demand is four orders below the prediction and a test on it would fire at
+// points where the method still had real progress to make.
+//
+// ⚠️ ASKED HERE AND NOT INSIDE THE BACKTRACKING LOOP, and the difference is
+// the whole safety of it. Inside the loop the two situations cannot be told
+// apart: as the step shrinks the objective stops resolving the change whether
+// the point is optimal or the DIRECTION is wrong, because x + s d -> x either
+// way. Tested at the full step they separate cleanly -- a point whose own
+// method predicts less improvement than the objective can show is converged to
+// the accuracy the objective has, while a bad direction predicts a large
+// improvement and must still be reported as the failure it is. Measured: with
+// the test inside the loop a mis-stated gradient at a point nowhere near
+// stationary was promoted to a converged run.
+inline bool unresolvable_step(double step0, double dg, double resolution) {
+  return resolution > 0.0 && step0 * std::abs(dg) < resolution;
 }
 
 
@@ -61,12 +90,18 @@ inline LineSearchResult armijo_search(Objective& obj,
                                       const arma::vec& x, double f_ref,
                                       const arma::vec& g, const arma::vec& d,
                                       double step0, double c1, double shrink,
-                                      int max_step) {
+                                      int max_step, double resolution = 0.0) {
   LineSearchResult out;
   const double dg = directional_derivative(g, d);
 
   if (!(dg < 0.0)) {
     out.guard = "not a descent direction";
+    return out;
+  }
+
+  if (unresolvable_step(step0, dg, resolution)) {
+    out.unresolvable = true;
+    out.guard = "below the objective's resolution";
     return out;
   }
 
@@ -117,12 +152,18 @@ inline LineSearchResult wolfe_search(Objective& obj,
                                      const arma::vec& x, double f,
                                      const arma::vec& g, const arma::vec& d,
                                      double step0, double c1, double c2,
-                                     int max_step) {
+                                     int max_step, double resolution = 0.0) {
   LineSearchResult out;
   const double dphi0 = directional_derivative(g, d);
 
   if (!(dphi0 < 0.0)) {
     out.guard = "not a descent direction";
+    return out;
+  }
+
+  if (unresolvable_step(step0, dphi0, resolution)) {
+    out.unresolvable = true;
+    out.guard = "below the objective's resolution";
     return out;
   }
 
@@ -236,6 +277,15 @@ struct LineSearchSpec {
   double shrink = 0.5;
   int max_step = 30;
   int memory = 0;          // 0 is monotone; k remembers the last k+1 values
+  // What the objective can tell apart. Zero means the question is not asked,
+  // which is every caller that has not measured one.
+  double resolution = 0.0;
+  // A caller whose resolution MOVES supplies a function of no arguments
+  // instead of a number, and it is asked once per invocation of the search --
+  // not per trial, so the callback is paid once an iteration. An objective
+  // whose resolution improves as a fit settles is the case: read once at the
+  // start it would be the reading from the worst-located point of the run.
+  Rcpp::RObject resolution_fn;
 
   static LineSearchSpec from_list(Rcpp::List ls) {
     LineSearchSpec s;
@@ -245,7 +295,24 @@ struct LineSearchSpec {
     s.shrink   = Rcpp::as<double>(ls["shrink"]);
     s.max_step = Rcpp::as<int>(ls["max_step"]);
     s.memory   = Rcpp::as<int>(ls["memory"]);
+    if (ls.containsElementNamed("resolution")) {
+      SEXP r = ls["resolution"];
+      if (Rf_isFunction(r)) {
+        s.resolution_fn = Rcpp::RObject(r);
+      } else {
+        s.resolution = Rcpp::as<double>(r);
+      }
+    }
     return s;
+  }
+
+  // Whatever a non-finite or non-positive answer is, it is not a resolution,
+  // and 0 is how this class says the question is not being asked.
+  double current_resolution() const {
+    if (resolution_fn.isNULL()) return resolution;
+    Rcpp::Function f(resolution_fn);
+    const double d = Rcpp::as<double>(f());
+    return (std::isfinite(d) && d > 0.0) ? d : 0.0;
   }
 };
 
@@ -256,14 +323,18 @@ inline LineSearchResult run_line_search(const LineSearchSpec& spec,
                                         const arma::vec& x, double f,
                                         const arma::vec& g, const arma::vec& d,
                                         double step0, double f_ref) {
+  // asked ONCE here rather than in either search, so a moving resolution costs
+  // one callback per iteration whichever branch is taken
+  const double res = spec.current_resolution();
   if (spec.type == "wolfe") {
     // The curvature condition is about the gradient at the trial point and has
     // nothing to say about which value the decrease is measured against, so a
     // nonmonotone Wolfe search would be a different object. There is not one.
-    return wolfe_search(obj, x, f, g, d, step0, spec.c1, spec.c2, spec.max_step);
+    return wolfe_search(obj, x, f, g, d, step0, spec.c1, spec.c2, spec.max_step,
+                        res);
   }
   return armijo_search(obj, x, f_ref, g, d, step0, spec.c1, spec.shrink,
-                       spec.max_step);
+                       spec.max_step, res);
 }
 
 } // namespace optimizers7
