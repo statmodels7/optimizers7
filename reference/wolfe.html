@@ -11,7 +11,7 @@ $$f(x + s d) \leq f(x) + c_1 s\, g^\top d, \qquad
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,7 @@ $$f(x + s d) \leq f(x) + c_1 s\, g^\top d, \qquad
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">wolfe</span><span class="op">(</span>c1 <span class="op">=</span> <span class="fl">1e-04</span>, c2 <span class="op">=</span> <span class="fl">0.9</span>, max_step <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">wolfe</span><span class="op">(</span>c1 <span class="op">=</span> <span class="fl">1e-04</span>, c2 <span class="op">=</span> <span class="fl">0.9</span>, max_step <span class="op">=</span> <span class="fl">30</span>, resolution <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -70,6 +70,14 @@ line search.</p></dd>
 <dt id="arg-max-step">max_step<a class="anchor" aria-label="anchor" href="#arg-max-step"></a></dt>
 <dd><p>Maximum trial steps in each of the bracketing and zoom
 phases. Defaults to 30.</p></dd>
+
+
+<dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
+<dd><p>The smallest difference in the objective that means
+anything, in the objective's own units, or a function of no arguments
+returning it where it moves as the run goes. Defaults to <code>0</code>, which
+does not ask the question; see <code><a href="armijo.html">armijo</a></code> for what it is for and
+why it is asked at the full step rather than during the search.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -115,7 +123,7 @@ one per problem.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 2.34837e-05</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1.0048 1.0097</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 200   evaluations: f 2796, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 18 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 17 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : NO (iteration budget reached)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>

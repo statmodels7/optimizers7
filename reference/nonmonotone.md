@@ -7,7 +7,13 @@ allowed to make things worse now in order to be better placed later.
 ## Usage
 
 ``` r
-nonmonotone(c1 = 1e-04, shrink = 0.5, memory = 10, max_step = 30)
+nonmonotone(
+  c1 = 1e-04,
+  shrink = 0.5,
+  memory = 10,
+  max_step = 30,
+  resolution = 0
+)
 ```
 
 ## Arguments
@@ -29,6 +35,16 @@ nonmonotone(c1 = 1e-04, shrink = 0.5, memory = 10, max_step = 30)
 - max_step:
 
   Most backtracks before the search gives up. Defaults to `30`.
+
+- resolution:
+
+  The smallest difference in the objective that means anything, in the
+  objective's own units, or a function of no arguments returning it
+  where it moves as the run goes. Defaults to `0`, which does not ask
+  the question; see
+  [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+  for what it is for and why it is asked at the full step rather than
+  during the search.
 
 ## Value
 

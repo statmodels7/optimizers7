@@ -9,7 +9,7 @@ $$f(x + s d) \leq f(x) + c_1 s\, g^\top d .$$"><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ $$f(x + s d) \leq f(x) + c_1 s\, g^\top d .$$</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">armijo</span><span class="op">(</span>c1 <span class="op">=</span> <span class="fl">1e-04</span>, shrink <span class="op">=</span> <span class="fl">0.5</span>, max_step <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">armijo</span><span class="op">(</span>c1 <span class="op">=</span> <span class="fl">1e-04</span>, shrink <span class="op">=</span> <span class="fl">0.5</span>, max_step <span class="op">=</span> <span class="fl">30</span>, resolution <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -68,6 +68,13 @@ sensible step.</p></dd>
 <dt id="arg-max-step">max_step<a class="anchor" aria-label="anchor" href="#arg-max-step"></a></dt>
 <dd><p>Maximum backtracks before the search gives up. Defaults to 30.</p></dd>
 
+
+<dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
+<dd><p>The smallest difference in the objective that means
+anything, in the objective's own units, or a function of no arguments
+returning it where it moves as the run goes. Defaults to <code>0</code>, which
+does not ask the question. See the section below.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -85,6 +92,44 @@ minimum.</p>
 <p>Cheap: it evaluates the objective at trial points and never the gradient. That
 is enough for a method that only needs to make progress, and not enough for a
 quasi-Newton method, which needs <code><a href="wolfe.html">wolfe</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="what-the-objective-can-resolve">What the objective can resolve<a class="anchor" aria-label="anchor" href="#what-the-objective-can-resolve"></a></h2>
+
+
+<p>An objective computed by a procedure rather than by a formula returns
+slightly different values for the same argument – a fit warm-started from
+wherever the last evaluation ended, a quadrature whose panels move, a
+simulation. Below that spread its values carry no information.</p>
+<p>The test is made ONCE, before any trial is paid for, on the improvement the
+method's own linear model predicts over the full step,
+\(s_0 \lvert g^\top d\rvert\). Where that is below <code>resolution</code> the
+search returns immediately: the point is optimal to the accuracy the
+objective has, which is a weaker statement than a stopping rule being met
+and is reported in different words.</p>
+<p><strong>It is not asked inside the backtracking loop, and that is what makes
+it safe.</strong> There the two situations cannot be told apart, since
+\(x + s d \to x\) as the step shrinks and the objective stops resolving
+the change whether the point is optimal or the DIRECTION is wrong. Tested at
+the full step they separate: a bad direction predicts a large improvement
+and is still reported as the failure it is. Measured, with the test inside
+the loop a mis-stated gradient at a point nowhere near stationary was
+promoted to a converged run.</p>
+<p>The quantity is the predicted decrease and not the Armijo demand
+\(c_1 s_0 \lvert g^\top d\rvert\), which is four orders smaller and would
+fire where the method still had real progress to make.</p>
+<div class="section">
+<h3 id="a-resolution-that-moves">A resolution that moves<a class="anchor" aria-label="anchor" href="#a-resolution-that-moves"></a></h3>
+<p>Where the objective settles as the run goes – a fit warm-started from the
+previous evaluation locates its own answer better each time – the
+resolution at the start is the reading from the worst point of the whole
+run. Passing a FUNCTION of no arguments instead of a number has it asked
+again at every iteration, once per invocation of the search and not once per
+trial, so it costs one call an iteration. What the function returns is the
+resolution in force for the step about to be taken; a value that is not
+finite and positive is read as <code>0</code>, which asks nothing.</p>
+</div>
+
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -110,7 +155,7 @@ In J. Abadie (ed.), <em>Integer and Nonlinear Programming</em>,
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 2.44368e-13</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 30   evaluations: f 185, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 4 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 3 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>

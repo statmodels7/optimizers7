@@ -179,7 +179,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0.5, 0.5), lower = 0)
 #>   value      : 4.68178e-20
 #>   par        : 1 2
 #>   iterations : 7   evaluations: f 48, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 
@@ -202,7 +202,7 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 #>   value      : 3.05571e-16
 #>   par        : 1 2
 #>   iterations : 12   evaluations: f 65, g 0
-#>   elapsed    : 1e+03 us
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 #>   note       : gradient obtained by finite differences
 ```

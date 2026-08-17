@@ -11,7 +11,8 @@ WolfeSearch(
   label = character(0),
   c1 = integer(0),
   c2 = integer(0),
-  max_step = integer(0)
+  max_step = integer(0),
+  resolution = NULL
 )
 ```
 
@@ -28,6 +29,10 @@ WolfeSearch(
 - max_step:
 
   The most trial steps allowed.
+
+- resolution:
+
+  What the objective can tell apart.
 
 ## Value
 

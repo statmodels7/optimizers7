@@ -11,7 +11,8 @@ ArmijoSearch(
   label = character(0),
   c1 = integer(0),
   shrink = integer(0),
-  max_step = integer(0)
+  max_step = integer(0),
+  resolution = NULL
 )
 ```
 
@@ -28,6 +29,10 @@ ArmijoSearch(
 - max_step:
 
   The most backtracks allowed.
+
+- resolution:
+
+  What the objective can tell apart.
 
 ## Value
 

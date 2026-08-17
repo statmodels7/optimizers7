@@ -7,7 +7,7 @@ Sufficient decrease and a curvature condition together: \$\$f(x + s d)
 ## Usage
 
 ``` r
-wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30)
+wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
 ```
 
 ## Arguments
@@ -26,6 +26,16 @@ wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30)
 
   Maximum trial steps in each of the bracketing and zoom phases.
   Defaults to 30.
+
+- resolution:
+
+  The smallest difference in the objective that means anything, in the
+  objective's own units, or a function of no arguments returning it
+  where it moves as the run goes. Defaults to `0`, which does not ask
+  the question; see
+  [`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+  for what it is for and why it is asked at the full step rather than
+  during the search.
 
 ## Value
 
@@ -77,7 +87,7 @@ minimize(gd(line_search = wolfe(), maxit = 200),
 #>   value      : 2.34837e-05
 #>   par        : 1.0048 1.0097
 #>   iterations : 200   evaluations: f 2796, g 0
-#>   elapsed    : 18 ms
+#>   elapsed    : 17 ms
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```

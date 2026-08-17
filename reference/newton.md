@@ -129,6 +129,6 @@ minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 2 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
 ```
