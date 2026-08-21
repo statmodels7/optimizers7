@@ -69,6 +69,28 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' Which repair fired is recorded in the trace, so the trace shows a run
 #' that spent its time repairing rather than converging.
 #'
+#' \strong{A repaired step is capped, and an unrepaired one is not.} Where the
+#' factorization succeeds, \eqn{H^{-1}g} is the Newton step and \eqn{step = 1}
+#' is its own unit, so it is taken as it is. Where it fails, the component of
+#' the direction in the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}},
+#' whose size is set by \code{floor} rather than by any curvature of the
+#' objective: the direction is therefore scaled to
+#' \eqn{\min(1, 1/\lVert d\rVert_\infty)}, a displacement of order one in the
+#' parameters. This is the rule \code{\link{bb}} applies when its secant pair
+#' reports no curvature and the one \code{\link{bfgs}} and \code{\link{lbfgs}}
+#' apply to their first direction, and it ONLY EVER SHORTENS, so a run whose
+#' repaired steps were already of order one is unchanged. The trace reports it
+#' as \code{"hessian modified (capped)"}. The same scaling is applied to the
+#' gradient the method falls back on when a solve fails.
+#'
+#' Without it the length of a repaired step is unbounded and the line search is
+#' the only thing that bounds it, at one objective evaluation per backtrack:
+#' measured on a marginal criterion whose outer Hessian is indefinite at
+#' ordinary points, a gradient of 29 along a direction floored at
+#' \eqn{10^{-8}\lambda_{\max}} gave a step of \eqn{4\times 10^{4}} on a log
+#' scale, and each of the 23 backtracks that followed was a whole penalized
+#' refit that could not be evaluated.
+#'
 #' \strong{On the Hessian itself.} If \code{he} is not supplied to
 #' \code{\link{minimize}}, the Hessian is obtained by differencing the gradient.
 #' That is one numerical differentiation when the gradient is analytic and

@@ -1,3 +1,32 @@
+# optimizers7 0.5.0
+
+* `newton()` scales a direction that came out of a REPAIRED Hessian to
+  `min(1, 1/||d||_inf)`, a displacement of order one in the parameters. Where
+  the Cholesky succeeds nothing is touched: that step is the Newton step and
+  its length is the objective's own curvature. Where it fails, the component
+  in the floored subspace is `g_i / (floor * max|lambda|)`, whose size comes
+  from the `floor` argument and from no curvature at all, so `step = 1` claims
+  a Newton unit it does not have. The rule is the one `bb()` applies when its
+  secant pair reports no curvature and the one `bfgs()` and `lbfgs()` apply to
+  their first direction, and it ONLY EVER SHORTENS.
+
+* The same scaling reaches the gradient `newton()` falls back on when the
+  Hessian is not finite or a solve fails, which had never been given it.
+
+* The trace reports a capped step as `"hessian modified (capped)"`, plain
+  `"hessian modified"` where the direction was already of order one.
+
+* Measured. On the package's own indefinite-Hessian test the repaired
+  direction's first component is `5.03e+06`, and the line search was the only
+  thing bounding it: the saddle costs 28 function evaluations before and 5
+  after with `hessian_mod = "eigen"`, 30 and 5 with `"ridge"`. Over
+  `test_problems()` under `newton()`, 743 evaluations become 480 and 8 of 8
+  problems converge where 7 did -- `abs_sum` went from 180 evaluations and a
+  gradient of 1.0 to 27 evaluations and a gradient of exactly 0. The four
+  problems where the cap never fires (sphere, rosenbrock, booth, powell) are
+  unchanged evaluation for evaluation, as are both Rosenbrock controls, whose
+  Hessian is never repaired.
+
 # optimizers7 0.4.0
 
 * `armijo()`, `wolfe()` and `nonmonotone()` take a `resolution`: the smallest

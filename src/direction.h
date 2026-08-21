@@ -68,6 +68,38 @@ inline arma::vec first_descent(const arma::vec& g) {
 }
 
 
+// --- a Newton step taken through a REPAIRED Hessian ---------------------------
+//
+// The same argument one case further on, and the case is not the same one.
+// Where H is positive definite, H^-1(-g) is the Newton step and step = 1 is its
+// own unit: nothing here touches it. Where chol() fails the direction is
+// Hm^-1(-g) for a MODIFIED Hm, and in the subspace whose curvature was floored
+// the component is g_i/lo with lo = floor * max|lambda| -- a number chosen by
+// the caller's `floor` argument and not by any curvature of the objective. So
+// step = 1 on that direction claims a Newton unit it does not have, and how far
+// it goes is set by an arbitrary constant.
+//
+// Measured on statmodels7's REML criterion over a hierarchical break-point
+// model, where the outer Hessian is indefinite at ordinary points (4 of 7
+// eigenvalues of the wrong sign for a maximand, spectrum spanning 1.8e7): with
+// floor = 1e-8 and max|lambda| ~ 7e4 the floor is ~7e-4, and a gradient of 29
+// along a floored direction gives a step of 4e4 on a log scale. Every trial of
+// the line search that follows is a whole penalized refit that fails, and the
+// run spent 15 to 23 backtracks per iteration discovering it.
+//
+// The rule is first_descent()'s, for first_descent()'s reasons: ask for a step
+// of order one in the PARAMETERS. It CANNOT LENGTHEN a step -- a direction
+// already of size one or less is returned untouched -- so a run that was
+// working keeps working, which is what makes it safe to change a default two
+// packages depend on. It cannot freeze either, being computed from the
+// direction in hand rather than carried over.
+inline arma::vec capped_newton(const arma::vec& d) {
+  const double dmax = arma::norm(d, "inf");
+  if (!std::isfinite(dmax) || dmax <= 1.0) return d;
+  return d / dmax;
+}
+
+
 // --- steepest descent -------------------------------------------------------
 
 class SteepestDescent : public Direction {
@@ -294,9 +326,12 @@ public:
                     double, std::string& guard) {
     arma::mat H = obj.hess(x);
 
+    // Every fallback below hands back the GRADIENT, for which step = 1 is not
+    // a Newton unit either -- the case first_descent() was written for, and
+    // which newton() had never been given.
     if (!H.is_finite()) {
       guard = "hessian non-finite";
-      return -g;
+      return first_descent(g);
     }
     H = 0.5 * (H + H.t());
 
@@ -304,12 +339,15 @@ public:
     if (arma::chol(R, H)) {
       arma::vec d;
       if (arma::solve(d, H, -g, arma::solve_opts::likely_sympd + arma::solve_opts::no_approx)) {
+        // THE GENUINE NEWTON STEP, returned as it is. Its length is the
+        // objective's own curvature and capping it would throw away the
+        // quadratic convergence the method exists for.
         if (arma::dot(g, d) < 0.0) return d;
       }
       // Positive definite and yet not a descent direction means the solve lost
       // accuracy; falling back is cheaper than pretending.
       guard = "hessian solve failed";
-      return -g;
+      return first_descent(g);
     }
 
     guard = "hessian modified";
@@ -319,9 +357,12 @@ public:
     if (!arma::solve(d, Hm, -g, arma::solve_opts::likely_sympd + arma::solve_opts::no_approx) ||
         !d.is_finite() || arma::dot(g, d) >= 0.0) {
       guard = "hessian solve failed";
-      return -g;
+      return first_descent(g);
     }
-    return d;
+    // the length of this one is the floor's and not the curvature's: capped
+    const arma::vec dc = capped_newton(d);
+    if (arma::norm(d, "inf") > 1.0) guard = "hessian modified (capped)";
+    return dc;
   }
 
 private:

@@ -49,8 +49,66 @@ test_that("Newton repairs an indefinite Hessian and says that it did", {
     expect_true(r@converged, label = mod)
     expect_equal(r@value, -1, tolerance = 1e-8, label = mod)
     expect_equal(abs(r@par[1]), 1, tolerance = 1e-6, label = mod)
-    expect_true("hessian modified" %in% r@trace$safeguard, label = mod)
+    # the repair is recorded; WHICH of the two strings it is -- plain or
+    # "(capped)" -- is the next test's business, and here the claim is only
+    # that a repair was reported at all
+    expect_true(any(startsWith(r@trace$safeguard, "hessian modified")),
+                label = mod)
   }
+})
+
+
+test_that("a repaired Newton step is capped and an unrepaired one is not", {
+  # WHY THIS EXISTS. At this start the repaired direction's first component is
+  # g_1 / (floor * max|lambda|) = 0.1995 / 3.97e-08 = 5.03e+06: its length is
+  # set by `floor` and by no curvature of the objective. Before the cap the
+  # line search was the only thing that bounded it, at one function evaluation
+  # per backtrack.
+  H <- saddle_he(c(0.05, 0.6))
+  ev <- eigen(H, symmetric = TRUE)$values
+  expect_lt(min(ev), 0)
+  lo <- max(1e-8, 1e-8 * max(abs(ev)))
+  d1 <- abs(saddle_gr(c(0.05, 0.6))[1]) / lo
+  expect_gt(d1, 1e6)
+
+  for (mod in c("eigen", "ridge")) {
+    r <- minimize(newton(hessian_mod = mod, keep_trace = TRUE),
+                  saddle, c(0.05, 0.6), gr = saddle_gr, he = saddle_he)
+    expect_true(r@converged, label = mod)
+    expect_equal(r@value, -1, tolerance = 1e-8, label = mod)
+    expect_true("hessian modified (capped)" %in% r@trace$safeguard,
+                label = mod)
+    # measured against optimizers7 0.4.0 on the same problem: 28 function
+    # evaluations (eigen) and 30 (ridge) become 5 and 5, the backtracks
+    # being what the uncapped length cost. Ten separates them with room.
+    expect_lt(r@counts[["f"]], 10, label = mod)
+  }
+
+  # IT ONLY EVER SHORTENS, and the two halves of that are asserted apart.
+  #
+  # (i) a repaired direction already of order one is untouched: at floor = 1
+  #     the floored eigenvalue is 3.97 and the direction is (0.05, -0.3), so
+  #     the cap cannot fire and the guard stays the plain string. Measured
+  #     identical either side of the change: 8 iterations, 9 evaluations.
+  r1 <- minimize(newton(floor = 1, keep_trace = TRUE), saddle, c(0.05, 0.6),
+                 gr = saddle_gr, he = saddle_he)
+  expect_true(r1@converged)
+  expect_true("hessian modified" %in% r1@trace$safeguard)
+  expect_false("hessian modified (capped)" %in% r1@trace$safeguard)
+  expect_identical(r1@iterations, 8L)
+
+  # (ii) A GENUINE NEWTON STEP IS NOT TOUCHED AT ALL. Where the Cholesky
+  #     succeeds the step's length is the objective's own curvature and
+  #     capping it would throw away the quadratic convergence. Rosenbrock from
+  #     this start repairs nothing, and its counts are what they were before
+  #     the cap existed: 21 iterations, 29 f, 22 g, 21 h.
+  r2 <- minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1), gr = rosen_gr,
+                 he = rosen_he)
+  expect_false(any(startsWith(r2@trace$safeguard, "hessian modified")))
+  expect_identical(r2@iterations, 21L)
+  expect_identical(r2@counts[["f"]], 29L)
+  expect_identical(r2@counts[["g"]], 22L)
+  expect_identical(r2@counts[["h"]], 21L)
 })
 
 
