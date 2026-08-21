@@ -89,6 +89,32 @@ solve. When it fails:
 Which repair fired is recorded in the trace, so the trace shows a run
 that spent its time repairing rather than converging.
 
+**A repaired step is capped, and an unrepaired one is not.** Where the
+factorization succeeds, \\H^{-1}g\\ is the Newton step and \\step = 1\\
+is its own unit, so it is taken as it is. Where it fails, the component
+of the direction in the floored subspace is
+\\g_i/\lambda\_{\mathrm{floor}}\\, whose size is set by `floor` rather
+than by any curvature of the objective: the direction is therefore
+scaled to \\\min(1, 1/\lVert d\rVert\_\infty)\\, a displacement of order
+one in the parameters. This is the rule
+[`bb`](https://statmodels7.github.io/optimizers7/reference/bb.md)
+applies when its secant pair reports no curvature and the one
+[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+and
+[`lbfgs`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
+apply to their first direction, and it ONLY EVER SHORTENS, so a run
+whose repaired steps were already of order one is unchanged. The trace
+reports it as `"hessian modified (capped)"`. The same scaling is applied
+to the gradient the method falls back on when a solve fails.
+
+Without it the length of a repaired step is unbounded and the line
+search is the only thing that bounds it, at one objective evaluation per
+backtrack: measured on a marginal criterion whose outer Hessian is
+indefinite at ordinary points, a gradient of 29 along a direction
+floored at \\10^{-8}\lambda\_{\max}\\ gave a step of \\4\times 10^{4}\\
+on a log scale, and each of the 23 backtracks that followed was a whole
+penalized refit that could not be evaluated.
+
 **On the Hessian itself.** If `he` is not supplied to
 [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
 the Hessian is obtained by differencing the gradient. That is one

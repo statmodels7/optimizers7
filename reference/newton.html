@@ -9,7 +9,7 @@ positive definite, and then line searches along it."><meta property="og:image" c
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,6 +124,26 @@ large \(\tau\). Cheaper, and blunter.</p></dd>
 
 </dl><p>Which repair fired is recorded in the trace, so the trace shows a run
 that spent its time repairing rather than converging.</p>
+<p><strong>A repaired step is capped, and an unrepaired one is not.</strong> Where the
+factorization succeeds, \(H^{-1}g\) is the Newton step and \(step = 1\)
+is its own unit, so it is taken as it is. Where it fails, the component of
+the direction in the floored subspace is \(g_i/\lambda_{\mathrm{floor}}\),
+whose size is set by <code>floor</code> rather than by any curvature of the
+objective: the direction is therefore scaled to
+\(\min(1, 1/\lVert d\rVert_\infty)\), a displacement of order one in the
+parameters. This is the rule <code><a href="bb.html">bb</a></code> applies when its secant pair
+reports no curvature and the one <code><a href="bfgs.html">bfgs</a></code> and <code><a href="lbfgs.html">lbfgs</a></code>
+apply to their first direction, and it ONLY EVER SHORTENS, so a run whose
+repaired steps were already of order one is unchanged. The trace reports it
+as <code>"hessian modified (capped)"</code>. The same scaling is applied to the
+gradient the method falls back on when a solve fails.</p>
+<p>Without it the length of a repaired step is unbounded and the line search is
+the only thing that bounds it, at one objective evaluation per backtrack:
+measured on a marginal criterion whose outer Hessian is indefinite at
+ordinary points, a gradient of 29 along a direction floored at
+\(10^{-8}\lambda_{\max}\) gave a step of \(4\times 10^{4}\) on a log
+scale, and each of the 23 backtracks that followed was a whole penalized
+refit that could not be evaluated.</p>
 <p><strong>On the Hessian itself.</strong> If <code>he</code> is not supplied to
 <code><a href="minimize.html">minimize</a></code>, the Hessian is obtained by differencing the gradient.
 That is one numerical differentiation when the gradient is analytic and

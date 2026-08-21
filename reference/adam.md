@@ -225,7 +225,7 @@ minimize(adam(alpha = 0.1, maxit = 2000),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2000   evaluations: f 2002, g 2001
-#>   elapsed    : 22 ms
+#>   elapsed    : 30 ms
 #>   converged  : NO (iteration budget reached)
 
 # on a noisy objective, which is what it is for: the minibatch is drawn

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,13 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.5.0" id="optimizers7-050">optimizers7 0.5.0<a class="anchor" aria-label="anchor" href="#optimizers7-050"></a></h2>
+<ul><li><p><code><a href="../reference/newton.html">newton()</a></code> scales a direction that came out of a REPAIRED Hessian to <code>min(1, 1/||d||_inf)</code>, a displacement of order one in the parameters. Where the Cholesky succeeds nothing is touched: that step is the Newton step and its length is the objective’s own curvature. Where it fails, the component in the floored subspace is <code>g_i / (floor * max|lambda|)</code>, whose size comes from the <code>floor</code> argument and from no curvature at all, so <code>step = 1</code> claims a Newton unit it does not have. The rule is the one <code><a href="../reference/bb.html">bb()</a></code> applies when its secant pair reports no curvature and the one <code><a href="../reference/bfgs.html">bfgs()</a></code> and <code><a href="../reference/lbfgs.html">lbfgs()</a></code> apply to their first direction, and it ONLY EVER SHORTENS.</p></li>
+<li><p>The same scaling reaches the gradient <code><a href="../reference/newton.html">newton()</a></code> falls back on when the Hessian is not finite or a solve fails, which had never been given it.</p></li>
+<li><p>The trace reports a capped step as <code>"hessian modified (capped)"</code>, plain <code>"hessian modified"</code> where the direction was already of order one.</p></li>
+<li><p>Measured. On the package’s own indefinite-Hessian test the repaired direction’s first component is <code>5.03e+06</code>, and the line search was the only thing bounding it: the saddle costs 28 function evaluations before and 5 after with <code>hessian_mod = "eigen"</code>, 30 and 5 with <code>"ridge"</code>. Over <code><a href="../reference/test_problems.html">test_problems()</a></code> under <code><a href="../reference/newton.html">newton()</a></code>, 743 evaluations become 480 and 8 of 8 problems converge where 7 did – <code>abs_sum</code> went from 180 evaluations and a gradient of 1.0 to 27 evaluations and a gradient of exactly 0. The four problems where the cap never fires (sphere, rosenbrock, booth, powell) are unchanged evaluation for evaluation, as are both Rosenbrock controls, whose Hessian is never repaired.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.4.0" id="optimizers7-040">optimizers7 0.4.0<a class="anchor" aria-label="anchor" href="#optimizers7-040"></a></h2>
 <ul><li><p><code><a href="../reference/armijo.html">armijo()</a></code>, <code><a href="../reference/wolfe.html">wolfe()</a></code> and <code><a href="../reference/nonmonotone.html">nonmonotone()</a></code> take a <code>resolution</code>: the smallest difference in the objective that means anything, in the objective’s own units. It defaults to <code>0</code>, which does not ask the question, so nothing changes for a caller who does not set one.</p></li>
