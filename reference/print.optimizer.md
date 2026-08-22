@@ -23,7 +23,7 @@ Print Method for Optimizers
 ``` r
 print(gd())
 #> <optimizer> gradient descent
-#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 500, evaluations Inf
 #>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
 ```

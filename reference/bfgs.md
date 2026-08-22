@@ -8,7 +8,7 @@ derivatives are ever required.
 
 ``` r
 bfgs(
-  criterion = crit_any(crit_grad(), crit_rel_obj()),
+  criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   curv_tol = 1e-10,
   max_skip = 5,
   step = 1,
@@ -100,7 +100,7 @@ minimize(bfgs(), rosen, c(-1.2, 1))
 #>   value      : 1.67048e-13
 #>   par        : 1 1
 #>   iterations : 35   evaluations: f 210, g 0
-#>   elapsed    : 3 ms
-#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
+#>   elapsed    : 7 ms
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 ```

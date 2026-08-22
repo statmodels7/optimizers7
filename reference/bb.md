@@ -8,7 +8,7 @@ inverse curvature computed from the previous secant pair.
 
 ``` r
 bb(
-  criterion = crit_any(crit_grad(), crit_rel_obj()),
+  criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   variant = c("alternate", "bb1", "bb2"),
   alpha0 = 0.01,
   alpha_min = 1e-10,
@@ -157,7 +157,7 @@ methods. *IMA Journal of Numerical Analysis* **8**, 141–148.
 ``` r
 bb()
 #> <optimizer> barzilai-borwein (alternate)
-#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, curv_tol = 1e-10, step = 1, line_search = nonmonotone backtracking (memory = 10)
 
@@ -165,7 +165,7 @@ f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(bb(), f, c(-1.2, 1), gr = gr)@par
-#> [1] 0.9999997 0.9999994
+#> [1] 0.9999277 0.9998551
 
 # two iterations on a quadratic: one secant pair determines the curvature
 minimize(bb(), function(p) sum((p - c(1, 2))^2), c(0, 0),

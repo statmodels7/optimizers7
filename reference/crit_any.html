@@ -9,7 +9,7 @@ end as soon as any reasonable rule is satisfied."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,39 @@ end as soon as any reasonable rule is satisfied.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code><a href="criterion.html">criterion</a></code> object, so combinations nest.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><strong>The default rule of the gradient methods.</strong> <code><a href="gd.html">gd</a></code>,
+<code><a href="cg.html">cg</a></code>, <code><a href="bb.html">bb</a></code>, <code><a href="newton.html">newton</a></code>,
+<code><a href="bfgs.html">bfgs</a></code> and <code><a href="lbfgs.html">lbfgs</a></code> default to
+<code>crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())</code>: the point is
+stationary, or the objective has stopped moving, or the parameters have.
+Since a disjunction can only get weaker as terms are added, a run that ends
+under this rule would have ended under a gradient rule alone at best later
+and never earlier.</p>
+<p>What that buys and what it costs was measured over the package's own
+<code><a href="test_problems.html">test_problems</a></code>, six methods on eight problems. Against the
+gradient rule alone it converges on 44 of the 48 runs rather than 41, and
+costs 19370 objective evaluations rather than 22299. The three it gains are
+<code>cg</code> and <code>bb</code> on the non-smooth <code>abs_sum</code> and <code>gd</code> on
+Beale, and none is lost.</p>
+<p>The cost is that a run stops sooner, so the point it reports is further from
+the solution. Measured, 10 of the 48 end at a gradient more than a hundred
+times larger, and the worst are runs that were reaching absurd precision
+anyway: <code>bfgs</code> on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, with
+the objective 3.2e-13 above its minimum rather than 1.2e-21. On one run the
+difference is real rather than cosmetic – <code>cg</code> on <code>abs_sum</code>,
+where the objective ends 4.5e-02 above the minimum rather than 1.9e-03, and
+the flag reads <code>TRUE</code> where it used to read <code>FALSE</code>. That is a
+smooth method on a non-smooth problem, where the objective stalls far from
+the solution and a rule that reads a stall cannot tell the two apart. A
+caller who needs stationarity asks for it: <code>criterion = crit_grad()</code>.</p>
+<p><code><a href="crit_rel_obj.html">crit_rel_obj</a></code> was in that default until 0.6.0 and is not any
+more, because it never fired: measured over the same 48 runs, the rule with
+it and the rule without it agree on every count, every evaluation and every
+reported point. It remains available and useful where an objective's scale
+is not known in advance.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

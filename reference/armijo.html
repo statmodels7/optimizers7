@@ -9,7 +9,7 @@ $$f(x + s d) \leq f(x) + c_1 s\, g^\top d .$$"><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,11 +152,11 @@ In J. Abadie (ed.), <em>Integer and Nonlinear Programming</em>,
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="gd.html">gd</a></span><span class="op">(</span>line_search <span class="op">=</span> <span class="fu">armijo</span><span class="op">(</span>shrink <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>         <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer_result&gt; gradient descent</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 2.44368e-13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 4.04141e-11</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 30   evaluations: f 185, g 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 25   evaluations: f 155, g 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 3 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

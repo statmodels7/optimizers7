@@ -72,7 +72,7 @@ names(test_problems())
 
 p <- test_problems("rosenbrock")[[1]]
 minimize(bfgs(), p$fn, p$par, gr = p$gr)@par
-#> [1] 1 1
+#> [1] 0.9999995 0.9999989
 p$solution
 #> [1] 1 1
 ```

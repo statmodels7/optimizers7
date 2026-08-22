@@ -139,11 +139,11 @@ check_optimizer(bfgs())
 #> 
 #>   battery (gap from the known minimum; information, not a verdict)
 #>     sphere       gap  4.62e-33  conv        3 evals  
-#>     rosenbrock   gap  1.30e-21  conv       50 evals  
+#>     rosenbrock   gap  3.23e-13  conv       49 evals  
 #>     booth        gap  1.73e-17  conv        8 evals  
 #>     beale        gap  3.18e-15  conv       17 evals  
-#>     powell       gap  4.59e-12  conv       42 evals  
-#>     himmelblau   gap  3.64e-17  conv       18 evals  multimodal
+#>     powell       gap  4.28e-11  conv       39 evals  
+#>     himmelblau   gap  6.27e-14  conv       17 evals  multimodal
 #>     rastrigin    gap  0.00e+00  conv       11 evals  multimodal
 #>     abs_sum      gap  1.26e-02  -          84 evals  non-smooth
 

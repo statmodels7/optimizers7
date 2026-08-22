@@ -11,7 +11,7 @@ required."><meta property="og:image" content="https://statmodels7.github.io/opti
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ required.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bfgs</span><span class="op">(</span></span>
-<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_rel_obj.html">crit_rel_obj</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_abs_obj.html">crit_abs_obj</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_abs_par.html">crit_abs_par</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  curv_tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  max_skip <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -137,8 +137,8 @@ Hessian is available.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 1.67048e-13</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 35   evaluations: f 210, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 3 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 7 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

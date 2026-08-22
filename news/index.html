@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,14 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.6.0" id="optimizers7-060">optimizers7 0.6.0<a class="anchor" aria-label="anchor" href="#optimizers7-060"></a></h2>
+<ul><li>
+<p>The six gradient methods – <code><a href="../reference/gd.html">gd()</a></code>, <code><a href="../reference/cg.html">cg()</a></code>, <code><a href="../reference/bb.html">bb()</a></code>, <code><a href="../reference/newton.html">newton()</a></code>, <code><a href="../reference/bfgs.html">bfgs()</a></code> and <code><a href="../reference/lbfgs.html">lbfgs()</a></code> – default to <code>crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())</code> rather than <code>crit_any(crit_grad(), crit_rel_obj())</code>. A disjunction only gets weaker as terms are added, so a run that stops under the new rule would never have stopped earlier under the old one. Measured over <code><a href="../reference/test_problems.html">test_problems()</a></code>, six methods on eight problems: 44 of 48 runs converge rather than 41, at 19370 objective evaluations rather than 22299. The three gained are <code>cg</code> and <code>bb</code> on the non-smooth <code>abs_sum</code> and <code>gd</code> on Beale; none is lost.</p>
+<p>The cost is that a run stops sooner and reports a point further from the solution. Ten of the 48 end at a gradient more than a hundred times larger, the worst of them at precision nobody asked for: <code>bfgs</code> on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, the objective 3.2e-13 above its minimum rather than 1.2e-21. One run differs in substance – <code>cg</code> on <code>abs_sum</code> ends 4.5e-02 above the minimum rather than 1.9e-03 and now reports success – which is a smooth method on a non-smooth problem, where the objective stalls far from the solution and a rule reading a stall cannot tell the two apart. <code>criterion = crit_grad()</code> restores the old behaviour.</p>
+</li>
+<li><p><code><a href="../reference/crit_rel_obj.html">crit_rel_obj()</a></code> leaves the default rule, having never fired in it: measured over the same 48 runs, the rule with it and the rule without it agree on every convergence flag, every evaluation count and every reported point. It remains exported.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0" id="optimizers7-050">optimizers7 0.5.0<a class="anchor" aria-label="anchor" href="#optimizers7-050"></a></h2>
 <ul><li><p><code><a href="../reference/newton.html">newton()</a></code> scales a direction that came out of a REPAIRED Hessian to <code>min(1, 1/||d||_inf)</code>, a displacement of order one in the parameters. Where the Cholesky succeeds nothing is touched: that step is the Newton step and its length is the objective’s own curvature. Where it fails, the component in the floored subspace is <code>g_i / (floor * max|lambda|)</code>, whose size comes from the <code>floor</code> argument and from no curvature at all, so <code>step = 1</code> claims a Newton unit it does not have. The rule is the one <code><a href="../reference/bb.html">bb()</a></code> applies when its secant pair reports no curvature and the one <code><a href="../reference/bfgs.html">bfgs()</a></code> and <code><a href="../reference/lbfgs.html">lbfgs()</a></code> apply to their first direction, and it ONLY EVER SHORTENS.</p></li>

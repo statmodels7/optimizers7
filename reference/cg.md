@@ -9,7 +9,7 @@ suits problems too large for a Hessian.
 
 ``` r
 cg(
-  criterion = crit_any(crit_grad(), crit_rel_obj()),
+  criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   beta = c("pr", "fr", "hs", "dy"),
   restart_every = 0,
   step = 1,
@@ -149,12 +149,12 @@ Optimization* **10**, 177–182.
 ``` r
 cg()
 #> <optimizer> conjugate gradients (pr)
-#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : beta = pr, restart_every = 0, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
 cg(beta = "fr", restart_every = 10)
 #> <optimizer> conjugate gradients (fr)
-#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : beta = fr, restart_every = 10, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
 
@@ -162,5 +162,5 @@ f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(cg(), f, c(-1.2, 1), gr = gr)@par
-#> [1] 1 1
+#> [1] 0.9999728 0.9999455
 ```

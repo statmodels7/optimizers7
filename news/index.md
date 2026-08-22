@@ -1,5 +1,42 @@
 # Changelog
 
+## optimizers7 0.6.0
+
+- The six gradient methods –
+  [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md),
+  [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md),
+  [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md),
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+  and
+  [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
+  – default to `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`
+  rather than `crit_any(crit_grad(), crit_rel_obj())`. A disjunction
+  only gets weaker as terms are added, so a run that stops under the new
+  rule would never have stopped earlier under the old one. Measured over
+  [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md),
+  six methods on eight problems: 44 of 48 runs converge rather than 41,
+  at 19370 objective evaluations rather than 22299. The three gained are
+  `cg` and `bb` on the non-smooth `abs_sum` and `gd` on Beale; none is
+  lost.
+
+  The cost is that a run stops sooner and reports a point further from
+  the solution. Ten of the 48 end at a gradient more than a hundred
+  times larger, the worst of them at precision nobody asked for: `bfgs`
+  on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, the objective
+  3.2e-13 above its minimum rather than 1.2e-21. One run differs in
+  substance – `cg` on `abs_sum` ends 4.5e-02 above the minimum rather
+  than 1.9e-03 and now reports success – which is a smooth method on a
+  non-smooth problem, where the objective stalls far from the solution
+  and a rule reading a stall cannot tell the two apart.
+  `criterion = crit_grad()` restores the old behaviour.
+
+- [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
+  leaves the default rule, having never fired in it: measured over the
+  same 48 runs, the rule with it and the rule without it agree on every
+  convergence flag, every evaluation count and every reported point. It
+  remains exported.
+
 ## optimizers7 0.5.0
 
 - [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)

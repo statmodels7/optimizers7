@@ -9,7 +9,7 @@ maximize for the other direction."><meta property="og:image" content="https://st
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -184,7 +184,7 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 1   evaluations: f 3, g 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># and without, so the gradient is differenced</span></span></span>
 <span class="r-in"><span><span class="fu">minimize</span><span class="op">(</span><span class="fu"><a href="gd.html">gd</a></span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -192,8 +192,8 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 2.80957e-22</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 1   evaluations: f 11, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># one bound for every parameter: a scale that must stay positive</span></span></span>
@@ -202,8 +202,8 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 4.68178e-20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 7   evaluations: f 48, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># or one per parameter. The unconstrained minimum is at (1, 2), so the</span></span></span>
@@ -215,7 +215,7 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 22   evaluations: f 121, g 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 2 ms</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># no starting value at all: the bounds say there are two parameters</span></span></span>
@@ -225,8 +225,8 @@ an active-set method is the right tool and this is not one.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 3.05571e-16</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 12   evaluations: f 65, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 2 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

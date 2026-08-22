@@ -113,10 +113,10 @@ armijo()
 minimize(gd(line_search = armijo(shrink = 0.2)),
          function(p) sum((p - 1:2)^2), c(0, 0))
 #> <optimizer_result> gradient descent
-#>   value      : 2.44368e-13
+#>   value      : 4.04141e-11
 #>   par        : 1 2
-#>   iterations : 30   evaluations: f 185, g 0
+#>   iterations : 25   evaluations: f 155, g 0
 #>   elapsed    : 3 ms
-#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 ```

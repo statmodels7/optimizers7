@@ -69,7 +69,7 @@ chain: the wrapper is not a special case to be avoided.
 ``` r
 chain(sa(maxit = 10), bfgs())
 #> <optimizer> simulated annealing (uniform) then BFGS
-#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative)
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 500, evaluations Inf
 #>   settings  : stages = <list>
 
