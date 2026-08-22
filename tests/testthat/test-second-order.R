@@ -153,9 +153,15 @@ test_that("L-BFGS with more memory is not worse, and matches BFGS", {
   g  <- function(p) as.numeric(A %*% p - b)
   truth <- solve(A, b)
 
-  small <- minimize(lbfgs(memory = 3, maxit = 5000),  f, rep(0, 30), gr = g)
-  large <- minimize(lbfgs(memory = 30, maxit = 5000), f, rep(0, 30), gr = g)
-  full  <- minimize(bfgs(maxit = 5000), f, rep(0, 30), gr = g)
+  # crit_grad() rather than the default: the tolerances below are about how
+  # close each METHOD gets, and the 0.6.0 default also stops on a stalled
+  # objective. See crit_any().
+  cr <- crit_grad()
+  small <- minimize(lbfgs(memory = 3, criterion = cr, maxit = 5000),
+                    f, rep(0, 30), gr = g)
+  large <- minimize(lbfgs(memory = 30, criterion = cr, maxit = 5000),
+                    f, rep(0, 30), gr = g)
+  full  <- minimize(bfgs(criterion = cr, maxit = 5000), f, rep(0, 30), gr = g)
 
   for (r in list(small, large, full)) {
     expect_true(r@converged)

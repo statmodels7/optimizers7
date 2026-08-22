@@ -5,7 +5,7 @@
 \title{BFGS}
 \usage{
 bfgs(
-  criterion = crit_any(crit_grad(), crit_rel_obj()),
+  criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   curv_tol = 1e-10,
   max_skip = 5,
   step = 1,

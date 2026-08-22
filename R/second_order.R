@@ -120,7 +120,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' 2nd edition. Springer, New York.
 #'
 #' @export
-newton <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
+newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                    hessian_mod = c("eigen", "ridge"), floor = 1e-8,
                    step = 1, line_search = armijo(),
                    maxit = 200, max_eval = Inf,
@@ -213,7 +213,7 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' 2nd edition. Springer, New York.
 #'
 #' @export
-bfgs <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
+bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                  curv_tol = 1e-10, max_skip = 5,
                  step = 1, line_search = wolfe(),
                  maxit = 500, max_eval = Inf,
@@ -290,7 +290,7 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' \strong{45}, 503--528.
 #'
 #' @export
-lbfgs <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
+lbfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                   memory = 10, curv_tol = 1e-10,
                   step = 1, line_search = wolfe(),
                   maxit = 500, max_eval = Inf,

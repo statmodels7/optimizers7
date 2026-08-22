@@ -73,7 +73,7 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' 2nd edition. Springer, New York.
 #'
 #' @export
-gd <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
+gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                step = 1, line_search = armijo(),
                maxit = 500, max_eval = Inf,
                verbose = FALSE, refresh = 10, keep_trace = FALSE) {
@@ -219,7 +219,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #'
 #' @seealso \code{\link{gd}}, \code{\link{lbfgs}}, \code{\link{bb}}
 #' @export
-cg <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
+cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                beta = c("pr", "fr", "hs", "dy"), restart_every = 0,
                step = 1, line_search = wolfe(c2 = 0.1),
                maxit = 1000, max_eval = Inf,
@@ -381,7 +381,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'
 #' @seealso \code{\link{gd}}, \code{\link{cg}}, \code{\link{lbfgs}}
 #' @export
-bb <- function(criterion = crit_any(crit_grad(), crit_rel_obj()),
+bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                variant = c("alternate", "bb1", "bb2"),
                alpha0 = 1e-2, alpha_min = 1e-10, alpha_max = 1e10,
                curv_tol = 1e-10,

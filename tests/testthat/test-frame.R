@@ -338,3 +338,52 @@ test_that("a gradient that does not belong to the objective draws a warning", {
     warning = function(x) { w <<- w + 1; invokeRestart("muffleWarning") })
   expect_equal(w, 1)
 })
+
+
+# --- the default stopping rule of the gradient methods -----------------------
+# Since 0.6.0 that rule is crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()).
+# The tests above name crit_grad() wherever they measure how close a method
+# gets, so without these two nothing would exercise the default itself.
+
+test_that("the default rule never fails where the gradient rule succeeds", {
+  # A disjunction can only get weaker as terms are added, so this is a property
+  # and not a measurement: it must hold on every problem and every method.
+  tight <- crit_grad()
+  loose <- crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
+  for (mk in c("newton", "bfgs", "lbfgs", "cg", "bb", "gd")) {
+    for (p in test_problems()) {
+      a <- minimize(do.call(mk, list(criterion = tight)), p$fn, p$par,
+                    gr = p$gr)
+      b <- minimize(do.call(mk, list(criterion = loose)), p$fn, p$par,
+                    gr = p$gr)
+      if (isTRUE(a@converged)) {
+        expect_true(b@converged, label = paste(mk, p$name))
+      }
+      expect_lte(sum(unlist(b@counts)), sum(unlist(a@counts)),
+                 label = paste(mk, p$name))
+    }
+  }
+})
+
+
+test_that("crit_rel_obj in that rule fires on nothing", {
+  # It was in the default until 0.6.0 and was removed because it never decided
+  # anything. Measured over the battery the two rules agree on every count and
+  # every reported point, which is what licenses dropping it rather than
+  # keeping a rule nobody can observe.
+  with_it <- crit_any(crit_grad(), crit_rel_obj(), crit_abs_obj(),
+                      crit_abs_par())
+  without <- crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
+  for (mk in c("newton", "bfgs", "lbfgs", "cg", "bb", "gd")) {
+    for (p in test_problems()) {
+      a <- minimize(do.call(mk, list(criterion = with_it)), p$fn, p$par,
+                    gr = p$gr)
+      b <- minimize(do.call(mk, list(criterion = without)), p$fn, p$par,
+                    gr = p$gr)
+      lab <- paste(mk, p$name)
+      expect_identical(a@converged, b@converged, label = lab)
+      expect_identical(a@counts, b@counts, label = lab)
+      expect_equal(a@par, b@par, label = lab)
+    }
+  }
+})

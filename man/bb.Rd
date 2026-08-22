@@ -5,7 +5,7 @@
 \title{The Barzilai-Borwein Method}
 \usage{
 bb(
-  criterion = crit_any(crit_grad(), crit_rel_obj()),
+  criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   variant = c("alternate", "bb1", "bb2"),
   alpha0 = 0.01,
   alpha_min = 1e-10,

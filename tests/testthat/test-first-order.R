@@ -13,12 +13,18 @@ rosen_g <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 
 
 test_that("all three solve a quadratic and Rosenbrock", {
-  for (o in list(gd(maxit = 5000), cg(), bb())) {
+  # crit_grad() rather than the default: what is asserted here is how close
+  # the METHOD gets to a known solution, and since 0.6.0 the default is a
+  # disjunction that also stops on a stalled objective, so it reports a
+  # point the tolerance below was never written for. See crit_any().
+  cr <- crit_grad()
+  for (o in list(gd(criterion = cr, maxit = 5000), cg(criterion = cr),
+                 bb(criterion = cr))) {
     r <- minimize(o, quad, c(0, 0), gr = quad_g)
     expect_true(r@converged, label = r@optimizer@name)
     expect_equal(r@par, c(1, 2), tolerance = 1e-6, label = r@optimizer@name)
   }
-  for (o in list(cg(), bb())) {
+  for (o in list(cg(criterion = cr), bb(criterion = cr))) {
     r <- minimize(o, rosen, c(-1.2, 1), gr = rosen_g)
     expect_true(r@converged, label = r@optimizer@name)
     expect_equal(r@par, c(1, 1), tolerance = 1e-5, label = r@optimizer@name)
@@ -43,7 +49,8 @@ test_that("cg beats gd on the problem gd is bad at, and by a lot", {
 
 test_that("all four beta formulas work, and agree about the answer", {
   for (bt in c("pr", "fr", "hs", "dy")) {
-    r <- minimize(cg(beta = bt, maxit = 5000), rosen, c(-1.2, 1), gr = rosen_g)
+    r <- minimize(cg(beta = bt, criterion = crit_grad(), maxit = 5000),
+                  rosen, c(-1.2, 1), gr = rosen_g)
     expect_equal(r@par, c(1, 1), tolerance = 1e-5, label = bt)
   }
 })
@@ -77,9 +84,12 @@ test_that("a tighter Wolfe constant is why cg defaults to one", {
   # c2 = 0.9 suits bfgs, which repairs a loose step with its curvature
   # approximation. cg has nothing to repair with: the conjugacy it accumulates
   # is only as good as the search that produced it.
-  loose <- minimize(cg(line_search = wolfe(c2 = 0.9), maxit = 5000),
-                    rosen, c(-1.2, 1), gr = rosen_g)
-  tight <- minimize(cg(maxit = 5000), rosen, c(-1.2, 1), gr = rosen_g)
+  # both under crit_grad(), so the count compares the LINE SEARCH and not
+  # which arm of the default disjunction happened to fire first
+  loose <- minimize(cg(line_search = wolfe(c2 = 0.9), criterion = crit_grad(),
+                       maxit = 5000), rosen, c(-1.2, 1), gr = rosen_g)
+  tight <- minimize(cg(criterion = crit_grad(), maxit = 5000), rosen,
+                    c(-1.2, 1), gr = rosen_g)
   expect_lt(tight@iterations, loose@iterations / 2)
 })
 
@@ -92,8 +102,8 @@ test_that("PR+ clamps a negative beta, and reports it as the restart it is", {
 
 
 test_that("a periodic restart is taken and does not break the run", {
-  r <- minimize(cg(restart_every = 5, maxit = 5000, keep_trace = TRUE),
-                rosen, c(-1.2, 1), gr = rosen_g)
+  r <- minimize(cg(restart_every = 5, criterion = crit_grad(), maxit = 5000,
+                   keep_trace = TRUE), rosen, c(-1.2, 1), gr = rosen_g)
   expect_true(any(r@trace$safeguard == "cg restart"))
   expect_equal(r@par, c(1, 1), tolerance = 1e-5)
 })
@@ -130,7 +140,8 @@ test_that("bb reaches every smooth minimum in the battery", {
   for (nm in names(test_problems())) {
     p <- test_problems(nm)[[1]]
     if (!isTRUE(p$smooth) || isTRUE(p$multimodal)) next
-    r <- minimize(bb(maxit = 5000), p$fn, p$par, gr = p$gr)
+    r <- minimize(bb(criterion = crit_grad(), maxit = 5000), p$fn, p$par,
+                  gr = p$gr)
     expect_lt(r@value - p$value, 1e-8, label = nm)
   }
 })
@@ -138,8 +149,8 @@ test_that("bb reaches every smooth minimum in the battery", {
 
 test_that("the three variants all work", {
   for (v in c("alternate", "bb1", "bb2")) {
-    r <- minimize(bb(variant = v, maxit = 5000), rosen, c(-1.2, 1),
-                  gr = rosen_g)
+    r <- minimize(bb(variant = v, criterion = crit_grad(), maxit = 5000),
+                  rosen, c(-1.2, 1), gr = rosen_g)
     expect_equal(r@par, c(1, 1), tolerance = 1e-5, label = v)
   }
 })

@@ -5,7 +5,7 @@
 \title{Gradient Descent}
 \usage{
 gd(
-  criterion = crit_any(crit_grad(), crit_rel_obj()),
+  criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   step = 1,
   line_search = armijo(),
   maxit = 500,
