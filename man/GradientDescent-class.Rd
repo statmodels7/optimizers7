@@ -20,15 +20,15 @@ GradientDescent(
 \arguments{
 \item{step}{The initial step length offered to the line search.}
 
-\item{line_search}{A \code{\link{line_search}} object.}
+\item{line_search}{A \code{\link[=line_search]{line_search()}} object.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{gd}} instantiates.
+The class \code{\link[=gd]{gd()}} instantiates.
 }
 \seealso{
-\code{\link{gd}}
+\code{\link[=gd]{gd()}}
 }
 \keyword{internal}

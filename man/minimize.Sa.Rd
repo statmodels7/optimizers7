@@ -6,14 +6,14 @@
 \arguments{
 \item{optimizer}{An \code{Sa} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr}
 and \code{he} are accepted and ignored: the method uses no derivative, and
 rejecting them would force calling code to branch on the algorithm.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Runs \code{\link{sa}} on the objective.
+Runs \code{\link[=sa]{sa()}} on the objective.
 }
 \keyword{internal}

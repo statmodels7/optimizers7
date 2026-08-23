@@ -12,7 +12,7 @@ crit_grad(tol = 1e-06, norm = c("max", "2"))
 \item{norm}{\code{"max"} (default) or \code{"2"}.}
 }
 \value{
-A \code{\link{criterion}} object.
+A \code{\link[=criterion]{criterion()}} object.
 }
 \description{
 The rule \eqn{\lVert \nabla f \rVert < \texttt{tol}}.
@@ -50,5 +50,5 @@ crit_grad(1e-10, norm = "2")
 
 }
 \seealso{
-\code{\link{crit_rel_obj}}, \code{\link{crit_any}}
+\code{\link[=crit_rel_obj]{crit_rel_obj()}}, \code{\link[=crit_any]{crit_any()}}
 }

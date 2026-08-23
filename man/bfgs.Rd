@@ -28,7 +28,7 @@ Defaults to \code{1e-10}.}
 to the identity. Defaults to 5.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
-\code{\link{newton}}. The default line search is \code{\link{wolfe}}; see
+\code{\link[=newton]{newton()}}. The default line search is \code{\link[=wolfe]{wolfe()}}; see
 Details.}
 }
 \value{
@@ -77,6 +77,6 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link{lbfgs}} for many parameters, \code{\link{newton}} when a
+\code{\link[=lbfgs]{lbfgs()}} for many parameters, \code{\link[=newton]{newton()}} when a
 Hessian is available.
 }

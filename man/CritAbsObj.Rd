@@ -10,12 +10,12 @@ CritAbsObj(label = character(0), tol = integer(0))
 \item{tol}{The tolerance.}
 }
 \value{
-An S7 object inheriting from \code{\link{criterion}}.
+An S7 object inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The class \code{\link{crit_abs_obj}} instantiates.
+The class \code{\link[=crit_abs_obj]{crit_abs_obj()}} instantiates.
 }
 \seealso{
-\code{\link{crit_abs_obj}}
+\code{\link[=crit_abs_obj]{crit_abs_obj()}}
 }
 \keyword{internal}

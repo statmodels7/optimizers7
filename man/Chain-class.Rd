@@ -20,12 +20,12 @@ Chain(
 \item{stages}{The optimizers, in the order they run.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{chain}} instantiates.
+The class \code{\link[=chain]{chain()}} instantiates.
 }
 \seealso{
-\code{\link{chain}}
+\code{\link[=chain]{chain()}}
 }
 \keyword{internal}

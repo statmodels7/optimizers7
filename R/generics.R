@@ -7,20 +7,20 @@ NULL
 #'
 #' @description
 #' The entry point of the package. Everything here minimizes; see
-#' \code{\link{maximize}} for the other direction.
+#' [maximize()] for the other direction.
 #'
-#' @param optimizer An \code{\link{optimizer}} object, carrying the algorithm and
+#' @param optimizer An [optimizer()] object, carrying the algorithm and
 #'   its settings.
 #' @param fn The objective: a function of the parameter vector returning a
 #'   single number.
 #' @param par A numeric vector of starting values.
-#' @param gr An optional gradient function. Ignored when \code{fn} carries its
+#' @param gr An optional gradient function. Ignored when `fn` carries its
 #'   own gradient.
 #' @param he An optional Hessian function. Methods that do not use one ignore
 #'   it, so calling code need not branch on the algorithm.
 #' @param lower,upper Box constraints. Numeric, of length one — applying to
-#'   every parameter — or one value per parameter. Default \code{-Inf} and
-#'   \code{Inf}, which is no constraint at all. See Details.
+#'   every parameter — or one value per parameter. Default `-Inf` and
+#'   `Inf`, which is no constraint at all. See Details.
 #' @param ... Passed to methods.
 #'
 #' @details
@@ -34,9 +34,9 @@ NULL
 #' stopped together with the rule that stopped it; convergence is what the
 #' stopping rule says and is never inferred from the run having ended.
 #'
-#' The generic dispatches on \code{optimizer} alone, so each algorithm is
+#' The generic dispatches on `optimizer` alone, so each algorithm is
 #' written once. The objective is normalized separately by
-#' \code{\link{as_objective}}, which dispatches on \code{fn}, so a caller with
+#' [as_objective()], which dispatches on `fn`, so a caller with
 #' its own kind of objective registers one method there and every algorithm
 #' accepts it.
 #'
@@ -44,53 +44,53 @@ NULL
 #' The result records which derivatives were supplied and which were
 #' differenced, so a run is never silently less exact than it appears. A
 #' gradient that is supplied is checked once against the objective -- one
-#' central difference along the gradient direction at \code{par}, two
+#' central difference along the gradient direction at `par`, two
 #' evaluations -- and a gross disagreement draws a warning naming both rates,
-#' since a \code{gr} computed from a different model than \code{fn} otherwise
+#' since a `gr` computed from a different model than `fn` otherwise
 #' surfaces as a mute line-search failure at the first iteration;
-#' \code{options(optimizers7.check_gradient = FALSE)} disables the check.
+#' `options(optimizers7.check_gradient = FALSE)` disables the check.
 #'
 #' \subsection{Starters}{
-#' \code{par} may be a \strong{starter} rather than a vector:
-#' \code{\link{start_zeros}} for all zeros, \code{\link{start_runif}} for a
-#' uniform draw from a chosen range. Both work on the \emph{unconstrained}
+#' `par` may be a **starter** rather than a vector:
+#' [start_zeros()] for all zeros, [start_runif()] for a
+#' uniform draw from a chosen range. Both work on the *unconstrained*
 #' scale and are mapped back through the bounds, which is what makes a single
 #' constant sensible for every kind of parameter — zero becomes one for a
 #' variance, one half for a probability — and what guarantees the point is
 #' admissible however tight the box.
 #'
 #' A starter needs to know how many parameters there are, and it is told in one
-#' of three ways. Say so, with \code{start_zeros(npar = 3)}, and that is the end
-#' of it. Otherwise a \code{lower} or \code{upper} with more than one element
+#' of three ways. Say so, with `start_zeros(npar = 3)`, and that is the end
+#' of it. Otherwise a `lower` or `upper` with more than one element
 #' answers the question, bounds being one per parameter. Otherwise the objective
-#' is probed by \code{\link{infer_npar}}, which tries lengths until one is
+#' is probed by [infer_npar()], which tries lengths until one is
 #' accepted and costs at most fifty evaluations, once, before the run begins.
 #'
 #' That last route settles any objective with a fixed width built into it,
-#' which is most real ones: \code{X \%*\% beta} with a parameter of the wrong
+#' which is most real ones: `X %*% beta` with a parameter of the wrong
 #' length is an error rather than a number. It cannot settle a vectorized toy,
 #' since \R recycles a shorter vector silently whenever its length divides, so
-#' \code{sum((p - c(1, 2, 3))^2)} is a perfectly finite function of one
+#' `sum((p - c(1, 2, 3))^2)` is a perfectly finite function of one
 #' parameter as well as of three. It then rejects, naming the lengths it found,
 #' rather than optimizing a different problem from the one asked.
 #' }
 #'
-#' \code{lower} and \code{upper} are two vectors rather than a list of pairs,
-#' which is what \code{\link[stats]{optim}} and \code{\link[stats]{nlminb}}
-#' take, and what lets \code{lower = 0} say "every parameter is positive"
+#' `lower` and `upper` are two vectors rather than a list of pairs,
+#' which is what [stats::optim()] and [stats::nlminb()]
+#' take, and what lets `lower = 0` say "every parameter is positive"
 #' without writing out one pair per coefficient. Recycling is length one or one
 #' per parameter and nothing between, since anything else is far more likely to
 #' be a mistake than a request.
 #'
-#' \strong{Bounds are removed, not enforced.} Each bounded coordinate is
+#' **Bounds are removed, not enforced.** Each bounded coordinate is
 #' reparametrized onto the whole real line — a shifted log for one-sided bounds,
 #' a scaled logit for two — and the optimizer runs unconstrained in the new
 #' variable. Every point it proposes is admissible by construction, so there is
 #' no rejection step and no boundary for a line search to trip over, and any
 #' method works with bounds without knowing about them.
 #'
-#' One limitation follows from the construction: \strong{an optimum
-#' lying on a bound cannot be reached}. Getting there requires the transformed
+#' One limitation follows from the construction: **an optimum
+#' lying on a bound cannot be reached**. Getting there requires the transformed
 #' variable to run to infinity, so the optimizer marches off, improves by less
 #' and less, and stops on a budget at a point merely close to the bound. For the
 #' statistical use this exists to serve — a positive variance, a probability
@@ -98,7 +98,7 @@ NULL
 #' a genuine box-constrained problem with active constraints at the solution,
 #' an active-set method is the right tool and this is not one.
 #'
-#' @return An \code{\link{optimizer_result}}.
+#' @return An [optimizer_result()].
 #'
 #' @examples
 #' # a quadratic, with the gradient supplied
@@ -120,8 +120,8 @@ NULL
 #' minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 #'          lower = c(0, 0), upper = c(5, 10))
 #'
-#' @seealso \code{\link{maximize}}, \code{\link{gd}},
-#'   \code{\link{start_zeros}}, \code{\link{crit_any}}
+#' @seealso [maximize()], [gd()],
+#'   [start_zeros()], [crit_any()]
 #' @export
 minimize <- S7::new_generic("minimize", "optimizer",
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -141,7 +141,7 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' @title Maximize a Function
 #'
 #' @description
-#' Runs \code{\link{minimize}} on the negated objective and reports the value
+#' Runs [minimize()] on the negated objective and reports the value
 #' with its sign restored.
 #'
 #' @inheritParams minimize
@@ -150,7 +150,7 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' \deqn{\arg\max_{x} f(x) = \arg\min_{x} \{-f(x)\},
 #'   \qquad \max_{x} f(x) = -\min_{x}\{-f(x)\},}
 #'
-#' so the point is the one \code{\link{minimize}} returns and the value, the
+#' so the point is the one [minimize()] returns and the value, the
 #' gradient and the traced objective have their sign restored.
 #'
 #' Every algorithm in the package minimizes, always; that is the convention and
@@ -158,13 +158,13 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' exists so that nobody has to remember to negate a log-likelihood by hand and
 #' then negate the answer back.
 #'
-#' @return An \code{\link{optimizer_result}}, whose \code{value} and
-#'   \code{gradient} refer to the original objective rather than the negated one.
+#' @return An [optimizer_result()], whose `value` and
+#'   `gradient` refer to the original objective rather than the negated one.
 #'
 #' @examples
 #' maximize(gd(), function(p) -sum((p - c(1, 2))^2), c(0, 0))
 #'
-#' @seealso \code{\link{minimize}}
+#' @seealso [minimize()]
 #' @export
 maximize <- function(optimizer, fn, par, gr = NULL, he = NULL,
                      lower = -Inf, upper = Inf, ...) {

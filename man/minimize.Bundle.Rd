@@ -6,15 +6,15 @@
 \arguments{
 \item{optimizer}{A \code{Bundle} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} should
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} should
 return a subgradient; \code{he} is ignored.}
 }
 \value{
-An \code{\link{optimizer_result}}, whose \code{gradient} is the
+An \code{\link[=optimizer_result]{optimizer_result()}}, whose \code{gradient} is the
 \emph{aggregate} subgradient, the one quantity of that shape which goes to
 zero at a solution.
 }
 \description{
-Runs \code{\link{bundle}} on the objective.
+Runs \code{\link[=bundle]{bundle()}} on the objective.
 }
 \keyword{internal}

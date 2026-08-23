@@ -12,12 +12,12 @@ CritGrad(label = character(0), tol = integer(0), norm = character(0))
 \item{norm}{Either \code{"max"} or \code{"2"}.}
 }
 \value{
-An S7 object inheriting from \code{\link{criterion}}.
+An S7 object inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The class \code{\link{crit_grad}} instantiates.
+The class \code{\link[=crit_grad]{crit_grad()}} instantiates.
 }
 \seealso{
-\code{\link{crit_grad}}
+\code{\link[=crit_grad]{crit_grad()}}
 }
 \keyword{internal}

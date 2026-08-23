@@ -13,7 +13,7 @@ make_starts(par, n, spread, bounds)
 
 \item{spread}{Half-width of the sampling range, in unconstrained units.}
 
-\item{bounds}{Box constraints in the shape \code{\link{check_bounds}}
+\item{bounds}{Box constraints in the shape \code{\link[=check_bounds]{check_bounds()}}
 returns, possibly empty.}
 }
 \value{

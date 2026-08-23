@@ -4,7 +4,7 @@
 \alias{print.optimizer}
 \title{Print Method for Optimizers}
 \arguments{
-\item{x}{An \code{\link{optimizer}} object.}
+\item{x}{An \code{\link[=optimizer]{optimizer()}} object.}
 
 \item{...}{Unused.}
 }

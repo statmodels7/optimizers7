@@ -32,12 +32,12 @@ Bb(
 \item{curv_tol}{The relative threshold below which a pair is rejected.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{bb}} instantiates.
+The class \code{\link[=bb]{bb()}} instantiates.
 }
 \seealso{
-\code{\link{bb}}
+\code{\link[=bb]{bb()}}
 }
 \keyword{internal}

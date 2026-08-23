@@ -10,12 +10,12 @@ CritRelPar(label = character(0), tol = integer(0))
 \item{tol}{The tolerance.}
 }
 \value{
-An S7 object inheriting from \code{\link{criterion}}.
+An S7 object inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The class \code{\link{crit_rel_par}} instantiates.
+The class \code{\link[=crit_rel_par]{crit_rel_par()}} instantiates.
 }
 \seealso{
-\code{\link{crit_rel_par}}
+\code{\link[=crit_rel_par]{crit_rel_par()}}
 }
 \keyword{internal}

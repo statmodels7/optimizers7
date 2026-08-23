@@ -20,19 +20,19 @@ Newton(
 )
 }
 \arguments{
-\item{step, line_search}{As in \code{\link{newton}}.}
+\item{step, line_search}{As in \code{\link[=newton]{newton()}}.}
 
 \item{hessian_mod}{How an indefinite Hessian is repaired.}
 
 \item{floor}{The smallest eigenvalue the repaired Hessian may have.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{newton}} instantiates.
+The class \code{\link[=newton]{newton()}} instantiates.
 }
 \seealso{
-\code{\link{newton}}
+\code{\link[=newton]{newton()}}
 }
 \keyword{internal}

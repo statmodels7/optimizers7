@@ -5,10 +5,10 @@
 NULL
 
 #' @title S7 Class for a Sequence of Optimizers
-#' @description The class \code{\link{chain}} instantiates.
+#' @description The class [chain()] instantiates.
 #' @param stages The optimizers, in the order they run.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{chain}}
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [chain()]
 #' @name Chain-class
 #' @aliases Chain
 #' @keywords internal
@@ -23,38 +23,38 @@ Chain <- S7::new_class("Chain", parent = optimizer,
 #' finished.
 #'
 #' @details
-#' The composition a global search needs: \code{chain(sa(), lbfgs())} explores
+#' The composition a global search needs: `chain(sa(), lbfgs())` explores
 #' first and then descends from wherever the exploration left off, and neither
 #' method has to know about the other. It is the second wrapper of this shape
-#' after \code{\link{multistart}}, and the two compose --
-#' \code{multistart(chain(sa(), lbfgs()))} is a legal optimizer.
+#' after [multistart()], and the two compose --
+#' `multistart(chain(sa(), lbfgs()))` is a legal optimizer.
 #'
 #' Each stage carries its OWN criterion and its own budgets, which is the point
 #' of a chain rather than an argument: a coarse rule and a small budget for the
 #' exploration, a tight rule for the descent.
 #'
-#' \strong{What the result reports.} The point and the value are the LAST
-#' stage's, since that is where the run ended, and so is \code{converged}: a
+#' **What the result reports.** The point and the value are the LAST
+#' stage's, since that is where the run ended, and so is `converged`: a
 #' chain has converged when the method that finished it says so, and an earlier
 #' stage exhausting its own budget is the ordinary way a global search ends
 #' rather than a failure of the whole. Evaluations and iterations are summed
-#' over the stages, and the trace, when kept, carries a \code{stage} column.
+#' over the stages, and the trace, when kept, carries a `stage` column.
 #'
 #' A stage that raises propagates, since a method that cannot run on the
 #' objective is a fact about the objective. A stage that runs without
 #' converging passes its point on, which is what the first stage of a chain
 #' usually does.
 #'
-#' \code{chain(x)} with a single stage is that stage's run, reported through
+#' `chain(x)` with a single stage is that stage's run, reported through
 #' the chain: the wrapper is not a special case to be avoided.
 #'
 #' @param ... Two or more optimizers, in the order they should run. A single
 #'   one is accepted.
-#' @param verbose Report which stage is running? Defaults to \code{FALSE}.
-#' @param keep_trace Store the path of every stage? Defaults to \code{FALSE}.
+#' @param verbose Report which stage is running? Defaults to `FALSE`.
+#' @param keep_trace Store the path of every stage? Defaults to `FALSE`.
 #'
-#' @return An S7 object of class \code{Chain}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `Chain`, inheriting from
+#'   [optimizer()].
 #'
 #' @examples
 #' chain(sa(maxit = 10), bfgs())
@@ -67,7 +67,7 @@ Chain <- S7::new_class("Chain", parent = optimizer,
 #' set.seed(3)
 #' minimize(chain(sa(maxit = 20), bfgs()), rastrigin, c(3.5, -2.5))@value
 #'
-#' @seealso \code{\link{multistart}}, \code{\link{sa}}
+#' @seealso [multistart()], [sa()]
 #' @export
 chain <- function(..., verbose = FALSE, keep_trace = FALSE) {
   stages <- list(...)
@@ -106,7 +106,7 @@ chain <- function(..., verbose = FALSE, keep_trace = FALSE) {
 #' @description
 #' Whatever the LAST stage offers, that being the stage whose rule ends the run
 #' and whose result is reported.
-#' @param optimizer A \code{Chain} object.
+#' @param optimizer A `Chain` object.
 #' @return A character vector.
 #' @keywords internal
 S7::method(optimizer_provides, Chain) <- function(optimizer)
@@ -116,10 +116,10 @@ S7::method(optimizer_provides, Chain) <- function(optimizer)
 #' @title Whether a Chain Takes Box Bounds
 #' @name optimizer_bounded.Chain
 #' @description
-#' \code{TRUE} only when EVERY stage takes them: bounds are passed to all of
+#' `TRUE` only when EVERY stage takes them: bounds are passed to all of
 #' them, so one stage that would ignore them makes the chain unable to promise
 #' the box.
-#' @param optimizer A \code{Chain} object.
+#' @param optimizer A `Chain` object.
 #' @return A single logical.
 #' @keywords internal
 S7::method(optimizer_bounded, Chain) <- function(optimizer)
@@ -150,10 +150,10 @@ S7::method(with_maxit, Chain) <- function(optimizer, maxit) {
 #' @title Minimize by a Sequence of Optimizers
 #' @name minimize.Chain
 #' @description Runs each stage from where the previous one finished.
-#' @param optimizer A \code{Chain} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}, passed to
+#' @param optimizer A `Chain` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()], passed to
 #'   every stage.
-#' @return An \code{\link{optimizer_result}}.
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Chain) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -195,10 +195,10 @@ S7::method(minimize, Chain) <-
 #' the traces stacked.
 #'
 #' @param results The per-stage results, in order.
-#' @param optimizer The \code{Chain}.
+#' @param optimizer The `Chain`.
 #' @param elapsed Total seconds.
 #'
-#' @return An \code{\link{optimizer_result}}.
+#' @return An [optimizer_result()].
 #'
 #' @keywords internal
 build_chain_result <- function(results, optimizer, elapsed) {

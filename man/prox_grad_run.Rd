@@ -9,15 +9,15 @@ prox_grad_run(optimizer, spec, par)
 \arguments{
 \item{optimizer}{A \code{ProxGrad} object.}
 
-\item{spec}{The objective handle from \code{\link{as_objective}}.}
+\item{spec}{The objective handle from \code{\link[=as_objective]{as_objective()}}.}
 
 \item{par}{The starting point.}
 }
 \value{
-A list in the shape \code{\link{build_result}} consumes.
+A list in the shape \code{\link[=build_result]{build_result()}} consumes.
 }
 \description{
-The iteration behind \code{\link{prox_grad}}: a backtracked gradient
+The iteration behind \code{\link[=prox_grad]{prox_grad()}}: a backtracked gradient
 step on the smooth part, the proximal operator applied to its result,
 and the momentum extrapolation with its restart.
 }

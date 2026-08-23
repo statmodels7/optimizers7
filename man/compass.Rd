@@ -50,12 +50,12 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{Compass}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Looks around the current point along a set of directions; moves to the first
 or best improvement it finds, and shrinks the radius when it finds none.
-Uses no derivative, and unlike \code{\link{nelder_mead}} it comes with a
+Uses no derivative, and unlike \code{\link[=nelder_mead]{nelder_mead()}} it comes with a
 convergence theorem.
 }
 \details{
@@ -116,6 +116,6 @@ for constrained optimization. \emph{SIAM Journal on Optimization}
 \strong{17}, 188--217.
 }
 \seealso{
-\code{\link{nelder_mead}}, \code{\link{bundle}},
-\code{\link{crit_stationary}}
+\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=bundle]{bundle()}},
+\code{\link[=crit_stationary]{crit_stationary()}}
 }

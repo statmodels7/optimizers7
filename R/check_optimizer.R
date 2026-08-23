@@ -6,18 +6,18 @@ NULL
 #' @title Check That an Optimizer Keeps Its Promises
 #'
 #' @description
-#' Runs an optimizer through a series of checks on what it \emph{reports}, and
+#' Runs an optimizer through a series of checks on what it *reports*, and
 #' then through the standard test problems. Written for whoever adds a method of
 #' their own, and run against every method here.
 #'
-#' @param optimizer The \code{\link{optimizer}} to check.
-#' @param problems The battery; defaults to \code{\link{test_problems}()}.
-#' @param verbose Print the report? Defaults to \code{TRUE}.
+#' @param optimizer The [optimizer()] to check.
+#' @param problems The battery; defaults to [test_problems()].
+#' @param verbose Print the report? Defaults to `TRUE`.
 #' @param tol Tolerance for the checks that compare numbers. Defaults to
-#'   \code{1e-6}.
+#'   `1e-6`.
 #'
 #' @details
-#' \strong{What this checks is the contract, not the power.} Those are different
+#' **What this checks is the contract, not the power.** Those are different
 #' questions and conflating them would make the function useless: gradient
 #' descent does not solve Rosenbrock in five hundred iterations, and it is not
 #' broken — it is slow, which is a documented property of the method and not a
@@ -30,32 +30,32 @@ NULL
 #'
 #' \subsection{The checks}{
 #' \enumerate{
-#'   \item \code{value} is the objective at \code{par}. A method that reports a
+#'   \item `value` is the objective at `par`. A method that reports a
 #'     value from a point it has since left is the kind of defect that survives
 #'     every test written in terms of the value alone.
-#'   \item the reported gradient is the gradient at \code{par}, checked only for
-#'     optimizers that offer \code{"gradient"} to a stopping rule and so are
-#'     claiming it is one. \code{\link{bundle}} reports an aggregate subgradient
+#'   \item the reported gradient is the gradient at `par`, checked only for
+#'     optimizers that offer `"gradient"` to a stopping rule and so are
+#'     claiming it is one. [bundle()] reports an aggregate subgradient
 #'     and does not make that claim, so it is not held to it.
-#'   \item \code{converged} follows the stopping rule and is never inferred from
+#'   \item `converged` follows the stopping rule and is never inferred from
 #'     the run having ended. Checked by starving the optimizer of iterations: a
 #'     run cut off after one must not report success.
-#'   \item budgets are respected — \code{iterations} never exceeds \code{maxit}.
+#'   \item budgets are respected — `iterations` never exceeds `maxit`.
 #'   \item evaluations are counted; a method reporting zero of them did not
 #'     evaluate anything.
 #'   \item the trace, when kept, is a data frame whose iteration numbers run
 #'     from one and increase.
-#'   \item bounds are respected \strong{strictly}: a probability of exactly 1 is
+#'   \item bounds are respected **strictly**: a probability of exactly 1 is
 #'     not a probability inside \eqn{(0, 1)}, and the caller's next act is
 #'     usually to divide by it.
 #'   \item the run repeats. A deterministic method must give the same answer
 #'     twice; a stochastic one must give it again from the seed it recorded,
 #'     which tests the recording as well as the repeatability.
-#'   \item \code{\link{maximize}} is \code{\link{minimize}} of the negative.
+#'   \item [maximize()] is [minimize()] of the negative.
 #'   \item a stopping rule the optimizer cannot evaluate is rejected, rather than
 #'     accepted and left never to fire.
 #'   \item a starting point where the objective is not finite is an error, not a
-#'     run that quietly returns \code{NaN}.
+#'     run that quietly returns `NaN`.
 #'   \item it minimizes a quadratic.
 #' }
 #' }
@@ -63,14 +63,14 @@ NULL
 #' \subsection{The problem battery}{
 #' The table reports the gap between the value reached and the known minimum,
 #' and it is information rather than judgement. A large gap on
-#' \code{rastrigin} or \code{himmelblau} means the method found a different
+#' `rastrigin` or `himmelblau` means the method found a different
 #' local minimum, which for a local method is correct behavior; a large gap on
-#' \code{abs_sum} means it was defeated by a kink, which is what
-#' \code{\link{bundle}} and the derivative-free methods are for.
+#' `abs_sum` means it was defeated by a kink, which is what
+#' [bundle()] and the derivative-free methods are for.
 #' }
 #'
-#' @return Invisibly, a named list: \code{checks}, a logical vector with one
-#'   entry per numbered check, and \code{battery}, a data frame of gaps.
+#' @return Invisibly, a named list: `checks`, a logical vector with one
+#'   entry per numbered check, and `battery`, a data frame of gaps.
 #'
 #' @examples
 #' check_optimizer(bfgs())
@@ -79,7 +79,7 @@ NULL
 #' # the same standard on the ones it does make
 #' check_optimizer(nelder_mead(), problems = test_problems("sphere"))
 #'
-#' @seealso \code{\link{test_problems}}, \code{\link{minimize}}
+#' @seealso [test_problems()], [minimize()]
 #' @export
 check_optimizer <- function(optimizer, problems = test_problems(),
                             verbose = TRUE, tol = 1e-6) {
@@ -225,8 +225,8 @@ check_optimizer <- function(optimizer, problems = test_problems(),
 #' @description
 #' The gap from each known minimum, as information rather than as a verdict.
 #'
-#' @param optimizer The \code{\link{optimizer}}.
-#' @param problems A list in the shape \code{\link{test_problems}} returns.
+#' @param optimizer The [optimizer()].
+#' @param problems A list in the shape [test_problems()] returns.
 #'
 #' @return A data frame with one row per problem.
 #'
@@ -260,7 +260,7 @@ run_battery <- function(optimizer, problems) {
 #' @param ok The logical vector of checks.
 #' @param battery The data frame of gaps.
 #'
-#' @return Invisibly \code{NULL}.
+#' @return Invisibly `NULL`.
 #'
 #' @keywords internal
 print_optimizer_check <- function(optimizer, ok, battery) {
@@ -296,7 +296,7 @@ print_optimizer_check <- function(optimizer, ok, battery) {
 # is what the MultiStart methods below are for.
 
 #' Rebuild an Optimizer With a Different Iteration Budget
-#' @param optimizer The \code{\link{optimizer}}.
+#' @param optimizer The [optimizer()].
 #' @param maxit The new budget.
 #' @return An optimizer of the same class.
 #' @keywords internal
@@ -308,7 +308,7 @@ S7::method(with_maxit, optimizer) <- function(optimizer, maxit)
 
 
 #' Rebuild an Optimizer With the Trace Switched On
-#' @param optimizer The \code{\link{optimizer}}.
+#' @param optimizer The [optimizer()].
 #' @return An optimizer of the same class.
 #' @keywords internal
 with_trace <- S7::new_generic("with_trace", "optimizer",
@@ -325,12 +325,12 @@ S7::method(with_trace, optimizer) <- function(optimizer)
 #' be consulted.
 #'
 #' @details
-#' The distinction matters. \code{\link{multistart}} carries a criterion only so
+#' The distinction matters. [multistart()] carries a criterion only so
 #' that printing it tells the truth; the rule that is evaluated belongs to the
 #' optimizer inside. Setting the outer one and expecting a different run is the
 #' sort of thing that makes a check pass while testing nothing.
 #'
-#' @param optimizer The \code{\link{optimizer}}.
+#' @param optimizer The [optimizer()].
 #' @param criterion The new rule.
 #'
 #' @return An optimizer of the same class.

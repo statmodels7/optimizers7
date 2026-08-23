@@ -7,14 +7,14 @@
 prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
 \item{fn, gr, he}{The objective and its optional derivatives, as supplied.}
 
 \item{par}{The starting value.}
 }
 \value{
-The objective handle from \code{\link{as_objective}}.
+The objective handle from \code{\link[=as_objective]{as_objective()}}.
 }
 \description{
 Normalizes the objective, checks the stopping rule can actually be evaluated

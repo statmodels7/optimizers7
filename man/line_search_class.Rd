@@ -7,7 +7,7 @@
 line_search_class()
 }
 \value{
-The \code{\link{line_search}} class object.
+The \code{\link[=line_search]{line_search()}} class object.
 }
 \description{
 Fetched rather than captured, so that a check cannot be fooled by the class

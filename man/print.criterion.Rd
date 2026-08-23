@@ -4,7 +4,7 @@
 \alias{print.criterion}
 \title{Print Method for Criteria}
 \arguments{
-\item{x}{A \code{\link{criterion}} object.}
+\item{x}{A \code{\link[=criterion]{criterion()}} object.}
 
 \item{...}{Unused.}
 }

@@ -7,18 +7,18 @@
 CritCombine(label = character(0), criteria = list(), how = character(0))
 }
 \arguments{
-\item{criteria}{A list of \code{\link{criterion}} objects.}
+\item{criteria}{A list of \code{\link[=criterion]{criterion()}} objects.}
 
 \item{how}{Either \code{"any"} or \code{"all"}.}
 }
 \value{
-An S7 object inheriting from \code{\link{criterion}}.
+An S7 object inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The class \code{\link{crit_any}} and \code{\link{crit_all}}
+The class \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}}
 instantiate.
 }
 \seealso{
-\code{\link{crit_any}}, \code{\link{crit_all}}
+\code{\link[=crit_any]{crit_any()}}, \code{\link[=crit_all]{crit_all()}}
 }
 \keyword{internal}

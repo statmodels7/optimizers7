@@ -7,12 +7,12 @@
 CritNever(label = character(0))
 }
 \value{
-An S7 object inheriting from \code{\link{criterion}}.
+An S7 object inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The class \code{\link{crit_never}} instantiates.
+The class \code{\link[=crit_never]{crit_never()}} instantiates.
 }
 \seealso{
-\code{\link{crit_never}}
+\code{\link[=crit_never]{crit_never()}}
 }
 \keyword{internal}

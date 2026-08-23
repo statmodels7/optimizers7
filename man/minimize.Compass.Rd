@@ -6,13 +6,13 @@
 \arguments{
 \item{optimizer}{A \code{Compass} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} and
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and
 \code{he} are accepted and ignored.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Runs \code{\link{compass}} on the objective.
+Runs \code{\link[=compass]{compass()}} on the objective.
 }
 \keyword{internal}

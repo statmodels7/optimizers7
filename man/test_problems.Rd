@@ -19,7 +19,7 @@ Each carries its analytic gradient and its known answer.
 }
 \details{
 They are exported for use in testing optimizers generally, not only in this
-package's own tests; \code{\link{check_optimizer}} runs them.
+package's own tests; \code{\link[=check_optimizer]{check_optimizer()}} runs them.
 
 Each element is a list with \code{name}, \code{fn}, \code{gr}, \code{par}
 (a starting point), \code{solution}, \code{value}, and two flags.
@@ -48,7 +48,7 @@ run can reach is therefore of order
 which grows with the value at the solution and is exactly zero for every
 problem below. A log-likelihood is the opposite case, being of order one
 at its optimum, so an optimizer that reaches \code{1e-15} here may stop
-at \code{1e-8} there; the defaults of \code{\link{crit_grad}} allow for
+at \code{1e-8} there; the defaults of \code{\link[=crit_grad]{crit_grad()}} allow for
 that. Adding a constant to any of these objectives moves neither the
 minimizer nor the gradient and reproduces the effect.
 }
@@ -61,5 +61,5 @@ p$solution
 
 }
 \seealso{
-\code{\link{check_optimizer}}
+\code{\link[=check_optimizer]{check_optimizer()}}
 }

@@ -14,7 +14,7 @@ build_chain_result(results, optimizer, elapsed)
 \item{elapsed}{Total seconds.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
 The last stage's point and verdict, with the work of every stage summed and

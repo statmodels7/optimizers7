@@ -56,7 +56,7 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{Bundle}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Proximal bundle method for convex non-smooth objectives: subgradients
@@ -89,7 +89,7 @@ the current point and the quadratic term keeps the step inside the region
 where the model is believed. Its optimal value \eqn{v \le 0} is the
 \emph{predicted decrease}, which is what the acceptance test below uses.
 
-What \code{\link{crit_stationary}} watches is a related but different
+What \code{\link[=crit_stationary]{crit_stationary()}} watches is a related but different
 quantity, the \emph{optimality estimate}
 \eqn{\lVert p \rVert^2 + \alpha}, where \eqn{p} is the aggregate
 subgradient. Both vanish together at a solution, and the distinction is not
@@ -193,6 +193,6 @@ Mäkelä, M. M. (2002). Survey of bundle methods for nonsmooth optimization.
 \emph{Optimization Methods and Software} \strong{17}, 1--29.
 }
 \seealso{
-\code{\link{nelder_mead}}, \code{\link{compass}},
-\code{\link{crit_stationary}}
+\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}},
+\code{\link[=crit_stationary]{crit_stationary()}}
 }

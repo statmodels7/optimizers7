@@ -11,7 +11,7 @@ NULL
 #'
 #' @details
 #' The class is abstract. Each algorithm is a subclass with its own constructor —
-#' \code{\link{gd}}, and in time \code{newton()}, \code{bfgs()} and
+#' [gd()], and in time `newton()`, `bfgs()` and
 #' the rest — adding only the settings that are genuinely its own.
 #'
 #' These properties are shared by every algorithm without exception, which is
@@ -19,17 +19,17 @@ NULL
 #' else.
 #'
 #' @param name A short character name, used when printing and reporting.
-#' @param criterion The stopping rule, a \code{\link{criterion}} object.
+#' @param criterion The stopping rule, a [criterion()] object.
 #' @param maxit Maximum number of iterations.
 #' @param max_eval Maximum number of objective evaluations. A budget on work
 #'   rather than on progress: a line search can spend many evaluations in one
-#'   iteration, and a runaway one is invisible to \code{maxit}.
+#'   iteration, and a runaway one is invisible to `maxit`.
 #' @param verbose Logical; whether to report progress.
-#' @param refresh Report every \code{refresh} iterations. \code{0} reports only
+#' @param refresh Report every `refresh` iterations. `0` reports only
 #'   the final summary.
 #' @param keep_trace Logical; whether to store the iteration path in the result.
 #'
-#' @return An S7 object of class \code{optimizer}.
+#' @return An S7 object of class `optimizer`.
 #'
 #' @examples
 #' # Abstract: use one of the constructors.
@@ -40,7 +40,7 @@ NULL
 #' names(S7::props(bfgs()))
 #' bfgs()@maxit
 #'
-#' @seealso \code{\link{minimize}}, \code{\link{gd}}
+#' @seealso [minimize()], [gd()]
 #' @export
 optimizer <- S7::new_class(
   "optimizer",
@@ -79,7 +79,7 @@ optimizer <- S7::new_class(
 #' @param maxit,max_eval,refresh Numeric budgets.
 #' @param verbose,keep_trace Logical flags.
 #'
-#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#' @return Invisibly `TRUE`; raises an error otherwise.
 #'
 #' @keywords internal
 check_optimizer_args <- function(criterion, maxit, max_eval, verbose, refresh,
@@ -121,14 +121,14 @@ check_optimizer_args <- function(criterion, maxit, max_eval, verbose, refresh,
 #'
 #' @details
 #' Comparing S7 classes with
-#' \code{identical()} is object identity, and a class rebuilt from the same
+#' `identical()` is object identity, and a class rebuilt from the same
 #' definition is not identical to the original. Under \pkg{covr}, which
 #' re-evaluates the code instead of loading it, that turned every numerical
 #' fallback into the chain of first differences the design exists to forbid --
-#' and the local suite, \code{R CMD check --as-cran} and a five-platform
+#' and the local suite, `R CMD check --as-cran` and a five-platform
 #' matrix all passed. Only the coverage job failed.
 #'
-#' @return The \code{\link{criterion}} class object.
+#' @return The [criterion()] class object.
 #'
 #' @keywords internal
 criterion_class <- function() criterion
@@ -140,11 +140,11 @@ criterion_class <- function() criterion
 #' The same, for the optimizer class itself.
 #'
 #' @details
-#' Wanted by \code{\link{multistart}} and \code{\link{check_optimizer}},
+#' Wanted by [multistart()] and [check_optimizer()],
 #' both of which accept an arbitrary optimizer and must be able to say whether
 #' that is what they were given.
 #'
-#' @return The \code{\link{optimizer}} class object.
+#' @return The [optimizer()] class object.
 #'
 #' @keywords internal
 optimizer_class <- function() optimizer
@@ -152,9 +152,9 @@ optimizer_class <- function() optimizer
 
 #' @title Print Method for Optimizers
 #' @name print.optimizer
-#' @param x An \code{\link{optimizer}} object.
+#' @param x An [optimizer()] object.
 #' @param ... Unused.
-#' @return \code{x}, invisibly.
+#' @return `x`, invisibly.
 #' @examples
 #' print(gd())
 #' @keywords internal

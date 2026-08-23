@@ -33,12 +33,12 @@ Adam(
 \item{amsgrad}{Whether to hold the second moment at its running maximum.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{adam}} instantiates.
+The class \code{\link[=adam]{adam()}} instantiates.
 }
 \seealso{
-\code{\link{adam}}
+\code{\link[=adam]{adam()}}
 }
 \keyword{internal}

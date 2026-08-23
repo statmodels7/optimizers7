@@ -7,34 +7,34 @@ NULL
 #' How far to step along a direction, as an object.
 #'
 #' @details
-#' A descent method produces a \emph{direction}; how far to travel along it is a
+#' A descent method produces a *direction*; how far to travel along it is a
 #' separate question with its own theory. Separating the two is what lets Newton,
 #' BFGS and L-BFGS share one carefully written answer instead of each carrying
 #' its own, and what lets a user change the answer without touching the method.
 #'
 #' At a point \eqn{x} with gradient \eqn{g} and a direction \eqn{d} satisfying
 #' \eqn{g^\top d < 0}, a line search returns a step length \eqn{s > 0}. What
-#' every subclass guarantees is \emph{sufficient decrease}, Armijo's condition
+#' every subclass guarantees is *sufficient decrease*, Armijo's condition
 #'
 #' \deqn{f(x + s d) \le f(x) + c_1 s\, g^\top d,
 #'   \qquad 0 < c_1 < 1,}
 #'
 #' which asks for a fraction \eqn{c_1} of the decrease the linear model
 #' predicts and so rules out steps that shrink the objective by an amount
-#' vanishing faster than the step itself. \code{\link{wolfe}} adds the strong
+#' vanishing faster than the step itself. [wolfe()] adds the strong
 #' curvature condition
 #'
 #' \deqn{\lvert \nabla f(x + s d)^\top d \rvert \le c_2 \lvert g^\top d \rvert,
 #'   \qquad c_1 < c_2 < 1,}
 #'
 #' which excludes steps too short to have moved the directional derivative and
-#' is what makes the secant pair of \code{\link{bfgs}} carry usable curvature.
+#' is what makes the secant pair of [bfgs()] carry usable curvature.
 #'
-#' The class is abstract; use \code{\link{armijo}} or \code{\link{wolfe}}.
+#' The class is abstract; use [armijo()] or [wolfe()].
 #'
 #' @param label A short character label, used when printing.
 #'
-#' @return An S7 object of class \code{line_search}.
+#' @return An S7 object of class `line_search`.
 #'
 #' @examples
 #' # Abstract: use one of the constructors.
@@ -49,7 +49,7 @@ NULL
 #' minimize(bfgs(line_search = armijo()), f, c(0, 0), gr = g)@counts
 #' minimize(bfgs(line_search = wolfe()), f, c(0, 0), gr = g)@counts
 #'
-#' @seealso \code{\link{armijo}}, \code{\link{wolfe}}
+#' @seealso [armijo()], [wolfe()]
 #' @export
 line_search <- S7::new_class(
   "line_search",
@@ -59,13 +59,13 @@ line_search <- S7::new_class(
 
 
 #' @title S7 Class for Armijo Backtracking
-#' @description The class \code{\link{armijo}} instantiates.
+#' @description The class [armijo()] instantiates.
 #' @param c1 The sufficient-decrease constant.
 #' @param shrink The factor the step is multiplied by on each backtrack.
 #' @param max_step The most backtracks allowed.
 #' @param resolution What the objective can tell apart.
-#' @return An S7 object inheriting from \code{\link{line_search}}.
-#' @seealso \code{\link{armijo}}
+#' @return An S7 object inheriting from [line_search()].
+#' @seealso [armijo()]
 #' @keywords internal
 ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
   properties = list(c1 = S7::class_numeric, shrink = S7::class_numeric,
@@ -80,15 +80,15 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' \deqn{f(x + s d) \leq f(x) + c_1 s\, g^\top d .}
 #'
 #' @param c1 Sufficient-decrease constant, in \eqn{(0, 1)}. Defaults to
-#'   \code{1e-4}, the conventional value: it demands a decrease, but only a tiny
+#'   `1e-4`, the conventional value: it demands a decrease, but only a tiny
 #'   fraction of what the linear model predicts, so it almost never rejects a
 #'   sensible step.
 #' @param shrink Factor applied on each backtrack, in \eqn{(0, 1)}. Defaults to
-#'   \code{0.5}.
+#'   `0.5`.
 #' @param max_step Maximum backtracks before the search gives up. Defaults to 30.
 #' @param resolution The smallest difference in the objective that means
 #'   anything, in the objective's own units, or a function of no arguments
-#'   returning it where it moves as the run goes. Defaults to \code{0}, which
+#'   returning it where it moves as the run goes. Defaults to `0`, which
 #'   does not ask the question. See the section below.
 #'
 #' @section What the objective can resolve:
@@ -99,13 +99,13 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #'
 #' The test is made ONCE, before any trial is paid for, on the improvement the
 #' method's own linear model predicts over the full step,
-#' \eqn{s_0 \lvert g^\top d\rvert}. Where that is below \code{resolution} the
+#' \eqn{s_0 \lvert g^\top d\rvert}. Where that is below `resolution` the
 #' search returns immediately: the point is optimal to the accuracy the
 #' objective has, which is a weaker statement than a stopping rule being met
 #' and is reported in different words.
 #'
-#' \strong{It is not asked inside the backtracking loop, and that is what makes
-#' it safe.} There the two situations cannot be told apart, since
+#' **It is not asked inside the backtracking loop, and that is what makes
+#' it safe.** There the two situations cannot be told apart, since
 #' \eqn{x + s d \to x} as the step shrinks and the objective stops resolving
 #' the change whether the point is optimal or the DIRECTION is wrong. Tested at
 #' the full step they separate: a bad direction predicts a large improvement
@@ -125,37 +125,37 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' again at every iteration, once per invocation of the search and not once per
 #' trial, so it costs one call an iteration. What the function returns is the
 #' resolution in force for the step about to be taken; a value that is not
-#' finite and positive is read as \code{0}, which asks nothing.
+#' finite and positive is read as `0`, which asks nothing.
 #' }
 #'
 #' @details
 #' The \eqn{c_1 s\, g^\top d} term is essential, and dropping it — testing
 #' merely \eqn{f_{new} \le f} — is a real defect rather than a simplification.
 #' On a quadratic with unit step the gradient update reflects the iterate through
-#' the minimum, leaving the objective \emph{exactly} unchanged; the weak test
+#' the minimum, leaving the objective *exactly* unchanged; the weak test
 #' accepts it, the iterate oscillates forever, and a stopping rule watching the
 #' objective sees no change and reports convergence at a point that is not a
 #' minimum.
 #'
 #' Cheap: it evaluates the objective at trial points and never the gradient. That
 #' is enough for a method that only needs to make progress, and not enough for a
-#' quasi-Newton method, which needs \code{\link{wolfe}}.
+#' quasi-Newton method, which needs [wolfe()].
 #'
-#' @return A \code{\link{line_search}} object.
+#' @return A [line_search()] object.
 #'
 #' @examples
 #' armijo()
 #' minimize(gd(line_search = armijo(shrink = 0.2)),
 #'          function(p) sum((p - 1:2)^2), c(0, 0))
 #'
-#' @seealso \code{\link{wolfe}}
+#' @seealso [wolfe()]
 #' @references
 #' Armijo, L. (1966). Minimization of functions having Lipschitz
-#' continuous first partial derivatives. \emph{Pacific Journal of
-#' Mathematics} \strong{16}, 1--3.
+#' continuous first partial derivatives. *Pacific Journal of
+#' Mathematics* **16**, 1--3.
 #'
 #' Zoutendijk, G. (1970). Nonlinear programming, computational methods.
-#' In J. Abadie (ed.), \emph{Integer and Nonlinear Programming},
+#' In J. Abadie (ed.), *Integer and Nonlinear Programming*,
 #' 37--86. North-Holland, Amsterdam.
 #'
 #' @export
@@ -185,9 +185,9 @@ armijo <- function(c1 = 1e-4, shrink = 0.5, max_step = 30, resolution = 0) {
 #'
 #' @param x What the constructor was given.
 #'
-#' @return \code{NULL}, invisibly; called for the error.
+#' @return `NULL`, invisibly; called for the error.
 #'
-#' @seealso \code{\link{armijo}}
+#' @seealso [armijo()]
 #'
 #' @keywords internal
 check_resolution <- function(x) {
@@ -210,13 +210,13 @@ check_resolution <- function(x) {
 
 
 #' @title S7 Class for the Strong Wolfe Line Search
-#' @description The class \code{\link{wolfe}} instantiates.
+#' @description The class [wolfe()] instantiates.
 #' @param c1 The sufficient-decrease constant.
 #' @param c2 The curvature constant.
 #' @param max_step The most trial steps allowed.
 #' @param resolution What the objective can tell apart.
-#' @return An S7 object inheriting from \code{\link{line_search}}.
-#' @seealso \code{\link{wolfe}}
+#' @return An S7 object inheriting from [line_search()].
+#' @seealso [wolfe()]
 #' @keywords internal
 WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
   properties = list(c1 = S7::class_numeric, c2 = S7::class_numeric,
@@ -231,21 +231,21 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #' \deqn{f(x + s d) \leq f(x) + c_1 s\, g^\top d, \qquad
 #'       \lvert g(x + s d)^\top d \rvert \leq c_2 \lvert g^\top d \rvert .}
 #'
-#' @param c1 Sufficient-decrease constant. Defaults to \code{1e-4}.
+#' @param c1 Sufficient-decrease constant. Defaults to `1e-4`.
 #' @param c2 Curvature constant, with \eqn{c_1 < c_2 < 1}. Defaults to
-#'   \code{0.9}, the usual choice for a quasi-Newton method; \code{0.1} is
+#'   `0.9`, the usual choice for a quasi-Newton method; `0.1` is
 #'   conventional for nonlinear conjugate gradients, which want a more exact
 #'   line search.
 #' @param max_step Maximum trial steps in each of the bracketing and zoom
 #'   phases. Defaults to 30.
 #' @param resolution The smallest difference in the objective that means
 #'   anything, in the objective's own units, or a function of no arguments
-#'   returning it where it moves as the run goes. Defaults to \code{0}, which
-#'   does not ask the question; see \code{\link{armijo}} for what it is for and
+#'   returning it where it moves as the run goes. Defaults to `0`, which
+#'   does not ask the question; see [armijo()] for what it is for and
 #'   why it is asked at the full step rather than during the search.
 #'
 #' @details
-#' The curvature condition is what \code{\link{armijo}} cannot provide, and it is
+#' The curvature condition is what [armijo()] cannot provide, and it is
 #' not a refinement: a quasi-Newton method needs it to work at all. BFGS builds
 #' its approximation from the secant pair \eqn{(s, y)} with
 #' \eqn{y = g_{new} - g_{old}}, and a step so short that the gradient has barely
@@ -258,23 +258,23 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #' the zoom rather than polynomial interpolation: a few more evaluations, and it
 #' cannot be defeated by an awkwardly shaped interval.
 #'
-#' It costs gradient evaluations at trial points, which \code{\link{armijo}} does
+#' It costs gradient evaluations at trial points, which [armijo()] does
 #' not, so it is the more expensive choice per iteration and usually the cheaper
 #' one per problem.
 #'
-#' @return A \code{\link{line_search}} object.
+#' @return A [line_search()] object.
 #'
 #' @examples
 #' wolfe()
 #' minimize(gd(line_search = wolfe(), maxit = 200),
 #'          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
 #'
-#' @seealso \code{\link{armijo}}
+#' @seealso [armijo()]
 #' @references
 #' Wolfe, P. (1969). Convergence conditions for ascent methods.
-#' \emph{SIAM Review} \strong{11}, 226--235.
+#' *SIAM Review* **11**, 226--235.
 #'
-#' Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+#' Nocedal, J. and Wright, S. J. (2006). *Numerical Optimization*,
 #' 2nd edition. Springer, New York.
 #'
 #' @export
@@ -297,13 +297,13 @@ wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30, resolution = 0) {
 #' Describe a Line Search to the C++ Side
 #'
 #' @description
-#' Flattens a \code{\link{line_search}} object into the list the compiled code
+#' Flattens a [line_search()] object into the list the compiled code
 #' reads.
 #'
-#' @param x A \code{\link{line_search}} object.
+#' @param x A [line_search()] object.
 #'
-#' @return A list with \code{type}, \code{c1}, \code{c2}, \code{shrink} and
-#'   \code{max_step}. Fields a given search does not use are filled with values
+#' @return A list with `type`, `c1`, `c2`, `shrink` and
+#'   `max_step`. Fields a given search does not use are filled with values
 #'   the C++ side ignores, so that the structure is the same shape whichever
 #'   search it describes.
 #'
@@ -325,14 +325,14 @@ S7::method(line_search_spec, WolfeSearch) <- function(x) {
 
 
 #' @title S7 Class for the Nonmonotone Line Search
-#' @description The class \code{\link{nonmonotone}} instantiates.
+#' @description The class [nonmonotone()] instantiates.
 #' @param c1 The sufficient-decrease constant.
 #' @param shrink The factor the step is multiplied by on each backtrack.
 #' @param memory How many earlier values the reference looks back over.
 #' @param max_step The most backtracks allowed.
 #' @param resolution What the objective can tell apart.
-#' @return An S7 object inheriting from \code{\link{line_search}}.
-#' @seealso \code{\link{nonmonotone}}
+#' @return An S7 object inheriting from [line_search()].
+#' @seealso [nonmonotone()]
 #' @keywords internal
 NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
   properties = list(
@@ -351,17 +351,17 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' objective values rather than against the current one, so a step is allowed to
 #' make things worse now in order to be better placed later.
 #'
-#' @param c1 Sufficient-decrease constant. Defaults to \code{1e-4}.
+#' @param c1 Sufficient-decrease constant. Defaults to `1e-4`.
 #' @param shrink Factor applied to the step on each backtrack. Defaults to
-#'   \code{0.5}.
+#'   `0.5`.
 #' @param memory How many earlier values to look back over. Defaults to
-#'   \code{10}; \code{0} makes this ordinary \code{\link{armijo}}.
+#'   `10`; `0` makes this ordinary [armijo()].
 #' @param max_step Most backtracks before the search gives up. Defaults to
-#'   \code{30}.
+#'   `30`.
 #' @param resolution The smallest difference in the objective that means
 #'   anything, in the objective's own units, or a function of no arguments
-#'   returning it where it moves as the run goes. Defaults to \code{0}, which
-#'   does not ask the question; see \code{\link{armijo}} for what it is for and
+#'   returning it where it moves as the run goes. Defaults to `0`, which
+#'   does not ask the question; see [armijo()] for what it is for and
 #'   why it is asked at the full step rather than during the search.
 #'
 #' @details
@@ -372,8 +372,8 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' memory; none is required to improve on the present.
 #'
 #' \subsection{Purpose}{
-#' Some methods are efficient \emph{because} of steps that make the objective
-#' worse. \code{\link{bb}} is the clear case: its step length is a curvature
+#' Some methods are efficient *because* of steps that make the objective
+#' worse. [bb()] is the clear case: its step length is a curvature
 #' estimate taken from the last secant pair, and following that estimate
 #' faithfully means occasionally going somewhere higher in order to be aligned
 #' with the curvature when it matters. An Armijo condition forbids exactly those
@@ -394,16 +394,16 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' on this one. There is not one here.
 #' }
 #'
-#' @return A \code{\link{line_search}} object.
+#' @return A [line_search()] object.
 #'
 #' @references
 #' Grippo, L., Lampariello, F. and Lucidi, S. (1986). A nonmonotone line search
-#' technique for Newton's method. \emph{SIAM Journal on Numerical Analysis}
-#' \strong{23}, 707--716.
+#' technique for Newton's method. *SIAM Journal on Numerical Analysis*
+#' **23**, 707--716.
 #'
 #' Raydan, M. (1997). The Barzilai and Borwein gradient method for the large
-#' scale unconstrained minimization problem. \emph{SIAM Journal on
-#' Optimization} \strong{7}, 26--33.
+#' scale unconstrained minimization problem. *SIAM Journal on
+#' Optimization* **7**, 26--33.
 #'
 #' @examples
 #' nonmonotone()
@@ -416,7 +416,7 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' minimize(bb(line_search = armijo()), f, c(-1.2, 1), gr = gr)@iterations
 #' minimize(bb(), f, c(-1.2, 1), gr = gr)@iterations
 #'
-#' @seealso \code{\link{armijo}}, \code{\link{bb}}
+#' @seealso [armijo()], [bb()]
 #' @export
 nonmonotone <- function(c1 = 1e-4, shrink = 0.5, memory = 10, max_step = 30,
                         resolution = 0) {
@@ -446,9 +446,9 @@ S7::method(line_search_spec, NonmonotoneSearch) <- function(x) {
 
 #' @title Print Method for Line Searches
 #' @name print.line_search
-#' @param x A \code{\link{line_search}} object.
+#' @param x A [line_search()] object.
 #' @param ... Unused.
-#' @return \code{x}, invisibly.
+#' @return `x`, invisibly.
 #' @examples
 #' print(wolfe())
 #' @keywords internal
@@ -463,7 +463,7 @@ S7::method(print, line_search) <- function(x, ...) {
 #' @param v The value.
 #' @param nm Its name, for the message.
 #'
-#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#' @return Invisibly `TRUE`; raises an error otherwise.
 #'
 #' @keywords internal
 check_unit <- function(v, nm) {
@@ -479,7 +479,7 @@ check_unit <- function(v, nm) {
 #' @param v The value.
 #' @param nm Its name, for the message.
 #'
-#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#' @return Invisibly `TRUE`; raises an error otherwise.
 #'
 #' @keywords internal
 check_count <- function(v, nm) {
@@ -498,14 +498,14 @@ check_count <- function(v, nm) {
 #' being re-created.
 #'
 #' @details
-#' Comparing S7 classes by identity is object identity, so it is \code{FALSE}
+#' Comparing S7 classes by identity is object identity, so it is `FALSE`
 #' for a class rebuilt from the same definition -- which is what happens under
 #' any loader that re-evaluates the code rather than loading it, \pkg{covr}
 #' among them. The same defect in \pkg{linkfunctions7} silently turned every
 #' numerical fallback into a chain of first differences, and only the coverage
 #' job noticed.
 #'
-#' @return The \code{\link{line_search}} class object.
+#' @return The [line_search()] class object.
 #'
 #' @keywords internal
 line_search_class <- function() line_search

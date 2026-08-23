@@ -20,11 +20,11 @@ phases. Defaults to 30.}
 \item{resolution}{The smallest difference in the objective that means
 anything, in the objective's own units, or a function of no arguments
 returning it where it moves as the run goes. Defaults to \code{0}, which
-does not ask the question; see \code{\link{armijo}} for what it is for and
+does not ask the question; see \code{\link[=armijo]{armijo()}} for what it is for and
 why it is asked at the full step rather than during the search.}
 }
 \value{
-A \code{\link{line_search}} object.
+A \code{\link[=line_search]{line_search()}} object.
 }
 \description{
 Sufficient decrease and a curvature condition together:
@@ -32,7 +32,7 @@ Sufficient decrease and a curvature condition together:
       \lvert g(x + s d)^\top d \rvert \leq c_2 \lvert g^\top d \rvert .}
 }
 \details{
-The curvature condition is what \code{\link{armijo}} cannot provide, and it is
+The curvature condition is what \code{\link[=armijo]{armijo()}} cannot provide, and it is
 not a refinement: a quasi-Newton method needs it to work at all. BFGS builds
 its approximation from the secant pair \eqn{(s, y)} with
 \eqn{y = g_{new} - g_{old}}, and a step so short that the gradient has barely
@@ -45,7 +45,7 @@ The implementation is the bracketing-and-zoom scheme, with bisection inside
 the zoom rather than polynomial interpolation: a few more evaluations, and it
 cannot be defeated by an awkwardly shaped interval.
 
-It costs gradient evaluations at trial points, which \code{\link{armijo}} does
+It costs gradient evaluations at trial points, which \code{\link[=armijo]{armijo()}} does
 not, so it is the more expensive choice per iteration and usually the cheaper
 one per problem.
 }
@@ -63,5 +63,5 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link{armijo}}
+\code{\link[=armijo]{armijo()}}
 }

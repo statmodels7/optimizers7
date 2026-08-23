@@ -23,7 +23,7 @@ returning it where it moves as the run goes. Defaults to \code{0}, which
 does not ask the question. See the section below.}
 }
 \value{
-A \code{\link{line_search}} object.
+A \code{\link[=line_search]{line_search()}} object.
 }
 \description{
 Shrink the step until the objective decreases by enough:
@@ -40,7 +40,7 @@ minimum.
 
 Cheap: it evaluates the objective at trial points and never the gradient. That
 is enough for a method that only needs to make progress, and not enough for a
-quasi-Newton method, which needs \code{\link{wolfe}}.
+quasi-Newton method, which needs \code{\link[=wolfe]{wolfe()}}.
 }
 \section{What the objective can resolve}{
 
@@ -97,5 +97,5 @@ In J. Abadie (ed.), \emph{Integer and Nonlinear Programming},
 37--86. North-Holland, Amsterdam.
 }
 \seealso{
-\code{\link{wolfe}}
+\code{\link[=wolfe]{wolfe()}}
 }

@@ -12,7 +12,7 @@ to a width of one either side of zero, and both may be given per parameter
 rather than as a single number.}
 
 \item{npar}{The number of parameters. Defaults to \code{NULL}, meaning work
-it out from the bounds or from the objective; see \code{\link{minimize}}.}
+it out from the bounds or from the objective; see \code{\link[=minimize]{minimize()}}.}
 }
 \value{
 An S7 object of class \code{UniformStart}.
@@ -34,7 +34,7 @@ Widen it when the scale of the problem is unknown. \code{start_runif(-5, 5)}
 spans four orders of magnitude for a positive parameter, which is usually more
 than enough and is still a range no draw can fall out of.
 
-The draw uses \R's ordinary generator, so \code{\link{set.seed}} reproduces
+The draw uses \R's ordinary generator, so \code{\link[=set.seed]{set.seed()}} reproduces
 it, and the seed is recorded in the result.
 }
 \examples{
@@ -49,5 +49,5 @@ minimize(bfgs(), function(p) (log(p) - 1)^2, start_runif(-5, 5, npar = 1),
 
 }
 \seealso{
-\code{\link{start_zeros}}, \code{\link{starting_values}}
+\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=starting_values]{starting_values()}}
 }

@@ -14,10 +14,10 @@ The objective and the predicted decrease, but not a gradient.
 }
 \details{
 It evaluates subgradients and reports their aggregate, but it does not offer
-\code{"gradient"}, and the omission is deliberate. \code{\link{crit_grad}}
+\code{"gradient"}, and the omission is deliberate. \code{\link[=crit_grad]{crit_grad()}}
 would then test a quantity that does not go to zero — at the minimum of
 \eqn{\lvert x \rvert} every subgradient has norm 1 — so the rule would never
-fire while sitting on the answer. \code{\link{crit_stationary}} tests the
+fire while sitting on the answer. \code{\link[=crit_stationary]{crit_stationary()}} tests the
 predicted decrease instead, which does go to zero.
 }
 \keyword{internal}

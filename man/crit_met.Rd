@@ -7,7 +7,7 @@
 crit_met(criterion, state)
 }
 \arguments{
-\item{criterion}{A \code{\link{criterion}} object.}
+\item{criterion}{A \code{\link[=criterion]{criterion()}} object.}
 
 \item{state}{A named list describing the current iteration; see Details.}
 }
@@ -27,10 +27,10 @@ The one generic a criterion must implement.
 method does not compute one.}
 \item{\code{stationarity}}{a non-negative measure of remaining progress,
 supplied by the derivative-free methods in place of a gradient, or
-\code{NULL}. See \code{\link{crit_stationary}}.}
+\code{NULL}. See \code{\link[=crit_stationary]{crit_stationary()}}.}
 }
 A rule that needs something absent from \code{state} — a gradient, from a
-derivative-free method — must say so through \code{\link{crit_needs}} rather
+derivative-free method — must say so through \code{\link[=crit_needs]{crit_needs()}} rather
 than silently never firing.
 }
 \examples{
@@ -41,5 +41,5 @@ crit_met(crit_abs_obj(1e-12), st)
 
 }
 \seealso{
-\code{\link{as_objective}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
+\code{\link[=as_objective]{as_objective()}}, \code{\link[=crit_needs]{crit_needs()}}, \code{\link[=check_criterion]{check_criterion()}}
 }

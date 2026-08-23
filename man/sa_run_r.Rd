@@ -29,7 +29,7 @@ sa_run_r(
 \item{t0}{The initial temperature, or a non-positive value to calibrate it.}
 
 \item{cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit}{As in
-\code{\link{sa}}.}
+\code{\link[=sa]{sa()}}.}
 }
 \value{
 A list with \code{par}, \code{value} and \code{n_value}.

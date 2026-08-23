@@ -4,14 +4,14 @@
 NULL
 
 #' @title S7 Class for Adam
-#' @description The class \code{\link{adam}} instantiates.
+#' @description The class [adam()] instantiates.
 #' @param alpha The learning rate.
 #' @param beta1,beta2 Decay rates for the two moment estimates.
 #' @param eps The denominator floor.
 #' @param decay Rate at which the learning rate is reduced.
 #' @param amsgrad Whether to hold the second moment at its running maximum.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{adam}}
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [adam()]
 #' @name Adam-class
 #' @aliases Adam
 #' @keywords internal
@@ -35,29 +35,29 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' only on average, which makes it the method suited to a stochastic
 #' objective.
 #'
-#' @param criterion The stopping rule. Defaults to \code{\link{crit_never}}, so
-#'   the run is governed by \code{maxit}; see Details.
+#' @param criterion The stopping rule. Defaults to [crit_never()], so
+#'   the run is governed by `maxit`; see Details.
 #' @param alpha The learning rate — the size of a step when the gradient is
-#'   steady. Defaults to \code{0.01}.
+#'   steady. Defaults to `0.01`.
 #' @param beta1 Decay rate of the first moment, the smoothed gradient. Defaults
-#'   to \code{0.9}.
+#'   to `0.9`.
 #' @param beta2 Decay rate of the second moment, the smoothed squared gradient.
-#'   Defaults to \code{0.999}.
+#'   Defaults to `0.999`.
 #' @param eps Added to the square-rooted second moment before dividing, so that
 #'   a coordinate whose gradient has been uniformly zero does not divide by it.
-#'   Defaults to \code{1e-8}.
+#'   Defaults to `1e-8`.
 #' @param decay Reduces the learning rate as \eqn{\alpha_t = \alpha/(1 + \delta
-#'   t)}. Defaults to \code{0}, a constant rate; see Details.
+#'   t)}. Defaults to `0`, a constant rate; see Details.
 #' @param amsgrad Hold the second moment at its running maximum? Defaults to
-#'   \code{FALSE}; see Details.
+#'   `FALSE`; see Details.
 #' @param maxit Maximum iterations. Defaults to 1000, higher than the other
 #'   methods because Adam takes many small steps rather than few large ones.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
-#'   \code{maxit}. Set a finite value to cap the cost of a run.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#'   `maxit`. Set a finite value to cap the cost of a run.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 100.
-#' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
 #' @details
 #' The idea is one line. Adam keeps an exponentially weighted average of the
@@ -68,7 +68,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' modestly, while one whose gradient is small but persistent still moves. It is
 #' a diagonal preconditioner assembled from the gradients already seen, so it
 #' costs nothing beyond them — and that is also its limit, since a diagonal
-#' cannot represent the correlation between parameters that \code{\link{bfgs}}
+#' cannot represent the correlation between parameters that [bfgs()]
 #' learns from the same information.
 #'
 #' Both averages start at zero, so early on they are pulled towards it; dividing
@@ -84,15 +84,15 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' through.
 #'
 #' The practical consequence is that Adam is the wrong tool for a small smooth
-#' problem where a Hessian is affordable. Use \code{\link{newton}} or
-#' \code{\link{bfgs}} there and reach machine precision in a dozen iterations.
+#' problem where a Hessian is affordable. Use [newton()] or
+#' [bfgs()] there and reach machine precision in a dozen iterations.
 #' Adam is appropriate when the parameter vector is long, when the objective is
 #' noisy, or when the surface is rough enough that a quadratic model is a
 #' fiction.
 #' }
 #'
 #' \subsection{Stochastic objectives}{
-#' Adam does \strong{not} draw subsamples, and the omission is the design rather
+#' Adam does **not** draw subsamples, and the omission is the design rather
 #' than a gap in it. An optimizer does not know what an observation is; a
 #' version that did would need a second kind of objective to be told, a rule for
 #' which stopping rules such an objective allows, and a way to report which of
@@ -108,10 +108,10 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' }
 #'
 #' Adam then behaves exactly as it would on a minibatch of its own drawing, and
-#' \code{set.seed()} governs it because the draws happen in the caller's code.
+#' `set.seed()` governs it because the draws happen in the caller's code.
 #'
-#' \strong{Resample inside the objective, not around the run.} It is tempting to
-#' call \code{minimize(adam(maxit = 1), ...)} in a loop, drawing a new batch each
+#' **Resample inside the objective, not around the run.** It is tempting to
+#' call `minimize(adam(maxit = 1), ...)` in a loop, drawing a new batch each
 #' time. That does not work: \eqn{m} and \eqn{v} start at zero and the bias
 #' correction restarts at \eqn{t = 1}, so every call takes a first step of length
 #' \eqn{\alpha} and the accumulated moments — the whole of the method — are
@@ -119,9 +119,9 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' }
 #'
 #' \subsection{Stopping}{
-#' The default criterion is \code{\link{crit_never}}: the run ends when
-#' \code{maxit} is reached, and reports \code{converged = FALSE}, which is the
-#' truth about a run that nothing checked. With a fixed \code{alpha} Adam
+#' The default criterion is [crit_never()]: the run ends when
+#' `maxit` is reached, and reports `converged = FALSE`, which is the
+#' truth about a run that nothing checked. With a fixed `alpha` Adam
 #' generally circles an optimum rather than settling on it, so a tolerance on
 #' the gradient is usually a rule that never fires.
 #'
@@ -132,34 +132,34 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' }
 #'
 #' \subsection{The safeguards}{
-#' \code{eps} floors the denominator. \code{decay} makes the learning rate
+#' `eps` floors the denominator. `decay` makes the learning rate
 #' \eqn{O(1/t)}, which is the Robbins–Monro condition a run on a noisy objective
 #' needs to settle at the optimum rather than rattle about it at a radius set by
 #' \eqn{\alpha}; it is off by default because on an exact objective there is
 #' nothing to average away.
 #'
-#' \code{amsgrad} replaces \eqn{v_t} by its running maximum. This is not
+#' `amsgrad` replaces \eqn{v_t} by its running maximum. This is not
 #' cosmetic: Reddi, Kale and Kumar (2018) exhibited a convex problem on which
 #' Adam as published fails to converge, because \eqn{v_t} can shrink and let a
 #' single large gradient dominate the iterate long after it has passed. The
 #' maximum forbids that, at the cost of steps that only ever get shorter. It is
-#' \code{FALSE} by default so that \code{adam()} is Adam — a run that silently
+#' `FALSE` by default so that `adam()` is Adam — a run that silently
 #' did something else would not reproduce anything; it can be enabled
 #' whenever a run fails to settle.
 #'
 #' A non-finite gradient or update stops the run with a message, rather than
-#' propagating a \code{NaN} into every iterate after it.
+#' propagating a `NaN` into every iterate after it.
 #' }
 #'
-#' @return An S7 object of class \code{Adam}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `Adam`, inheriting from
+#'   [optimizer()].
 #'
 #' @references
 #' Kingma, D. P. and Ba, J. (2015). Adam: A Method for Stochastic Optimization.
-#' \emph{ICLR}.
+#' *ICLR*.
 #'
 #' Reddi, S. J., Kale, S. and Kumar, S. (2018). On the Convergence of Adam and
-#' Beyond. \emph{ICLR}.
+#' Beyond. *ICLR*.
 #'
 #' @examples
 #' adam()
@@ -181,7 +181,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'          batch, par = 0, gr = batch_gr)@par
 #' mean(y)
 #'
-#' @seealso \code{\link{bfgs}}, \code{\link{crit_never}}
+#' @seealso [bfgs()], [crit_never()]
 #' @export
 adam <- function(criterion = crit_never(),
                  alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-8,
@@ -224,10 +224,10 @@ adam <- function(criterion = crit_never(),
 #' @title Minimize by Adam
 #' @name minimize.Adam
 #' @description
-#' Runs \code{\link{adam}} on the objective.
-#' @param optimizer An \code{Adam} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
-#' @return An \code{\link{optimizer_result}}.
+#' Runs [adam()] on the objective.
+#' @param optimizer An `Adam` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Adam) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,

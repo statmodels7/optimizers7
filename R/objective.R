@@ -27,7 +27,7 @@ NULL
 #'   accept it and ignore it, so calling code need not branch on the method.
 #' @param ... Passed to methods.
 #'
-#' @return A list describing the objective to the C++ side: \code{kind}, the
+#' @return A list describing the objective to the C++ side: `kind`, the
 #'   pieces belonging to that kind, and flags saying which derivatives were
 #'   supplied rather than differenced.
 #'
@@ -36,7 +36,7 @@ NULL
 #' str(as_objective(function(p) sum(p^2)))
 #' str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #'
-#' @seealso \code{\link{crit_met}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
+#' @seealso [crit_met()], [crit_needs()], [check_criterion()]
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
                                 function(fn, gr = NULL, he = NULL, ...)
@@ -46,12 +46,12 @@ as_objective <- S7::new_generic("as_objective", "fn",
 #' @title An Ordinary R Function as an Objective
 #' @name as_objective.function
 #' @description
-#' The common case: \code{fn(par)} returns a number and, if supplied,
-#' \code{gr(par)} returns the gradient.
+#' The common case: `fn(par)` returns a number and, if supplied,
+#' `gr(par)` returns the gradient.
 #' @param fn A function of the parameter vector.
-#' @param gr An optional gradient function, or \code{NULL} for finite differences.
+#' @param gr An optional gradient function, or `NULL` for finite differences.
 #' @param ... Unused.
-#' @return An objective handle; see \code{\link{as_objective}}.
+#' @return An objective handle; see [as_objective()].
 #' @keywords internal
 S7::method(as_objective, S7::class_function) <-
   function(fn, gr = NULL, he = NULL, ...) {

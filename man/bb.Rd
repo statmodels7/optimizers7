@@ -21,7 +21,7 @@ bb(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule; see \code{\link{crit_any}}.}
+\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
 
 \item{variant}{\code{"alternate"} (default), \code{"bb1"} or \code{"bb2"};
 see Details.}
@@ -35,13 +35,13 @@ and \code{1e10}.}
 \item{curv_tol}{The relative curvature threshold: a secant pair is rejected
 when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
 for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
-the same relative test \code{\link{bfgs}} applies to the same quantity.}
+the same relative test \code{\link[=bfgs]{bfgs()}} applies to the same quantity.}
 
 \item{step}{Initial multiplier offered to the line search. Defaults to
 \code{1}, so the Barzilai-Borwein step is tried unaltered first.}
 
 \item{line_search}{The acceptance test for a trial step. Defaults to
-\code{\link{nonmonotone}}; see Details.}
+\code{\link[=nonmonotone]{nonmonotone()}}; see Details.}
 
 \item{maxit}{Maximum iterations. Defaults to 1000.}
 
@@ -57,7 +57,7 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{Bb}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Gradient descent with the Barzilai-Borwein step length: the direction is
@@ -76,7 +76,7 @@ constant, that scalar is exactly right.
 
 On a quadratic, where the curvature is constant, the estimate is exact and
 the method converges in two iterations; on a general smooth objective it
-typically needs more iterations than \code{\link{bfgs}} while storing a
+typically needs more iterations than \code{\link[=bfgs]{bfgs()}} while storing a
 single scalar instead of a matrix.
 
 \subsection{Variants}{
@@ -90,24 +90,24 @@ more robust than either alone.
 The Barzilai-Borwein step is offered to the line search first and unaltered,
 and backtracking occurs only when it fails the acceptance test. Because the
 method makes progress through steps that may increase the objective
-temporarily, the default acceptance test is \code{\link{nonmonotone}}, which
+temporarily, the default acceptance test is \code{\link[=nonmonotone]{nonmonotone()}}, which
 requires improvement over the maximum of the last \code{memory} values
 rather than over the current one; a plain Armijo condition rejects exactly
 the steps the method relies on and slows it considerably.
-\code{\link{nonmonotone}} with \code{memory = 0} coincides with
-\code{\link{armijo}}.
+\code{\link[=nonmonotone]{nonmonotone()}} with \code{memory = 0} coincides with
+\code{\link[=armijo]{armijo()}}.
 }
 
 \subsection{Rejected secant pairs}{
 A pair is used only if it reports positive curvature by a relative margin,
 \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
-\eqn{c} the \code{curv_tol} argument -- the same test \code{\link{bfgs}}
+\eqn{c} the \code{curv_tol} argument -- the same test \code{\link[=bfgs]{bfgs()}}
 applies. When a pair is rejected, the step length is reset to
 \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, giving a trial displacement of
 order one in the parameters. This reset depends on the current gradient
 rather than on the step length being replaced or on a fixed constant, so it
 can neither freeze the iteration at a too-short step nor produce a step the
-backtracking cannot rescale. Steps outside \code{[alpha_min, alpha_max]} are
+backtracking cannot rescale. Steps outside \verb{[alpha_min, alpha_max]} are
 clamped, and both the reset and the clamp are recorded in the trace.
 }
 }
@@ -129,5 +129,5 @@ Barzilai, J. and Borwein, J. M. (1988). Two-point step size gradient methods.
 \emph{IMA Journal of Numerical Analysis} \strong{8}, 141--148.
 }
 \seealso{
-\code{\link{gd}}, \code{\link{cg}}, \code{\link{lbfgs}}
+\code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=lbfgs]{lbfgs()}}
 }

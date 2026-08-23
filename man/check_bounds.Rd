@@ -14,8 +14,8 @@ check_bounds(lower, upper, par)
 \value{
 A list with one \code{c(lower, upper)} pair per parameter, or an
 empty list when no bound is finite. Call it at the top of a
-user-defined \code{\link{minimize}} method, then hand each pair to
-\code{\link{bounded_transform}}; an empty list means there is no box and
+user-defined \code{\link[=minimize]{minimize()}} method, then hand each pair to
+\code{\link[=bounded_transform]{bounded_transform()}}; an empty list means there is no box and
 the whole reparametrization should be skipped.
 }
 \description{
@@ -52,5 +52,5 @@ try(check_bounds(0, 1, par = c(0.5, 1)))
 
 }
 \seealso{
-\code{\link{bounded_transform}}, \code{\link{minimize}}
+\code{\link[=bounded_transform]{bounded_transform()}}, \code{\link[=minimize]{minimize()}}
 }

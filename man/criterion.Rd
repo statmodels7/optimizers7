@@ -22,10 +22,10 @@ The alternative would be an argument taking a string, and a \code{switch} inside
 every algorithm. That is exactly the arrangement this toolkit exists to
 replace: it fixes the set of rules at the moment the package is written, and
 nothing outside can add to it. A criterion here is an object implementing one
-generic, \code{\link{crit_met}}, so a user-defined rule is treated like
+generic, \code{\link[=crit_met]{crit_met()}}, so a user-defined rule is treated like
 a shipped one.
 
-Criteria are combined with \code{\link{crit_any}} and \code{\link{crit_all}},
+Criteria are combined with \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}},
 which are themselves criteria, so combinations nest.
 }
 \examples{
@@ -42,6 +42,6 @@ crit_met(Tiny(label = "f < 1e-6", tol = 1e-6), list(f_new = 1e-9))
 
 }
 \seealso{
-\code{\link{crit_grad}}, \code{\link{crit_rel_obj}},
-\code{\link{crit_any}}, \code{\link{crit_met}}
+\code{\link[=crit_grad]{crit_grad()}}, \code{\link[=crit_rel_obj]{crit_rel_obj()}},
+\code{\link[=crit_any]{crit_any()}}, \code{\link[=crit_met]{crit_met()}}
 }

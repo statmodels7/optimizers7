@@ -26,15 +26,15 @@ Cg(
 
 \item{step}{The initial step length offered to the line search.}
 
-\item{line_search}{A \code{\link{line_search}} object.}
+\item{line_search}{A \code{\link[=line_search]{line_search()}} object.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{cg}} instantiates.
+The class \code{\link[=cg]{cg()}} instantiates.
 }
 \seealso{
-\code{\link{cg}}
+\code{\link[=cg]{cg()}}
 }
 \keyword{internal}

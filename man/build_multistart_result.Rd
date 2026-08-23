@@ -18,7 +18,7 @@ build_multistart_result(res, S, optimizer, seed, elapsed)
 \item{elapsed}{Seconds.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
 Picks the best run, and summarizes what the others found.

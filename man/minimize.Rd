@@ -16,7 +16,7 @@ minimize(
 )
 }
 \arguments{
-\item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
+\item{optimizer}{An \code{\link[=optimizer]{optimizer()}} object, carrying the algorithm and
 its settings.}
 
 \item{fn}{The objective: a function of the parameter vector returning a
@@ -37,11 +37,11 @@ every parameter — or one value per parameter. Default \code{-Inf} and
 \item{...}{Passed to methods.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
 The entry point of the package. Everything here minimizes; see
-\code{\link{maximize}} for the other direction.
+\code{\link[=maximize]{maximize()}} for the other direction.
 }
 \details{
 The problem solved is
@@ -56,7 +56,7 @@ stopping rule says and is never inferred from the run having ended.
 
 The generic dispatches on \code{optimizer} alone, so each algorithm is
 written once. The objective is normalized separately by
-\code{\link{as_objective}}, which dispatches on \code{fn}, so a caller with
+\code{\link[=as_objective]{as_objective()}}, which dispatches on \code{fn}, so a caller with
 its own kind of objective registers one method there and every algorithm
 accepts it.
 
@@ -72,7 +72,7 @@ surfaces as a mute line-search failure at the first iteration;
 
 \subsection{Starters}{
 \code{par} may be a \strong{starter} rather than a vector:
-\code{\link{start_zeros}} for all zeros, \code{\link{start_runif}} for a
+\code{\link[=start_zeros]{start_zeros()}} for all zeros, \code{\link[=start_runif]{start_runif()}} for a
 uniform draw from a chosen range. Both work on the \emph{unconstrained}
 scale and are mapped back through the bounds, which is what makes a single
 constant sensible for every kind of parameter — zero becomes one for a
@@ -83,7 +83,7 @@ A starter needs to know how many parameters there are, and it is told in one
 of three ways. Say so, with \code{start_zeros(npar = 3)}, and that is the end
 of it. Otherwise a \code{lower} or \code{upper} with more than one element
 answers the question, bounds being one per parameter. Otherwise the objective
-is probed by \code{\link{infer_npar}}, which tries lengths until one is
+is probed by \code{\link[=infer_npar]{infer_npar()}}, which tries lengths until one is
 accepted and costs at most fifty evaluations, once, before the run begins.
 
 That last route settles any objective with a fixed width built into it,
@@ -96,7 +96,7 @@ rather than optimizing a different problem from the one asked.
 }
 
 \code{lower} and \code{upper} are two vectors rather than a list of pairs,
-which is what \code{\link[stats]{optim}} and \code{\link[stats]{nlminb}}
+which is what \code{\link[stats:optim]{stats::optim()}} and \code{\link[stats:nlminb]{stats::nlminb()}}
 take, and what lets \code{lower = 0} say "every parameter is positive"
 without writing out one pair per coefficient. Recycling is length one or one
 per parameter and nothing between, since anything else is far more likely to
@@ -140,6 +140,6 @@ minimize(bfgs(), function(p) sum((p - c(1, 2))^2), start_zeros(),
 
 }
 \seealso{
-\code{\link{maximize}}, \code{\link{gd}},
-\code{\link{start_zeros}}, \code{\link{crit_any}}
+\code{\link[=maximize]{maximize()}}, \code{\link[=gd]{gd()}},
+\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=crit_any]{crit_any()}}
 }

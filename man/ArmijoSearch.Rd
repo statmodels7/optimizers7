@@ -22,12 +22,12 @@ ArmijoSearch(
 \item{resolution}{What the objective can tell apart.}
 }
 \value{
-An S7 object inheriting from \code{\link{line_search}}.
+An S7 object inheriting from \code{\link[=line_search]{line_search()}}.
 }
 \description{
-The class \code{\link{armijo}} instantiates.
+The class \code{\link[=armijo]{armijo()}} instantiates.
 }
 \seealso{
-\code{\link{armijo}}
+\code{\link[=armijo]{armijo()}}
 }
 \keyword{internal}

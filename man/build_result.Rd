@@ -20,10 +20,10 @@ supplied or differenced.}
 method that draws no random numbers.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Turns what the C++ loop returned into an \code{\link{optimizer_result}}.
+Turns what the C++ loop returned into an \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \details{
 The one judgement here is the meaning of \code{converged}: it is taken

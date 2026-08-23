@@ -10,7 +10,7 @@ crit_rel_par(tol = 1e-08)
 \item{tol}{Numeric tolerance. Defaults to \code{1e-8}.}
 }
 \value{
-A \code{\link{criterion}} object.
+A \code{\link[=criterion]{criterion()}} object.
 }
 \description{
 The rule
@@ -21,5 +21,5 @@ crit_rel_par()
 
 }
 \seealso{
-\code{\link{crit_abs_par}}
+\code{\link[=crit_abs_par]{crit_abs_par()}}
 }

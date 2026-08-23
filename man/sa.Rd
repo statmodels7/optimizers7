@@ -69,7 +69,7 @@ quadratic the answer improves from \eqn{2\times10^{-1}} at 15 levels to
 }
 \value{
 An S7 object of class \code{Sa}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 A global search that accepts uphill moves with a probability falling as the
@@ -79,10 +79,10 @@ that coordinate's acceptance rate near a target.
 \details{
 The method exists here for the problems the local ones cannot start on: a
 multimodal objective where the answer depends on which basin the run began
-in. It is not a competitor to \code{\link{bfgs}} or \code{\link{newton}} on a
+in. It is not a competitor to \code{\link[=bfgs]{bfgs()}} or \code{\link[=newton]{newton()}} on a
 smooth problem, where it will be beaten by orders of magnitude, and the
 intended use is to hand its result to one of them --- see
-\code{\link{chain}}.
+\code{\link[=chain]{chain()}}.
 
 \strong{The adaptive step.} The parameters are moved one coordinate at a
 time, and after every \code{steps} sweeps each coordinate's step is
@@ -119,7 +119,7 @@ not an answer.
 \strong{Whether it converged is a separate question} and is never answered
 by the schedule having finished. The stationarity measure reported is
 Corana's own termination rule --- by how much the best value has moved over
-the last \code{n_eps} temperature levels --- so \code{\link{crit_stationary}}
+the last \code{n_eps} temperature levels --- so \code{\link[=crit_stationary]{crit_stationary()}}
 IS that rule rather than a second convention invented beside it. A run that
 merely exhausts \code{maxit} reports \code{converged = FALSE}, which for a
 global search is the ordinary outcome and not a failure.
@@ -151,6 +151,6 @@ Szu, H. and Hartley, R. (1987). Fast simulated annealing. \emph{Physics
 Letters A} \strong{122}, 157--162.
 }
 \seealso{
-\code{\link{chain}}, \code{\link{multistart}},
-\code{\link{crit_stationary}}
+\code{\link[=chain]{chain()}}, \code{\link[=multistart]{multistart()}},
+\code{\link[=crit_stationary]{crit_stationary()}}
 }

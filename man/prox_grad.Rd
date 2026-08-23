@@ -23,7 +23,7 @@ prox_grad(
 \item{prox}{The proximal operator of the non-smooth part, a function of
 the point and the step length, \code{prox(v, step)}, returning the
 minimizer of \eqn{\lVert b - v \rVert^2/(2\,\mathrm{step}) + g(b)}.
-\code{\link[penalties7]{penalty_prox}} supplies one for every penalty
+\code{\link[penalties7:penalty_prox]{penalties7::penalty_prox()}} supplies one for every penalty
 that has it.}
 
 \item{g}{The value of the non-smooth part, a function of the point.
@@ -44,7 +44,7 @@ to \code{0.5}.}
 Defaults to \code{TRUE}, and is ignored when \code{accelerate} is
 \code{FALSE}.}
 
-\item{criterion}{The stopping rule; see \code{\link{crit_any}}.}
+\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
 
 \item{maxit}{Maximum iterations. Defaults to 1000.}
 
@@ -57,8 +57,8 @@ Defaults to \code{TRUE}, and is ignored when \code{accelerate} is
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{\link{ProxGrad}}, to be handed to
-\code{\link{minimize}}.
+An S7 object of class \code{\link[=ProxGrad]{ProxGrad()}}, to be handed to
+\code{\link[=minimize]{minimize()}}.
 }
 \description{
 Minimizes \eqn{f(x) + g(x)} where \eqn{f} is smooth and \eqn{g} is
@@ -86,7 +86,7 @@ that is what non-differentiable means -- so this method reports the
 \deqn{G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}}
 as its gradient, read at the iterate. It vanishes exactly at a
 stationary point of \eqn{f + g} and reduces to \eqn{\nabla f} when
-\eqn{g} is absent, so \code{\link{crit_grad}} keeps its meaning and
+\eqn{g} is absent, so \code{\link[=crit_grad]{crit_grad()}} keeps its meaning and
 its default tolerance. The accelerated variant pays one extra gradient
 per iteration for it, the extrapolated point at which it takes its step
 not being the point it reports.
@@ -127,6 +127,6 @@ gradient schemes. \emph{Foundations of Computational Mathematics}, 15(3),
 715--732.
 }
 \seealso{
-\code{\link{bundle}} for a non-smooth method that needs no
-proximal operator, \code{\link{gd}} for the smooth case.
+\code{\link[=bundle]{bundle()}} for a non-smooth method that needs no
+proximal operator, \code{\link[=gd]{gd()}} for the smooth case.
 }

@@ -22,12 +22,12 @@ WolfeSearch(
 \item{resolution}{What the objective can tell apart.}
 }
 \value{
-An S7 object inheriting from \code{\link{line_search}}.
+An S7 object inheriting from \code{\link[=line_search]{line_search()}}.
 }
 \description{
-The class \code{\link{wolfe}} instantiates.
+The class \code{\link[=wolfe]{wolfe()}} instantiates.
 }
 \seealso{
-\code{\link{wolfe}}
+\code{\link[=wolfe]{wolfe()}}
 }
 \keyword{internal}

@@ -4,7 +4,7 @@
 \alias{print.optimizer_result}
 \title{Print Method for an Optimization Result}
 \arguments{
-\item{x}{An \code{\link{optimizer_result}}.}
+\item{x}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 
 \item{digits}{Decimal places the parameters are rounded to. Defaults to 4.}
 

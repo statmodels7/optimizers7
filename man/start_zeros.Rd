@@ -8,7 +8,7 @@ start_zeros(npar = NULL)
 }
 \arguments{
 \item{npar}{The number of parameters. Defaults to \code{NULL}, meaning work
-it out from the bounds or from the objective; see \code{\link{minimize}}.}
+it out from the bounds or from the objective; see \code{\link[=minimize]{minimize()}}.}
 }
 \value{
 An S7 object of class \code{ZeroStart}.
@@ -34,5 +34,5 @@ minimize(bfgs(), f, start_zeros(3), lower = 0)@par
 
 }
 \seealso{
-\code{\link{start_runif}}, \code{\link{starting_values}}
+\code{\link[=start_runif]{start_runif()}}, \code{\link[=starting_values]{starting_values()}}
 }

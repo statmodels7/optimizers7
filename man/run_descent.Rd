@@ -7,16 +7,16 @@
 run_descent(optimizer, fn, par, gr, he, lower, upper, method)
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
 \item{fn, par, gr, he}{The problem, as the user supplied it.}
 
-\item{lower, upper}{Box constraints, as in \code{\link{minimize}}.}
+\item{lower, upper}{Box constraints, as in \code{\link[=minimize]{minimize()}}.}
 
 \item{method}{A list describing the direction to the compiled loop.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
 The body of every method that has a direction: prepares the objective, hands

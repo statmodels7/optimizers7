@@ -18,7 +18,7 @@ newton(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule; see \code{\link{crit_any}}.}
+\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
 
 \item{hessian_mod}{How to repair an indefinite Hessian: \code{"eigen"}
 (default) or \code{"ridge"}. See Details.}
@@ -30,10 +30,10 @@ Defaults to \code{1e-8}.}
 \code{1}, which is the natural Newton step and is accepted unchanged near
 the solution.}
 
-\item{line_search}{See \code{\link{armijo}} and \code{\link{wolfe}}.}
+\item{line_search}{See \code{\link[=armijo]{armijo()}} and \code{\link[=wolfe]{wolfe()}}.}
 
 \item{maxit, max_eval, verbose, refresh, keep_trace}{As in
-\code{\link{gd}}.}
+\code{\link[=gd]{gd()}}.}
 }
 \value{
 An S7 object of class \code{Newton}.
@@ -76,8 +76,8 @@ the direction in the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}},
 whose size is set by \code{floor} rather than by any curvature of the
 objective: the direction is therefore scaled to
 \eqn{\min(1, 1/\lVert d\rVert_\infty)}, a displacement of order one in the
-parameters. This is the rule \code{\link{bb}} applies when its secant pair
-reports no curvature and the one \code{\link{bfgs}} and \code{\link{lbfgs}}
+parameters. This is the rule \code{\link[=bb]{bb()}} applies when its secant pair
+reports no curvature and the one \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}}
 apply to their first direction, and it ONLY EVER SHORTENS, so a run whose
 repaired steps were already of order one is unchanged. The trace reports it
 as \code{"hessian modified (capped)"}. The same scaling is applied to the
@@ -92,12 +92,12 @@ scale, and each of the 23 backtracks that followed was a whole penalized
 refit that could not be evaluated.
 
 \strong{On the Hessian itself.} If \code{he} is not supplied to
-\code{\link{minimize}}, the Hessian is obtained by differencing the gradient.
+\code{\link[=minimize]{minimize()}}, the Hessian is obtained by differencing the gradient.
 That is one numerical differentiation when the gradient is analytic and
 acceptable; when the gradient is \emph{also} differenced it is two composed,
 which is the one place in the package where that happens and where the result
 is correspondingly poor. An objective with neither derivative is better served
-by \code{\link{bfgs}}, which never needs a Hessian at all.
+by \code{\link[=bfgs]{bfgs()}}, which never needs a Hessian at all.
 }
 \examples{
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
@@ -118,5 +118,5 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link{bfgs}}, \code{\link{lbfgs}}, \code{\link{minimize}}
+\code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}}, \code{\link[=minimize]{minimize()}}
 }

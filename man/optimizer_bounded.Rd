@@ -7,15 +7,15 @@
 optimizer_bounded(optimizer)
 }
 \arguments{
-\item{optimizer}{An \code{\link{optimizer}}.}
+\item{optimizer}{An \code{\link[=optimizer]{optimizer()}}.}
 }
 \value{
 A single logical.
 }
 \description{
 \code{TRUE} when the optimizer honours the \code{lower} and \code{upper}
-arguments of \code{\link{minimize}}, so that
-\code{\link{check_optimizer}} tests them, and \code{FALSE} for a method
+arguments of \code{\link[=minimize]{minimize()}}, so that
+\code{\link[=check_optimizer]{check_optimizer()}} tests them, and \code{FALSE} for a method
 that takes its constraint another way.
 }
 \details{
@@ -30,5 +30,5 @@ optimizer_bounded(bfgs())
 
 }
 \seealso{
-\code{\link{optimizer_provides}}
+\code{\link[=optimizer_provides]{optimizer_provides()}}
 }

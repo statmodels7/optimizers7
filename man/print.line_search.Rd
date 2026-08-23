@@ -4,7 +4,7 @@
 \alias{print.line_search}
 \title{Print Method for Line Searches}
 \arguments{
-\item{x}{A \code{\link{line_search}} object.}
+\item{x}{A \code{\link[=line_search]{line_search()}} object.}
 
 \item{...}{Unused.}
 }

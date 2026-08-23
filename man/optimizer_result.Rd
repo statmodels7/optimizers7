@@ -38,7 +38,7 @@ optimizer_result(
 
 \item{trace}{The iteration path, or \code{NULL}.}
 
-\item{optimizer}{The \code{\link{optimizer}} that produced this, kept so the
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} that produced this, kept so the
 run can be repeated exactly.}
 
 \item{elapsed}{Seconds.}
@@ -50,7 +50,7 @@ a method that draws any, and \code{NULL} otherwise.}
 An S7 object of class \code{optimizer_result}.
 }
 \description{
-What \code{\link{minimize}} returns: the answer, how it was reached, and
+What \code{\link[=minimize]{minimize()}} returns: the answer, how it was reached, and
 enough of the run to diagnose it when it was not reached.
 }
 \details{
@@ -66,8 +66,8 @@ any safeguard that fired. That last column is what turns "it did not
 converge" into a diagnosis.
 
 \code{seed} is filled in by the methods that draw random numbers -- a
-\code{"mads"} poll, a subsampling \code{\link{adam}}, a
-\code{\link{multistart}} generating its own starts. Assigning it back with
+\code{"mads"} poll, a subsampling \code{\link[=adam]{adam()}}, a
+\code{\link[=multistart]{multistart()}} generating its own starts. Assigning it back with
 \code{assign(".Random.seed", res@seed, globalenv())} reproduces the run
 exactly. A stochastic method that cannot be repeated is very hard to debug,
 and remembering to call \code{set.seed()} beforehand is not something anyone
@@ -83,5 +83,5 @@ res@counts
 
 }
 \seealso{
-\code{\link{minimize}}
+\code{\link[=minimize]{minimize()}}
 }

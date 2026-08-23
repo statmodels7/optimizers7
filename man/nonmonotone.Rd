@@ -19,7 +19,7 @@ nonmonotone(
 \code{0.5}.}
 
 \item{memory}{How many earlier values to look back over. Defaults to
-\code{10}; \code{0} makes this ordinary \code{\link{armijo}}.}
+\code{10}; \code{0} makes this ordinary \code{\link[=armijo]{armijo()}}.}
 
 \item{max_step}{Most backtracks before the search gives up. Defaults to
 \code{30}.}
@@ -27,11 +27,11 @@ nonmonotone(
 \item{resolution}{The smallest difference in the objective that means
 anything, in the objective's own units, or a function of no arguments
 returning it where it moves as the run goes. Defaults to \code{0}, which
-does not ask the question; see \code{\link{armijo}} for what it is for and
+does not ask the question; see \code{\link[=armijo]{armijo()}} for what it is for and
 why it is asked at the full step rather than during the search.}
 }
 \value{
-A \code{\link{line_search}} object.
+A \code{\link[=line_search]{line_search()}} object.
 }
 \description{
 Armijo backtracking that compares against the worst of the last few
@@ -47,7 +47,7 @@ memory; none is required to improve on the present.
 
 \subsection{Purpose}{
 Some methods are efficient \emph{because} of steps that make the objective
-worse. \code{\link{bb}} is the clear case: its step length is a curvature
+worse. \code{\link[=bb]{bb()}} is the clear case: its step length is a curvature
 estimate taken from the last secant pair, and following that estimate
 faithfully means occasionally going somewhere higher in order to be aligned
 with the curvature when it matters. An Armijo condition forbids exactly those
@@ -90,5 +90,5 @@ scale unconstrained minimization problem. \emph{SIAM Journal on
 Optimization} \strong{7}, 26--33.
 }
 \seealso{
-\code{\link{armijo}}, \code{\link{bb}}
+\code{\link[=armijo]{armijo()}}, \code{\link[=bb]{bb()}}
 }

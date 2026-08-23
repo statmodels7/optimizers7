@@ -27,7 +27,7 @@ iteration.
 }
 \details{
 The check costs one call to \code{gr} and two to \code{fn}, runs once per
-\code{\link{minimize}} call, and is skipped whenever it cannot be decisive:
+\code{\link[=minimize]{minimize()}} call, and is skipped whenever it cannot be decisive:
 a non-function objective, a non-finite gradient at \code{par}, an objective
 that is not finite at the probe points, and a gradient too small to be
 distinguished from the truncation error of the difference it is compared
@@ -38,6 +38,6 @@ finite-difference error or a subgradient of a non-smooth objective does not
 trip it; it exists to catch the wrong function, not the eighth digit.
 
 Setting \code{options(optimizers7.check_gradient = FALSE)} disables it, and
-\code{\link{multistart}} disables it for its inner runs after the first.
+\code{\link[=multistart]{multistart()}} disables it for its inner runs after the first.
 }
 \keyword{internal}

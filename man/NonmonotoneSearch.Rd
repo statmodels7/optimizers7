@@ -25,12 +25,12 @@ NonmonotoneSearch(
 \item{resolution}{What the objective can tell apart.}
 }
 \value{
-An S7 object inheriting from \code{\link{line_search}}.
+An S7 object inheriting from \code{\link[=line_search]{line_search()}}.
 }
 \description{
-The class \code{\link{nonmonotone}} instantiates.
+The class \code{\link[=nonmonotone]{nonmonotone()}} instantiates.
 }
 \seealso{
-\code{\link{nonmonotone}}
+\code{\link[=nonmonotone]{nonmonotone()}}
 }
 \keyword{internal}

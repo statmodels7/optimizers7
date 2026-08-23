@@ -9,7 +9,7 @@
 with_criterion(optimizer, criterion)
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
 \item{criterion}{The new rule.}
 }
@@ -21,7 +21,7 @@ Replaces the criterion, and for a wrapper replaces the one that will actually
 be consulted.
 }
 \details{
-The distinction matters. \code{\link{multistart}} carries a criterion only so
+The distinction matters. \code{\link[=multistart]{multistart()}} carries a criterion only so
 that printing it tells the truth; the rule that is evaluated belongs to the
 optimizer inside. Setting the outer one and expecting a different run is the
 sort of thing that makes a check pass while testing nothing.

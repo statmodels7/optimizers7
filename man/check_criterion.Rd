@@ -7,7 +7,7 @@
 check_criterion(optimizer)
 }
 \arguments{
-\item{optimizer}{An \code{\link{optimizer}}.}
+\item{optimizer}{An \code{\link[=optimizer]{optimizer()}}.}
 }
 \value{
 Invisibly \code{TRUE}; raises an error otherwise.
@@ -17,14 +17,14 @@ Compares what the optimizer's criterion reads against what the optimizer can
 supply, and stops if the rule asks for something absent.
 }
 \details{
-Call this at the top of a user-defined \code{\link{minimize}} method. A rule
+Call this at the top of a user-defined \code{\link[=minimize]{minimize()}} method. A rule
 needing a gradient, handed to a method that computes none, would sit testing
 \code{NULL} at every iteration and never fire; the run would then end on its
 iteration budget and report a reason nowhere near the truth. Rejecting it here,
-by name, is what \code{\link{check_optimizer}} tests for.
+by name, is what \code{\link[=check_optimizer]{check_optimizer()}} tests for.
 
 What an optimizer can supply is declared by
-\code{\link{optimizer_provides}}, whose default claims a gradient. Override
+\code{\link[=optimizer_provides]{optimizer_provides()}}, whose default claims a gradient. Override
 that when the method computes none.
 }
 \examples{
@@ -33,5 +33,5 @@ try(check_criterion(nelder_mead(criterion = crit_grad())))
 
 }
 \seealso{
-\code{\link{optimizer_provides}}, \code{\link{crit_needs}}
+\code{\link[=optimizer_provides]{optimizer_provides()}}, \code{\link[=crit_needs]{crit_needs()}}
 }

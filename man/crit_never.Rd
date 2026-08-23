@@ -7,7 +7,7 @@
 crit_never()
 }
 \value{
-A \code{\link{criterion}} object.
+A \code{\link[=criterion]{criterion()}} object.
 }
 \description{
 The rule that never fires, so a run ends only when it exhausts its iteration
@@ -32,5 +32,5 @@ crit_never()
 
 }
 \seealso{
-\code{\link{adam}}, \code{\link{crit_grad}}
+\code{\link[=adam]{adam()}}, \code{\link[=crit_grad]{crit_grad()}}
 }

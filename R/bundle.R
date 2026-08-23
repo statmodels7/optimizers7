@@ -4,15 +4,15 @@
 NULL
 
 #' @title S7 Class for the Proximal Bundle Method
-#' @description The class \code{\link{bundle}} instantiates.
+#' @description The class [bundle()] instantiates.
 #' @param t0 Initial proximity weight.
 #' @param t_min,t_max Bounds on it.
 #' @param m_serious Fraction of the predicted decrease a serious step must
 #'   achieve.
 #' @param bundle_size Largest number of linearizations kept.
 #' @param qp_iters,qp_tol Effort spent on the subproblem.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{bundle}}
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [bundle()]
 #' @name Bundle-class
 #' @aliases Bundle
 #' @keywords internal
@@ -38,27 +38,27 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' vanish at a kink.
 #'
 #' @param criterion The stopping rule. Defaults to
-#'   \code{crit_stationary(1e-8)}, on the predicted decrease.
-#' @param t0 Initial proximity weight, expressed as a \strong{step length} on
+#'   `crit_stationary(1e-8)`, on the predicted decrease.
+#' @param t0 Initial proximity weight, expressed as a **step length** on
 #'   the parameter scale rather than as a bare multiplier; see Details.
-#'   Defaults to \code{1}.
+#'   Defaults to `1`.
 #' @param t_min,t_max Bounds on it, so that neither a run of null steps nor a
 #'   run of serious ones can drive it to zero or to infinity. Default
-#'   \code{1e-10} and \code{1e10}.
+#'   `1e-10` and `1e10`.
 #' @param m_serious Fraction of the predicted decrease that a step must actually
-#'   deliver to be accepted, in \eqn{(0, 1)}. Defaults to \code{0.1}.
+#'   deliver to be accepted, in \eqn{(0, 1)}. Defaults to `0.1`.
 #' @param bundle_size Largest number of linearizations kept before the oldest
-#'   are replaced by their aggregate. Defaults to \code{20}.
+#'   are replaced by their aggregate. Defaults to `20`.
 #' @param qp_iters,qp_tol Effort spent on the subproblem: at most this many
 #'   accelerated projected-gradient steps, stopping when the weights move by
-#'   less than \code{qp_tol}. Defaults \code{500} and \code{1e-12}.
+#'   less than `qp_tol`. Defaults `500` and `1e-12`.
 #' @param maxit Maximum iterations. Defaults to 500.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
-#'   \code{maxit}. Set a finite value to cap the cost of a run.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#'   `maxit`. Set a finite value to cap the cost of a run.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 10.
-#' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
 #' @details
 #' \subsection{Behavior at a kink}{
@@ -69,7 +69,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' it is testing does not become small.
 #'
 #' The bundle method does not test any single subgradient. It keeps a
-#' \emph{collection} of them, from the points it has visited, and builds the
+#' *collection* of them, from the points it has visited, and builds the
 #' piecewise-linear model \eqn{\max_j \{ f_j + g_j'(x - x_j) \}} — the largest of
 #' the linearizations. A kink is exactly what such a model represents well: two
 #' linearizations meeting. At the minimum of \eqn{\lvert x \rvert} the bundle
@@ -82,10 +82,10 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' where \eqn{\alpha_j \ge 0} measures how badly linearization \eqn{j} misses
 #' the current point and the quadratic term keeps the step inside the region
 #' where the model is believed. Its optimal value \eqn{v \le 0} is the
-#' \emph{predicted decrease}, which is what the acceptance test below uses.
+#' *predicted decrease*, which is what the acceptance test below uses.
 #'
-#' What \code{\link{crit_stationary}} watches is a related but different
-#' quantity, the \emph{optimality estimate}
+#' What [crit_stationary()] watches is a related but different
+#' quantity, the *optimality estimate*
 #' \eqn{\lVert p \rVert^2 + \alpha}, where \eqn{p} is the aggregate
 #' subgradient. Both vanish together at a solution, and the distinction is not
 #' pedantry: \eqn{-v} carries a factor of \eqn{t}, and \eqn{t} is halved at
@@ -97,37 +97,37 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' }
 #'
 #' \subsection{Serious steps and null steps}{
-#' A trial point is accepted — a \emph{serious step} — only if it delivers at
-#' least \code{m_serious} of the decrease the model promised. That is the same
+#' A trial point is accepted — a *serious step* — only if it delivers at
+#' least `m_serious` of the decrease the model promised. That is the same
 #' bargain an Armijo condition strikes, for the same reason: accepting any
 #' decrease at all lets a sequence of ever tinier improvements masquerade as
 #' progress.
 #'
 #' When it is rejected, the iteration is not wasted. The trial point contributes
 #' its subgradient to the bundle, so the model is strictly better next time;
-#' this is a \emph{null step}, and a run that reports many of them is refining
+#' this is a *null step*, and a run that reports many of them is refining
 #' its picture of a kink, not failing. Both counts appear in the result's
 #' message.
 #'
-#' \code{t} is halved after a null step and doubled after a serious one, within
-#' \code{t_min} and \code{t_max}. Kiwiel's rule chooses the factor from a
+#' `t` is halved after a null step and doubled after a serious one, within
+#' `t_min` and `t_max`. Kiwiel's rule chooses the factor from a
 #' curvature estimate and is better; this is the safeguarded version, which is
 #' cruder and bounded.
 #' }
 #'
 #' \subsection{The trust parameter t0}{
-#' The step is \eqn{d = -t\,p}, so a bare \code{t} would make the first step as
+#' The step is \eqn{d = -t\,p}, so a bare `t` would make the first step as
 #' long as the gradient happens to be big. On Rosenbrock from its usual start
 #' that is 233 units, landing where the objective is \eqn{10^{11}} and its
-#' gradient \eqn{10^{15}}; the null step that follows halves \code{t} while the
-#' gradient has squared, so \code{t} can never catch up and the run spends its
+#' gradient \eqn{10^{15}}; the null step that follows halves `t` while the
+#' gradient has squared, so `t` can never catch up and the run spends its
 #' entire budget on rejected steps before returning the point it began at.
 #'
-#' \code{t0} is therefore divided by the size of the gradient at the starting
-#' point, which makes the first step of length \code{t0} in parameter space.
+#' `t0` is therefore divided by the size of the gradient at the starting
+#' point, which makes the first step of length `t0` in parameter space.
 #' It is the same normalization a line search performs when it starts at 1 along
-#' a unit direction, and \code{t_min} and \code{t_max} move with it since they
-#' bound the same quantity. Raise \code{t0} for a problem whose optimum is far
+#' a unit direction, and `t_min` and `t_max` move with it since they
+#' bound the same quantity. Raise `t0` for a problem whose optimum is far
 #' away, lower it for one where the model is trustworthy only nearby.
 #'
 #' Should a subgradient overflow anyway — possible for an objective that grows
@@ -137,8 +137,8 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'
 #' \subsection{Bounded memory}{
 #' Left alone the bundle grows without limit. When it reaches
-#' \code{bundle_size} the oldest linearizations are replaced by the
-#' \emph{aggregate} — the single affine function the subproblem's solution
+#' `bundle_size` the oldest linearizations are replaced by the
+#' *aggregate* — the single affine function the subproblem's solution
 #' defines — rather than discarded. Discarding loses what they knew and can stall
 #' the method; the aggregate keeps a summary of all of it in one element, which
 #' is what makes a bounded bundle safe.
@@ -154,23 +154,23 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' }
 #'
 #' \subsection{Subgradients}{
-#' Supply \code{gr}. Without one the package differences the objective, and
+#' Supply `gr`. Without one the package differences the objective, and
 #' although a difference is a perfectly good gradient wherever \eqn{f} is
 #' differentiable — which is almost everywhere, so a run mostly gets away with
-#' it — a difference taken \emph{across} a kink is not a subgradient of anything
+#' it — a difference taken *across* a kink is not a subgradient of anything
 #' and the model will be built from a number that belongs to no linearization.
 #' }
 #'
-#' @return An S7 object of class \code{Bundle}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `Bundle`, inheriting from
+#'   [optimizer()].
 #'
 #' @references
 #' Kiwiel, K. C. (1990). Proximity control in bundle methods for convex
-#' nondifferentiable minimization. \emph{Mathematical Programming} \strong{46},
+#' nondifferentiable minimization. *Mathematical Programming* **46**,
 #' 105--122.
 #'
 #' Mäkelä, M. M. (2002). Survey of bundle methods for nonsmooth optimization.
-#' \emph{Optimization Methods and Software} \strong{17}, 1--29.
+#' *Optimization Methods and Software* **17**, 1--29.
 #'
 #' @examples
 #' bundle()
@@ -189,8 +189,8 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'          c(1, 0.5), gr = function(p) c(sign(p[1] + p[2]), sign(p[1] + p[2])) +
 #'                          0.2 * p)@value
 #'
-#' @seealso \code{\link{nelder_mead}}, \code{\link{compass}},
-#'   \code{\link{crit_stationary}}
+#' @seealso [nelder_mead()], [compass()],
+#'   [crit_stationary()]
 #' @export
 bundle <- function(criterion = crit_stationary(),
                    t0 = 1, t_min = 1e-10, t_max = 1e10,
@@ -237,12 +237,12 @@ bundle <- function(criterion = crit_stationary(),
 #' The objective and the predicted decrease, but not a gradient.
 #' @details
 #' It evaluates subgradients and reports their aggregate, but it does not offer
-#' \code{"gradient"}, and the omission is deliberate. \code{\link{crit_grad}}
+#' `"gradient"`, and the omission is deliberate. [crit_grad()]
 #' would then test a quantity that does not go to zero — at the minimum of
 #' \eqn{\lvert x \rvert} every subgradient has norm 1 — so the rule would never
-#' fire while sitting on the answer. \code{\link{crit_stationary}} tests the
+#' fire while sitting on the answer. [crit_stationary()] tests the
 #' predicted decrease instead, which does go to zero.
-#' @param optimizer A \code{Bundle} object.
+#' @param optimizer A `Bundle` object.
 #' @return A character vector.
 #' @keywords internal
 S7::method(optimizer_provides, Bundle) <- function(optimizer)
@@ -251,12 +251,12 @@ S7::method(optimizer_provides, Bundle) <- function(optimizer)
 
 #' @title Minimize by the Proximal Bundle Method
 #' @name minimize.Bundle
-#' @description Runs \code{\link{bundle}} on the objective.
-#' @param optimizer A \code{Bundle} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}. \code{gr} should
-#'   return a subgradient; \code{he} is ignored.
-#' @return An \code{\link{optimizer_result}}, whose \code{gradient} is the
-#'   \emph{aggregate} subgradient, the one quantity of that shape which goes to
+#' @description Runs [bundle()] on the objective.
+#' @param optimizer A `Bundle` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` should
+#'   return a subgradient; `he` is ignored.
+#' @return An [optimizer_result()], whose `gradient` is the
+#'   *aggregate* subgradient, the one quantity of that shape which goes to
 #'   zero at a solution.
 #' @keywords internal
 S7::method(minimize, Bundle) <-

@@ -45,7 +45,7 @@ one row per start, not one per iteration.}
 }
 \value{
 An S7 object of class \code{MultiStart}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Wraps any optimizer and runs it from several starts, returning the best
@@ -83,7 +83,7 @@ called from multiple threads.
 
 The starting points are drawn in the calling session before dispatch, and
 each worker receives a random stream derived from the session's seed, so
-\code{\link{set.seed}} reproduces the run identically for any value of
+\code{\link[=set.seed]{set.seed()}} reproduces the run identically for any value of
 \code{ncores} and on any platform.
 }
 
@@ -110,5 +110,5 @@ in the analysis of output from a computer code.
 \emph{Technometrics} \strong{21}, 239--245.
 }
 \seealso{
-\code{\link{minimize}}, \code{\link{bfgs}}
+\code{\link[=minimize]{minimize()}}, \code{\link[=bfgs]{bfgs()}}
 }

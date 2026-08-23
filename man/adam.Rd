@@ -20,7 +20,7 @@ adam(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule. Defaults to \code{\link{crit_never}}, so
+\item{criterion}{The stopping rule. Defaults to \code{\link[=crit_never]{crit_never()}}, so
 the run is governed by \code{maxit}; see Details.}
 
 \item{alpha}{The learning rate — the size of a step when the gradient is
@@ -57,7 +57,7 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{Adam}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Adaptive moment estimation: a first-order method whose coordinate-wise step
@@ -75,7 +75,7 @@ gradient has been consistently large is divided by a large number and moves
 modestly, while one whose gradient is small but persistent still moves. It is
 a diagonal preconditioner assembled from the gradients already seen, so it
 costs nothing beyond them — and that is also its limit, since a diagonal
-cannot represent the correlation between parameters that \code{\link{bfgs}}
+cannot represent the correlation between parameters that \code{\link[=bfgs]{bfgs()}}
 learns from the same information.
 
 Both averages start at zero, so early on they are pulled towards it; dividing
@@ -91,8 +91,8 @@ monotone progress, and the run may end somewhere worse than it passed
 through.
 
 The practical consequence is that Adam is the wrong tool for a small smooth
-problem where a Hessian is affordable. Use \code{\link{newton}} or
-\code{\link{bfgs}} there and reach machine precision in a dozen iterations.
+problem where a Hessian is affordable. Use \code{\link[=newton]{newton()}} or
+\code{\link[=bfgs]{bfgs()}} there and reach machine precision in a dozen iterations.
 Adam is appropriate when the parameter vector is long, when the objective is
 noisy, or when the surface is rough enough that a quadratic model is a
 fiction.
@@ -126,7 +126,7 @@ thrown away at each one.
 }
 
 \subsection{Stopping}{
-The default criterion is \code{\link{crit_never}}: the run ends when
+The default criterion is \code{\link[=crit_never]{crit_never()}}: the run ends when
 \code{maxit} is reached, and reports \code{converged = FALSE}, which is the
 truth about a run that nothing checked. With a fixed \code{alpha} Adam
 generally circles an optimum rather than settling on it, so a tolerance on
@@ -187,5 +187,5 @@ Reddi, S. J., Kale, S. and Kumar, S. (2018). On the Convergence of Adam and
 Beyond. \emph{ICLR}.
 }
 \seealso{
-\code{\link{bfgs}}, \code{\link{crit_never}}
+\code{\link[=bfgs]{bfgs()}}, \code{\link[=crit_never]{crit_never()}}
 }

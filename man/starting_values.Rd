@@ -7,7 +7,7 @@
 starting_values(starter, npar)
 }
 \arguments{
-\item{starter}{A \code{\link{start_zeros}} or \code{\link{start_runif}}
+\item{starter}{A \code{\link[=start_zeros]{start_zeros()}} or \code{\link[=start_runif]{start_runif()}}
 object, or a user-defined starter.}
 
 \item{npar}{The number of parameters wanted.}
@@ -23,8 +23,8 @@ Turns a starter into an actual numeric vector of length \code{npar}, on the
 The unconstrained scale is the one the optimizer actually works on when there
 are bounds, so this is where a starter is entitled to be simple: zero means
 the middle of an interval, one for a variance, one half for a probability,
-and there is no way for it to fall outside a bound. \code{\link{minimize}}
-maps the result back through \code{\link{bounded_transform}} before any
+and there is no way for it to fall outside a bound. \code{\link[=minimize]{minimize()}}
+maps the result back through \code{\link[=bounded_transform]{bounded_transform()}} before any
 method sees it.
 
 A user-defined starter is a subclass of \code{starter} with a method for
@@ -38,6 +38,6 @@ starting_values(start_runif(-2, 2), 3)
 
 }
 \seealso{
-\code{\link{start_zeros}}, \code{\link{start_runif}},
-\code{\link{minimize}}
+\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}},
+\code{\link[=minimize]{minimize()}}
 }

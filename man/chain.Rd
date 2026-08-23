@@ -16,7 +16,7 @@ one is accepted.}
 }
 \value{
 An S7 object of class \code{Chain}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Wraps several optimizers into one, each starting where the previous
@@ -26,7 +26,7 @@ finished.
 The composition a global search needs: \code{chain(sa(), lbfgs())} explores
 first and then descends from wherever the exploration left off, and neither
 method has to know about the other. It is the second wrapper of this shape
-after \code{\link{multistart}}, and the two compose --
+after \code{\link[=multistart]{multistart()}}, and the two compose --
 \code{multistart(chain(sa(), lbfgs()))} is a legal optimizer.
 
 Each stage carries its OWN criterion and its own budgets, which is the point
@@ -61,5 +61,5 @@ minimize(chain(sa(maxit = 20), bfgs()), rastrigin, c(3.5, -2.5))@value
 
 }
 \seealso{
-\code{\link{multistart}}, \code{\link{sa}}
+\code{\link[=multistart]{multistart()}}, \code{\link[=sa]{sa()}}
 }

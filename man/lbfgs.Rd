@@ -27,7 +27,7 @@ lbfgs(
 Defaults to \code{1e-10}.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
-\code{\link{bfgs}}.}
+\code{\link[=bfgs]{bfgs()}}.}
 }
 \value{
 An S7 object of class \code{Lbfgs}.
@@ -38,7 +38,7 @@ pairs are kept, and the direction comes from the two-loop recursion.
 }
 \details{
 The cost is \eqn{O(mp)} in both time and memory rather than \eqn{O(p^2)}. For
-a handful of parameters that is no gain whatever and \code{\link{bfgs}} will
+a handful of parameters that is no gain whatever and \code{\link[=bfgs]{bfgs()}} will
 converge in fewer iterations, since it carries the whole approximation; the
 crossover is somewhere in the hundreds of parameters, and beyond a few
 thousand the full matrix is simply not storable.
@@ -66,5 +66,5 @@ for large scale optimization. \emph{Mathematical Programming}
 \strong{45}, 503--528.
 }
 \seealso{
-\code{\link{bfgs}}
+\code{\link[=bfgs]{bfgs()}}
 }

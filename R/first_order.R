@@ -9,11 +9,11 @@ NULL
 
 
 #' @title S7 Class for Gradient Descent
-#' @description The class \code{\link{gd}} instantiates.
+#' @description The class [gd()] instantiates.
 #' @param step The initial step length offered to the line search.
-#' @param line_search A \code{\link{line_search}} object.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{gd}}
+#' @param line_search A [line_search()] object.
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [gd()]
 #' @name GradientDescent-class
 #' @aliases GradientDescent
 #' @keywords internal
@@ -30,32 +30,32 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' Steepest descent: the search direction is the negative gradient
 #' \eqn{-g(x)}, and a line search chooses the step length.
 #'
-#' @param criterion The stopping rule; see \code{\link{crit_any}}.
+#' @param criterion The stopping rule; see [crit_any()].
 #' @param step Initial step length offered to the line search each iteration.
-#'   Defaults to \code{1}.
+#'   Defaults to `1`.
 #' @param line_search How far to go along the direction; see
-#'   \code{\link{armijo}} and \code{\link{wolfe}}. Defaults to Armijo
+#'   [armijo()] and [wolfe()]. Defaults to Armijo
 #'   backtracking, which suffices for a method carrying no curvature
 #'   approximation to protect.
 #' @param maxit Maximum iterations. Defaults to 500.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
-#'   \code{maxit}. Set a finite value to cap the cost of a run.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#'   `maxit`. Set a finite value to cap the cost of a run.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 10.
-#' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
 #' @details
 #' The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
 #' Euclidean length. Under an exact line search consecutive directions are
 #' orthogonal, so on an ill-conditioned objective the iterates zigzag and
-#' converge slowly; \code{\link{cg}} corrects this by combining each direction
+#' converge slowly; [cg()] corrects this by combining each direction
 #' with the previous one at no extra cost per iteration. Gradient descent is
-#' mainly useful as a baseline: on smooth problems \code{\link{bfgs}} converges
+#' mainly useful as a baseline: on smooth problems [bfgs()] converges
 #' in far fewer iterations.
 #'
-#' @return An S7 object of class \code{GradientDescent}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `GradientDescent`, inheriting from
+#'   [optimizer()].
 #'
 #' @examples
 #' gd()
@@ -64,12 +64,12 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),
 #'          gr = function(p) 2 * (p - c(1, 2)))
 #'
-#' @seealso \code{\link{cg}}, \code{\link{bb}}, \code{\link{bfgs}}
+#' @seealso [cg()], [bb()], [bfgs()]
 #' @references
 #' Cauchy's method is the oldest of them; the modern treatment,
 #' including why its rate is linear in the condition number, is
 #' chapter 3 of
-#' Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
+#' Nocedal, J. and Wright, S. J. (2006). *Numerical Optimization*,
 #' 2nd edition. Springer, New York.
 #'
 #' @export
@@ -91,10 +91,10 @@ gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 
 #' @title Minimize by Gradient Descent
 #' @name minimize.GradientDescent
-#' @description Runs \code{\link{gd}} on the objective.
-#' @param optimizer A \code{GradientDescent} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
-#' @return An \code{\link{optimizer_result}}.
+#' @description Runs [gd()] on the objective.
+#' @param optimizer A `GradientDescent` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, GradientDescent) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -106,13 +106,13 @@ S7::method(minimize, GradientDescent) <-
 # --- conjugate gradients ----------------------------------------------------
 
 #' @title S7 Class for Conjugate Gradients
-#' @description The class \code{\link{cg}} instantiates.
+#' @description The class [cg()] instantiates.
 #' @param beta Which update formula.
 #' @param restart_every How often the method is restarted at steepest descent.
 #' @param step The initial step length offered to the line search.
-#' @param line_search A \code{\link{line_search}} object.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{cg}}
+#' @param line_search A [line_search()] object.
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [cg()]
 #' @name Cg-class
 #' @aliases Cg
 #' @keywords internal
@@ -133,55 +133,55 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' on a quadratic rather than orthogonal. Storage is two vectors, with no
 #' matrix, which suits problems too large for a Hessian.
 #'
-#' @param criterion The stopping rule; see \code{\link{crit_any}}.
-#' @param beta Which formula for the bend: \code{"pr"} (Polak–Ribière, the
-#'   default), \code{"fr"} (Fletcher–Reeves), \code{"hs"} (Hestenes–Stiefel) or
-#'   \code{"dy"} (Dai–Yuan). See Details.
+#' @param criterion The stopping rule; see [crit_any()].
+#' @param beta Which formula for the bend: `"pr"` (Polak–Ribière, the
+#'   default), `"fr"` (Fletcher–Reeves), `"hs"` (Hestenes–Stiefel) or
+#'   `"dy"` (Dai–Yuan). See Details.
 #' @param restart_every Restart at steepest descent every this many iterations.
-#'   Defaults to \code{0}, meaning never; a positive value is usually the
+#'   Defaults to `0`, meaning never; a positive value is usually the
 #'   dimension of the problem.
 #' @param step Initial step length offered to the line search. Defaults to
-#'   \code{1}.
-#' @param line_search Defaults to \code{wolfe(c2 = 0.1)}; the convergence
+#'   `1`.
+#' @param line_search Defaults to `wolfe(c2 = 0.1)`; the convergence
 #'   theory of the method assumes a strong Wolfe step, see Details.
 #' @param maxit Maximum iterations. Defaults to 1000.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
-#'   \code{maxit}. Set a finite value to cap the cost of a run.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#'   `maxit`. Set a finite value to cap the cost of a run.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 20.
-#' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
 #' @details
 #' The direction is
 #' \deqn{d_k = -g_k + \beta_k d_{k-1},}
 #' and the methods differ only in the choice of \eqn{\beta}. On a quadratic with an
 #' exact line search the directions come out conjugate with respect to the
-#' Hessian, so the method terminates in \eqn{p} steps exactly — \emph{without
-#' ever forming that Hessian}, which is the point. The storage is two vectors
-#' against \code{\link{bfgs}}'s \eqn{p \times p} matrix.
+#' Hessian, so the method terminates in \eqn{p} steps exactly — *without
+#' ever forming that Hessian*, which is the point. The storage is two vectors
+#' against [bfgs()]'s \eqn{p \times p} matrix.
 #'
 #' \subsection{Choice of beta}{
 #' All four agree on a quadratic with an exact line search and differ everywhere
-#' else. \code{"fr"} has the cleanest convergence theory and the well-known
+#' else. `"fr"` has the cleanest convergence theory and the well-known
 #' practical fault of stalling for many iterations after a poor step.
-#' \code{"pr"} recovers from a poor step immediately, because a small
+#' `"pr"` recovers from a poor step immediately, because a small
 #' \eqn{y = g_k - g_{k-1}} sends \eqn{\beta} towards zero and the method back to
 #' steepest descent; its known theoretical non-convergence is repaired by
 #' clamping \eqn{\beta} at zero, which restarts the method and is recorded as a
-#' restart in the trace. \code{"hs"} and \code{"dy"} are the other two standard
+#' restart in the trace. `"hs"` and `"dy"` are the other two standard
 #' choices.
 #' }
 #'
 #' \subsection{Line search}{
 #' The theory behind every one of these formulas assumes a step satisfying the
-#' \strong{strong} Wolfe conditions, and uses it to prove that the direction
+#' **strong** Wolfe conditions, and uses it to prove that the direction
 #' produced is a descent direction at all. Backtracking gives no such guarantee,
-#' so \code{\link{wolfe}} is the default and departing from it is departing
+#' so [wolfe()] is the default and departing from it is departing
 #' from the theory.
 #'
-#' The constant matters as much as the search. \code{\link{wolfe}} defaults to
-#' \eqn{c_2 = 0.9}, which is right for \code{\link{bfgs}}, where the curvature
+#' The constant matters as much as the search. [wolfe()] defaults to
+#' \eqn{c_2 = 0.9}, which is right for [bfgs()], where the curvature
 #' approximation repairs a loose step. Conjugate gradients has nothing to repair
 #' with: the accumulated conjugacy is only as good as the line search that
 #' produced it, and a loose one degrades it directly. Measured on Rosenbrock,
@@ -192,21 +192,21 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' out non-descent is replaced by \eqn{-g} and the substitution is reported.
 #' }
 #'
-#' @return An S7 object of class \code{Cg}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `Cg`, inheriting from
+#'   [optimizer()].
 #'
 #' @references
 #' Hestenes, M. R. and Stiefel, E. (1952). Methods of conjugate gradients for
-#' solving linear systems. \emph{Journal of Research of the NBS} \strong{49},
+#' solving linear systems. *Journal of Research of the NBS* **49**,
 #' 409--436.
 #'
 #' Polak, E. and Ribière, G. (1969). Note sur la convergence de méthodes de
-#' directions conjuguées. \emph{Revue Française d'Informatique et de Recherche
-#' Opérationnelle} \strong{3}, 35--43.
+#' directions conjuguées. *Revue Française d'Informatique et de Recherche
+#' Opérationnelle* **3**, 35--43.
 #'
 #' Dai, Y. H. and Yuan, Y. (1999). A nonlinear conjugate gradient method with a
-#' strong global convergence property. \emph{SIAM Journal on Optimization}
-#' \strong{10}, 177--182.
+#' strong global convergence property. *SIAM Journal on Optimization*
+#' **10**, 177--182.
 #'
 #' @examples
 #' cg()
@@ -217,7 +217,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #'                     200 * (p[2] - p[1]^2))
 #' minimize(cg(), f, c(-1.2, 1), gr = gr)@par
 #'
-#' @seealso \code{\link{gd}}, \code{\link{lbfgs}}, \code{\link{bb}}
+#' @seealso [gd()], [lbfgs()], [bb()]
 #' @export
 cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                beta = c("pr", "fr", "hs", "dy"), restart_every = 0,
@@ -244,10 +244,10 @@ cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 
 #' @title Minimize by Conjugate Gradients
 #' @name minimize.Cg
-#' @description Runs \code{\link{cg}} on the objective.
-#' @param optimizer A \code{Cg} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
-#' @return An \code{\link{optimizer_result}}.
+#' @description Runs [cg()] on the objective.
+#' @param optimizer A `Cg` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Cg) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -261,13 +261,13 @@ S7::method(minimize, Cg) <-
 # --- Barzilai-Borwein -------------------------------------------------------
 
 #' @title S7 Class for the Barzilai-Borwein Method
-#' @description The class \code{\link{bb}} instantiates.
+#' @description The class [bb()] instantiates.
 #' @param variant Which step-length formula.
 #' @param alpha0 The step length used before there is a secant pair.
 #' @param alpha_min,alpha_max Bounds on it.
 #' @param curv_tol The relative threshold below which a pair is rejected.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{bb}}
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [bb()]
 #' @name Bb-class
 #' @aliases Bb
 #' @keywords internal
@@ -290,28 +290,28 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' \eqn{-\alpha_k g_k}, where \eqn{\alpha_k} is a scalar estimate of the
 #' inverse curvature computed from the previous secant pair.
 #'
-#' @param criterion The stopping rule; see \code{\link{crit_any}}.
-#' @param variant \code{"alternate"} (default), \code{"bb1"} or \code{"bb2"};
+#' @param criterion The stopping rule; see [crit_any()].
+#' @param variant `"alternate"` (default), `"bb1"` or `"bb2"`;
 #'   see Details.
 #' @param alpha0 The step length used on the first iteration, before there is a
-#'   secant pair to estimate one from. Defaults to \code{1e-2}.
-#' @param alpha_min,alpha_max Bounds on the step length. Defaults \code{1e-10}
-#'   and \code{1e10}.
+#'   secant pair to estimate one from. Defaults to `1e-2`.
+#' @param alpha_min,alpha_max Bounds on the step length. Defaults `1e-10`
+#'   and `1e10`.
 #' @param curv_tol The relative curvature threshold: a secant pair is rejected
 #'   when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
-#'   for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
-#'   the same relative test \code{\link{bfgs}} applies to the same quantity.
+#'   for \eqn{c} equal to `curv_tol`. Defaults to `1e-10`, which is
+#'   the same relative test [bfgs()] applies to the same quantity.
 #' @param step Initial multiplier offered to the line search. Defaults to
-#'   \code{1}, so the Barzilai-Borwein step is tried unaltered first.
+#'   `1`, so the Barzilai-Borwein step is tried unaltered first.
 #' @param line_search The acceptance test for a trial step. Defaults to
-#'   \code{\link{nonmonotone}}; see Details.
+#'   [nonmonotone()]; see Details.
 #' @param maxit Maximum iterations. Defaults to 1000.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}:
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
-#'   \code{maxit}. Set a finite value to cap the cost of a run.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#'   `maxit`. Set a finite value to cap the cost of a run.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 20.
-#' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
 #' @details
 #' Take the direction \eqn{-\alpha g} with
@@ -325,12 +325,12 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'
 #' On a quadratic, where the curvature is constant, the estimate is exact and
 #' the method converges in two iterations; on a general smooth objective it
-#' typically needs more iterations than \code{\link{bfgs}} while storing a
+#' typically needs more iterations than [bfgs()] while storing a
 #' single scalar instead of a matrix.
 #'
 #' \subsection{Variants}{
-#' \code{"bb1"} and \code{"bb2"} are the two quotients above, and
-#' \code{"alternate"}, the default, switches between them at each iteration:
+#' `"bb1"` and `"bb2"` are the two quotients above, and
+#' `"alternate"`, the default, switches between them at each iteration:
 #' they estimate the same curvature from opposite ends, and alternating them is
 #' more robust than either alone.
 #' }
@@ -339,33 +339,33 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' The Barzilai-Borwein step is offered to the line search first and unaltered,
 #' and backtracking occurs only when it fails the acceptance test. Because the
 #' method makes progress through steps that may increase the objective
-#' temporarily, the default acceptance test is \code{\link{nonmonotone}}, which
-#' requires improvement over the maximum of the last \code{memory} values
+#' temporarily, the default acceptance test is [nonmonotone()], which
+#' requires improvement over the maximum of the last `memory` values
 #' rather than over the current one; a plain Armijo condition rejects exactly
 #' the steps the method relies on and slows it considerably.
-#' \code{\link{nonmonotone}} with \code{memory = 0} coincides with
-#' \code{\link{armijo}}.
+#' [nonmonotone()] with `memory = 0` coincides with
+#' [armijo()].
 #' }
 #'
 #' \subsection{Rejected secant pairs}{
 #' A pair is used only if it reports positive curvature by a relative margin,
 #' \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
-#' \eqn{c} the \code{curv_tol} argument -- the same test \code{\link{bfgs}}
+#' \eqn{c} the `curv_tol` argument -- the same test [bfgs()]
 #' applies. When a pair is rejected, the step length is reset to
 #' \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, giving a trial displacement of
 #' order one in the parameters. This reset depends on the current gradient
 #' rather than on the step length being replaced or on a fixed constant, so it
 #' can neither freeze the iteration at a too-short step nor produce a step the
-#' backtracking cannot rescale. Steps outside \code{[alpha_min, alpha_max]} are
+#' backtracking cannot rescale. Steps outside `[alpha_min, alpha_max]` are
 #' clamped, and both the reset and the clamp are recorded in the trace.
 #' }
 #'
-#' @return An S7 object of class \code{Bb}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `Bb`, inheriting from
+#'   [optimizer()].
 #'
 #' @references
 #' Barzilai, J. and Borwein, J. M. (1988). Two-point step size gradient methods.
-#' \emph{IMA Journal of Numerical Analysis} \strong{8}, 141--148.
+#' *IMA Journal of Numerical Analysis* **8**, 141--148.
 #'
 #' @examples
 #' bb()
@@ -379,7 +379,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' minimize(bb(), function(p) sum((p - c(1, 2))^2), c(0, 0),
 #'          gr = function(p) 2 * (p - c(1, 2)))@iterations
 #'
-#' @seealso \code{\link{gd}}, \code{\link{cg}}, \code{\link{lbfgs}}
+#' @seealso [gd()], [cg()], [lbfgs()]
 #' @export
 bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                variant = c("alternate", "bb1", "bb2"),
@@ -412,10 +412,10 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 
 #' @title Minimize by Barzilai-Borwein
 #' @name minimize.Bb
-#' @description Runs \code{\link{bb}} on the objective.
-#' @param optimizer A \code{Bb} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
-#' @return An \code{\link{optimizer_result}}.
+#' @description Runs [bb()] on the objective.
+#' @param optimizer A `Bb` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Bb) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,

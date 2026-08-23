@@ -24,6 +24,6 @@ it goes report the resolution of the current point instead of the reading
 from the worst-located point of the run.
 }
 \seealso{
-\code{\link{armijo}}
+\code{\link[=armijo]{armijo()}}
 }
 \keyword{internal}

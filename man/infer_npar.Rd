@@ -22,7 +22,7 @@ A single integer.
 }
 \description{
 Works out the length of the parameter vector by trying lengths and seeing
-which the objective accepts. Called by \code{\link{minimize}} when a starter
+which the objective accepts. Called by \code{\link[=minimize]{minimize()}} when a starter
 was given without \code{npar} and the bounds do not say.
 }
 \details{
@@ -71,5 +71,5 @@ try(infer_npar(f, NULL, function(k) numeric(k)))
 
 }
 \seealso{
-\code{\link{start_zeros}}, \code{\link{minimize}}
+\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=minimize]{minimize()}}
 }

@@ -16,9 +16,9 @@ UniformStart(npar = NULL, min = integer(0), max = integer(0))
 An S7 object inheriting from \code{starter}.
 }
 \description{
-The class \code{\link{start_runif}} instantiates.
+The class \code{\link[=start_runif]{start_runif()}} instantiates.
 }
 \seealso{
-\code{\link{start_runif}}
+\code{\link[=start_runif]{start_runif()}}
 }
 \keyword{internal}

@@ -6,13 +6,13 @@
 \arguments{
 \item{optimizer}{A \code{MultiStart} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
 }
 \value{
-An \code{\link{optimizer_result}}: the best run, with the per-start
+An \code{\link[=optimizer_result]{optimizer_result()}}: the best run, with the per-start
 summary in its \code{trace}.
 }
 \description{
-Runs \code{\link{multistart}} on the objective.
+Runs \code{\link[=multistart]{multistart()}} on the objective.
 }
 \keyword{internal}

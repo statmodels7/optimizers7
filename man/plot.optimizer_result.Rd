@@ -4,9 +4,9 @@
 \alias{plot.optimizer_result}
 \title{Plot Method for an Optimization Result}
 \arguments{
-\item{x}{An \code{\link{optimizer_result}}.}
+\item{x}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 
-\item{...}{Passed to \code{\link[graphics]{plot}}.}
+\item{...}{Passed to \code{\link[graphics:plot.default]{graphics::plot()}}.}
 }
 \value{
 No return value; called for the plot.

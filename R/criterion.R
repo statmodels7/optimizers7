@@ -10,15 +10,15 @@
 #' every algorithm. That is exactly the arrangement this toolkit exists to
 #' replace: it fixes the set of rules at the moment the package is written, and
 #' nothing outside can add to it. A criterion here is an object implementing one
-#' generic, \code{\link{crit_met}}, so a user-defined rule is treated like
+#' generic, [crit_met()], so a user-defined rule is treated like
 #' a shipped one.
 #'
-#' Criteria are combined with \code{\link{crit_any}} and \code{\link{crit_all}},
+#' Criteria are combined with [crit_any()] and [crit_all()],
 #' which are themselves criteria, so combinations nest.
 #'
 #' @param label A short character label, used when reporting which rule fired.
 #'
-#' @return An S7 object of class \code{criterion}. The class is abstract: use one
+#' @return An S7 object of class `criterion`. The class is abstract: use one
 #'   of the constructors, or from a user-defined subclass.
 #'
 #' @examples
@@ -33,8 +33,8 @@
 #'   state$f_new < criterion@tol
 #' crit_met(Tiny(label = "f < 1e-6", tol = 1e-6), list(f_new = 1e-9))
 #'
-#' @seealso \code{\link{crit_grad}}, \code{\link{crit_rel_obj}},
-#'   \code{\link{crit_any}}, \code{\link{crit_met}}
+#' @seealso [crit_grad()], [crit_rel_obj()],
+#'   [crit_any()], [crit_met()]
 #' @export
 criterion <- S7::new_class(
   "criterion",
@@ -48,23 +48,23 @@ criterion <- S7::new_class(
 #' @description
 #' The one generic a criterion must implement.
 #'
-#' @param criterion A \code{\link{criterion}} object.
+#' @param criterion A [criterion()] object.
 #' @param state A named list describing the current iteration; see Details.
 #'
 #' @details
-#' \code{state} carries everything any rule could need:
+#' `state` carries everything any rule could need:
 #' \describe{
-#'   \item{\code{iter}}{the iteration just completed.}
-#'   \item{\code{f_new}, \code{f_old}}{the objective after and before it.}
-#'   \item{\code{x_new}, \code{x_old}}{the parameter vectors, likewise.}
-#'   \item{\code{gradient}}{the gradient at \code{x_new}, or \code{NULL} when the
+#'   \item{`iter`}{the iteration just completed.}
+#'   \item{`f_new`, `f_old`}{the objective after and before it.}
+#'   \item{`x_new`, `x_old`}{the parameter vectors, likewise.}
+#'   \item{`gradient`}{the gradient at `x_new`, or `NULL` when the
 #'     method does not compute one.}
-#'   \item{\code{stationarity}}{a non-negative measure of remaining progress,
+#'   \item{`stationarity`}{a non-negative measure of remaining progress,
 #'     supplied by the derivative-free methods in place of a gradient, or
-#'     \code{NULL}. See \code{\link{crit_stationary}}.}
+#'     `NULL`. See [crit_stationary()].}
 #' }
-#' A rule that needs something absent from \code{state} — a gradient, from a
-#' derivative-free method — must say so through \code{\link{crit_needs}} rather
+#' A rule that needs something absent from `state` — a gradient, from a
+#' derivative-free method — must say so through [crit_needs()] rather
 #' than silently never firing.
 #'
 #' @return A single logical.
@@ -75,7 +75,7 @@ criterion <- S7::new_class(
 #' crit_met(crit_grad(1e-8), st)
 #' crit_met(crit_abs_obj(1e-12), st)
 #'
-#' @seealso \code{\link{as_objective}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
+#' @seealso [as_objective()], [crit_needs()], [check_criterion()]
 #' @export
 crit_met <- S7::new_generic("crit_met", "criterion",
                             function(criterion, state) S7::S7_dispatch())
@@ -84,19 +84,19 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' @title What a Criterion Needs From the Iteration
 #'
 #' @description
-#' The names of the \code{state} components a criterion requires, so that an
+#' The names of the `state` components a criterion requires, so that an
 #' algorithm can reject a rule it cannot evaluate instead of accepting one that
 #' never fires.
 #'
 #' @details
-#' A derivative-free method has no gradient, so \code{\link{crit_grad}} would sit
-#' there testing \code{NULL} at every iteration and quietly never stop the run.
+#' A derivative-free method has no gradient, so [crit_grad()] would sit
+#' there testing `NULL` at every iteration and quietly never stop the run.
 #' Rejecting it at construction is the same discipline that makes
-#' \code{check_link()} in \pkg{linkfunctions7} report a numerical derivative
+#' `check_link()` in \pkg{linkfunctions7} report a numerical derivative
 #' order as numerical rather than as passed: a check that cannot be evaluated
 #' must say so.
 #'
-#' @param criterion A \code{\link{criterion}} object.
+#' @param criterion A [criterion()] object.
 #'
 #' @return A character vector, possibly empty.
 #'
@@ -104,7 +104,7 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' crit_needs(crit_grad(1e-8))
 #' crit_needs(crit_rel_obj(1e-10))
 #'
-#' @seealso \code{\link{as_objective}}, \code{\link{crit_met}}, \code{\link{check_criterion}}
+#' @seealso [as_objective()], [crit_met()], [check_criterion()]
 #' @export
 crit_needs <- S7::new_generic("crit_needs", "criterion",
                               function(criterion) S7::S7_dispatch())
@@ -115,11 +115,11 @@ S7::method(crit_needs, criterion) <- function(criterion) character()
 # --- gradient ---------------------------------------------------------------
 
 #' @title S7 Class for the Gradient Criterion
-#' @description The class \code{\link{crit_grad}} instantiates.
+#' @description The class [crit_grad()] instantiates.
 #' @param tol The tolerance.
-#' @param norm Either \code{"max"} or \code{"2"}.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_grad}}
+#' @param norm Either `"max"` or `"2"`.
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_grad()]
 #' @keywords internal
 CritGrad <- S7::new_class("CritGrad", parent = criterion,
   properties = list(tol = S7::class_numeric, norm = S7::class_character))
@@ -138,13 +138,13 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' @description
 #' The rule \eqn{\lVert \nabla f \rVert < \texttt{tol}}.
 #'
-#' @param tol Numeric tolerance. Defaults to \code{1e-6}.
-#' @param norm \code{"max"} (default) or \code{"2"}.
+#' @param tol Numeric tolerance. Defaults to `1e-6`.
+#' @param norm `"max"` (default) or `"2"`.
 #'
 #' @details
 #' The max-norm is the default because it does not grow with the dimension the
 #' way the 2-norm does: the same tolerance then means the same thing for a
-#' two-parameter problem and a two-hundred-parameter one, whereas \code{1e-6} in
+#' two-parameter problem and a two-hundred-parameter one, whereas `1e-6` in
 #' the 2-norm is a far stricter demand in high dimension. Both are available, so
 #' the choice is only a default.
 #'
@@ -158,8 +158,8 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' \eqn{\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}} and grows with the
 #' value at the solution. On conjugate gradients applied to Rosenbrock, adding
 #' a constant to the objective --- which moves neither the minimizer nor the
-#' gradient --- takes the attainable gradient from \code{1.9e-9} at
-#' \eqn{f^{*} = 0} to \code{4.4e-8} at \eqn{f^{*} = 1} and \code{6.5e-5} at
+#' gradient --- takes the attainable gradient from `1.9e-9` at
+#' \eqn{f^{*} = 0} to `4.4e-8` at \eqn{f^{*} = 1} and `6.5e-5` at
 #' \eqn{f^{*} = 10^{6}}. The default suits an objective of order one at its
 #' solution, which is what a log-likelihood per observation is; an objective
 #' that lands in the millions needs a correspondingly looser tolerance, and one
@@ -168,13 +168,13 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' Only usable by a method that computes a gradient; a derivative-free optimizer
 #' rejects it rather than accepting a rule that can never fire.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_grad()
 #' crit_grad(1e-10, norm = "2")
 #'
-#' @seealso \code{\link{crit_rel_obj}}, \code{\link{crit_any}}
+#' @seealso [crit_rel_obj()], [crit_any()]
 #' @export
 crit_grad <- function(tol = 1e-6, norm = c("max", "2")) {
   norm <- match.arg(norm)
@@ -187,10 +187,10 @@ crit_grad <- function(tol = 1e-6, norm = c("max", "2")) {
 # --- objective --------------------------------------------------------------
 
 #' @title S7 Class for the Absolute Objective Criterion
-#' @description The class \code{\link{crit_abs_obj}} instantiates.
+#' @description The class [crit_abs_obj()] instantiates.
 #' @param tol The tolerance.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_abs_obj}}
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_abs_obj()]
 #' @keywords internal
 CritAbsObj <- S7::new_class("CritAbsObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -205,14 +205,14 @@ S7::method(crit_met, CritAbsObj) <- function(criterion, state) {
 #' @description
 #' The rule \eqn{\lvert f_{new} - f_{old} \rvert < \texttt{tol}}.
 #'
-#' @param tol Numeric tolerance. Defaults to \code{1e-10}.
+#' @param tol Numeric tolerance. Defaults to `1e-10`.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_abs_obj()
 #'
-#' @seealso \code{\link{crit_rel_obj}}
+#' @seealso [crit_rel_obj()]
 #' @export
 crit_abs_obj <- function(tol = 1e-10) {
   check_tol(tol)
@@ -221,10 +221,10 @@ crit_abs_obj <- function(tol = 1e-10) {
 
 
 #' @title S7 Class for the Relative Objective Criterion
-#' @description The class \code{\link{crit_rel_obj}} instantiates.
+#' @description The class [crit_rel_obj()] instantiates.
 #' @param tol The tolerance.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_rel_obj}}
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_rel_obj()]
 #' @keywords internal
 CritRelObj <- S7::new_class("CritRelObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -243,19 +243,19 @@ S7::method(crit_met, CritRelObj) <- function(criterion, state) {
 #' The rule
 #' \eqn{\lvert f_{new} - f_{old} \rvert < \texttt{tol}\,(\lvert f_{old} \rvert + \texttt{tol})}.
 #'
-#' @param tol Numeric tolerance. Defaults to \code{1e-12}.
+#' @param tol Numeric tolerance. Defaults to `1e-12`.
 #'
 #' @details
-#' The \code{+ tol} in the denominator is a floor, and it is load-bearing: an
+#' The `+ tol` in the denominator is a floor, and it is load-bearing: an
 #' objective whose optimum is at zero would otherwise be compared against a
 #' vanishing scale.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_rel_obj()
 #'
-#' @seealso \code{\link{crit_abs_obj}}
+#' @seealso [crit_abs_obj()]
 #' @export
 crit_rel_obj <- function(tol = 1e-12) {
   check_tol(tol)
@@ -266,10 +266,10 @@ crit_rel_obj <- function(tol = 1e-12) {
 # --- parameters -------------------------------------------------------------
 
 #' @title S7 Class for the Absolute Parameter Criterion
-#' @description The class \code{\link{crit_abs_par}} instantiates.
+#' @description The class [crit_abs_par()] instantiates.
 #' @param tol The tolerance.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_abs_par}}
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_abs_par()]
 #' @keywords internal
 CritAbsPar <- S7::new_class("CritAbsPar", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -284,14 +284,14 @@ S7::method(crit_met, CritAbsPar) <- function(criterion, state) {
 #' @description
 #' The rule \eqn{\max_j \lvert x_j^{new} - x_j^{old} \rvert < \texttt{tol}}.
 #'
-#' @param tol Numeric tolerance. Defaults to \code{1e-8}.
+#' @param tol Numeric tolerance. Defaults to `1e-8`.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_abs_par()
 #'
-#' @seealso \code{\link{crit_rel_par}}
+#' @seealso [crit_rel_par()]
 #' @export
 crit_abs_par <- function(tol = 1e-8) {
   check_tol(tol)
@@ -300,10 +300,10 @@ crit_abs_par <- function(tol = 1e-8) {
 
 
 #' @title S7 Class for the Relative Parameter Criterion
-#' @description The class \code{\link{crit_rel_par}} instantiates.
+#' @description The class [crit_rel_par()] instantiates.
 #' @param tol The tolerance.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_rel_par}}
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_rel_par()]
 #' @keywords internal
 CritRelPar <- S7::new_class("CritRelPar", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -320,14 +320,14 @@ S7::method(crit_met, CritRelPar) <- function(criterion, state) {
 #' The rule
 #' \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert / (\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}.
 #'
-#' @param tol Numeric tolerance. Defaults to \code{1e-8}.
+#' @param tol Numeric tolerance. Defaults to `1e-8`.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_rel_par()
 #'
-#' @seealso \code{\link{crit_abs_par}}
+#' @seealso [crit_abs_par()]
 #' @export
 crit_rel_par <- function(tol = 1e-8) {
   check_tol(tol)
@@ -338,10 +338,10 @@ crit_rel_par <- function(tol = 1e-8) {
 # --- stationarity -----------------------------------------------------------
 
 #' @title S7 Class for the Stationarity Criterion
-#' @description The class \code{\link{crit_stationary}} instantiates.
+#' @description The class [crit_stationary()] instantiates.
 #' @param tol The tolerance.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_stationary}}
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_stationary()]
 #' @keywords internal
 CritStationary <- S7::new_class("CritStationary", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -359,7 +359,7 @@ S7::method(crit_met, CritStationary) <- function(criterion, state) {
 #' @description
 #' The stopping rule for a method that has no gradient to test.
 #'
-#' @param tol Numeric tolerance. Defaults to \code{1e-8}.
+#' @param tol Numeric tolerance. Defaults to `1e-8`.
 #'
 #' @details
 #' A gradient-based method detects its arrival through the vanishing of
@@ -367,37 +367,37 @@ S7::method(crit_met, CritStationary) <- function(criterion, state) {
 #' None of the derivative-free methods can use that test, and for the
 #' non-smooth problems they exist to solve it would not be the right test even
 #' if they could: at the minimum of \eqn{\lvert x \rvert} any evaluated
-#' subgradient is \eqn{\pm 1}, so \code{\link{crit_grad}} would never fire at
+#' subgradient is \eqn{\pm 1}, so [crit_grad()] would never fire at
 #' the solution itself.
 #'
 #' Each such method therefore reports a non-negative scalar of its own that goes
 #' to zero as it converges, and this rule tests that. What the scalar
-#' \emph{is} differs, deliberately, because the natural measure differs:
+#' *is* differs, deliberately, because the natural measure differs:
 #' \describe{
-#'   \item{\code{\link{nelder_mead}}}{the diameter of the simplex, so the
+#'   \item{[nelder_mead()]}{the diameter of the simplex, so the
 #'     tolerance is on the parameter scale.}
-#'   \item{\code{\link{compass}}}{the poll size \eqn{\Delta}. This is the
+#'   \item{[compass()]}{the poll size \eqn{\Delta}. This is the
 #'     rule with a theorem behind it: the limit points of a pattern search with
 #'     \eqn{\Delta \to 0} are Clarke stationary.}
-#'   \item{\code{\link{bundle}}}{the optimality estimate
+#'   \item{[bundle()]}{the optimality estimate
 #'     \eqn{\lVert p \rVert^2 + \alpha}, which vanishes exactly when zero lies
 #'     in the convex hull of the collected subgradients with no linearization
-#'     error. Note that this is \emph{not} the predicted decrease, which
+#'     error. Note that this is *not* the predicted decrease, which
 #'     carries a factor of the trust parameter and can therefore be driven to
 #'     zero by that parameter shrinking rather than by the point becoming
 #'     stationary.}
 #' }
-#' The measure appears in the trace as the \code{stationarity} column, so a run
+#' The measure appears in the trace as the `stationarity` column, so a run
 #' can be read afterwards without knowing which method produced it.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_stationary()
 #' crit_stationary(1e-10)
 #'
-#' @seealso \code{\link{nelder_mead}}, \code{\link{compass}},
-#'   \code{\link{bundle}}, \code{\link{crit_grad}}
+#' @seealso [nelder_mead()], [compass()],
+#'   [bundle()], [crit_grad()]
 #' @export
 crit_stationary <- function(tol = 1e-8) {
   check_tol(tol)
@@ -408,9 +408,9 @@ crit_stationary <- function(tol = 1e-8) {
 # --- run the budget ---------------------------------------------------------
 
 #' @title S7 Class for the Empty Criterion
-#' @description The class \code{\link{crit_never}} instantiates.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_never}}
+#' @description The class [crit_never()] instantiates.
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_never()]
 #' @keywords internal
 CritNever <- S7::new_class("CritNever", parent = criterion)
 
@@ -431,17 +431,17 @@ S7::method(crit_met, CritNever) <- function(criterion, state) FALSE
 #' governed by its budget, and saying so with an object is better than leaving a
 #' real criterion in place that quietly never fires.
 #'
-#' A run that ends this way reports \code{converged = FALSE}, which is the
+#' A run that ends this way reports `converged = FALSE`, which is the
 #' truth: the budget ran out, and nothing checked whether the answer was any
 #' good. It is the same discipline everywhere else in the package — convergence
 #' is what a rule confirmed, never what the run merely stopped doing.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @examples
 #' crit_never()
 #'
-#' @seealso \code{\link{adam}}, \code{\link{crit_grad}}
+#' @seealso [adam()], [crit_grad()]
 #' @export
 crit_never <- function() CritNever(label = "iteration budget")
 
@@ -449,12 +449,12 @@ crit_never <- function() CritNever(label = "iteration budget")
 # --- combinators ------------------------------------------------------------
 
 #' @title S7 Class for a Combination of Criteria
-#' @description The class \code{\link{crit_any}} and \code{\link{crit_all}}
+#' @description The class [crit_any()] and [crit_all()]
 #'   instantiate.
-#' @param criteria A list of \code{\link{criterion}} objects.
-#' @param how Either \code{"any"} or \code{"all"}.
-#' @return An S7 object inheriting from \code{\link{criterion}}.
-#' @seealso \code{\link{crit_any}}, \code{\link{crit_all}}
+#' @param criteria A list of [criterion()] objects.
+#' @param how Either `"any"` or `"all"`.
+#' @return An S7 object inheriting from [criterion()].
+#' @seealso [crit_any()], [crit_all()]
 #' @keywords internal
 CritCombine <- S7::new_class("CritCombine", parent = criterion,
   properties = list(criteria = S7::class_list, how = S7::class_character))
@@ -472,13 +472,13 @@ S7::method(crit_met, CritCombine) <- function(criterion, state) {
 #'
 #' @description
 #' Validates the arguments and builds the combined criterion, so that
-#' \code{\link{crit_any}} and \code{\link{crit_all}} reject the same nonsense
+#' [crit_any()] and [crit_all()] reject the same nonsense
 #' in the same words.
 #'
-#' @param dots A list of \code{\link{criterion}} objects.
-#' @param how Either \code{"any"} or \code{"all"}.
+#' @param dots A list of [criterion()] objects.
+#' @param how Either `"any"` or `"all"`.
 #'
-#' @return A \code{\link{criterion}} object.
+#' @return A [criterion()] object.
 #'
 #' @keywords internal
 combine_criteria <- function(dots, how) {
@@ -503,48 +503,48 @@ combine_criteria <- function(dots, how) {
 #' end as soon as any reasonable rule is satisfied.
 #'
 #' @details
-#' \strong{The default rule of the gradient methods.} \code{\link{gd}},
-#' \code{\link{cg}}, \code{\link{bb}}, \code{\link{newton}},
-#' \code{\link{bfgs}} and \code{\link{lbfgs}} default to
-#' \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}: the point is
+#' **The default rule of the gradient methods.** [gd()],
+#' [cg()], [bb()], [newton()],
+#' [bfgs()] and [lbfgs()] default to
+#' `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`: the point is
 #' stationary, or the objective has stopped moving, or the parameters have.
 #' Since a disjunction can only get weaker as terms are added, a run that ends
 #' under this rule would have ended under a gradient rule alone at best later
 #' and never earlier.
 #'
 #' What that buys and what it costs was measured over the package's own
-#' \code{\link{test_problems}}, six methods on eight problems. Against the
+#' [test_problems()], six methods on eight problems. Against the
 #' gradient rule alone it converges on 44 of the 48 runs rather than 41, and
 #' costs 19370 objective evaluations rather than 22299. The three it gains are
-#' \code{cg} and \code{bb} on the non-smooth \code{abs_sum} and \code{gd} on
+#' `cg` and `bb` on the non-smooth `abs_sum` and `gd` on
 #' Beale, and none is lost.
 #'
 #' The cost is that a run stops sooner, so the point it reports is further from
 #' the solution. Measured, 10 of the 48 end at a gradient more than a hundred
 #' times larger, and the worst are runs that were reaching absurd precision
-#' anyway: \code{bfgs} on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, with
+#' anyway: `bfgs` on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, with
 #' the objective 3.2e-13 above its minimum rather than 1.2e-21. On one run the
-#' difference is real rather than cosmetic -- \code{cg} on \code{abs_sum},
+#' difference is real rather than cosmetic -- `cg` on `abs_sum`,
 #' where the objective ends 4.5e-02 above the minimum rather than 1.9e-03, and
-#' the flag reads \code{TRUE} where it used to read \code{FALSE}. That is a
+#' the flag reads `TRUE` where it used to read `FALSE`. That is a
 #' smooth method on a non-smooth problem, where the objective stalls far from
 #' the solution and a rule that reads a stall cannot tell the two apart. A
-#' caller who needs stationarity asks for it: \code{criterion = crit_grad()}.
+#' caller who needs stationarity asks for it: `criterion = crit_grad()`.
 #'
-#' \code{\link{crit_rel_obj}} was in that default until 0.6.0 and is not any
+#' [crit_rel_obj()] was in that default until 0.6.0 and is not any
 #' more, because it never fired: measured over the same 48 runs, the rule with
 #' it and the rule without it agree on every count, every evaluation and every
 #' reported point. It remains available and useful where an objective's scale
 #' is not known in advance.
 #'
-#' @param ... \code{\link{criterion}} objects.
+#' @param ... [criterion()] objects.
 #'
-#' @return A \code{\link{criterion}} object, so combinations nest.
+#' @return A [criterion()] object, so combinations nest.
 #'
 #' @examples
 #' crit_any(crit_grad(1e-8), crit_rel_obj(1e-12))
 #'
-#' @seealso \code{\link{crit_all}}
+#' @seealso [crit_all()]
 #' @export
 crit_any <- function(...) combine_criteria(list(...), "any")
 
@@ -554,23 +554,23 @@ crit_any <- function(...) combine_criteria(list(...), "any")
 #' Combines criteria conjunctively, for a run that should not stop until several
 #' independent things agree.
 #'
-#' @param ... \code{\link{criterion}} objects.
+#' @param ... [criterion()] objects.
 #'
-#' @return A \code{\link{criterion}} object, so combinations nest.
+#' @return A [criterion()] object, so combinations nest.
 #'
 #' @examples
 #' crit_all(crit_grad(1e-6), crit_abs_par(1e-10))
 #'
-#' @seealso \code{\link{crit_any}}
+#' @seealso [crit_any()]
 #' @export
 crit_all <- function(...) combine_criteria(list(...), "all")
 
 
 #' @title Print Method for Criteria
 #' @name print.criterion
-#' @param x A \code{\link{criterion}} object.
+#' @param x A [criterion()] object.
 #' @param ... Unused.
-#' @return \code{x}, invisibly.
+#' @return `x`, invisibly.
 #' @examples
 #' print(crit_any(crit_grad(), crit_rel_obj()))
 #' @keywords internal
@@ -588,7 +588,7 @@ S7::method(print, criterion) <- function(x, ...) {
 #'
 #' @param tol The value supplied.
 #'
-#' @return Invisibly \code{TRUE}; raises an error otherwise.
+#' @return Invisibly `TRUE`; raises an error otherwise.
 #'
 #' @keywords internal
 check_tol <- function(tol) {

@@ -7,10 +7,10 @@
 crit_all(...)
 }
 \arguments{
-\item{...}{\code{\link{criterion}} objects.}
+\item{...}{\code{\link[=criterion]{criterion()}} objects.}
 }
 \value{
-A \code{\link{criterion}} object, so combinations nest.
+A \code{\link[=criterion]{criterion()}} object, so combinations nest.
 }
 \description{
 Combines criteria conjunctively, for a run that should not stop until several
@@ -21,5 +21,5 @@ crit_all(crit_grad(1e-6), crit_abs_par(1e-10))
 
 }
 \seealso{
-\code{\link{crit_any}}
+\code{\link[=crit_any]{crit_any()}}
 }

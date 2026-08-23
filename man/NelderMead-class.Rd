@@ -32,12 +32,12 @@ NelderMead(
 \item{simplex}{An optional starting simplex.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{nelder_mead}} instantiates.
+The class \code{\link[=nelder_mead]{nelder_mead()}} instantiates.
 }
 \seealso{
-\code{\link{nelder_mead}}
+\code{\link[=nelder_mead]{nelder_mead()}}
 }
 \keyword{internal}

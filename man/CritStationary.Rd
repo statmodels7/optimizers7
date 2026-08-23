@@ -10,12 +10,12 @@ CritStationary(label = character(0), tol = integer(0))
 \item{tol}{The tolerance.}
 }
 \value{
-An S7 object inheriting from \code{\link{criterion}}.
+An S7 object inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The class \code{\link{crit_stationary}} instantiates.
+The class \code{\link[=crit_stationary]{crit_stationary()}} instantiates.
 }
 \seealso{
-\code{\link{crit_stationary}}
+\code{\link[=crit_stationary]{crit_stationary()}}
 }
 \keyword{internal}

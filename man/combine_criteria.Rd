@@ -7,16 +7,16 @@
 combine_criteria(dots, how)
 }
 \arguments{
-\item{dots}{A list of \code{\link{criterion}} objects.}
+\item{dots}{A list of \code{\link[=criterion]{criterion()}} objects.}
 
 \item{how}{Either \code{"any"} or \code{"all"}.}
 }
 \value{
-A \code{\link{criterion}} object.
+A \code{\link[=criterion]{criterion()}} object.
 }
 \description{
 Validates the arguments and builds the combined criterion, so that
-\code{\link{crit_any}} and \code{\link{crit_all}} reject the same nonsense
+\code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} reject the same nonsense
 in the same words.
 }
 \keyword{internal}

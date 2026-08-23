@@ -16,13 +16,13 @@ gd(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule; see \code{\link{crit_any}}.}
+\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
 
 \item{step}{Initial step length offered to the line search each iteration.
 Defaults to \code{1}.}
 
 \item{line_search}{How far to go along the direction; see
-\code{\link{armijo}} and \code{\link{wolfe}}. Defaults to Armijo
+\code{\link[=armijo]{armijo()}} and \code{\link[=wolfe]{wolfe()}}. Defaults to Armijo
 backtracking, which suffices for a method carrying no curvature
 approximation to protect.}
 
@@ -40,7 +40,7 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{GradientDescent}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Steepest descent: the search direction is the negative gradient
@@ -50,9 +50,9 @@ Steepest descent: the search direction is the negative gradient
 The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
 Euclidean length. Under an exact line search consecutive directions are
 orthogonal, so on an ill-conditioned objective the iterates zigzag and
-converge slowly; \code{\link{cg}} corrects this by combining each direction
+converge slowly; \code{\link[=cg]{cg()}} corrects this by combining each direction
 with the previous one at no extra cost per iteration. Gradient descent is
-mainly useful as a baseline: on smooth problems \code{\link{bfgs}} converges
+mainly useful as a baseline: on smooth problems \code{\link[=bfgs]{bfgs()}} converges
 in far fewer iterations.
 }
 \examples{
@@ -71,5 +71,5 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link{cg}}, \code{\link{bb}}, \code{\link{bfgs}}
+\code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}}, \code{\link[=bfgs]{bfgs()}}
 }

@@ -4,17 +4,17 @@
 NULL
 
 #' @title S7 Class for Simulated Annealing
-#' @description The class \code{\link{sa}} instantiates.
+#' @description The class [sa()] instantiates.
 #' @param visiting Which proposal the walk uses.
-#' @param t0 The initial temperature, or \code{NULL} to calibrate it.
+#' @param t0 The initial temperature, or `NULL` to calibrate it.
 #' @param cooling The geometric cooling factor.
 #' @param cycles,steps The work done at each temperature.
 #' @param step The initial step, relative to the starting value.
 #' @param target_accept The acceptance rate the step adaptation aims at.
 #' @param adjust How hard the step is adjusted towards that rate.
 #' @param n_eps How many temperature levels the stopping rule looks back over.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{sa}}
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [sa()]
 #' @name Sa-class
 #' @aliases Sa
 #' @keywords internal
@@ -42,15 +42,15 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' @details
 #' The method exists here for the problems the local ones cannot start on: a
 #' multimodal objective where the answer depends on which basin the run began
-#' in. It is not a competitor to \code{\link{bfgs}} or \code{\link{newton}} on a
+#' in. It is not a competitor to [bfgs()] or [newton()] on a
 #' smooth problem, where it will be beaten by orders of magnitude, and the
 #' intended use is to hand its result to one of them --- see
-#' \code{\link{chain}}.
+#' [chain()].
 #'
-#' \strong{The adaptive step.} The parameters are moved one coordinate at a
-#' time, and after every \code{steps} sweeps each coordinate's step is
+#' **The adaptive step.** The parameters are moved one coordinate at a
+#' time, and after every `steps` sweeps each coordinate's step is
 #' multiplied or divided according to how often its moves were accepted, so
-#' that the rate is held inside a band around \code{target_accept}
+#' that the rate is held inside a band around `target_accept`
 #' (Corana et al. 1987). This is what makes the method usable on a statistical
 #' objective: the coordinates of an unconstrained parameter vector sit on
 #' scales orders of magnitude apart, and one step length is wrong for all of
@@ -58,9 +58,9 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' timidly to explore; one accepting almost nothing is being thrown too far to
 #' land.
 #'
-#' \strong{The proposal.} \code{"uniform"} draws the move uniformly on the
+#' **The proposal.** `"uniform"` draws the move uniformly on the
 #' coordinate's current step, which with the adaptation above is Corana's
-#' algorithm. \code{"cauchy"} draws it from a Cauchy, whose heavy tail lets a
+#' algorithm. `"cauchy"` draws it from a Cauchy, whose heavy tail lets a
 #' run leave a basin in one move rather than walking out of it; that is fast
 #' simulated annealing (Szu and Hartley 1987), and it is the \eqn{q = 2} member
 #' of the Tsallis family. The general Tsallis visiting distribution at
@@ -68,72 +68,72 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' be transcribed and could not be checked against anything already here, and
 #' an unverified generator is worse than a case that can be verified.
 #'
-#' \strong{The temperature.} With \code{t0 = NULL} the initial temperature is
+#' **The temperature.** With `t0 = NULL` the initial temperature is
 #' calibrated from the objective's own variation, by sampling proposals around
 #' the starting value and setting \eqn{T_0} so that an average uphill move is
 #' accepted about four times in five. A fixed number cannot serve: on an
 #' objective of size \eqn{10^6} every move is accepted and the run is a random
 #' walk, on one of size \eqn{10^{-6}} none is and it is a poor local search.
 #'
-#' \strong{What the run returns is the best point SEEN}, not the last one. An
+#' **What the run returns is the best point SEEN**, not the last one. An
 #' annealing run wanders by construction, so its final iterate is a draw and
 #' not an answer.
 #'
-#' \strong{Whether it converged is a separate question} and is never answered
+#' **Whether it converged is a separate question** and is never answered
 #' by the schedule having finished. The stationarity measure reported is
 #' Corana's own termination rule --- by how much the best value has moved over
-#' the last \code{n_eps} temperature levels --- so \code{\link{crit_stationary}}
+#' the last `n_eps` temperature levels --- so [crit_stationary()]
 #' IS that rule rather than a second convention invented beside it. A run that
-#' merely exhausts \code{maxit} reports \code{converged = FALSE}, which for a
+#' merely exhausts `maxit` reports `converged = FALSE`, which for a
 #' global search is the ordinary outcome and not a failure.
 #'
-#' \strong{The run is stochastic}, so \code{set.seed()} governs it and the
+#' **The run is stochastic**, so `set.seed()` governs it and the
 #' state it started from is recorded in the result.
 #'
 #' @param criterion The stopping rule. Defaults to
-#'   \code{crit_stationary(1e-8)}, read on the measure described above.
-#' @param visiting \code{"uniform"} (default) or \code{"cauchy"}.
-#' @param t0 The initial temperature. \code{NULL}, the default, calibrates it
+#'   `crit_stationary(1e-8)`, read on the measure described above.
+#' @param visiting `"uniform"` (default) or `"cauchy"`.
+#' @param t0 The initial temperature. `NULL`, the default, calibrates it
 #'   from the objective.
 #' @param cooling The factor the temperature is multiplied by at each level.
-#'   Defaults to \code{0.85}.
+#'   Defaults to `0.85`.
 #' @param cycles How many step-adjustment cycles per temperature level.
-#'   Defaults to \code{3}.
+#'   Defaults to `3`.
 #' @param steps How many sweeps of every coordinate per cycle. Defaults to
-#'   \code{10}. One temperature level therefore costs
-#'   \code{cycles * steps * length(par)} evaluations.
+#'   `10`. One temperature level therefore costs
+#'   `cycles * steps * length(par)` evaluations.
 #' @param step The initial step, relative to the starting value. Defaults to
-#'   \code{1}.
+#'   `1`.
 #' @param target_accept The acceptance rate the adaptation aims at, held inside
-#'   a band of 0.1 either side. Defaults to \code{0.5}.
+#'   a band of 0.1 either side. Defaults to `0.5`.
 #' @param adjust How hard the step is moved towards that rate. Defaults to
-#'   \code{2}.
+#'   `2`.
 #' @param n_eps How many temperature levels the stationarity measure looks back
-#'   over. Defaults to \code{4}.
+#'   over. Defaults to `4`.
 #' @param maxit Maximum temperature levels. Defaults to 100. It is the budget
 #'   that decides how tightly the run finishes: the step adaptation shrinks the
 #'   proposal as the acceptance rate falls with the temperature, so on a
 #'   quadratic the answer improves from \eqn{2\times10^{-1}} at 15 levels to
 #'   \eqn{5\times10^{-5}} at 100.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many levels. Defaults to 10.
-#' @param keep_trace Store the path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the path? Defaults to `FALSE`.
 #'
-#' @return An S7 object of class \code{Sa}, inheriting from
-#'   \code{\link{optimizer}}.
+#' @return An S7 object of class `Sa`, inheriting from
+#'   [optimizer()].
 #'
 #' @references
 #' Corana, A., Marchesi, M., Martini, C. and Ridella, S. (1987). Minimizing
 #' multimodal functions of continuous variables with the simulated annealing
-#' algorithm. \emph{ACM Transactions on Mathematical Software} \strong{13},
+#' algorithm. *ACM Transactions on Mathematical Software* **13**,
 #' 262--280.
 #'
 #' Kirkpatrick, S., Gelatt, C. D. and Vecchi, M. P. (1983). Optimization by
-#' simulated annealing. \emph{Science} \strong{220}, 671--680.
+#' simulated annealing. *Science* **220**, 671--680.
 #'
-#' Szu, H. and Hartley, R. (1987). Fast simulated annealing. \emph{Physics
-#' Letters A} \strong{122}, 157--162.
+#' Szu, H. and Hartley, R. (1987). Fast simulated annealing. *Physics
+#' Letters A* **122**, 157--162.
 #'
 #' @examples
 #' sa()
@@ -145,8 +145,8 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' minimize(sa(), rastrigin, c(4.4, -3.6))@value
 #' minimize(bfgs(), rastrigin, c(4.4, -3.6))@value
 #'
-#' @seealso \code{\link{chain}}, \code{\link{multistart}},
-#'   \code{\link{crit_stationary}}
+#' @seealso [chain()], [multistart()],
+#'   [crit_stationary()]
 #' @export
 sa <- function(criterion = crit_stationary(),
                visiting = c("uniform", "cauchy"),
@@ -199,10 +199,10 @@ sa <- function(criterion = crit_stationary(),
 #' The objective and a stationarity measure, but no gradient.
 #' @details
 #' The measure is Corana's termination rule, by how much the best value has
-#' moved over the last \code{n_eps} temperature levels. A rule reading a
-#' gradient is rejected at construction rather than left testing \code{NULL}
+#' moved over the last `n_eps` temperature levels. A rule reading a
+#' gradient is rejected at construction rather than left testing `NULL`
 #' and never firing.
-#' @param optimizer An \code{Sa} object.
+#' @param optimizer An `Sa` object.
 #' @return A character vector.
 #' @keywords internal
 S7::method(optimizer_provides, Sa) <- function(optimizer) "stationarity"
@@ -210,12 +210,12 @@ S7::method(optimizer_provides, Sa) <- function(optimizer) "stationarity"
 
 #' @title Minimize by Simulated Annealing
 #' @name minimize.Sa
-#' @description Runs \code{\link{sa}} on the objective.
-#' @param optimizer An \code{Sa} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}. \code{gr}
-#'   and \code{he} are accepted and ignored: the method uses no derivative, and
+#' @description Runs [sa()] on the objective.
+#' @param optimizer An `Sa` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr`
+#'   and `he` are accepted and ignored: the method uses no derivative, and
 #'   rejecting them would force calling code to branch on the algorithm.
-#' @return An \code{\link{optimizer_result}}.
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Sa) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -255,7 +255,7 @@ S7::method(minimize, Sa) <-
 #' The Annealing Loop in R
 #'
 #' @description
-#' The loop \code{sa_run()} replaces, kept so the compiled route has something
+#' The loop `sa_run()` replaces, kept so the compiled route has something
 #' to be compared against that shares none of its code.
 #'
 #' @details
@@ -270,9 +270,9 @@ S7::method(minimize, Sa) <-
 #' @param cauchy Whether the proposal is Cauchy rather than uniform.
 #' @param t0 The initial temperature, or a non-positive value to calibrate it.
 #' @param cooling,cycles,steps,step,target_accept,adjust,n_eps,maxit As in
-#'   \code{\link{sa}}.
+#'   [sa()].
 #'
-#' @return A list with \code{par}, \code{value} and \code{n_value}.
+#' @return A list with `par`, `value` and `n_value`.
 #'
 #' @keywords internal
 sa_run_r <- function(fn, par, cauchy = FALSE, t0 = -1, cooling = 0.85,

@@ -42,12 +42,12 @@ Sa(
 \item{n_eps}{How many temperature levels the stopping rule looks back over.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{sa}} instantiates.
+The class \code{\link[=sa]{sa()}} instantiates.
 }
 \seealso{
-\code{\link{sa}}
+\code{\link[=sa]{sa()}}
 }
 \keyword{internal}

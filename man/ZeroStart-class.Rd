@@ -14,9 +14,9 @@ ZeroStart(npar = NULL)
 An S7 object inheriting from \code{starter}.
 }
 \description{
-The class \code{\link{start_zeros}} instantiates.
+The class \code{\link[=start_zeros]{start_zeros()}} instantiates.
 }
 \seealso{
-\code{\link{start_zeros}}
+\code{\link[=start_zeros]{start_zeros()}}
 }
 \keyword{internal}

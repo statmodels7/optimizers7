@@ -7,9 +7,9 @@
 run_battery(optimizer, problems)
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
-\item{problems}{A list in the shape \code{\link{test_problems}} returns.}
+\item{problems}{A list in the shape \code{\link[=test_problems]{test_problems()}} returns.}
 }
 \value{
 A data frame with one row per problem.

@@ -8,7 +8,7 @@
 line_search_spec(x)
 }
 \arguments{
-\item{x}{A \code{\link{line_search}} object.}
+\item{x}{A \code{\link[=line_search]{line_search()}} object.}
 }
 \value{
 A list with \code{type}, \code{c1}, \code{c2}, \code{shrink} and
@@ -17,7 +17,7 @@ the C++ side ignores, so that the structure is the same shape whichever
 search it describes.
 }
 \description{
-Flattens a \code{\link{line_search}} object into the list the compiled code
+Flattens a \code{\link[=line_search]{line_search()}} object into the list the compiled code
 reads.
 }
 \keyword{internal}

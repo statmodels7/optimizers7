@@ -7,7 +7,7 @@
 crit_needs(criterion)
 }
 \arguments{
-\item{criterion}{A \code{\link{criterion}} object.}
+\item{criterion}{A \code{\link[=criterion]{criterion()}} object.}
 }
 \value{
 A character vector, possibly empty.
@@ -18,7 +18,7 @@ algorithm can reject a rule it cannot evaluate instead of accepting one that
 never fires.
 }
 \details{
-A derivative-free method has no gradient, so \code{\link{crit_grad}} would sit
+A derivative-free method has no gradient, so \code{\link[=crit_grad]{crit_grad()}} would sit
 there testing \code{NULL} at every iteration and quietly never stop the run.
 Rejecting it at construction is the same discipline that makes
 \code{check_link()} in \pkg{linkfunctions7} report a numerical derivative
@@ -31,5 +31,5 @@ crit_needs(crit_rel_obj(1e-10))
 
 }
 \seealso{
-\code{\link{as_objective}}, \code{\link{crit_met}}, \code{\link{check_criterion}}
+\code{\link[=as_objective]{as_objective()}}, \code{\link[=crit_met]{crit_met()}}, \code{\link[=check_criterion]{check_criterion()}}
 }

@@ -7,13 +7,13 @@
 optimizer_class()
 }
 \value{
-The \code{\link{optimizer}} class object.
+The \code{\link[=optimizer]{optimizer()}} class object.
 }
 \description{
 The same, for the optimizer class itself.
 }
 \details{
-Wanted by \code{\link{multistart}} and \code{\link{check_optimizer}},
+Wanted by \code{\link[=multistart]{multistart()}} and \code{\link[=check_optimizer]{check_optimizer()}},
 both of which accept an arbitrary optimizer and must be able to say whether
 that is what they were given.
 }

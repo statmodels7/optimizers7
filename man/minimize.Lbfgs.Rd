@@ -6,10 +6,10 @@
 \arguments{
 \item{optimizer}{An \code{Lbfgs} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
 Minimize by Limited-Memory BFGS

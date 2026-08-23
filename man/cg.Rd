@@ -18,7 +18,7 @@ cg(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule; see \code{\link{crit_any}}.}
+\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
 
 \item{beta}{Which formula for the bend: \code{"pr"} (Polak–Ribière, the
 default), \code{"fr"} (Fletcher–Reeves), \code{"hs"} (Hestenes–Stiefel) or
@@ -48,7 +48,7 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{Cg}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 Nonlinear conjugate gradients: the direction is
@@ -63,7 +63,7 @@ and the methods differ only in the choice of \eqn{\beta}. On a quadratic with an
 exact line search the directions come out conjugate with respect to the
 Hessian, so the method terminates in \eqn{p} steps exactly — \emph{without
 ever forming that Hessian}, which is the point. The storage is two vectors
-against \code{\link{bfgs}}'s \eqn{p \times p} matrix.
+against \code{\link[=bfgs]{bfgs()}}'s \eqn{p \times p} matrix.
 
 \subsection{Choice of beta}{
 All four agree on a quadratic with an exact line search and differ everywhere
@@ -81,11 +81,11 @@ choices.
 The theory behind every one of these formulas assumes a step satisfying the
 \strong{strong} Wolfe conditions, and uses it to prove that the direction
 produced is a descent direction at all. Backtracking gives no such guarantee,
-so \code{\link{wolfe}} is the default and departing from it is departing
+so \code{\link[=wolfe]{wolfe()}} is the default and departing from it is departing
 from the theory.
 
-The constant matters as much as the search. \code{\link{wolfe}} defaults to
-\eqn{c_2 = 0.9}, which is right for \code{\link{bfgs}}, where the curvature
+The constant matters as much as the search. \code{\link[=wolfe]{wolfe()}} defaults to
+\eqn{c_2 = 0.9}, which is right for \code{\link[=bfgs]{bfgs()}}, where the curvature
 approximation repairs a loose step. Conjugate gradients has nothing to repair
 with: the accumulated conjugacy is only as good as the line search that
 produced it, and a loose one degrades it directly. Measured on Rosenbrock,
@@ -120,5 +120,5 @@ strong global convergence property. \emph{SIAM Journal on Optimization}
 \strong{10}, 177--182.
 }
 \seealso{
-\code{\link{gd}}, \code{\link{lbfgs}}, \code{\link{bb}}
+\code{\link[=gd]{gd()}}, \code{\link[=lbfgs]{lbfgs()}}, \code{\link[=bb]{bb()}}
 }

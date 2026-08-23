@@ -2,15 +2,15 @@
 NULL
 
 #' @title S7 Class for the Proximal Gradient Method
-#' @description The class \code{\link{prox_grad}} instantiates.
+#' @description The class [prox_grad()] instantiates.
 #' @param prox The proximal operator of the non-smooth part.
 #' @param g The value of the non-smooth part.
 #' @param accelerate Whether the momentum extrapolation is applied.
 #' @param step The initial step length.
 #' @param shrink The backtracking factor.
 #' @param restart Whether an increase in the objective resets the momentum.
-#' @return An S7 object inheriting from \code{\link{optimizer}}.
-#' @seealso \code{\link{prox_grad}}
+#' @return An S7 object inheriting from [optimizer()].
+#' @seealso [prox_grad()]
 #' @name ProxGrad-class
 #' @aliases ProxGrad
 #' @keywords internal
@@ -31,7 +31,7 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' Minimizes \eqn{f(x) + g(x)} where \eqn{f} is smooth and \eqn{g} is
 #' handled entirely through its proximal operator, so that a
 #' non-differentiable term is minimized without ever differencing it. With
-#' \code{accelerate = TRUE} the method is the accelerated one of Beck and
+#' `accelerate = TRUE` the method is the accelerated one of Beck and
 #' Teboulle, whose objective gap falls as \eqn{O(1/k^2)} against the
 #' \eqn{O(1/k)} of the plain iteration.
 #'
@@ -49,11 +49,11 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' \subsection{What the stopping rule reads}{
 #' The gradient of the total objective does not vanish at the solution --
 #' that is what non-differentiable means -- so this method reports the
-#' \strong{proximal gradient mapping}
+#' **proximal gradient mapping**
 #' \deqn{G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}}
 #' as its gradient, read at the iterate. It vanishes exactly at a
 #' stationary point of \eqn{f + g} and reduces to \eqn{\nabla f} when
-#' \eqn{g} is absent, so \code{\link{crit_grad}} keeps its meaning and
+#' \eqn{g} is absent, so [crit_grad()] keeps its meaning and
 #' its default tolerance. The accelerated variant pays one extra gradient
 #' per iteration for it, the extrapolated point at which it takes its step
 #' not being the point it reports.
@@ -62,50 +62,50 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' \subsection{Restarting}{
 #' Momentum makes the objective non-monotone, and an increase far from the
 #' solution is a symptom of momentum built in the wrong direction. With
-#' \code{restart = TRUE} an increase resets the extrapolation to the
+#' `restart = TRUE` an increase resets the extrapolation to the
 #' current point, which is the adaptive restart of O'Donoghue and Candes
 #' and costs one comparison per iteration.
 #' }
 #'
 #' @param prox The proximal operator of the non-smooth part, a function of
-#'   the point and the step length, \code{prox(v, step)}, returning the
+#'   the point and the step length, `prox(v, step)`, returning the
 #'   minimizer of \eqn{\lVert b - v \rVert^2/(2\,\mathrm{step}) + g(b)}.
-#'   \code{\link[penalties7]{penalty_prox}} supplies one for every penalty
+#'   [penalties7::penalty_prox()] supplies one for every penalty
 #'   that has it.
 #' @param g The value of the non-smooth part, a function of the point.
-#'   Required alongside \code{prox}: the two describe the same term, and
-#'   without \code{g} the reported objective would be the smooth part
+#'   Required alongside `prox`: the two describe the same term, and
+#'   without `g` the reported objective would be the smooth part
 #'   alone.
 #' @param accelerate Apply the momentum extrapolation? Defaults to
-#'   \code{TRUE}.
+#'   `TRUE`.
 #' @param step The initial step length offered to the backtracking search.
-#'   Defaults to \code{1}.
+#'   Defaults to `1`.
 #' @param shrink The factor by which a rejected step is reduced. Defaults
-#'   to \code{0.5}.
+#'   to `0.5`.
 #' @param restart Reset the momentum when the objective increases?
-#'   Defaults to \code{TRUE}, and is ignored when \code{accelerate} is
-#'   \code{FALSE}.
-#' @param criterion The stopping rule; see \code{\link{crit_any}}.
+#'   Defaults to `TRUE`, and is ignored when `accelerate` is
+#'   `FALSE`.
+#' @param criterion The stopping rule; see [crit_any()].
 #' @param maxit Maximum iterations. Defaults to 1000.
-#' @param max_eval Maximum objective evaluations. Defaults to \code{Inf}.
-#' @param verbose Report progress? Defaults to \code{FALSE}.
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`.
+#' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 20.
-#' @param keep_trace Store the iteration path? Defaults to \code{FALSE}.
+#' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
-#' @return An S7 object of class \code{\link{ProxGrad}}, to be handed to
-#'   \code{\link{minimize}}.
+#' @return An S7 object of class [ProxGrad()], to be handed to
+#'   [minimize()].
 #'
 #' @references
 #' Beck, A. and Teboulle, M. (2009). A fast iterative shrinkage-thresholding
-#' algorithm for linear inverse problems. \emph{SIAM Journal on Imaging
-#' Sciences}, 2(1), 183--202.
+#' algorithm for linear inverse problems. *SIAM Journal on Imaging
+#' Sciences*, 2(1), 183--202.
 #'
 #' O'Donoghue, B. and Candes, E. (2015). Adaptive restart for accelerated
-#' gradient schemes. \emph{Foundations of Computational Mathematics}, 15(3),
+#' gradient schemes. *Foundations of Computational Mathematics*, 15(3),
 #' 715--732.
 #'
-#' @seealso \code{\link{bundle}} for a non-smooth method that needs no
-#'   proximal operator, \code{\link{gd}} for the smooth case.
+#' @seealso [bundle()] for a non-smooth method that needs no
+#'   proximal operator, [gd()] for the smooth case.
 #'
 #' @examples
 #' # a lasso-penalized least squares problem, solved through the operator
@@ -167,10 +167,10 @@ S7::method(optimizer_bounded, ProxGrad) <- function(optimizer) FALSE
 
 #' @title Minimize by the Proximal Gradient Method
 #' @name minimize.ProxGrad
-#' @description Runs \code{\link{prox_grad}} on the objective.
-#' @param optimizer A \code{ProxGrad} object.
-#' @param fn,par,gr,he,lower,upper,... As in \code{\link{minimize}}.
-#' @return An \code{\link{optimizer_result}}.
+#' @description Runs [prox_grad()] on the objective.
+#' @param optimizer A `ProxGrad` object.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, ProxGrad) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -190,7 +190,7 @@ S7::method(minimize, ProxGrad) <-
 #' Run the Proximal Gradient Loop
 #'
 #' @description
-#' The iteration behind \code{\link{prox_grad}}: a backtracked gradient
+#' The iteration behind [prox_grad()]: a backtracked gradient
 #' step on the smooth part, the proximal operator applied to its result,
 #' and the momentum extrapolation with its restart.
 #'
@@ -200,11 +200,11 @@ S7::method(minimize, ProxGrad) <-
 #' functions supplied by the caller; the loop around them costs a fraction
 #' of a microsecond against those.
 #'
-#' @param optimizer A \code{ProxGrad} object.
-#' @param spec The objective handle from \code{\link{as_objective}}.
+#' @param optimizer A `ProxGrad` object.
+#' @param spec The objective handle from [as_objective()].
 #' @param par The starting point.
 #'
-#' @return A list in the shape \code{\link{build_result}} consumes.
+#' @return A list in the shape [build_result()] consumes.
 #'
 #' @keywords internal
 prox_grad_run <- function(optimizer, spec, par) {

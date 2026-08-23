@@ -7,7 +7,7 @@
 criterion_class()
 }
 \value{
-The \code{\link{criterion}} class object.
+The \code{\link[=criterion]{criterion()}} class object.
 }
 \description{
 Fetched rather than captured, so that the check above cannot be fooled by the
@@ -19,7 +19,7 @@ Comparing S7 classes with
 definition is not identical to the original. Under \pkg{covr}, which
 re-evaluates the code instead of loading it, that turned every numerical
 fallback into the chain of first differences the design exists to forbid --
-and the local suite, \code{R CMD check --as-cran} and a five-platform
+and the local suite, \verb{R CMD check --as-cran} and a five-platform
 matrix all passed. Only the coverage job failed.
 }
 \keyword{internal}

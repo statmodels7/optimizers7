@@ -52,7 +52,7 @@ no evaluation budget, so the run stops on the criterion or on
 }
 \value{
 An S7 object of class \code{NelderMead}, inheriting from
-\code{\link{optimizer}}.
+\code{\link[=optimizer]{optimizer()}}.
 }
 \description{
 The Nelder-Mead simplex method: \eqn{p+1} points are maintained and the
@@ -104,7 +104,7 @@ replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
 Rarely, and knowingly. If the objective is smooth, every gradient-based
 method here will beat it by orders of magnitude. Its place is an objective
 that is genuinely non-smooth or noisy and whose subgradients are not
-available; if they \emph{are} available, \code{\link{bundle}} is the better
+available; if they \emph{are} available, \code{\link[=bundle]{bundle()}} is the better
 tool, since it uses them and this uses nothing.
 }
 }
@@ -134,6 +134,6 @@ with adaptive parameters. \emph{Computational Optimization and Applications}
 \strong{51}, 259--277.
 }
 \seealso{
-\code{\link{compass}}, \code{\link{bundle}},
-\code{\link{crit_stationary}}
+\code{\link[=compass]{compass()}}, \code{\link[=bundle]{bundle()}},
+\code{\link[=crit_stationary]{crit_stationary()}}
 }

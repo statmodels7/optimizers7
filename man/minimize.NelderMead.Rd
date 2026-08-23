@@ -6,14 +6,14 @@
 \arguments{
 \item{optimizer}{A \code{NelderMead} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}. \code{gr} and
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and
 \code{he} are accepted and ignored: the method uses no derivative, and
 rejecting them would force calling code to branch on the algorithm.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Runs \code{\link{nelder_mead}} on the objective.
+Runs \code{\link[=nelder_mead]{nelder_mead()}} on the objective.
 }
 \keyword{internal}

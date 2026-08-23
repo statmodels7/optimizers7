@@ -4,45 +4,45 @@ NULL
 #' @title S7 Class for the Result of an Optimization
 #'
 #' @description
-#' What \code{\link{minimize}} returns: the answer, how it was reached, and
+#' What [minimize()] returns: the answer, how it was reached, and
 #' enough of the run to diagnose it when it was not reached.
 #'
 #' @param par The minimizer.
 #' @param value The objective there.
-#' @param gradient The gradient there, or \code{NULL} if the method computes none.
+#' @param gradient The gradient there, or `NULL` if the method computes none.
 #' @param counts Evaluations of the objective and of the gradient.
 #' @param iterations Iterations performed.
 #' @param converged Logical; see Details.
 #' @param criterion_met Which rule ended the run.
 #' @param message A human-readable account.
-#' @param trace The iteration path, or \code{NULL}.
-#' @param optimizer The \code{\link{optimizer}} that produced this, kept so the
+#' @param trace The iteration path, or `NULL`.
+#' @param optimizer The [optimizer()] that produced this, kept so the
 #'   run can be repeated exactly.
 #' @param elapsed Seconds.
 #' @param seed The state of the random number generator when the run began, for
-#'   a method that draws any, and \code{NULL} otherwise.
+#'   a method that draws any, and `NULL` otherwise.
 #'
 #' @details
-#' \code{converged} is \code{TRUE} only when the stopping rule was satisfied. It
-#' is \strong{never} \code{TRUE} because the iteration budget ran out — that is
+#' `converged` is `TRUE` only when the stopping rule was satisfied. It
+#' is **never** `TRUE` because the iteration budget ran out — that is
 #' the commonest defect in hand-written optimization loops, and it turns a
 #' failure into a silently wrong answer.
 #'
-#' \code{trace}, present when the optimizer was built with
-#' \code{keep_trace = TRUE}, records for each iteration the objective, the
+#' `trace`, present when the optimizer was built with
+#' `keep_trace = TRUE`, records for each iteration the objective, the
 #' quantity the criterion is watching, the step actually taken, and the name of
 #' any safeguard that fired. That last column is what turns "it did not
 #' converge" into a diagnosis.
 #'
-#' \code{seed} is filled in by the methods that draw random numbers -- a
-#' \code{"mads"} poll, a subsampling \code{\link{adam}}, a
-#' \code{\link{multistart}} generating its own starts. Assigning it back with
-#' \code{assign(".Random.seed", res@seed, globalenv())} reproduces the run
+#' `seed` is filled in by the methods that draw random numbers -- a
+#' `"mads"` poll, a subsampling [adam()], a
+#' [multistart()] generating its own starts. Assigning it back with
+#' `assign(".Random.seed", res@seed, globalenv())` reproduces the run
 #' exactly. A stochastic method that cannot be repeated is very hard to debug,
-#' and remembering to call \code{set.seed()} beforehand is not something anyone
+#' and remembering to call `set.seed()` beforehand is not something anyone
 #' does until the second time they need it.
 #'
-#' @return An S7 object of class \code{optimizer_result}.
+#' @return An S7 object of class `optimizer_result`.
 #'
 #' @examples
 #' res <- minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0, 0),
@@ -52,7 +52,7 @@ NULL
 #' res@criterion_met
 #' res@counts
 #'
-#' @seealso \code{\link{minimize}}
+#' @seealso [minimize()]
 #' @export
 optimizer_result <- S7::new_class(
   "optimizer_result",
@@ -81,7 +81,7 @@ optimizer_result <- S7::new_class(
 #' a minute, minutes and seconds below an hour, hours and minutes above.
 #'
 #' @param sec A single non-negative number of seconds.
-#' @return A character string, or \code{NA_character_} when \code{sec} is
+#' @return A character string, or `NA_character_` when `sec` is
 #'   missing or not finite.
 #' @keywords internal
 format_elapsed <- function(sec) {
@@ -103,12 +103,12 @@ format_elapsed <- function(sec) {
 #' @description
 #' Prints the objective value, the leading parameters, the evaluation counts,
 #' the elapsed time and the convergence status.
-#' @param x An \code{\link{optimizer_result}}.
+#' @param x An [optimizer_result()].
 #' @param digits Decimal places the parameters are rounded to. Defaults to 4.
 #' @param max_par How many parameters to show; any remainder is summarized as
 #'   a count. Defaults to 6.
 #' @param ... Unused.
-#' @return \code{x}, invisibly.
+#' @return `x`, invisibly.
 #' @examples
 #' res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
 #' print(res)
@@ -151,9 +151,9 @@ S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
 
 #' @title Summary Method for an Optimization Result
 #' @name summary.optimizer_result
-#' @param object An \code{\link{optimizer_result}}.
+#' @param object An [optimizer_result()].
 #' @param ... Unused.
-#' @return \code{object}, invisibly. Called for the printed summary.
+#' @return `object`, invisibly. Called for the printed summary.
 #' @examples
 #' res <- minimize(gd(keep_trace = TRUE),
 #'                 function(p) sum((p - 1:2)^2), c(0, 0))
@@ -183,10 +183,10 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 #'
 #' @description
 #' The objective against iteration, with any iteration at which a safeguard
-#' fired marked. Requires \code{keep_trace = TRUE}.
+#' fired marked. Requires `keep_trace = TRUE`.
 #'
-#' @param x An \code{\link{optimizer_result}}.
-#' @param ... Passed to \code{\link[graphics]{plot}}.
+#' @param x An [optimizer_result()].
+#' @param ... Passed to [graphics::plot()].
 #'
 #' @return No return value; called for the plot.
 #'

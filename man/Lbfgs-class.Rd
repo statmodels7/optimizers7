@@ -20,19 +20,19 @@ Lbfgs(
 )
 }
 \arguments{
-\item{step, line_search}{As in \code{\link{lbfgs}}.}
+\item{step, line_search}{As in \code{\link[=lbfgs]{lbfgs()}}.}
 
 \item{memory}{How many secant pairs to keep.}
 
 \item{curv_tol}{The curvature threshold below which a pair is not stored.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{lbfgs}} instantiates.
+The class \code{\link[=lbfgs]{lbfgs()}} instantiates.
 }
 \seealso{
-\code{\link{lbfgs}}
+\code{\link[=lbfgs]{lbfgs()}}
 }
 \keyword{internal}

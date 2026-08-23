@@ -11,7 +11,7 @@
 \item{...}{Unused.}
 }
 \value{
-An objective handle; see \code{\link{as_objective}}.
+An objective handle; see \code{\link[=as_objective]{as_objective()}}.
 }
 \description{
 The common case: \code{fn(par)} returns a number and, if supplied,

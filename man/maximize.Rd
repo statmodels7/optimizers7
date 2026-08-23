@@ -16,7 +16,7 @@ maximize(
 )
 }
 \arguments{
-\item{optimizer}{An \code{\link{optimizer}} object, carrying the algorithm and
+\item{optimizer}{An \code{\link[=optimizer]{optimizer()}} object, carrying the algorithm and
 its settings.}
 
 \item{fn}{The objective: a function of the parameter vector returning a
@@ -37,18 +37,18 @@ every parameter — or one value per parameter. Default \code{-Inf} and
 \item{...}{Passed to methods.}
 }
 \value{
-An \code{\link{optimizer_result}}, whose \code{value} and
+An \code{\link[=optimizer_result]{optimizer_result()}}, whose \code{value} and
 \code{gradient} refer to the original objective rather than the negated one.
 }
 \description{
-Runs \code{\link{minimize}} on the negated objective and reports the value
+Runs \code{\link[=minimize]{minimize()}} on the negated objective and reports the value
 with its sign restored.
 }
 \details{
 \deqn{\arg\max_{x} f(x) = \arg\min_{x} \{-f(x)\},
   \qquad \max_{x} f(x) = -\min_{x}\{-f(x)\},}
 
-so the point is the one \code{\link{minimize}} returns and the value, the
+so the point is the one \code{\link[=minimize]{minimize()}} returns and the value, the
 gradient and the traced objective have their sign restored.
 
 Every algorithm in the package minimizes, always; that is the convention and
@@ -61,5 +61,5 @@ maximize(gd(), function(p) -sum((p - c(1, 2))^2), c(0, 0))
 
 }
 \seealso{
-\code{\link{minimize}}
+\code{\link[=minimize]{minimize()}}
 }

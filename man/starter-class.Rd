@@ -14,10 +14,10 @@ starter(npar = NULL)
 An S7 object.
 }
 \description{
-The abstract parent of \code{\link{start_zeros}} and
-\code{\link{start_runif}}.
+The abstract parent of \code{\link[=start_zeros]{start_zeros()}} and
+\code{\link[=start_runif]{start_runif()}}.
 }
 \seealso{
-\code{\link{start_zeros}}, \code{\link{start_runif}}
+\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}}
 }
 \keyword{internal}

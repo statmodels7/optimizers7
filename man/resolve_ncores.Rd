@@ -25,8 +25,8 @@ and a machine with nothing left over is a machine that stops responding.
 Asking for more processes than there are starts wastes the cost of starting
 them, which on Windows is seconds rather than microseconds.
 
-It is capped at two under \code{R CMD check}, which sets
-\code{_R_CHECK_LIMIT_CORES_} and fails a package that ignores it, and it
+It is capped at two under \verb{R CMD check}, which sets
+\verb{_R_CHECK_LIMIT_CORES_} and fails a package that ignores it, and it
 falls back to one process where \code{detectCores()} cannot tell.
 }
 \keyword{internal}

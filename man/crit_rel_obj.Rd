@@ -10,7 +10,7 @@ crit_rel_obj(tol = 1e-12)
 \item{tol}{Numeric tolerance. Defaults to \code{1e-12}.}
 }
 \value{
-A \code{\link{criterion}} object.
+A \code{\link[=criterion]{criterion()}} object.
 }
 \description{
 The rule
@@ -26,5 +26,5 @@ crit_rel_obj()
 
 }
 \seealso{
-\code{\link{crit_abs_obj}}
+\code{\link[=crit_abs_obj]{crit_abs_obj()}}
 }

@@ -30,12 +30,12 @@ Compass(
 \item{expand, shrink}{Factors applied to the poll size.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{compass}} instantiates.
+The class \code{\link[=compass]{compass()}} instantiates.
 }
 \seealso{
-\code{\link{compass}}
+\code{\link[=compass]{compass()}}
 }
 \keyword{internal}

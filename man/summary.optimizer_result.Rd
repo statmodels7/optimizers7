@@ -4,7 +4,7 @@
 \alias{summary.optimizer_result}
 \title{Summary Method for an Optimization Result}
 \arguments{
-\item{object}{An \code{\link{optimizer_result}}.}
+\item{object}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 
 \item{...}{Unused.}
 }

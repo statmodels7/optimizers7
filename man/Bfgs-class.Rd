@@ -20,19 +20,19 @@ Bfgs(
 )
 }
 \arguments{
-\item{step, line_search}{As in \code{\link{bfgs}}.}
+\item{step, line_search}{As in \code{\link[=bfgs]{bfgs()}}.}
 
 \item{curv_tol}{The curvature threshold below which the update is skipped.}
 
 \item{max_skip}{Consecutive skips before the approximation is reset.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{bfgs}} instantiates.
+The class \code{\link[=bfgs]{bfgs()}} instantiates.
 }
 \seealso{
-\code{\link{bfgs}}
+\code{\link[=bfgs]{bfgs()}}
 }
 \keyword{internal}

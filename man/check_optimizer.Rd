@@ -12,9 +12,9 @@ check_optimizer(
 )
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}} to check.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to check.}
 
-\item{problems}{The battery; defaults to \code{\link{test_problems}()}.}
+\item{problems}{The battery; defaults to \code{\link[=test_problems]{test_problems()}}.}
 
 \item{verbose}{Print the report? Defaults to \code{TRUE}.}
 
@@ -49,7 +49,7 @@ value from a point it has since left is the kind of defect that survives
 every test written in terms of the value alone.
 \item the reported gradient is the gradient at \code{par}, checked only for
 optimizers that offer \code{"gradient"} to a stopping rule and so are
-claiming it is one. \code{\link{bundle}} reports an aggregate subgradient
+claiming it is one. \code{\link[=bundle]{bundle()}} reports an aggregate subgradient
 and does not make that claim, so it is not held to it.
 \item \code{converged} follows the stopping rule and is never inferred from
 the run having ended. Checked by starving the optimizer of iterations: a
@@ -65,7 +65,7 @@ usually to divide by it.
 \item the run repeats. A deterministic method must give the same answer
 twice; a stochastic one must give it again from the seed it recorded,
 which tests the recording as well as the repeatability.
-\item \code{\link{maximize}} is \code{\link{minimize}} of the negative.
+\item \code{\link[=maximize]{maximize()}} is \code{\link[=minimize]{minimize()}} of the negative.
 \item a stopping rule the optimizer cannot evaluate is rejected, rather than
 accepted and left never to fire.
 \item a starting point where the objective is not finite is an error, not a
@@ -80,7 +80,7 @@ and it is information rather than judgement. A large gap on
 \code{rastrigin} or \code{himmelblau} means the method found a different
 local minimum, which for a local method is correct behavior; a large gap on
 \code{abs_sum} means it was defeated by a kink, which is what
-\code{\link{bundle}} and the derivative-free methods are for.
+\code{\link[=bundle]{bundle()}} and the derivative-free methods are for.
 }
 }
 \examples{
@@ -92,5 +92,5 @@ check_optimizer(nelder_mead(), problems = test_problems("sphere"))
 
 }
 \seealso{
-\code{\link{test_problems}}, \code{\link{minimize}}
+\code{\link[=test_problems]{test_problems()}}, \code{\link[=minimize]{minimize()}}
 }

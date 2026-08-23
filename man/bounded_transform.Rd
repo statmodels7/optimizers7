@@ -17,7 +17,7 @@ A list with \code{h} (the parameter), \code{d1} and \code{d2}.
 }
 \description{
 Evaluates the reparametrization a set of bounds implies. This is how the
-package removes a box, and it is exported so that a \code{\link{minimize}}
+package removes a box, and it is exported so that a \code{\link[=minimize]{minimize()}}
 user-defined method can remove one the same way.
 }
 \details{
@@ -26,7 +26,7 @@ bound, a scaled logit for two, and the identity for neither. Optimize in
 \eqn{\eta} and every proposed point is admissible by construction.
 
 To honor \code{bounds} in a user-defined method: map the starting value with
-\code{\link{bounded_forward}}, run unconstrained, and wrap the objective so
+\code{\link[=bounded_forward]{bounded_forward()}}, run unconstrained, and wrap the objective so
 that it maps back before evaluating. The Jacobian is diagonal, so the chain
 rule is short —
 \eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'} —
@@ -51,5 +51,5 @@ bounded_transform(c(0, 1), bounded_forward(c(0, 1), c(0.1, 0.5, 0.9)))$h
 
 }
 \seealso{
-\code{\link{bounded_forward}}, \code{\link{minimize}}
+\code{\link[=bounded_forward]{bounded_forward()}}, \code{\link[=minimize]{minimize()}}
 }

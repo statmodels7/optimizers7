@@ -7,7 +7,7 @@
 with_trace(optimizer)
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 }
 \value{
 An optimizer of the same class.

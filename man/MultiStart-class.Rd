@@ -35,12 +35,12 @@ MultiStart(
 \item{distinct_tol}{Objective values closer than this count as one optimum.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{multistart}} instantiates.
+The class \code{\link[=multistart]{multistart()}} instantiates.
 }
 \seealso{
-\code{\link{multistart}}
+\code{\link[=multistart]{multistart()}}
 }
 \keyword{internal}

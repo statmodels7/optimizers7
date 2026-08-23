@@ -35,12 +35,12 @@ ProxGrad(
 \item{restart}{Whether an increase in the objective resets the momentum.}
 }
 \value{
-An S7 object inheriting from \code{\link{optimizer}}.
+An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
 }
 \description{
-The class \code{\link{prox_grad}} instantiates.
+The class \code{\link[=prox_grad]{prox_grad()}} instantiates.
 }
 \seealso{
-\code{\link{prox_grad}}
+\code{\link[=prox_grad]{prox_grad()}}
 }
 \keyword{internal}

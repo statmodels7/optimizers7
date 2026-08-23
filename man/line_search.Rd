@@ -30,16 +30,16 @@ every subclass guarantees is \emph{sufficient decrease}, Armijo's condition
 
 which asks for a fraction \eqn{c_1} of the decrease the linear model
 predicts and so rules out steps that shrink the objective by an amount
-vanishing faster than the step itself. \code{\link{wolfe}} adds the strong
+vanishing faster than the step itself. \code{\link[=wolfe]{wolfe()}} adds the strong
 curvature condition
 
 \deqn{\lvert \nabla f(x + s d)^\top d \rvert \le c_2 \lvert g^\top d \rvert,
   \qquad c_1 < c_2 < 1,}
 
 which excludes steps too short to have moved the directional derivative and
-is what makes the secant pair of \code{\link{bfgs}} carry usable curvature.
+is what makes the secant pair of \code{\link[=bfgs]{bfgs()}} carry usable curvature.
 
-The class is abstract; use \code{\link{armijo}} or \code{\link{wolfe}}.
+The class is abstract; use \code{\link[=armijo]{armijo()}} or \code{\link[=wolfe]{wolfe()}}.
 }
 \examples{
 # Abstract: use one of the constructors.
@@ -56,5 +56,5 @@ minimize(bfgs(line_search = wolfe()), f, c(0, 0), gr = g)@counts
 
 }
 \seealso{
-\code{\link{armijo}}, \code{\link{wolfe}}
+\code{\link[=armijo]{armijo()}}, \code{\link[=wolfe]{wolfe()}}
 }

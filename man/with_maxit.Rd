@@ -9,7 +9,7 @@
 with_maxit(optimizer, maxit)
 }
 \arguments{
-\item{optimizer}{The \code{\link{optimizer}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
 \item{maxit}{The new budget.}
 }

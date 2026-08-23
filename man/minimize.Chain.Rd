@@ -6,11 +6,11 @@
 \arguments{
 \item{optimizer}{A \code{Chain} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link{minimize}}, passed to
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}, passed to
 every stage.}
 }
 \value{
-An \code{\link{optimizer_result}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
 Runs each stage from where the previous one finished.

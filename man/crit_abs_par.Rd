@@ -10,7 +10,7 @@ crit_abs_par(tol = 1e-08)
 \item{tol}{Numeric tolerance. Defaults to \code{1e-8}.}
 }
 \value{
-A \code{\link{criterion}} object.
+A \code{\link[=criterion]{criterion()}} object.
 }
 \description{
 The rule \eqn{\max_j \lvert x_j^{new} - x_j^{old} \rvert < \texttt{tol}}.
@@ -20,5 +20,5 @@ crit_abs_par()
 
 }
 \seealso{
-\code{\link{crit_rel_par}}
+\code{\link[=crit_rel_par]{crit_rel_par()}}
 }

@@ -7,7 +7,7 @@
 optimizer_provides(optimizer)
 }
 \arguments{
-\item{optimizer}{An \code{\link{optimizer}}.}
+\item{optimizer}{An \code{\link[=optimizer]{optimizer()}}.}
 }
 \value{
 A character vector. The names the shipped criteria read are
@@ -15,7 +15,7 @@ A character vector. The names the shipped criteria read are
 }
 \description{
 The names of the \code{state} components an optimizer is able to fill in, so
-that \code{\link{check_criterion}} can reject a rule it could never satisfy.
+that \code{\link[=check_criterion]{check_criterion()}} can reject a rule it could never satisfy.
 }
 \details{
 Gradient-based methods provide a gradient. The derivative-free ones provide
@@ -33,5 +33,5 @@ optimizer_provides(nelder_mead())
 
 }
 \seealso{
-\code{\link{check_criterion}}, \code{\link{crit_needs}}
+\code{\link[=check_criterion]{check_criterion()}}, \code{\link[=crit_needs]{crit_needs()}}
 }

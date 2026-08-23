@@ -32,5 +32,5 @@ str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 
 }
 \seealso{
-\code{\link{crit_met}}, \code{\link{crit_needs}}, \code{\link{check_criterion}}
+\code{\link[=crit_met]{crit_met()}}, \code{\link[=crit_needs]{crit_needs()}}, \code{\link[=check_criterion]{check_criterion()}}
 }
