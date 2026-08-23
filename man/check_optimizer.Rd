@@ -72,6 +72,7 @@ accepted and left never to fire.
 run that quietly returns \code{NaN}.
 \item it minimizes a quadratic.
 }
+
 }
 
 \subsection{The problem battery}{

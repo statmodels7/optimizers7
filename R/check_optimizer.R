@@ -29,35 +29,35 @@ NULL
 #' optimizer minimizes a quadratic. That is a floor no correct method can fail.
 #'
 #' \subsection{The checks}{
-#' \enumerate{
-#'   \item `value` is the objective at `par`. A method that reports a
-#'     value from a point it has since left is the kind of defect that survives
-#'     every test written in terms of the value alone.
-#'   \item the reported gradient is the gradient at `par`, checked only for
-#'     optimizers that offer `"gradient"` to a stopping rule and so are
-#'     claiming it is one. [bundle()] reports an aggregate subgradient
-#'     and does not make that claim, so it is not held to it.
-#'   \item `converged` follows the stopping rule and is never inferred from
-#'     the run having ended. Checked by starving the optimizer of iterations: a
-#'     run cut off after one must not report success.
-#'   \item budgets are respected — `iterations` never exceeds `maxit`.
-#'   \item evaluations are counted; a method reporting zero of them did not
-#'     evaluate anything.
-#'   \item the trace, when kept, is a data frame whose iteration numbers run
-#'     from one and increase.
-#'   \item bounds are respected **strictly**: a probability of exactly 1 is
-#'     not a probability inside \eqn{(0, 1)}, and the caller's next act is
-#'     usually to divide by it.
-#'   \item the run repeats. A deterministic method must give the same answer
-#'     twice; a stochastic one must give it again from the seed it recorded,
-#'     which tests the recording as well as the repeatability.
-#'   \item [maximize()] is [minimize()] of the negative.
-#'   \item a stopping rule the optimizer cannot evaluate is rejected, rather than
+#'
+#' 1. `value` is the objective at `par`. A method that reports a
+#'    value from a point it has since left is the kind of defect that survives
+#'    every test written in terms of the value alone.
+#' 2. the reported gradient is the gradient at `par`, checked only for
+#'    optimizers that offer `"gradient"` to a stopping rule and so are
+#'    claiming it is one. [bundle()] reports an aggregate subgradient
+#'    and does not make that claim, so it is not held to it.
+#' 3. `converged` follows the stopping rule and is never inferred from
+#'    the run having ended. Checked by starving the optimizer of iterations: a
+#'    run cut off after one must not report success.
+#' 4. budgets are respected — `iterations` never exceeds `maxit`.
+#' 5. evaluations are counted; a method reporting zero of them did not
+#'    evaluate anything.
+#' 6. the trace, when kept, is a data frame whose iteration numbers run
+#'    from one and increase.
+#' 7. bounds are respected **strictly**: a probability of exactly 1 is
+#'    not a probability inside \eqn{(0, 1)}, and the caller's next act is
+#'    usually to divide by it.
+#' 8. the run repeats. A deterministic method must give the same answer
+#'    twice; a stochastic one must give it again from the seed it recorded,
+#'    which tests the recording as well as the repeatability.
+#' 9. [maximize()] is [minimize()] of the negative.
+#' 10. a stopping rule the optimizer cannot evaluate is rejected, rather than
 #'     accepted and left never to fire.
-#'   \item a starting point where the objective is not finite is an error, not a
+#' 11. a starting point where the objective is not finite is an error, not a
 #'     run that quietly returns `NaN`.
-#'   \item it minimizes a quadratic.
-#' }
+#' 12. it minimizes a quadratic.
+#'
 #' }
 #'
 #' \subsection{The problem battery}{
