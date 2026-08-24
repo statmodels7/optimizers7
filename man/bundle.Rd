@@ -147,8 +147,7 @@ Left alone the bundle grows without limit. When it reaches \code{bundle_size}
 the oldest linearizations are replaced by the \emph{aggregate}, the single
 affine function the subproblem's solution defines. Discarding them instead
 would lose what they knew and can stall the method; the aggregate keeps a
-summary of all of it in one element, which is what keeps a bounded bundle
-safe.
+summary of all of it in one element, so a bounded bundle stays safe.
 }
 
 \section{Convexity requirement}{

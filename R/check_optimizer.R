@@ -407,10 +407,10 @@ S7::method(with_trace, optimizer) <- function(optimizer)
 #' ```r
 #' ms <- multistart(bfgs(), n = 3)
 #' with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
-#' # "|df| < 1e-04"  -- the inner rule changed too
+#' # "|df| < 1e-04"  (the inner rule changed too)
 #'
 #' S7::set_props(ms, criterion = crit_abs_obj(1e-4))@optimizer@criterion@label
-#' # "gradient (max-norm) < 1e-06 or ..."  -- unchanged
+#' # "gradient (max-norm) < 1e-06 or ..."  (unchanged)
 #' ```
 #'
 #' [chain()] has a method of its own for the same reason, its reported rule
