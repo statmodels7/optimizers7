@@ -17,90 +17,127 @@ multistart(
 )
 }
 \arguments{
-\item{optimizer}{The optimizer to run. Any of them, including another
-\code{multistart()}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to run, any of them, including another
+\code{multistart()}. Anything else raises an error naming \code{bfgs()} as an
+example.}
 
-\item{n}{How many starts, the user's own \code{par} among them. Defaults
-to \code{10}.}
+\item{n}{How many starts, the caller's own \code{par} among them. Defaults to
+\code{10}. It becomes the wrapper's \code{maxit}, so \code{n = 0} is refused with a
+message naming \code{maxit}.}
 
 \item{starts}{An optional matrix of starting points, one per row, used
-verbatim; \code{n} and \code{spread} are then ignored.}
+verbatim; \code{n} and \code{spread} are then ignored and \code{n} is taken from the
+number of rows. A matrix whose column count does not match the parameter
+vector is refused when the run starts, naming both.}
 
 \item{spread}{How widely the random starts are scattered, in units of the
 unconstrained scale. Defaults to \code{1}.}
 
 \item{ncores}{How many processes to spread the starts over. Defaults to
-\code{NULL}, meaning \code{min(n, parallel::detectCores() - 2)}. Pass
-\code{1} for a sequential run.}
+\code{NULL}, meaning \code{min(n, max(1, parallel::detectCores() - 2))}. Pass \code{1}
+for a sequential run; the answer does not depend on the value.}
 
-\item{distinct_tol}{Objective values differing by less than this are counted
-as the same optimum. Defaults to \code{1e-6}.}
+\item{distinct_tol}{Objective values differing by less than this count as
+the same optimum. Defaults to \code{1e-6}.}
 
 \item{verbose}{Report each start as it finishes? Defaults to \code{FALSE}.}
 
 \item{refresh}{Report every this many starts. Defaults to \code{1}.}
 
-\item{keep_trace}{Keep the per-start summary? Defaults to \code{TRUE} — it is
-one row per start, not one per iteration.}
+\item{keep_trace}{Keep the per-start summary? Defaults to \code{TRUE}, unlike
+every other optimizer, because here the trace is one row per \strong{start}
+and not one per iteration.}
 }
 \value{
-An S7 object of class \code{MultiStart}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{MultiStart}, inheriting from \code{\link[=optimizer]{optimizer()}},
+to be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-Wraps any optimizer and runs it from several starts, returning the best
-result together with the number of distinct answers found.
+Wraps any optimizer and runs it from several starting points, returning
+the best result together with the number of \strong{distinct optima} found. That
+count is evidence about the objective that no single run can supply: it
+says whether the surface has one minimum or several.
 }
-\details{
-Every method in this package finds a local minimum. Running from several
-starting points is the general remedy, and beyond the best point found it
-reports the \strong{count of distinct optima}, which is evidence about
-whether the objective has a single minimum at all.
+\section{What the result reports}{
+The result is the best run, with everything that run carried. The
+per-start summary is in \code{trace}, one row each with the columns \code{start},
+\code{value}, \code{converged} and \code{iterations}. The \code{message} counts the starts
+that succeeded, the ones that converged, the distinct optima found and how
+often the best was reached, as in
 
-The result is the best run, with everything it carried. The per-start summary
-is in \code{trace}: one row each, with the value reached, whether that start
-converged, and how many iterations it took. The message counts the starts that
-succeeded, the ones that converged, and the distinct optima found.
+\if{html}{\out{<div class="sourceCode">}}\preformatted{12 starts, 12 succeeded, 12 converged, 2 distinct optima;
+the best was found 6 times.
+}\if{html}{\out{</div>}}
 
-\subsection{Starting points}{
-The first starting point is always \code{par}. The remaining \code{n - 1}
-form a Latin hypercube: each coordinate's range is divided into equal strata
-and each stratum is used exactly once, which spreads the starts more evenly
-than independent draws. They are generated on the \emph{unconstrained} scale
-and mapped back through the bounds, so every start is admissible by
-construction.
+The count is computed by sorting the values reached and cutting wherever
+consecutive ones differ by more than \code{distinct_tol}.
 }
 
-\subsection{Parallel execution}{
-The starts are independent and are run in parallel over \code{ncores}
-processes. The default is \code{min(n, max(1, parallel::detectCores() - 2))}.
-Worker creation, package loading, random-stream assignment and shutdown are
-handled internally: on Unix-alikes the workers are forks, on Windows a socket
-cluster, and if the workers cannot load the package the run warns and
-proceeds sequentially. Processes are used rather than threads because the
-stopping rule is an R object consulted at every iteration, and R cannot be
-called from multiple threads.
+\section{Starting points}{
+The first starting point is always \code{par}. The remaining \eqn{n - 1} form a
+Latin hypercube: each coordinate's range is divided into equal strata and
+each stratum is used exactly once, which spreads the starts more evenly
+than independent draws would. They are generated on the \strong{unconstrained}
+scale and mapped back through the bounds, so every start is admissible by
+construction however tight the box.
+}
+
+\section{Parallel execution}{
+The starts are independent and are run over \code{ncores} processes. Worker
+creation, package loading, random-stream assignment and shutdown are
+handled internally: on Unix-alikes the workers are forks, on Windows a
+socket cluster. If the workers cannot load the package the run warns and
+proceeds sequentially, which is what happens under \code{pkgload}, the workers
+being separate sessions that do not inherit this one's loaded packages.
+
+Processes are used and not threads because the stopping rule is an R
+object consulted at every iteration, and R cannot be called from several
+threads.
 
 The starting points are drawn in the calling session before dispatch, and
 each worker receives a random stream derived from the session's seed, so
-\code{\link[=set.seed]{set.seed()}} reproduces the run identically for any value of
-\code{ncores} and on any platform.
+\code{\link[=set.seed]{set.seed()}} reproduces the run identically at any \code{ncores}: measured on
+the example below, \code{ncores} of 1, 2 and 4 give \code{-0.3054284837} and the
+same distinct count.
 }
 
-\subsection{Failed starts}{
+\section{Failed starts}{
 A start where the objective is undefined is recorded as failed and the
-remaining starts proceed; an error is raised only when every start fails.
+rest proceed; the \code{message} then reports how many succeeded and quotes the
+first failure. An error is raised only when \strong{every} start fails, and it
+quotes the first message.
 }
-}
+
 \examples{
 multistart(bfgs())
 
-# a surface with two minima, one of them better
+# A surface with two minima, one of them better. A single run from the
+# origin happens to find the good one; the count is what says there is
+# another.
 f <- function(p) (p[1]^2 - 1)^2 + p[2]^2 + 0.3 * p[1]
 set.seed(1)
 r <- minimize(multistart(bfgs(), n = 12), f, c(0, 0))
 r@message
 table(round(r@trace$value, 6))
+r@par
+
+# The answer does not depend on how many processes ran it.
+set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, ncores = 1), f, c(0, 0))
+set.seed(11); many <- minimize(multistart(bfgs(), n = 8, ncores = 2), f, c(0, 0))
+identical(one@value, many@value)
+
+# A start where the objective is undefined is recorded, not fatal.
+g <- function(p) if (p[1] > 0.5) stop("undefined here") else sum(p^2)
+set.seed(3)
+minimize(multistart(bfgs(), n = 8, ncores = 1), g, c(0, 0))@message
+
+# Every start failing is fatal, and the message says why.
+try(minimize(multistart(bfgs(), n = 4, ncores = 1),
+             function(p) stop("never works"), c(0, 0)))
+
+# Starting points may be given outright, and then n is the row count.
+S <- rbind(c(-2, 0), c(2, 0), c(0, 3))
+minimize(multistart(bfgs(), starts = S, ncores = 1), f, c(0, 0))@trace
 
 }
 \references{
@@ -110,5 +147,7 @@ in the analysis of output from a computer code.
 \emph{Technometrics} \strong{21}, 239--245.
 }
 \seealso{
-\code{\link[=minimize]{minimize()}}, \code{\link[=bfgs]{bfgs()}}
+\code{\link[=chain]{chain()}} for running optimizers in sequence rather than in
+parallel, \code{\link[=sa]{sa()}} for a global search that needs no restarts,
+\code{\link[=start_runif]{start_runif()}} for the other way of generating starting points.
 }

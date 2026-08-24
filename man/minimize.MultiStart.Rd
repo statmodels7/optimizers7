@@ -6,13 +6,26 @@
 \arguments{
 \item{optimizer}{A \code{MultiStart} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{par} is the first
+starting point and is used as given; the rest are generated around it.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}: the best run, with the per-start
-summary in its \code{trace}.
+An \code{\link[=optimizer_result]{optimizer_result()}}: the best run, carrying its own \code{par},
+\code{value}, \code{gradient} and \code{converged}, with the per-start summary in
+\code{trace} and the counts in \code{message}. \code{seed} is the state the whole run
+began from.
 }
 \description{
-Runs \code{\link[=multistart]{multistart()}} on the objective.
+Runs \code{\link[=multistart]{multistart()}} on the objective: generate or take the starting
+points, run the inner optimizer from each, and assemble the best.
+}
+\details{
+Three things happen before the first start runs. The objective and the
+bounds are validated \strong{once}, so a bad criterion or a start outside its
+box is refused before \eqn{n} runs are launched rather than \eqn{n} times
+over. The generator state is captured for the result's \code{seed}. And the
+gradient-consistency check is switched off for the duration, the generic
+having already made it at the caller's \code{par}; without that the same
+warning would print once per start.
 }
 \keyword{internal}

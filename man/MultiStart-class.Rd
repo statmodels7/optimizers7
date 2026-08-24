@@ -22,25 +22,43 @@ MultiStart(
 )
 }
 \arguments{
-\item{optimizer}{The inner optimizer, run from each starting point.}
+\item{optimizer}{The inner \code{\link[=optimizer]{optimizer()}}, run from each starting point.}
 
 \item{n}{How many starts.}
 
-\item{starts}{An optional matrix of starting points.}
+\item{starts}{An optional matrix of starting points, one per row.}
 
 \item{spread}{How widely the random starts are scattered.}
 
 \item{ncores}{How many processes the starts are spread over.}
 
-\item{distinct_tol}{Objective values closer than this count as one optimum.}
+\item{distinct_tol}{Objective values closer than this count as one
+optimum.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{MultiStart} inheriting from \code{\link[=optimizer]{optimizer()}},
+with the six properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=multistart]{multistart()}} instantiates.
+An optimizer wrapping another and running it from several starting points.
+Built by \code{\link[=multistart]{multistart()}}. Its seven shared properties describe the wrapper
+and not the inner run: \code{criterion}, \code{max_eval} and the rest are copied
+from the optimizer inside so that printing tells the truth, while \code{maxit}
+counts \strong{starts} rather than iterations.
+}
+\details{
+Beyond the seven shared properties a \code{MultiStart} carries six of its own:
+\code{optimizer} is the one being wrapped, \code{n}, \code{starts} and \code{spread} say where
+the runs begin, \code{ncores} how they are spread over processes, and
+\code{distinct_tol} how close two answers must be to count as one.
+
+Because the rule that is evaluated belongs to the inner optimizer,
+\code{\link[=with_criterion]{with_criterion()}} has a method for this class that sets both; setting the
+outer property alone changes the printing and nothing else.
 }
 \seealso{
-\code{\link[=multistart]{multistart()}}
+\code{\link[=multistart]{multistart()}} for the constructor, \code{\link[=chain]{chain()}} for the other
+wrapper, \code{\link[=with_criterion]{with_criterion()}} for why setting the outer rule is not
+enough.
 }
 \keyword{internal}

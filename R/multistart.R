@@ -5,15 +5,38 @@
 NULL
 
 #' @title S7 Class for Multi-Start
-#' @description The class [multistart()] instantiates.
-#' @param optimizer The inner optimizer, run from each starting point.
+#'
+#' @description
+#' An optimizer wrapping another and running it from several starting points.
+#' Built by [multistart()]. Its seven shared properties describe the wrapper
+#' and not the inner run: `criterion`, `max_eval` and the rest are copied
+#' from the optimizer inside so that printing tells the truth, while `maxit`
+#' counts **starts** rather than iterations.
+#'
+#' @details
+#' Beyond the seven shared properties a `MultiStart` carries six of its own:
+#' `optimizer` is the one being wrapped, `n`, `starts` and `spread` say where
+#' the runs begin, `ncores` how they are spread over processes, and
+#' `distinct_tol` how close two answers must be to count as one.
+#'
+#' Because the rule that is evaluated belongs to the inner optimizer,
+#' [with_criterion()] has a method for this class that sets both; setting the
+#' outer property alone changes the printing and nothing else.
+#'
+#' @param optimizer The inner [optimizer()], run from each starting point.
 #' @param n How many starts.
-#' @param starts An optional matrix of starting points.
+#' @param starts An optional matrix of starting points, one per row.
 #' @param spread How widely the random starts are scattered.
 #' @param ncores How many processes the starts are spread over.
-#' @param distinct_tol Objective values closer than this count as one optimum.
-#' @return An S7 object inheriting from [optimizer()].
-#' @seealso [multistart()]
+#' @param distinct_tol Objective values closer than this count as one
+#'   optimum.
+#'
+#' @return An S7 object of class `MultiStart` inheriting from [optimizer()],
+#'   with the six properties above beside the seven shared ones.
+#'
+#' @seealso [multistart()] for the constructor, [chain()] for the other
+#'   wrapper, [with_criterion()] for why setting the outer rule is not
+#'   enough.
 #' @name MultiStart-class
 #' @aliases MultiStart
 #' @keywords internal
@@ -31,82 +54,123 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' @title Run an Optimizer From Many Starting Points
 #'
 #' @description
-#' Wraps any optimizer and runs it from several starts, returning the best
-#' result together with the number of distinct answers found.
+#' Wraps any optimizer and runs it from several starting points, returning
+#' the best result together with the number of **distinct optima** found. That
+#' count is evidence about the objective that no single run can supply: it
+#' says whether the surface has one minimum or several.
 #'
-#' @param optimizer The optimizer to run. Any of them, including another
-#'   `multistart()`.
-#' @param n How many starts, the user's own `par` among them. Defaults
-#'   to `10`.
+#' @param optimizer The [optimizer()] to run, any of them, including another
+#'   `multistart()`. Anything else raises an error naming `bfgs()` as an
+#'   example.
+#' @param n How many starts, the caller's own `par` among them. Defaults to
+#'   `10`. It becomes the wrapper's `maxit`, so `n = 0` is refused with a
+#'   message naming `maxit`.
 #' @param starts An optional matrix of starting points, one per row, used
-#'   verbatim; `n` and `spread` are then ignored.
+#'   verbatim; `n` and `spread` are then ignored and `n` is taken from the
+#'   number of rows. A matrix whose column count does not match the parameter
+#'   vector is refused when the run starts, naming both.
 #' @param spread How widely the random starts are scattered, in units of the
 #'   unconstrained scale. Defaults to `1`.
 #' @param ncores How many processes to spread the starts over. Defaults to
-#'   `NULL`, meaning `min(n, parallel::detectCores() - 2)`. Pass
-#'   `1` for a sequential run.
-#' @param distinct_tol Objective values differing by less than this are counted
-#'   as the same optimum. Defaults to `1e-6`.
+#'   `NULL`, meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass `1`
+#'   for a sequential run; the answer does not depend on the value.
+#' @param distinct_tol Objective values differing by less than this count as
+#'   the same optimum. Defaults to `1e-6`.
 #' @param verbose Report each start as it finishes? Defaults to `FALSE`.
 #' @param refresh Report every this many starts. Defaults to `1`.
-#' @param keep_trace Keep the per-start summary? Defaults to `TRUE` — it is
-#'   one row per start, not one per iteration.
+#' @param keep_trace Keep the per-start summary? Defaults to `TRUE`, unlike
+#'   every other optimizer, because here the trace is one row per **start**
+#'   and not one per iteration.
 #'
 #' @details
-#' Every method in this package finds a local minimum. Running from several
-#' starting points is the general remedy, and beyond the best point found it
-#' reports the **count of distinct optima**, which is evidence about
-#' whether the objective has a single minimum at all.
+#' # What the result reports
 #'
-#' The result is the best run, with everything it carried. The per-start summary
-#' is in `trace`: one row each, with the value reached, whether that start
-#' converged, and how many iterations it took. The message counts the starts that
-#' succeeded, the ones that converged, and the distinct optima found.
+#' The result is the best run, with everything that run carried. The
+#' per-start summary is in `trace`, one row each with the columns `start`,
+#' `value`, `converged` and `iterations`. The `message` counts the starts
+#' that succeeded, the ones that converged, the distinct optima found and how
+#' often the best was reached, as in
 #'
-#' \subsection{Starting points}{
-#' The first starting point is always `par`. The remaining `n - 1`
-#' form a Latin hypercube: each coordinate's range is divided into equal strata
-#' and each stratum is used exactly once, which spreads the starts more evenly
-#' than independent draws. They are generated on the *unconstrained* scale
-#' and mapped back through the bounds, so every start is admissible by
-#' construction.
-#' }
+#' ```
+#' 12 starts, 12 succeeded, 12 converged, 2 distinct optima;
+#' the best was found 6 times.
+#' ```
 #'
-#' \subsection{Parallel execution}{
-#' The starts are independent and are run in parallel over `ncores`
-#' processes. The default is `min(n, max(1, parallel::detectCores() - 2))`.
-#' Worker creation, package loading, random-stream assignment and shutdown are
-#' handled internally: on Unix-alikes the workers are forks, on Windows a socket
-#' cluster, and if the workers cannot load the package the run warns and
-#' proceeds sequentially. Processes are used rather than threads because the
-#' stopping rule is an R object consulted at every iteration, and R cannot be
-#' called from multiple threads.
+#' The count is computed by sorting the values reached and cutting wherever
+#' consecutive ones differ by more than `distinct_tol`.
+#'
+#' # Starting points
+#'
+#' The first starting point is always `par`. The remaining \eqn{n - 1} form a
+#' Latin hypercube: each coordinate's range is divided into equal strata and
+#' each stratum is used exactly once, which spreads the starts more evenly
+#' than independent draws would. They are generated on the **unconstrained**
+#' scale and mapped back through the bounds, so every start is admissible by
+#' construction however tight the box.
+#'
+#' # Parallel execution
+#'
+#' The starts are independent and are run over `ncores` processes. Worker
+#' creation, package loading, random-stream assignment and shutdown are
+#' handled internally: on Unix-alikes the workers are forks, on Windows a
+#' socket cluster. If the workers cannot load the package the run warns and
+#' proceeds sequentially, which is what happens under `pkgload`, the workers
+#' being separate sessions that do not inherit this one's loaded packages.
+#'
+#' Processes are used and not threads because the stopping rule is an R
+#' object consulted at every iteration, and R cannot be called from several
+#' threads.
 #'
 #' The starting points are drawn in the calling session before dispatch, and
 #' each worker receives a random stream derived from the session's seed, so
-#' [set.seed()] reproduces the run identically for any value of
-#' `ncores` and on any platform.
-#' }
+#' [set.seed()] reproduces the run identically at any `ncores`: measured on
+#' the example below, `ncores` of 1, 2 and 4 give `-0.3054284837` and the
+#' same distinct count.
 #'
-#' \subsection{Failed starts}{
+#' # Failed starts
+#'
 #' A start where the objective is undefined is recorded as failed and the
-#' remaining starts proceed; an error is raised only when every start fails.
-#' }
+#' rest proceed; the `message` then reports how many succeeded and quotes the
+#' first failure. An error is raised only when **every** start fails, and it
+#' quotes the first message.
 #'
-#' @return An S7 object of class `MultiStart`, inheriting from
-#'   [optimizer()].
+#' @return An S7 object of class [MultiStart], inheriting from [optimizer()],
+#'   to be handed to [minimize()].
 #'
 #' @examples
 #' multistart(bfgs())
 #'
-#' # a surface with two minima, one of them better
+#' # A surface with two minima, one of them better. A single run from the
+#' # origin happens to find the good one; the count is what says there is
+#' # another.
 #' f <- function(p) (p[1]^2 - 1)^2 + p[2]^2 + 0.3 * p[1]
 #' set.seed(1)
 #' r <- minimize(multistart(bfgs(), n = 12), f, c(0, 0))
 #' r@message
 #' table(round(r@trace$value, 6))
+#' r@par
 #'
-#' @seealso [minimize()], [bfgs()]
+#' # The answer does not depend on how many processes ran it.
+#' set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, ncores = 1), f, c(0, 0))
+#' set.seed(11); many <- minimize(multistart(bfgs(), n = 8, ncores = 2), f, c(0, 0))
+#' identical(one@value, many@value)
+#'
+#' # A start where the objective is undefined is recorded, not fatal.
+#' g <- function(p) if (p[1] > 0.5) stop("undefined here") else sum(p^2)
+#' set.seed(3)
+#' minimize(multistart(bfgs(), n = 8, ncores = 1), g, c(0, 0))@message
+#'
+#' # Every start failing is fatal, and the message says why.
+#' try(minimize(multistart(bfgs(), n = 4, ncores = 1),
+#'              function(p) stop("never works"), c(0, 0)))
+#'
+#' # Starting points may be given outright, and then n is the row count.
+#' S <- rbind(c(-2, 0), c(2, 0), c(0, 3))
+#' minimize(multistart(bfgs(), starts = S, ncores = 1), f, c(0, 0))@trace
+#'
+#' @seealso [chain()] for running optimizers in sequence rather than in
+#'   parallel, [sa()] for a global search that needs no restarts,
+#'   [start_runif()] for the other way of generating starting points.
 #' @references
 #' McKay, M. D., Beckman, R. J. and Conover, W. J. (1979). A
 #' comparison of three methods for selecting values of input variables
@@ -231,11 +295,29 @@ make_starts <- function(par, n, spread, bounds) {
 
 #' @title Minimize From Many Starting Points
 #' @name minimize.MultiStart
-#' @description Runs [multistart()] on the objective.
+#'
+#' @description
+#' Runs [multistart()] on the objective: generate or take the starting
+#' points, run the inner optimizer from each, and assemble the best.
+#'
+#' @details
+#' Three things happen before the first start runs. The objective and the
+#' bounds are validated **once**, so a bad criterion or a start outside its
+#' box is refused before \eqn{n} runs are launched rather than \eqn{n} times
+#' over. The generator state is captured for the result's `seed`. And the
+#' gradient-consistency check is switched off for the duration, the generic
+#' having already made it at the caller's `par`; without that the same
+#' warning would print once per start.
+#'
 #' @param optimizer A `MultiStart` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
-#' @return An [optimizer_result()]: the best run, with the per-start
-#'   summary in its `trace`.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `par` is the first
+#'   starting point and is used as given; the rest are generated around it.
+#'
+#' @return An [optimizer_result()]: the best run, carrying its own `par`,
+#'   `value`, `gradient` and `converged`, with the per-start summary in
+#'   `trace` and the counts in `message`. `seed` is the state the whole run
+#'   began from.
+#'
 #' @keywords internal
 S7::method(minimize, MultiStart) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -445,7 +527,9 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
 #' Assemble the Result of a Multi-Start Run
 #'
 #' @description
-#' Picks the best run, and summarizes what the others found.
+#' Picks the run with the lowest value, keeps everything that run carried,
+#' and adds what the others found: the per-start table, the counts, and the
+#' number of distinct optima.
 #'
 #' @details
 #' The count of distinct optima is the reason to run this at all, so it is

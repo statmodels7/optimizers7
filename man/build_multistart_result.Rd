@@ -21,7 +21,9 @@ build_multistart_result(res, S, optimizer, seed, elapsed)
 An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Picks the best run, and summarizes what the others found.
+Picks the run with the lowest value, keeps everything that run carried,
+and adds what the others found: the per-start table, the counts, and the
+number of distinct optima.
 }
 \details{
 The count of distinct optima is the reason to run this at all, so it is
