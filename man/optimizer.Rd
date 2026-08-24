@@ -15,51 +15,94 @@ optimizer(
 )
 }
 \arguments{
-\item{name}{A short character name, used when printing and reporting.}
+\item{name}{A short character name, shown when the object is printed and
+carried into the result. Set by each constructor; a caller has no reason
+to supply it.}
 
-\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Anything else
+raises an error naming \code{\link[=crit_grad]{crit_grad()}} as an example. An algorithm also
+rejects a rule it cannot evaluate, through \code{\link[=check_criterion]{check_criterion()}}.}
 
-\item{maxit}{Maximum number of iterations.}
+\item{maxit}{Maximum iterations, a single number at least 1 and \strong{finite}.
+\code{Inf} is refused: a run with no last resort can hang on an objective
+that never satisfies its rule.}
 
-\item{max_eval}{Maximum number of objective evaluations. A budget on work
-rather than on progress: a line search can spend many evaluations in one
-iteration, and a runaway one is invisible to \code{maxit}.}
+\item{max_eval}{Maximum evaluations of the objective, a single number at
+least 1. \code{Inf} is the default and is allowed, so the budget is off
+unless it is asked for. A run stopped here reports \code{converged = FALSE},
+the budget having ended it rather than the rule.}
 
-\item{verbose}{Logical; whether to report progress.}
+\item{verbose}{\code{TRUE} or \code{FALSE}; whether to report progress as the run
+goes. \code{NA} is refused.}
 
-\item{refresh}{Report every \code{refresh} iterations. \code{0} reports only
-the final summary.}
+\item{refresh}{Report every \code{refresh} iterations when \code{verbose} is \code{TRUE}.
+A single non-negative number; \code{0} is allowed and reports only the final
+summary.}
 
-\item{keep_trace}{Logical; whether to store the iteration path in the result.}
+\item{keep_trace}{\code{TRUE} or \code{FALSE}; whether to store the iteration path in
+the result's \code{trace} field. Off by default, the path costing one row per
+iteration.}
 }
 \value{
-An S7 object of class \code{optimizer}.
+An S7 object of class \code{optimizer}, with properties \code{name}
+(character), \code{criterion} (a \code{\link[=criterion]{criterion()}}), \code{maxit}, \code{max_eval} and
+\code{refresh} (numeric) and \code{verbose} and \code{keep_trace} (logical). The class
+is abstract, so it is never returned directly: every value is an object
+of one of its subclasses.
 }
 \description{
-An optimizer is an object carrying an algorithm and every setting that
-algorithm obeys: its stopping rule, its budgets, what it reports, and what it
-keeps. It is created once and may be reused, inspected, stored beside a result
-and passed around; nothing about a run is hidden in the call that started it.
+The abstract parent of every algorithm in the package. An optimizer object
+carries the algorithm and every setting the algorithm obeys: its stopping
+rule, its two budgets, what it reports as it goes and what it keeps. It is
+built once and can be reused, printed, stored beside a result and passed
+around, so nothing about a run is hidden inside the call that started it.
 }
-\details{
-The class is abstract. Each algorithm is a subclass with its own constructor —
-\code{\link[=gd]{gd()}}, and in time \code{newton()}, \code{bfgs()} and
-the rest — adding only the settings that are genuinely its own.
+\section{The seven properties every algorithm has}{
+Each algorithm is a subclass adding the settings that are its own:
+\code{\link[=newton]{newton()}} a Hessian repair, \code{\link[=bfgs]{bfgs()}} a curvature tolerance, \code{\link[=adam]{adam()}} its
+three decay rates. The seven below are common to all of them, so a caller
+can replace one optimizer with another and leave every other line alone.
+\code{print()} shows the shared settings first and the algorithm's own on a
+\code{settings} line.
+}
 
-These properties are shared by every algorithm without exception, which is
-what lets a caller swap one optimizer for another without changing anything
-else.
+\section{The two budgets are different budgets}{
+\code{maxit} bounds progress and \code{max_eval} bounds work, and they diverge
+whenever a line search is expensive: one iteration may spend many
+evaluations, and a search that backtracks thirty times is invisible to
+\code{maxit}. On Rosenbrock from the customary start, \code{\link[=bfgs]{bfgs()}} with no cap
+takes 35 iterations and 210 evaluations; capped at \code{max_eval = 40} it
+stops after 7 iterations and 42 evaluations, reporting \code{converged = FALSE}
+and \verb{evaluation budget exhausted}.
+
+\code{maxit} must be finite, because it is the stop of last resort; \code{max_eval}
+may be \code{Inf}, which is its default.
 }
+
 \examples{
-# Abstract: use one of the constructors.
+# Abstract, so it cannot be built: use one of the constructors.
 try(optimizer(name = "mine"))
 
-# Every algorithm carries the same settings, which is what lets one be
-# swapped for another without changing anything else.
-names(S7::props(bfgs()))
-bfgs()@maxit
+# The same seven properties on every algorithm, plus each one's own.
+shared <- c("name", "criterion", "maxit", "max_eval", "verbose",
+            "refresh", "keep_trace")
+stopifnot(all(shared \%in\% names(S7::props(nelder_mead()))))
+setdiff(names(S7::props(newton())), shared)
+setdiff(names(S7::props(adam())), shared)
+
+# Printing shows the rule and the budgets before anything algorithm-specific.
+bfgs()
+
+# The two budgets bound different things.
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+a <- minimize(bfgs(maxit = 1000), f, c(-1.2, 1))
+b <- minimize(bfgs(maxit = 1000, max_eval = 40), f, c(-1.2, 1))
+c(iterations = a@iterations, evaluations = a@counts[["f"]])
+c(iterations = b@iterations, evaluations = b@counts[["f"]])
+b@message
 
 }
 \seealso{
-\code{\link[=minimize]{minimize()}}, \code{\link[=gd]{gd()}}
+\code{\link[=minimize]{minimize()}} for the run, \code{\link[=criterion]{criterion()}} for the stopping rule,
+\code{\link[=check_optimizer]{check_optimizer()}} for what a subclass of your own has to promise.
 }

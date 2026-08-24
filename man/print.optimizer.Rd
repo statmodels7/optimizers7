@@ -9,12 +9,31 @@
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly.
+\code{x}, invisibly. Called for the output.
 }
 \description{
-Print Method for Optimizers
+Shows an optimizer in four lines: its name, the label of its stopping
+rule, its two budgets, and its algorithm-specific settings. Everything the
+run will obey is on the object, so printing it is how a caller checks what
+a fit was configured to do.
+}
+\details{
+The settings line describes each value by what it is. A number prints as
+itself; an object carrying a \code{label}, such as a \code{\link[=criterion]{criterion()}}, prints its
+label; an object carrying a \code{name}, such as a \code{\link[=line_search]{line_search()}} or a nested
+optimizer, prints its name; anything else prints as its class in angle
+brackets. A setting of a kind the package does not yet have therefore
+prints something sensible instead of stopping the method.
 }
 \examples{
-print(gd())
+# The line search is an object and shows its own name.
+bfgs()
+
+# A derivative-free method has a different rule and different settings.
+nelder_mead()
+
+# A wrapper names the optimizer it wraps.
+multistart(bfgs(), n = 4)
+
 }
 \keyword{internal}

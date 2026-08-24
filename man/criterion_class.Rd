@@ -7,19 +7,23 @@
 criterion_class()
 }
 \value{
-The \code{\link[=criterion]{criterion()}} class object.
+The \code{\link[=criterion]{criterion()}} class object, an \code{S7_class}.
 }
 \description{
-Fetched rather than captured, so that the check above cannot be fooled by the
-class being re-created.
+Returns the \code{\link[=criterion]{criterion()}} class itself, for code that has to test whether
+a value inherits from it. The indirection exists because the functions
+asking that question take an argument named \code{criterion}, which shadows the
+class inside their own body.
 }
 \details{
-Comparing S7 classes with
-\code{identical()} is object identity, and a class rebuilt from the same
-definition is not identical to the original. Under \pkg{covr}, which
-re-evaluates the code instead of loading it, that turned every numerical
-fallback into the chain of first differences the design exists to forbid --
-and the local suite, \verb{R CMD check --as-cran} and a five-platform
-matrix all passed. Only the coverage job failed.
+Written directly, \code{S7_inherits(criterion, criterion)} inside a function
+whose formal is \code{criterion} compares the value with itself, and S7 stops
+with \verb{`class` must be an <S7_class> or NULL}. Reaching the class
+through a function of no arguments looks it up in the namespace, past the
+formal. \code{\link[=check_optimizer_args]{check_optimizer_args()}} is the caller.
+}
+\examples{
+S7::S7_inherits(crit_grad(), criterion_class())
+
 }
 \keyword{internal}

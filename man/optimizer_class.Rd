@@ -7,14 +7,23 @@
 optimizer_class()
 }
 \value{
-The \code{\link[=optimizer]{optimizer()}} class object.
+The \code{\link[=optimizer]{optimizer()}} class object, an \code{S7_class}.
 }
 \description{
-The same, for the optimizer class itself.
+Returns the \code{\link[=optimizer]{optimizer()}} class itself, for the same reason
+\code{\link[=criterion_class]{criterion_class()}} exists: the three functions that accept an arbitrary
+optimizer and must check what they were given all take an argument named
+\code{optimizer}, which shadows the class inside their body.
 }
 \details{
-Wanted by \code{\link[=multistart]{multistart()}} and \code{\link[=check_optimizer]{check_optimizer()}},
-both of which accept an arbitrary optimizer and must be able to say whether
-that is what they were given.
+The callers are \code{\link[=multistart]{multistart()}}, which wraps an optimizer, \code{\link[=chain]{chain()}},
+which holds a list of them, and \code{\link[=check_optimizer]{check_optimizer()}}, which tests one.
+Each rejects a non-optimizer with a message of its own; without the check
+the failure would surface later, inside \code{\link[=minimize]{minimize()}} dispatch.
+}
+\examples{
+S7::S7_inherits(bfgs(), optimizer_class())
+S7::S7_inherits(crit_grad(), optimizer_class())
+
 }
 \keyword{internal}

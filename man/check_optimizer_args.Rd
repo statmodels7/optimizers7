@@ -14,10 +14,22 @@ check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
 \item{verbose, keep_trace}{Logical flags.}
 }
 \value{
-Invisibly \code{TRUE}; raises an error otherwise.
+Invisibly \code{TRUE}. Raises an error naming the offending argument
+otherwise.
 }
 \description{
-The checks each constructor would otherwise repeat, in one place and in one
-wording.
+Checks the seven arguments common to every constructor, so that all
+fifteen reject the same nonsense in the same words. Called at the top of
+each constructor, before any algorithm-specific validation.
+}
+\details{
+The rules, and they differ from one another:
+\itemize{
+\item \code{criterion} must inherit from \code{\link[=criterion]{criterion()}}.
+\item \code{maxit} must be a single number at least 1 \strong{and finite}.
+\item \code{max_eval} must be a single number at least 1; \code{Inf} passes.
+\item \code{refresh} must be a single number at least 0.
+\item \code{verbose} and \code{keep_trace} must each be \code{TRUE} or \code{FALSE}, \code{NA} refused.
+}
 }
 \keyword{internal}
