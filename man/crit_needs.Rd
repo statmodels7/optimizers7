@@ -2,6 +2,7 @@
 % Please edit documentation in R/criterion.R
 \name{crit_needs}
 \alias{crit_needs}
+\alias{crit_needs.criterion}
 \title{What a Criterion Needs From the Iteration}
 \usage{
 crit_needs(criterion)
@@ -31,5 +32,7 @@ crit_needs(crit_rel_obj(1e-10))
 
 }
 \seealso{
-\code{\link[=as_objective]{as_objective()}}, \code{\link[=crit_met]{crit_met()}}, \code{\link[=check_criterion]{check_criterion()}}
+\code{\link[=crit_met]{crit_met()}} for the rule itself, \code{\link[=check_criterion]{check_criterion()}} for the
+rejection this feeds, \code{\link[=optimizer_provides]{optimizer_provides()}} for the other half of the
+comparison.
 }

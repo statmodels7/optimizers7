@@ -104,8 +104,11 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' crit_needs(crit_grad(1e-8))
 #' crit_needs(crit_rel_obj(1e-10))
 #'
-#' @seealso [as_objective()], [crit_met()], [check_criterion()]
+#' @seealso [crit_met()] for the rule itself, [check_criterion()] for the
+#'   rejection this feeds, [optimizer_provides()] for the other half of the
+#'   comparison.
 #' @export
+#' @aliases crit_needs.criterion
 crit_needs <- S7::new_generic("crit_needs", "criterion",
                               function(criterion) S7::S7_dispatch())
 
@@ -115,11 +118,40 @@ S7::method(crit_needs, criterion) <- function(criterion) character()
 # --- gradient ---------------------------------------------------------------
 
 #' @title S7 Class for the Gradient Criterion
-#' @description The class [crit_grad()] instantiates.
-#' @param tol The tolerance.
+#'
+#' @description
+#' The rule [crit_grad()] builds, and the two methods it implements. It
+#' reads `state$gradient`, takes its max-norm or its 2-norm, and fires when
+#' that falls below `tol`. It declares `"gradient"` through [crit_needs()],
+#' so a derivative-free optimizer refuses it when the run starts.
+#'
+#' @details
+#' `crit_met()` returns `FALSE` when the gradient is `NULL`, empty or carries
+#' an `NA`, so a state that has not yet filled it in never accidentally
+#' satisfies the rule. Which norm is used is the `norm` property: on a
+#' gradient of \eqn{(3, 4)}, `crit_grad(4.5, "max")` fires and
+#' `crit_grad(4.5, "2")` does not.
+#'
+#' @param tol The tolerance, a single positive number.
 #' @param norm Either `"max"` or `"2"`.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_grad()]
+#'
+#' @return An S7 object of class `CritGrad` inheriting from [criterion()],
+#'   carrying `label`, `tol` and `norm`.
+#'
+#' @examples
+#' st <- list(iter = 1, f_new = 1, f_old = 2, x_new = 1, x_old = 0,
+#'            gradient = c(3, 4))
+#' crit_needs(crit_grad())
+#' c(max = crit_met(crit_grad(4.5, "max"), st),
+#'   two = crit_met(crit_grad(4.5, "2"), st))
+#'
+#' # A gradient that is not there is not a small gradient.
+#' crit_met(crit_grad(), list(f_new = 1, gradient = NULL))
+#'
+#' @seealso [crit_grad()] for the constructor and the tolerance it can
+#'   attain, [crit_stationary()] for what a derivative-free method reads.
+#' @name CritGrad-class
+#' @aliases CritGrad crit_met.CritGrad crit_needs.CritGrad
 #' @keywords internal
 CritGrad <- S7::new_class("CritGrad", parent = criterion,
   properties = list(tol = S7::class_numeric, norm = S7::class_character))
@@ -187,10 +219,39 @@ crit_grad <- function(tol = 1e-6, norm = c("max", "2")) {
 # --- objective --------------------------------------------------------------
 
 #' @title S7 Class for the Absolute Objective Criterion
-#' @description The class [crit_abs_obj()] instantiates.
-#' @param tol The tolerance.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_abs_obj()]
+#'
+#' @description
+#' The rule [crit_abs_obj()] builds. It reads `state$f_new` and
+#' `state$f_old` and fires when they differ by less than `tol`. It declares
+#' nothing through [crit_needs()], every optimizer evaluating the objective,
+#' so no method refuses it.
+#'
+#' @details
+#' `crit_met()` returns `FALSE` when `f_old` is `NULL` or not finite, which
+#' is the state at the first iteration, so the rule cannot fire before there
+#' are two values to compare.
+#'
+#' The tolerance is in the objective's own units, so this rule carries the
+#' scale of the problem with it: `1e-10` means something different for a
+#' log-likelihood of order one and for one of order \eqn{10^{5}}.
+#'
+#' @param tol The tolerance, a single positive number.
+#'
+#' @return An S7 object of class `CritAbsObj` inheriting from [criterion()],
+#'   carrying `label` and `tol`.
+#'
+#' @examples
+#' crit_needs(crit_abs_obj())
+#' crit_met(crit_abs_obj(1e-6),
+#'          list(f_new = 1.0000001, f_old = 1.0000002))
+#'
+#' # Nothing to compare against at the first iteration.
+#' crit_met(crit_abs_obj(), list(f_new = 1, f_old = NULL))
+#'
+#' @seealso [crit_abs_obj()] for the constructor, [crit_rel_obj()] for the
+#'   scale-free version.
+#' @name CritAbsObj-class
+#' @aliases CritAbsObj crit_met.CritAbsObj
 #' @keywords internal
 CritAbsObj <- S7::new_class("CritAbsObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -221,10 +282,37 @@ crit_abs_obj <- function(tol = 1e-10) {
 
 
 #' @title S7 Class for the Relative Objective Criterion
-#' @description The class [crit_rel_obj()] instantiates.
-#' @param tol The tolerance.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_rel_obj()]
+#'
+#' @description
+#' The rule [crit_rel_obj()] builds. It fires when
+#' \eqn{\lvert f_{new} - f_{old}\rvert < \texttt{tol}\,
+#' (\lvert f_{old}\rvert + \texttt{tol})}, so the comparison is against the
+#' objective's own scale and one tolerance serves whatever units the problem
+#' is in. It declares nothing through [crit_needs()].
+#'
+#' @details
+#' `crit_met()` returns `FALSE` when `f_old` is `NULL` or not finite, as at
+#' the first iteration.
+#'
+#' The `+ tol` in the denominator is a floor and is load-bearing: an
+#' objective whose optimum sits at zero would otherwise be compared against a
+#' vanishing scale, and the rule would either never fire or fire at once.
+#'
+#' @param tol The tolerance, a single positive number.
+#'
+#' @return An S7 object of class `CritRelObj` inheriting from [criterion()],
+#'   carrying `label` and `tol`.
+#'
+#' @examples
+#' crit_met(crit_rel_obj(1e-6), list(f_new = 1.0000001, f_old = 1.0000002))
+#'
+#' # The floor is what keeps an optimum at zero usable.
+#' crit_met(crit_rel_obj(), list(f_new = 1e-30, f_old = 0))
+#'
+#' @seealso [crit_rel_obj()] for the constructor, [crit_abs_obj()] for the
+#'   version in the objective's own units.
+#' @name CritRelObj-class
+#' @aliases CritRelObj crit_met.CritRelObj
 #' @keywords internal
 CritRelObj <- S7::new_class("CritRelObj", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -266,10 +354,33 @@ crit_rel_obj <- function(tol = 1e-12) {
 # --- parameters -------------------------------------------------------------
 
 #' @title S7 Class for the Absolute Parameter Criterion
-#' @description The class [crit_abs_par()] instantiates.
-#' @param tol The tolerance.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_abs_par()]
+#'
+#' @description
+#' The rule [crit_abs_par()] builds. It fires when the largest coordinate
+#' change \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert} falls below `tol`,
+#' so the tolerance is in the parameters' own units. It declares nothing
+#' through [crit_needs()].
+#'
+#' @details
+#' `crit_met()` returns `FALSE` when `x_old` is `NULL`, as at the first
+#' iteration. With box constraints the comparison is on the **unconstrained**
+#' scale, that being where the optimizer moves, so the same tolerance means
+#' different things about a variance near zero and one near a thousand.
+#'
+#' @param tol The tolerance, a single positive number.
+#'
+#' @return An S7 object of class `CritAbsPar` inheriting from [criterion()],
+#'   carrying `label` and `tol`.
+#'
+#' @examples
+#' crit_met(crit_abs_par(1e-6),
+#'          list(x_new = c(1, 2), x_old = c(1, 2 + 1e-9)))
+#' crit_met(crit_abs_par(), list(x_new = c(1, 2), x_old = NULL))
+#'
+#' @seealso [crit_abs_par()] for the constructor, [crit_rel_par()] for the
+#'   version scaled by each coordinate.
+#' @name CritAbsPar-class
+#' @aliases CritAbsPar crit_met.CritAbsPar
 #' @keywords internal
 CritAbsPar <- S7::new_class("CritAbsPar", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -300,10 +411,36 @@ crit_abs_par <- function(tol = 1e-8) {
 
 
 #' @title S7 Class for the Relative Parameter Criterion
-#' @description The class [crit_rel_par()] instantiates.
-#' @param tol The tolerance.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_rel_par()]
+#'
+#' @description
+#' The rule [crit_rel_par()] builds. It fires when every coordinate's change,
+#' divided by that coordinate's own size, falls below `tol`, so a parameter
+#' of order \eqn{10^{3}} and one of order \eqn{10^{-3}} are held to the same
+#' number of digits. It declares nothing through [crit_needs()].
+#'
+#' @details
+#' The test is
+#' \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert /
+#' (\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}, with the same
+#' floor [CritRelObj] uses and for the same reason: a coordinate sitting at
+#' zero would otherwise be divided by nothing. `crit_met()` returns `FALSE`
+#' when `x_old` is `NULL`.
+#'
+#' @param tol The tolerance, a single positive number, used both as the floor
+#'   and as the threshold.
+#'
+#' @return An S7 object of class `CritRelPar` inheriting from [criterion()],
+#'   carrying `label` and `tol`.
+#'
+#' @examples
+#' # The same relative change at two very different scales.
+#' crit_met(crit_rel_par(1e-6), list(x_new = 1000, x_old = 1000.0001))
+#' crit_met(crit_rel_par(1e-6), list(x_new = 1e-3, x_old = 1e-3 + 1e-10))
+#'
+#' @seealso [crit_rel_par()] for the constructor, [crit_abs_par()] for the
+#'   version in the parameters' own units.
+#' @name CritRelPar-class
+#' @aliases CritRelPar crit_met.CritRelPar
 #' @keywords internal
 CritRelPar <- S7::new_class("CritRelPar", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -338,10 +475,36 @@ crit_rel_par <- function(tol = 1e-8) {
 # --- stationarity -----------------------------------------------------------
 
 #' @title S7 Class for the Stationarity Criterion
-#' @description The class [crit_stationary()] instantiates.
-#' @param tol The tolerance.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_stationary()]
+#'
+#' @description
+#' The rule [crit_stationary()] builds, and the two methods it implements. It
+#' reads `state$stationarity`, the non-negative measure a derivative-free
+#' method reports in place of a gradient, and fires when it falls below
+#' `tol`. It declares `"stationarity"` through [crit_needs()], so a method
+#' that reports none refuses it when the run starts.
+#'
+#' @details
+#' `crit_met()` returns `FALSE` when the measure is `NULL`, empty or not
+#' finite. What the measure *is* differs by method, so the tolerance means
+#' something different for each: the simplex diameter for [nelder_mead()],
+#' the poll size for [compass()], Corana's termination measure for [sa()],
+#' and the optimality estimate \eqn{\lVert p\rVert^{2} + \alpha} for
+#' [bundle()]. [crit_stationary()] carries the comparison across all four.
+#'
+#' @param tol The tolerance, a single positive number.
+#'
+#' @return An S7 object of class `CritStationary` inheriting from
+#'   [criterion()], carrying `label` and `tol`.
+#'
+#' @examples
+#' crit_needs(crit_stationary())
+#' crit_met(crit_stationary(1e-6), list(stationarity = 1e-9))
+#' crit_met(crit_stationary(), list(stationarity = NULL))
+#'
+#' @seealso [crit_stationary()] for the constructor and what each method
+#'   reports, [crit_grad()] for the gradient-based rule.
+#' @name CritStationary-class
+#' @aliases CritStationary crit_met.CritStationary crit_needs.CritStationary
 #' @keywords internal
 CritStationary <- S7::new_class("CritStationary", parent = criterion,
   properties = list(tol = S7::class_numeric))
@@ -408,9 +571,29 @@ crit_stationary <- function(tol = 1e-8) {
 # --- run the budget ---------------------------------------------------------
 
 #' @title S7 Class for the Empty Criterion
-#' @description The class [crit_never()] instantiates.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_never()]
+#'
+#' @description
+#' The rule [crit_never()] builds. Its `crit_met()` returns `FALSE` at every
+#' state without reading anything, so a run carrying it ends only when a
+#' budget runs out and reports `converged = FALSE`. It declares nothing
+#' through [crit_needs()], so no optimizer refuses it.
+#'
+#' @details
+#' It carries no `tol`, having nothing to compare, and is the only criterion
+#' class with no property beyond `label`. [adam()] is the one shipped method
+#' that defaults to it.
+#'
+#' @return An S7 object of class `CritNever` inheriting from [criterion()],
+#'   carrying `label` alone.
+#'
+#' @examples
+#' crit_needs(crit_never())
+#' crit_met(crit_never(), list(f_new = 0, f_old = 0, gradient = c(0, 0)))
+#'
+#' @seealso [crit_never()] for the constructor, [adam()] for the method that
+#'   uses it.
+#' @name CritNever-class
+#' @aliases CritNever crit_met.CritNever
 #' @keywords internal
 CritNever <- S7::new_class("CritNever", parent = criterion)
 
@@ -449,12 +632,43 @@ crit_never <- function() CritNever(label = "iteration budget")
 # --- combinators ------------------------------------------------------------
 
 #' @title S7 Class for a Combination of Criteria
-#' @description The class [crit_any()] and [crit_all()]
-#'   instantiate.
+#'
+#' @description
+#' The class [crit_any()] and [crit_all()] both build, and the two methods it
+#' implements. Its `crit_met()` evaluates every rule it holds and reduces
+#' with `any()` or `all()` according to `how`; its `crit_needs()` is the
+#' union of what they need, so a combination containing a gradient rule is
+#' refused by a derivative-free method exactly as the bare rule would be.
+#'
+#' @details
+#' A `CritCombine` is itself a [criterion()], so combinations nest and the
+#' label nests with them: `crit_any(crit_all(a, b), c)` reads
+#' `a and b or c`. Every rule is evaluated at every call, `any()` and `all()`
+#' taking the whole vector rather than short-circuiting, which costs nothing
+#' worth counting against an objective evaluation.
+#'
 #' @param criteria A list of [criterion()] objects.
 #' @param how Either `"any"` or `"all"`.
-#' @return An S7 object inheriting from [criterion()].
-#' @seealso [crit_any()], [crit_all()]
+#'
+#' @return An S7 object of class `CritCombine` inheriting from [criterion()],
+#'   carrying `label`, `criteria` and `how`.
+#'
+#' @examples
+#' # The needs are the union, so this is refused by a simplex method.
+#' crit_needs(crit_any(crit_grad(), crit_stationary()))
+#'
+#' st <- list(iter = 3, f_new = 1, f_old = 2, x_new = 1, x_old = 1,
+#'            gradient = c(1e-9, -2e-9))
+#' c(any = crit_met(crit_any(crit_grad(1e-8), crit_never()), st),
+#'   all = crit_met(crit_all(crit_grad(1e-8), crit_never()), st))
+#'
+#' # Combinations nest, and so does the label.
+#' crit_any(crit_all(crit_grad(), crit_abs_par()), crit_never())@label
+#'
+#' @seealso [crit_any()] and [crit_all()] for the constructors,
+#'   [combine_criteria()] for the shared body.
+#' @name CritCombine-class
+#' @aliases CritCombine crit_met.CritCombine crit_needs.CritCombine
 #' @keywords internal
 CritCombine <- S7::new_class("CritCombine", parent = criterion,
   properties = list(criteria = S7::class_list, how = S7::class_character))
