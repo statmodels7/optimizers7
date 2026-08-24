@@ -7,59 +7,136 @@
 test_problems(which = NULL)
 }
 \arguments{
-\item{which}{An optional character vector naming a subset.}
+\item{which}{A character vector of problem names, or \code{NULL}. \code{NULL}, the
+default, returns all eight in the order of the table above; a character
+vector returns just those, in the order given, so
+\code{test_problems(c("beale", "sphere"))} comes back beale first. A name
+that is not one of the eight raises an error listing the eight.}
 }
 \value{
-A named list of problems.
+A named list, one element per problem, each itself a list of eight
+components:
+\describe{
+\item{\code{name}}{character, the same as the element's name.}
+\item{\code{fn}}{the objective, a function of a numeric vector of length
+\code{p} returning one number.}
+\item{\code{gr}}{its analytic gradient, returning a vector of length \code{p}.}
+\item{\code{par}}{numeric of length \code{p}, the customary starting point.}
+\item{\code{solution}}{numeric of length \code{p}, the minimizer. For
+\code{himmelblau} this is the one of the four nearest the start.}
+\item{\code{value}}{numeric, the minimum. Zero for all eight.}
+\item{\code{multimodal}}{logical, \code{TRUE} for \code{himmelblau} and
+\code{rastrigin}.}
+\item{\code{smooth}}{logical, \code{FALSE} for \code{abs_sum} alone.}
+}
 }
 \description{
-The functions optimization papers are argued over: a quadratic, a curved
-valley, a few awkward polynomials, two with many minima, and one with a kink.
-Each carries its analytic gradient and its known answer.
+Returns the eight functions optimization papers are argued over: a
+quadratic, a curved valley, a few awkward polynomials, two with many
+minima, and one with a kink. Each carries its analytic gradient, a
+customary starting point, its known minimizer and two flags describing
+the difficulty it poses. They are exported for testing any optimizer, not
+only this package's; \code{\link[=check_optimizer]{check_optimizer()}} runs the whole battery.
 }
-\details{
-They are exported for use in testing optimizers generally, not only in this
-package's own tests; \code{\link[=check_optimizer]{check_optimizer()}} runs them.
+\section{The eight}{
+\tabular{llll}{
+\strong{name} \tab \strong{p} \tab \strong{start} \tab \strong{what it tests} \cr
+\code{sphere} \tab 3 \tab (1.3, -0.7, 0.8) \tab nothing; a run that fails here is broken \cr
+\code{rosenbrock} \tab 2 \tab (-1.2, 1) \tab a curved valley, Hessian condition 2510 at the solution \cr
+\code{booth} \tab 2 \tab (0, 0) \tab a well-conditioned quadratic in disguise \cr
+\code{beale} \tab 2 \tab (1, 1) \tab a narrow valley, Hessian condition 163 \cr
+\code{powell} \tab 4 \tab (3, -1, 0, 1) \tab a \strong{singular} Hessian at the solution \cr
+\code{himmelblau} \tab 2 \tab (0, 0) \tab four minima, all of value zero \cr
+\code{rastrigin} \tab 2 \tab (0.4, -0.4) \tab 121 local minima on the usual box \cr
+\code{abs_sum} \tab 3 \tab (0, 0, 0) \tab a kink at the solution itself \cr
+}
 
-Each element is a list with \code{name}, \code{fn}, \code{gr}, \code{par}
-(a starting point), \code{solution}, \code{value}, and two flags.
-\code{multimodal} marks a surface with more than one local minimum, where a
-local method reaching a different one is behaving correctly and not failing;
-\code{smooth} is \code{FALSE} for the one whose derivative does not exist
-everywhere, where a method that assumes it does will arrive at the answer and
-then be unable to certify it.
+The starting points are the customary ones, which for \code{rosenbrock} and
+\code{powell} are the deliberately unhelpful points those functions were
+designed around. The two hardest are hard for opposite reasons.
+\code{powell}'s Hessian at the origin has eigenvalues 202, 20, 0 and 0, so a
+second-order method has no curvature to read in two of its four
+directions and converges linearly where it usually converges
+quadratically. \code{rastrigin} has curvature everywhere and 121 places to
+stop, so what decides the answer is where the run began.
+}
 
-The starting points are the ones customarily used, which for
-\code{rosenbrock} and \code{powell} means the deliberately unhelpful ones the
-functions were designed around.
+\section{The two flags}{
+\code{multimodal} marks a surface with more than one local minimum. A local
+method that reaches a different one there is behaving correctly, so
+scoring it against \code{solution} would report a failure that is not one.
+\code{\link[=check_optimizer]{check_optimizer()}} therefore scores every problem on the value reached
+and labels these two in its \code{note} column.
 
-Every problem here has \eqn{f(x^{\ast}) = 0}, which is a property of the
-battery and not of optimization, and it hides one effect. A line search
-accepts a step only when the objective decreases by a definite amount,
-and near the optimum that decrease is about
-\eqn{\lVert g \rVert^{2} / (2\lambda)}; once it falls below the rounding
-of the objective itself, \eqn{\varepsilon \lvert f \rvert}, no step can
-be verified and the search refuses all of them. The smallest gradient a
-run can reach is therefore of order
+\code{smooth} is \code{FALSE} for \code{abs_sum} alone. Its gradient at the solution is
+exactly zero, because \code{sign(0)} is zero, and at every neighboring point
+the subgradient has max-norm one. A method that tests \eqn{\nabla f} will
+therefore arrive at the answer and be unable to certify it; the
+derivative-free and non-smooth methods report a measure of their own
+instead, tested by \code{\link[=crit_stationary]{crit_stationary()}}.
+}
+
+\section{Every solution has value zero, and that hides an effect}{
+A line search accepts a step only when the objective decreases by a
+definite amount, and near a minimum that decrease is about
+\eqn{\lVert g \rVert^{2} / (2\lambda)} for a curvature \eqn{\lambda}.
+Once it falls below the rounding of the objective itself, about
+\eqn{\varepsilon \lvert f \rvert}, no step in any direction can be
+verified and the search refuses all of them. The smallest gradient a run
+can reach is therefore of order
 
 \deqn{\lVert g \rVert_{\text{floor}} \approx
   \sqrt{2 \lambda \varepsilon \lvert f(x^{\ast}) \rvert},}
 
 which grows with the value at the solution and is exactly zero for every
-problem below. A log-likelihood is the opposite case, being of order one
-at its optimum, so an optimizer that reaches \code{1e-15} here may stop
-at \code{1e-8} there; the defaults of \code{\link[=crit_grad]{crit_grad()}} allow for
-that. Adding a constant to any of these objectives moves neither the
-minimizer nor the gradient and reproduces the effect.
+problem here. A log-likelihood is the opposite case, of order one at its
+optimum, so an optimizer that reaches \code{1e-15} on this battery may stop at
+\code{1e-8} there. The defaults of \code{\link[=crit_grad]{crit_grad()}} allow for that.
+
+Adding a constant to any of these objectives moves neither the minimizer
+nor the gradient, and reproduces the effect on demand. Conjugate
+gradients on \code{rosenbrock}, asked for \code{crit_grad(1e-14)} with a budget of
+20000 iterations, reaches a max-norm gradient of \code{4.4e-15} at
+\eqn{f^{\ast} = 0} and stops at \code{4.4e-08}, \code{2.8e-06} and \code{6.5e-05} once
+the constants \eqn{1}, \eqn{10^{3}} and \eqn{10^{6}} are added. Only the
+first run reports \code{converged = TRUE}; in the other three the tolerance
+asked for was never reachable.
 }
+
 \examples{
 names(test_problems())
 
+# Every problem's stated solution really is a stationary point of value zero.
+P <- test_problems()
+stopifnot(all(vapply(P, function(q) q$fn(q$solution), 0) == 0))
+
+# BFGS solves the curved valley from the unhelpful start.
 p <- test_problems("rosenbrock")[[1]]
-minimize(bfgs(), p$fn, p$par, gr = p$gr)@par
-p$solution
+fit <- minimize(bfgs(), p$fn, p$par, gr = p$gr)
+all.equal(fit@par, p$solution, tolerance = 1e-6)
+
+# Powell's difficulty is a singular Hessian at the solution: the quartic
+# terms contribute nothing to the curvature at the origin, so two of the
+# four eigenvalues are exactly zero and a second-order method has no
+# curvature to read in those directions.
+H <- matrix(c(2, 20, 0, 0,
+              20, 200, 0, 0,
+              0, 0, 10, -10,
+              0, 0, -10, 10), 4, 4)
+eigen(H, only.values = TRUE)$values
+
+# abs_sum has a zero gradient at the solution and a subgradient of max-norm
+# one at every neighboring point, so a gradient rule cannot certify it.
+k <- test_problems("abs_sum")[[1]]
+k$gr(k$solution)
+k$gr(k$solution + 1e-9)
+
+# A name that is not one of the eight is refused, and the message lists them.
+try(test_problems("banana"))
 
 }
 \seealso{
-\code{\link[=check_optimizer]{check_optimizer()}}
+\code{\link[=check_optimizer]{check_optimizer()}}, which runs the battery and reports what each
+method reached, and \code{\link[=crit_stationary]{crit_stationary()}} for the rule the non-smooth
+problem needs.
 }
