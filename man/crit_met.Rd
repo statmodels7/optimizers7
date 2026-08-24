@@ -15,7 +15,10 @@ crit_met(criterion, state)
 A single logical.
 }
 \description{
-The one generic a criterion must implement.
+Asks a criterion whether the run should stop, given the state of the
+iteration just completed. This is the one generic a criterion must
+implement: a class inheriting from \code{\link[=criterion]{criterion()}} with a method here is a
+stopping rule, and every algorithm in the package will consult it.
 }
 \details{
 \code{state} carries everything any rule could need:

@@ -7,13 +7,19 @@
 crit_stationary(tol = 1e-08)
 }
 \arguments{
-\item{tol}{Numeric tolerance. Defaults to \code{1e-8}.}
+\item{tol}{Numeric tolerance, a single positive number. Defaults to
+\code{1e-8}. What the tolerance is \emph{on} depends on the method; see below.}
 }
 \value{
-A \code{\link[=criterion]{criterion()}} object.
+An S7 object of class \link{CritStationary}, inheriting from
+\code{\link[=criterion]{criterion()}}.
 }
 \description{
-The stopping rule for a method that has no gradient to test.
+Builds the stopping rule for a method that has no gradient to test. Every
+derivative-free method reports a non-negative scalar of its own that goes
+to zero as it converges, and this rule tests that. It is the default for
+\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}}, \code{\link[=sa]{sa()}} and \code{\link[=bundle]{bundle()}}, and a
+gradient-based method is free to use it too.
 }
 \details{
 A gradient-based method detects its arrival through the vanishing of
@@ -48,8 +54,18 @@ can be read afterwards without knowing which method produced it.
 crit_stationary()
 crit_stationary(1e-10)
 
+# It reads state$stationarity, and an absent measure is not a small one.
+c(present = crit_met(crit_stationary(1e-6), list(stationarity = 1e-9)),
+  absent  = crit_met(crit_stationary(), list(stationarity = NULL)))
+
+# What the number means differs by method: a simplex diameter here, a poll
+# size there, and the trace records whichever it is.
+q <- function(p) sum((p - c(1, 2))^2)
+names(minimize(nelder_mead(keep_trace = TRUE), q, c(0, 0))@trace)
+names(minimize(compass(keep_trace = TRUE), q, c(0, 0))@trace)
+
 }
 \seealso{
-\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}},
-\code{\link[=bundle]{bundle()}}, \code{\link[=crit_grad]{crit_grad()}}
+\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}}, \code{\link[=sa]{sa()}} and \code{\link[=bundle]{bundle()}} for the four
+measures, \code{\link[=crit_grad]{crit_grad()}} for the gradient-based rule.
 }

@@ -10,10 +10,17 @@ check_tol(tol)
 \item{tol}{The value supplied.}
 }
 \value{
-Invisibly \code{TRUE}; raises an error otherwise.
+Invisibly \code{TRUE}. Raises an error naming \code{tol} otherwise.
 }
 \description{
-Every criterion constructor takes a tolerance, and every one of them should
-reject the same nonsense in the same words.
+Checks that the value is a single positive number, so that every criterion
+constructor rejects the same nonsense in the same words. Zero is refused
+as well as a negative: a rule with a tolerance of zero can never fire.
+}
+\details{
+It is also called from outside this file, by \code{\link[=bundle]{bundle()}} for its proximity
+weights and by \code{\link[=bb]{bb()}} for its step bounds, so the message names \code{tol}
+rather than the caller's own argument. A reader who wrote
+\code{bb(alpha0 = 0)} sees a message about \code{tol}.
 }
 \keyword{internal}

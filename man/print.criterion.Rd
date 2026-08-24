@@ -9,12 +9,25 @@
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly.
+\code{x}, invisibly. Called for the output.
 }
 \description{
-Print Method for Criteria
+Shows a criterion in one line, as \verb{<criterion>} and its label. The label
+is what the result reports in \code{criterion_met}, so printing a rule shows
+exactly the string a converged run will carry.
 }
 \examples{
-print(crit_any(crit_grad(), crit_rel_obj()))
+crit_grad()
+crit_stationary(1e-10)
+
+# A combination prints as one sentence, and nests.
+crit_any(crit_grad(), crit_rel_obj())
+crit_any(crit_all(crit_grad(), crit_abs_par()), crit_never())
+
+# And it is the string the result reports.
+r <- minimize(bfgs(criterion = crit_grad()), function(p) sum(p^2), c(1, 1),
+              gr = function(p) 2 * p)
+r@criterion_met
+
 }
 \keyword{internal}

@@ -7,18 +7,31 @@
 crit_abs_par(tol = 1e-08)
 }
 \arguments{
-\item{tol}{Numeric tolerance. Defaults to \code{1e-8}.}
+\item{tol}{Numeric tolerance, a single positive number. Defaults to
+\code{1e-8}.}
 }
 \value{
-A \code{\link[=criterion]{criterion()}} object.
+An S7 object of class \link{CritAbsPar}, inheriting from
+\code{\link[=criterion]{criterion()}}.
 }
 \description{
-The rule \eqn{\max_j \lvert x_j^{new} - x_j^{old} \rvert < \texttt{tol}}.
+Builds the rule
+\eqn{\max_j \lvert x_j^{new} - x_j^{old} \rvert < \texttt{tol}}, so the
+tolerance is in the parameters' own units. It asks nothing of the method,
+and it is one of the three terms in the gradient methods' default rule.
+}
+\details{
+With box constraints the comparison is on the \strong{unconstrained} scale,
+that being where the optimizer moves. A coordinate approaching a bound
+travels a long way in \eqn{\eta} for a short way in \eqn{\theta}, so this
+rule fires later there than a reader of the parameter scale would expect.
 }
 \examples{
 crit_abs_par()
+crit_met(crit_abs_par(1e-6), list(x_new = c(1, 2), x_old = c(1, 2 + 1e-9)))
 
 }
 \seealso{
-\code{\link[=crit_rel_par]{crit_rel_par()}}
+\code{\link[=crit_rel_par]{crit_rel_par()}} for the version scaled by each coordinate,
+\code{\link[=crit_any]{crit_any()}} for the default rule that holds this one.
 }

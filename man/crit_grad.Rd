@@ -7,15 +7,21 @@
 crit_grad(tol = 1e-06, norm = c("max", "2"))
 }
 \arguments{
-\item{tol}{Numeric tolerance. Defaults to \code{1e-6}.}
+\item{tol}{Numeric tolerance, a single positive number. Defaults to
+\code{1e-6}; see below for why that rather than something smaller.}
 
-\item{norm}{\code{"max"} (default) or \code{"2"}.}
+\item{norm}{\code{"max"} (default) or \code{"2"}. Partial matching applies and any
+other string is refused, naming both.}
 }
 \value{
-A \code{\link[=criterion]{criterion()}} object.
+An S7 object of class \link{CritGrad}, inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The rule \eqn{\lVert \nabla f \rVert < \texttt{tol}}.
+Builds the rule \eqn{\lVert \nabla f \rVert < \texttt{tol}}, the test for
+a stationary point and the one a maximum likelihood fit should ask for.
+Usable only by a method that computes a gradient; a derivative-free
+optimizer refuses it when the run starts instead of accepting a rule that
+can never fire.
 }
 \details{
 The max-norm is the default because it does not grow with the dimension the
@@ -48,7 +54,29 @@ rejects it rather than accepting a rule that can never fire.
 crit_grad()
 crit_grad(1e-10, norm = "2")
 
+# The two norms differ, and the max-norm is the looser of the two.
+st <- list(f_new = 1, f_old = 2, x_new = 1, x_old = 0, gradient = c(3, 4))
+c(max = crit_met(crit_grad(4.5, "max"), st),
+  two = crit_met(crit_grad(4.5, "2"), st))
+
+# Asking for the rule alone, where the shipped default is a disjunction.
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                   200 * (p[2] - p[1]^2))
+r <- minimize(bfgs(criterion = crit_grad()), f, c(-1.2, 1), gr = g)
+c(r@criterion_met, max(abs(g(r@par))))
+
+# And the constant added to the objective, which moves neither the
+# minimizer nor the gradient, changes what is reachable.
+shifted <- function(p) f(p) + 1e6
+s <- minimize(cg(criterion = crit_grad(1e-14), maxit = 20000), shifted,
+              c(-1.2, 1), gr = g)
+c(converged = s@converged, gradient = max(abs(g(s@par))))
+
 }
 \seealso{
-\code{\link[=crit_rel_obj]{crit_rel_obj()}}, \code{\link[=crit_any]{crit_any()}}
+\code{\link[=crit_stationary]{crit_stationary()}} for what a derivative-free method reads,
+\code{\link[=crit_any]{crit_any()}} for the disjunction the gradient methods default to,
+\code{\link[=test_problems]{test_problems()}} for the battery the attainable-gradient figures come
+from.
 }

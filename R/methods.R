@@ -13,13 +13,11 @@ NULL
 #' by this optimizer, and checks the starting value.
 #'
 #' @details
-#' The criterion check is the interesting one. A rule needing a gradient handed
-#' to a method that computes none would sit there testing `NULL` at every
-#' iteration and never fire, so the run would end on the iteration budget and
-#' report failure for a reason nowhere near the truth. Rejecting it here, by
-#' name, is the same discipline as `check_link()` in \pkg{linkfunctions7}
-#' reporting a numerical derivative order as numerical rather than as passed: a
-#' check that cannot be evaluated must say so rather than pass or fail silently.
+#' The criterion check is the one worth explaining. A rule needing a gradient
+#' handed to a method that computes none would sit there testing `NULL` at
+#' every iteration and never fire, so the run would end on its iteration
+#' budget and report failure for a reason nowhere near the truth. Refusing it
+#' here, by name, turns that into an error a caller can act on.
 #'
 #' @param optimizer The [optimizer()].
 #' @param fn,gr,he The objective and its optional derivatives, as supplied.

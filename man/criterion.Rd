@@ -7,27 +7,44 @@
 criterion(label = character(0))
 }
 \arguments{
-\item{label}{A short character label, used when reporting which rule fired.}
+\item{label}{A short character label, reported as \code{criterion_met} when the
+rule fires and shown when the optimizer carrying it is printed.}
 }
 \value{
-An S7 object of class \code{criterion}. The class is abstract: use one
-of the constructors, or from a user-defined subclass.
+An S7 object of class \code{criterion}, carrying \code{label}. The class is
+abstract, so every value is an object of one of its subclasses or of a
+subclass written by the caller.
 }
 \description{
-A stopping rule, as an object. Every optimizer carries one, and the user may
-replace it, combine several, or write a new kind.
+The abstract parent of every stopping rule. An optimizer carries one, and
+a caller may replace it, combine several, or write a new kind: a class
+inheriting from this one with a method for \code{\link[=crit_met]{crit_met()}} is a stopping rule
+and every algorithm in the package will consult it.
 }
 \details{
-The alternative would be an argument taking a string, and a \code{switch} inside
-every algorithm. That is exactly the arrangement this toolkit exists to
-replace: it fixes the set of rules at the moment the package is written, and
-nothing outside can add to it. A criterion here is an object implementing one
-generic, \code{\link[=crit_met]{crit_met()}}, so a user-defined rule is treated like
-a shipped one.
-
-Criteria are combined with \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}},
-which are themselves criteria, so combinations nest.
+The alternative would be an argument taking a string and a \code{switch} inside
+every algorithm, which fixes the set of rules at the moment the package is
+written and lets nothing outside add to it. Here a rule is an object
+implementing one generic, so a rule of your own is treated exactly as a
+shipped one. This is the package's most open extension point: the
+algorithms need a branch in compiled code and the line searches do too,
+but a criterion needs neither.
 }
+\section{The two generics}{
+\code{\link[=crit_met]{crit_met()}} answers whether the run should stop, given the state of the
+iteration just completed. \code{\link[=crit_needs]{crit_needs()}} names the \code{state} components the
+rule reads, so that an optimizer unable to fill one in can refuse the rule
+when the run starts instead of accepting one that never fires. The base
+method for \code{crit_needs()} returns \code{character()}, so a rule reading only
+the objective needs no method at all.
+}
+
+\section{Combining}{
+\code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} combine rules and are themselves criteria,
+so combinations nest and their labels nest with them. The gradient methods
+default to a disjunction of three.
+}
+
 \examples{
 # The class is abstract, so it cannot be instantiated directly...
 try(criterion(label = "mine"))

@@ -7,10 +7,13 @@
 crit_rel_obj(tol = 1e-12)
 }
 \arguments{
-\item{tol}{Numeric tolerance. Defaults to \code{1e-12}.}
+\item{tol}{Numeric tolerance, a single positive number. Defaults to
+\code{1e-12}, tighter than \code{\link[=crit_abs_obj]{crit_abs_obj()}}'s because the quantity compared
+is a ratio.}
 }
 \value{
-A \code{\link[=criterion]{criterion()}} object.
+An S7 object of class \link{CritRelObj}, inheriting from
+\code{\link[=criterion]{criterion()}}.
 }
 \description{
 The rule
@@ -18,13 +21,29 @@ The rule
 }
 \details{
 The \code{+ tol} in the denominator is a floor, and it is load-bearing: an
-objective whose optimum is at zero would otherwise be compared against a
-vanishing scale.
+objective whose optimum sits at zero would otherwise be compared against a
+vanishing scale, and the rule would either never fire or fire at once.
+
+It was in the gradient methods' default rule until version 0.6.0 and is
+not any more, because it never fired there: measured over the package's
+own \code{\link[=test_problems]{test_problems()}}, six methods on eight problems, the default with it
+and the default without it agree on every flag, every evaluation count and
+every reported point. It remains useful where an objective's scale is not
+known in advance, which is exactly where \code{\link[=crit_abs_obj]{crit_abs_obj()}} is hard to set.
 }
 \examples{
 crit_rel_obj()
 
+# The same absolute change, at two objective scales.
+c(small = crit_met(crit_rel_obj(1e-6), list(f_new = 1, f_old = 1 + 1e-7)),
+  large = crit_met(crit_rel_obj(1e-6),
+                   list(f_new = 1e6, f_old = 1e6 + 1e-7)))
+
+# And the floor, which keeps an optimum at zero usable.
+crit_met(crit_rel_obj(), list(f_new = 1e-30, f_old = 0))
+
 }
 \seealso{
-\code{\link[=crit_abs_obj]{crit_abs_obj()}}
+\code{\link[=crit_abs_obj]{crit_abs_obj()}} for the version in the objective's own units,
+\code{\link[=crit_any]{crit_any()}} for the default rule it left.
 }

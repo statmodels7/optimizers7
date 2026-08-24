@@ -12,11 +12,16 @@ combine_criteria(dots, how)
 \item{how}{Either \code{"any"} or \code{"all"}.}
 }
 \value{
-A \code{\link[=criterion]{criterion()}} object.
+An S7 object of class \link{CritCombine}, inheriting from
+\code{\link[=criterion]{criterion()}}.
 }
 \description{
 Validates the arguments and builds the combined criterion, so that
-\code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} reject the same nonsense
-in the same words.
+\code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} reject the same nonsense in the same words:
+an empty call and an argument that is not a criterion.
+}
+\details{
+The label is the sub-labels joined by \code{or} or \code{and} according to
+\code{how}, which is why a nested combination reads as one sentence.
 }
 \keyword{internal}

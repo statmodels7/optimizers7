@@ -11,7 +11,7 @@ crit_needs(criterion)
 \item{criterion}{A \code{\link[=criterion]{criterion()}} object.}
 }
 \value{
-A character vector, possibly empty.
+A character vector of \code{state} component names, possibly empty.
 }
 \description{
 The names of the \code{state} components a criterion requires, so that an
@@ -19,12 +19,16 @@ algorithm can reject a rule it cannot evaluate instead of accepting one that
 never fires.
 }
 \details{
-A derivative-free method has no gradient, so \code{\link[=crit_grad]{crit_grad()}} would sit
-there testing \code{NULL} at every iteration and quietly never stop the run.
-Rejecting it at construction is the same discipline that makes
-\code{check_link()} in \pkg{linkfunctions7} report a numerical derivative
-order as numerical rather than as passed: a check that cannot be evaluated
-must say so.
+A derivative-free method has no gradient, so \code{\link[=crit_grad]{crit_grad()}} handed to one
+would sit there testing \code{NULL} at every iteration and quietly never stop
+the run. \code{\link[=check_criterion]{check_criterion()}} compares what this reports against what
+\code{\link[=optimizer_provides]{optimizer_provides()}} reports and refuses the pair when the run starts,
+naming both.
+
+The base method returns \code{character()}, so a rule reading only the
+objective needs no method here: every optimizer evaluates the objective
+and no rule reading it is ever refused. The two names the shipped rules
+declare are \code{"gradient"} and \code{"stationarity"}.
 }
 \examples{
 crit_needs(crit_grad(1e-8))

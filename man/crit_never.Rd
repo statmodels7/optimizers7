@@ -7,11 +7,13 @@
 crit_never()
 }
 \value{
-A \code{\link[=criterion]{criterion()}} object.
+An S7 object of class \link{CritNever}, inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The rule that never fires, so a run ends only when it exhausts its iteration
-budget.
+Builds the rule that never fires, so a run ends only when it exhausts a
+budget and reports \code{converged = FALSE}. This is \code{\link[=adam]{adam()}}'s default and is
+the honest arrangement for a stochastic method, where every quantity a
+convergence rule could read is an estimate.
 }
 \details{
 This is not a placeholder. For a stochastic method there is often nothing
@@ -30,7 +32,17 @@ is what a rule confirmed, never what the run merely stopped doing.
 \examples{
 crit_never()
 
+# It fires at no state at all, however good.
+crit_met(crit_never(), list(f_new = 0, f_old = 0, x_new = 1, x_old = 1,
+                            gradient = c(0, 0)))
+
+# A run carrying it ends on its budget and says so.
+r <- minimize(adam(maxit = 50), function(p) sum(p^2), c(1, 1),
+              gr = function(p) 2 * p)
+c(r@converged, r@criterion_met)
+
 }
 \seealso{
-\code{\link[=adam]{adam()}}, \code{\link[=crit_grad]{crit_grad()}}
+\code{\link[=adam]{adam()}} for the method that defaults to it, \code{\link[=crit_grad]{crit_grad()}} for
+the rule to pass instead when the objective is exact.
 }
