@@ -2,7 +2,7 @@
 % Please edit documentation in R/starters.R
 \name{is_starter}
 \alias{is_starter}
-\title{The Number of Parameters a Starter Was Given}
+\title{Is This a Starter?}
 \usage{
 is_starter(x)
 }
@@ -10,10 +10,19 @@ is_starter(x)
 \item{x}{Any object.}
 }
 \value{
-\code{TRUE} for a starter.
+A single logical.
 }
 \description{
-The class of an optimizer is not the place to look for this, so
-it has a name.
+\code{TRUE} when \code{x} inherits from the abstract \link{starter} class, \code{FALSE}
+otherwise. \code{\link[=minimize]{minimize()}} asks it to decide whether \code{par} is a vector to be
+used as given or an object to be resolved into one, and the question has a
+name so that the test is written once.
+}
+\examples{
+is_starter(start_zeros())
+is_starter(start_runif(-2, 2))
+is_starter(c(0, 0))
+is_starter(bfgs())
+
 }
 \keyword{internal}

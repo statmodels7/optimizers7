@@ -8,15 +8,18 @@
 ZeroStart(npar = NULL)
 }
 \arguments{
-\item{npar}{The number of parameters, or \code{NULL}.}
+\item{npar}{The number of parameters, an integer, or \code{NULL}.}
 }
 \value{
-An S7 object inheriting from \code{starter}.
+An S7 object of class \code{ZeroStart} inheriting from \link{starter}.
 }
 \description{
-The class \code{\link[=start_zeros]{start_zeros()}} instantiates.
+A starter that produces a vector of zeros on the unconstrained scale.
+Built by \code{\link[=start_zeros]{start_zeros()}}. It carries \code{npar} alone, adding no property of
+its own to the abstract \link{starter} class.
 }
 \seealso{
-\code{\link[=start_zeros]{start_zeros()}}
+\code{\link[=start_zeros]{start_zeros()}} for the constructor,
+\code{\link[=starting_values.ZeroStart]{starting_values.ZeroStart()}} for what it produces.
 }
 \keyword{internal}

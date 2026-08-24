@@ -8,16 +8,29 @@
 starter(npar = NULL)
 }
 \arguments{
-\item{npar}{The number of parameters, or \code{NULL} to work it out.}
+\item{npar}{The number of parameters, an integer, or \code{NULL} to have
+\code{\link[=minimize]{minimize()}} work it out from the bounds or from the objective.}
 }
 \value{
-An S7 object.
+An S7 object. The class is abstract, so every value is an object of
+one of its subclasses.
 }
 \description{
-The abstract parent of \code{\link[=start_zeros]{start_zeros()}} and
-\code{\link[=start_runif]{start_runif()}}.
+The abstract parent of \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A starter
+stands in for the vector of starting values: it says how the values are to
+be produced and carries how many of them there are, and \code{\link[=minimize]{minimize()}}
+turns it into an actual vector before dispatch. Every optimizer therefore
+accepts one, including an optimizer written outside the package, and no
+method needs to know that starters exist.
+}
+\details{
+The class is abstract and carries one property, \code{npar}, an integer or
+\code{NULL}. A subclass needs a method for \code{\link[=starting_values]{starting_values()}} and nothing
+else. The class is not exported as of version 0.6.0, so subclassing it is
+available inside the package and not outside it; \code{\link[=is_starter]{is_starter()}} is what
+\code{\link[=minimize]{minimize()}} tests, and a class parented elsewhere fails that test.
 }
 \seealso{
-\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}}
+\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}}, \code{\link[=starting_values]{starting_values()}}.
 }
 \keyword{internal}

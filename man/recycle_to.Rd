@@ -17,6 +17,11 @@ recycle_to(v, n, nm)
 A numeric vector of length \code{n}.
 }
 \description{
-Recycle a Length-One Vector, and Reject Any Other Mismatch
+Returns \code{v} at length \code{n}: a single value is repeated, a value already of
+length \code{n} is passed through as a double, and anything else raises an
+error naming the argument and both lengths. \R's own recycling is
+deliberately not used, since it is silent whenever the shorter length
+divides the longer, and a partial range is far likelier to be a mistake
+than a request.
 }
 \keyword{internal}

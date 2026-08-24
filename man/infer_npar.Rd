@@ -18,7 +18,9 @@ of that length, so that the objective is probed where it will be used.}
 \item{npar_max}{The largest length tried. Defaults to \code{50}.}
 }
 \value{
-A single integer.
+A single integer, the one length accepted. Raises an error naming
+the two lengths it found when more than one is accepted, and an error
+when none is.
 }
 \description{
 Works out the length of the parameter vector by trying lengths and seeing
@@ -53,23 +55,32 @@ fixed width built into them and rejects the ones that do not, naming the two
 lengths it found. When it rejects, \code{npar} or a vector of bounds is one
 word.
 
-The search stops as soon as a \emph{second} length is accepted, because at
-that point the answer is already known to be ambiguous and there is no reason
-to keep probing. So the cost is two evaluations when the objective accepts any
-length, and at most \code{npar_max} when it accepts exactly one. Either way it
-happens once, before the run.
+The search stops as soon as a \emph{second} length is accepted: the answer is
+then already known to be ambiguous and there is no reason to keep probing.
+The cost is therefore two evaluations when the objective accepts any
+length, and \code{npar_max} when it accepts exactly one. Either way it happens
+once, before the run.
 }
 \examples{
-# a hand-written gradient pins it exactly
+# A hand-written gradient pins it exactly.
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 infer_npar(f, gr, function(k) numeric(k))
 
-# without one, the same objective is happy with any length from two upwards
+# Without one, the same objective is happy with any length from two
+# upwards, and the refusal names the two lengths that decided it.
 try(infer_npar(f, NULL, function(k) numeric(k)))
+
+# An objective with a width built in is settled without a gradient, and
+# this is the ordinary case for a model.
+set.seed(1)
+X <- matrix(rnorm(40 * 3), 40, 3)
+y <- as.numeric(X \%*\% c(1, -2, 0.5) + rnorm(40))
+infer_npar(function(b) sum((y - X \%*\% b)^2), NULL, function(k) numeric(k))
 
 }
 \seealso{
-\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=minimize]{minimize()}}
+\code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}, the starters that make this
+question arise, and \code{\link[=minimize]{minimize()}}, which asks it.
 }

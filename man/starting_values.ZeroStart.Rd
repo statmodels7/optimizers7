@@ -4,14 +4,21 @@
 \alias{starting_values.ZeroStart}
 \title{Zero Starting Values}
 \arguments{
-\item{starter}{A \code{ZeroStart} object.}
+\item{starter}{A \code{ZeroStart} object. Its own \code{npar} is not read here;
+\code{\link[=minimize]{minimize()}} has already settled the count and passes it.}
 
-\item{npar}{The number of parameters.}
+\item{npar}{The number of parameters wanted, a positive whole number.}
 }
 \value{
-A numeric vector of zeros.
+A numeric vector of \code{npar} zeros.
 }
 \description{
-Returns \code{npar} zeros.
+Returns \code{npar} zeros. Read on the unconstrained scale, so \code{\link[=minimize]{minimize()}}
+maps them through the bounds before any method sees them: a positive
+parameter starts at 1, a probability at 0.5, an unbounded one at 0.
+}
+\examples{
+starting_values(start_zeros(), 4)
+
 }
 \keyword{internal}

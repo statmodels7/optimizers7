@@ -11,7 +11,8 @@ start_zeros(npar = NULL)
 it out from the bounds or from the objective; see \code{\link[=minimize]{minimize()}}.}
 }
 \value{
-An S7 object of class \code{ZeroStart}.
+An S7 object of class \link{ZeroStart}, inheriting from \link{starter}, to be
+passed as \code{par}.
 }
 \description{
 A starting point of all zeros, which after the bound transform is the
@@ -20,19 +21,37 @@ one half for a probability, zero for an unbounded one.
 }
 \details{
 Zero is the right constant only because it is applied on the unconstrained
-scale. A vector of zeros on the \emph{parameter} scale is not a starting
-point at all for a model with a scale parameter in it: it sits exactly on the
-boundary, where the log-likelihood is usually infinite and the gradient
-certainly is.
+scale. What it becomes after the bound transform depends on the box:
+
+\tabular{ll}{
+\strong{bounds} \tab \strong{starting value} \cr
+\eqn{(-\infty, \infty)} \tab 0 \cr
+\eqn{(0, \infty)} \tab 1 \cr
+\eqn{(0, 1)} \tab 0.5 \cr
+\eqn{(2, 6)} \tab 4 \cr
+\eqn{(-\infty, 5)} \tab 4 \cr
+}
+
+A vector of zeros on the \emph{parameter} scale is no starting point at all for
+a model with a scale parameter in it: it sits exactly on the boundary,
+where the log-likelihood is usually infinite and the gradient certainly is.
+\code{\link[=minimize]{minimize()}} refuses such a point for that reason.
 }
 \examples{
 f <- function(p) sum((p - c(1, 2, 3))^2)
 minimize(bfgs(), f, start_zeros(3))@par
 
-# zero on the unconstrained scale is one on a positive parameter's scale
-minimize(bfgs(), f, start_zeros(3), lower = 0)@par
+# Zero on the unconstrained scale is one on a positive parameter's scale,
+# and the midpoint of a two-sided box.
+starting_values(start_zeros(), 3)
+bounded_transform(c(0, Inf), 0)$h
+bounded_transform(c(2, 6), 0)$h
+
+# The count need not be given when the bounds already say it.
+minimize(bfgs(), f, start_zeros(), lower = c(0, 0, 0))@par
 
 }
 \seealso{
-\code{\link[=start_runif]{start_runif()}}, \code{\link[=starting_values]{starting_values()}}
+\code{\link[=start_runif]{start_runif()}} for a random start, \code{\link[=starting_values]{starting_values()}} for the
+generic that resolves it, \code{\link[=minimize]{minimize()}} for how \code{npar} is settled.
 }

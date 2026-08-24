@@ -10,9 +10,13 @@ check_npar(npar)
 \item{npar}{\code{NULL} or a positive whole number.}
 }
 \value{
-\code{NULL}, or the value as an integer.
+\code{NULL} when \code{npar} is \code{NULL}, otherwise the value as an integer.
+Raises an error otherwise.
 }
 \description{
-Validate a Declared Parameter Count
+Checks that \code{npar} is a single positive whole number, or \code{NULL}, and
+returns it as an integer. Called by both starter constructors, so
+\code{start_zeros(0)} and \code{start_runif(npar = 2.5)} are refused in the same
+words at the point they are written.
 }
 \keyword{internal}

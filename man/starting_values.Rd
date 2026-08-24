@@ -13,22 +13,31 @@ object, or a user-defined starter.}
 \item{npar}{The number of parameters wanted.}
 }
 \value{
-A numeric vector of length \code{npar}.
+A numeric vector of length \code{npar}, on the unconstrained scale.
 }
 \description{
 Turns a starter into an actual numeric vector of length \code{npar}, on the
 \strong{unconstrained} scale.
 }
 \details{
-The unconstrained scale is the one the optimizer actually works on when there
-are bounds, so this is where a starter is entitled to be simple: zero means
+The unconstrained scale is the one the optimizer works on when there are
+bounds, and that is where a starter is entitled to be simple: zero means
 the middle of an interval, one for a variance, one half for a probability,
-and there is no way for it to fall outside a bound. \code{\link[=minimize]{minimize()}}
-maps the result back through \code{\link[=bounded_transform]{bounded_transform()}} before any
-method sees it.
+and no value can fall outside a bound. \code{\link[=minimize]{minimize()}} maps the result back
+through \code{\link[=bounded_transform]{bounded_transform()}} before any method sees it.
 
-A user-defined starter is a subclass of \code{starter} with a method for
-this generic; nothing else is required.
+\code{npar} is passed by \code{\link[=minimize]{minimize()}}, which has already settled it from the
+starter's own \code{npar}, from the length of the bounds, or by probing the
+objective with \code{\link[=infer_npar]{infer_npar()}}. A method for this generic therefore reads
+the argument and not \code{starter@npar}.
+
+The two shipped starters are \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}, and they
+are what a caller has available. A starter of a third kind is a subclass of
+the abstract \link{starter} class with a method for this generic and nothing
+else, but that class is not exported as of version 0.6.0, and
+\code{\link[=minimize]{minimize()}} accepts as \code{par} only a numeric vector or an object
+inheriting from it. A class of your own carrying a \code{starting_values()}
+method is therefore refused with \verb{'par' must be a numeric vector of starting values}; resolve the vector yourself and pass it.
 }
 \examples{
 starting_values(start_zeros(), 3)
@@ -36,8 +45,16 @@ starting_values(start_zeros(), 3)
 set.seed(1)
 starting_values(start_runif(-2, 2), 3)
 
+# Resolving by hand gives exactly the vector minimize() would have used,
+# so passing a starter and passing its values are the same run.
+f <- function(p) sum((p - 1:3)^2)
+set.seed(1); a <- minimize(bfgs(), f, start_runif(-2, 2, npar = 3))
+set.seed(1); b <- minimize(bfgs(), f, starting_values(start_runif(-2, 2), 3))
+identical(a@par, b@par)
+
 }
 \seealso{
-\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}},
-\code{\link[=minimize]{minimize()}}
+\code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}} for the two shipped starters,
+\code{\link[=minimize]{minimize()}} for where the resolution happens, \code{\link[=infer_npar]{infer_npar()}} for how
+\code{npar} is worked out when nothing declares it.
 }

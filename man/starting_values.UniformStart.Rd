@@ -4,14 +4,30 @@
 \alias{starting_values.UniformStart}
 \title{Uniform Starting Values}
 \arguments{
-\item{starter}{A \code{UniformStart} object.}
+\item{starter}{A \code{UniformStart} object, read for \code{min} and \code{max}.}
 
-\item{npar}{The number of parameters.}
+\item{npar}{The number of parameters wanted, a positive whole number.}
 }
 \value{
-A numeric vector.
+A numeric vector of length \code{npar}, drawn with \code{stats::runif()}, so
+\code{set.seed()} governs it.
 }
 \description{
-Draws \code{npar} values from the starter's range.
+Draws \code{npar} values, coordinate by coordinate, from the starter's \code{min}
+and \code{max} on the unconstrained scale. A \code{min} or \code{max} of length one is
+used for every coordinate; one of length \code{npar} gives each its own range,
+and any other length raises an error naming both lengths.
+}
+\examples{
+set.seed(1)
+starting_values(start_runif(-2, 2), 4)
+
+# A range per coordinate.
+set.seed(1)
+starting_values(start_runif(c(-1, -10), c(1, 10)), 2)
+
+# A length that is neither 1 nor npar is a mistake, not a request.
+try(starting_values(start_runif(c(-1, -2, -3)), 2))
+
 }
 \keyword{internal}

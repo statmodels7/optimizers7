@@ -15,7 +15,8 @@ rather than as a single number.}
 it out from the bounds or from the objective; see \code{\link[=minimize]{minimize()}}.}
 }
 \value{
-An S7 object of class \code{UniformStart}.
+An S7 object of class \link{UniformStart}, inheriting from \link{starter}, to
+be passed as \code{par}.
 }
 \description{
 Each coordinate is drawn independently from \code{runif(min, max)} on the
@@ -23,31 +24,43 @@ unconstrained scale and mapped back through the bounds, so no draw is ever
 rejected for being outside the box.
 }
 \details{
-The range is in unconstrained units, which is what makes a single default
-workable. A draw in \eqn{(-1, 1)} becomes a variance between \eqn{0.37} and
-\eqn{2.7}, a probability between \eqn{0.27} and \eqn{0.73}, and a parameter
-bounded on both sides lands well inside its interval; the same numbers on the
-parameter scale would mean quite different things and would sometimes be
-inadmissible.
+The range is in unconstrained units, and that is what makes a single
+default workable. A draw in \eqn{(-1, 1)} becomes a variance between
+\code{0.368} and \code{2.72}, a probability between \code{0.269} and \code{0.731}, and a
+parameter bounded on both sides lands well inside its interval. The same
+numbers on the parameter scale would mean quite different things and would
+sometimes be inadmissible.
 
 Widen it when the scale of the problem is unknown. \code{start_runif(-5, 5)}
-spans four orders of magnitude for a positive parameter, which is usually more
-than enough and is still a range no draw can fall out of.
+spans \code{0.0067} to \code{148} for a positive parameter, four orders of
+magnitude, and is still a range no draw can fall out of.
 
-The draw uses \R's ordinary generator, so \code{\link[=set.seed]{set.seed()}} reproduces
-it, and the seed is recorded in the result.
+The draw uses \R's ordinary generator, so \code{\link[=set.seed]{set.seed()}} reproduces it, and
+the state is recorded in the result's \code{seed}.
 }
 \examples{
 f <- function(p) sum((p - c(1, 2, 3))^2)
 set.seed(1)
 minimize(bfgs(), f, start_runif(npar = 3))@par
 
-# a wider net, and a positive parameter
+# What the range means on the parameter scale, for a positive parameter.
+range(bounded_transform(c(0, Inf), c(-1, 1))$h)
+range(bounded_transform(c(0, Inf), c(-5, 5))$h)
+
+# A wider net on a positive parameter whose scale is unknown.
 set.seed(1)
 minimize(bfgs(), function(p) (log(p) - 1)^2, start_runif(-5, 5, npar = 1),
          lower = 0)@par
 
+# One range per parameter is allowed; a length that is neither 1 nor npar
+# is refused when the draw is made.
+set.seed(1)
+starting_values(start_runif(c(-1, -10), c(1, 10)), 2)
+try(starting_values(start_runif(c(-1, -2, -3)), 2))
+
 }
 \seealso{
-\code{\link[=start_zeros]{start_zeros()}}, \code{\link[=starting_values]{starting_values()}}
+\code{\link[=start_zeros]{start_zeros()}} for the deterministic start, \code{\link[=starting_values]{starting_values()}}
+for the generic that resolves it, \code{\link[=multistart]{multistart()}}, which uses a starter to
+generate its own starts.
 }
