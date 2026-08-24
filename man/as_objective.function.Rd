@@ -4,17 +4,43 @@
 \alias{as_objective.function}
 \title{An Ordinary R Function as an Objective}
 \arguments{
-\item{fn}{A function of the parameter vector.}
+\item{fn}{A function of the parameter vector returning a single number.}
 
-\item{gr}{An optional gradient function, or \code{NULL} for finite differences.}
+\item{gr}{A function of the parameter vector returning the gradient, or
+\code{NULL} for a central difference of \code{fn}.}
+
+\item{he}{A function of the parameter vector returning the Hessian, or
+\code{NULL}. Read by \code{\link[=newton]{newton()}} alone.}
 
 \item{...}{Unused.}
 }
 \value{
-An objective handle; see \code{\link[=as_objective]{as_objective()}}.
+The six-component list described under \code{\link[=as_objective]{as_objective()}}, with
+\code{kind = "r"}.
 }
 \description{
-The common case: \code{fn(par)} returns a number and, if supplied,
-\code{gr(par)} returns the gradient.
+The shipped method, and the case almost every caller is in: \code{fn(par)}
+returns the number to be minimized, and \code{gr(par)} and \code{he(par)} return
+its gradient and Hessian when the caller has them. Every evaluation is a
+callback into R, which is the cost of accepting an arbitrary closure and
+the reason a run reports its evaluation counts.
+}
+\section{Validation}{
+
+\code{gr} and \code{he} are each checked to be a function or \code{NULL}, and anything
+else raises immediately, before the run starts. \code{fn} itself is not
+checked here: dispatch has already established that it is a function, and
+whether it returns a single number is settled at the first evaluation,
+where the offending value can be reported.
+}
+
+\examples{
+obj <- as_objective(function(p) sum(p^2), gr = function(p) 2 * p)
+obj$kind
+c(obj$has_gradient, obj$has_hessian)
+
+# A gradient that is not a function is refused before any evaluation.
+try(as_objective(function(p) sum(p^2), gr = 1))
+
 }
 \keyword{internal}

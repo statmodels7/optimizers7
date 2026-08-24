@@ -7,30 +7,112 @@
 as_objective(fn, gr = NULL, he = NULL, ...)
 }
 \arguments{
-\item{fn}{The objective.}
+\item{fn}{The objective, a function of the parameter vector returning a
+single number to be \strong{minimized}. An object of some other class is
+accepted whenever a method has been registered for it; without one,
+dispatch fails and reports the class it was handed.}
 
-\item{gr}{An optional gradient.}
+\item{gr}{The gradient, a function of the parameter vector returning a
+numeric vector of the same length. \code{NULL}, the default, has the
+gradient differenced from \code{fn} as above. Anything that is neither a
+function nor \code{NULL} is an error.}
 
-\item{he}{An optional Hessian. Only Newton uses one; the other methods
-accept it and ignore it, so calling code need not branch on the method.}
+\item{he}{The Hessian, a function of the parameter vector returning a
+\verb{p x p} symmetric matrix. \code{NULL} is the default. Only \code{\link[=newton]{newton()}}
+reads one; every other method accepts it and ignores it, so calling
+code can pass whatever it has without branching on the method.}
 
-\item{...}{Passed to methods.}
+\item{...}{Passed to the method dispatched on. The shipped method for an
+ordinary function reads nothing from it.}
 }
 \value{
-A list describing the objective to the C++ side: \code{kind}, the
-pieces belonging to that kind, and flags saying which derivatives were
-supplied rather than differenced.
+A named list of six components describing the objective to the
+compiled side:
+\describe{
+\item{\code{kind}}{character, \code{"r"} for an ordinary R function.}
+\item{\code{fn}}{the objective as supplied.}
+\item{\code{gr}}{the gradient, or \code{NULL}.}
+\item{\code{he}}{the Hessian, or \code{NULL}.}
+\item{\code{has_gradient}}{logical, whether \code{gr} was supplied.}
+\item{\code{has_hessian}}{logical, whether \code{he} was supplied.}
+}
 }
 \description{
-Turns the objective into the single handle the algorithms are written
-against.
+Packs a function to be minimized, together with whichever of its gradient
+and Hessian the caller has, into the one handle every algorithm in the
+package is written against. The result is a named list carrying the pieces
+and two flags saying which derivatives were supplied. \code{as_objective()} is
+a generic dispatching on \code{fn}, so a caller holding some other kind of
+objective registers one method and every algorithm accepts it.
 }
+\section{Two generics, each dispatching once}{
+\code{\link[=minimize]{minimize()}} dispatches on the optimizer, so an algorithm is written once
+whatever shape the objective arrived in. \code{as_objective()} dispatches on
+the objective, so the shapes are told apart once whatever algorithm is
+running. Dispatching \code{\link[=minimize]{minimize()}} on both would need one method per
+algorithm per shape.
+}
+
+\section{What happens when no gradient is supplied}{
+The compiled loop differences the objective, once per coordinate,
+\deqn{\hat{g}_j = \frac{f(x + h e_j) - f(x - h e_j)}{2h}, \qquad
+      h = \varepsilon^{1/3} \max(1, \lvert x_j \rvert),}
+with \eqn{\varepsilon} the machine epsilon, so \eqn{h} is about
+\code{6.06e-06} for a coordinate of size one. One gradient then costs
+\eqn{2p} evaluations of the objective. The accuracy is what a central
+difference gives: on the Rosenbrock function at \eqn{(0.5, 0.5)} the
+differenced gradient is right to a relative \code{1.4e-10}.
+
+A run that differences its gradient says so in the result's \code{message}
+field, so a fit is never quietly less exact than it looks.
+}
+
+\section{The Hessian is the one place two differences compose}{
+Only \code{\link[=newton]{newton()}} asks for a Hessian, and when none is supplied it is
+obtained by differencing the gradient once. With an analytic gradient
+that is a single differentiation and costs \eqn{2p} gradient evaluations.
+With no gradient either, the gradient is itself a difference and the
+Hessian is a difference of differences, which costs about \eqn{4p^2}
+evaluations and loses accuracy accordingly: one Newton iteration on a
+quadratic in 20 unknowns takes 1682 evaluations of the objective without
+a gradient and 42 of the gradient with one. The Hessian is symmetrized
+before it is returned, the two triangles differing by the differencing
+error alone.
+}
+
+\section{A point the objective refuses}{
+An objective that returns \code{NA}, \code{NaN} or an infinity at some point
+declares that point unusable. The algorithms treat that as an ordinary
+event, back away and continue, so a line search may probe outside the
+region where the objective is defined without the run failing.
+}
+
 \examples{
-# a plain function, with and without a gradient
+# The flags record what was supplied, and they are what the loop branches on.
 str(as_objective(function(p) sum(p^2)))
 str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 
+# What the difference costs, on Rosenbrock from the origin. Both runs take
+# 21 iterations and land in the same place; only the bill differs.
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                   200 * (p[2] - p[1]^2))
+
+a <- minimize(bfgs(), f, c(0, 0))
+b <- minimize(bfgs(), f, c(0, 0), gr = g)
+unlist(a@counts)          # 126 objective evaluations, no gradients
+unlist(b@counts)          # 30 objective evaluations and 24 gradients
+max(abs(a@par - b@par))   # the two answers agree to 1.5e-08
+
+# The run that differenced says so.
+a@message
+
+# A class with no method is refused by name.
+try(as_objective(1:3))
+
 }
 \seealso{
-\code{\link[=crit_met]{crit_met()}}, \code{\link[=crit_needs]{crit_needs()}}, \code{\link[=check_criterion]{check_criterion()}}
+\code{\link[=minimize]{minimize()}} for the run itself, \code{\link[=newton]{newton()}} for the one method
+that reads a Hessian, \code{\link[=optimizer_provides]{optimizer_provides()}} for what a method offers a
+stopping rule in return.
 }
