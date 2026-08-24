@@ -25,7 +25,7 @@ Evaluates \code{one(i)} for \code{i} in \code{1:n}, over \code{ncores}
 processes, and cleans up after itself.
 }
 \details{
-Three routes, chosen for the caller rather than by them.
+Three routes, chosen here so that the caller need not.
 
 One process is the sequential loop, and it is the only route that can report
 progress as it goes, a worker having nowhere to print to that the caller
@@ -33,8 +33,8 @@ would see.
 
 On a Unix-alike the workers are \strong{forks}, through
 \code{parallel::mclapply()}. A fork starts in microseconds and inherits this
-session entire, so there is nothing to load and nothing to export — including
-a package loaded with \pkg{pkgload}, which is why this works during
+session entire, so there is nothing to load and nothing to export. That
+includes a package loaded with \pkg{pkgload}, so this route works during
 development where a socket cluster does not.
 
 On Windows there is no \code{fork}, so a \strong{socket cluster} is started

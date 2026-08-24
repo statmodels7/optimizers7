@@ -20,7 +20,7 @@ starts, but never more than the machine can spare.
 }
 \details{
 The rule is \code{min(n, max(1, detectCores() - 2))}. Two are held back
-rather than one because the session doing the asking is itself one of them,
+and not one, because the session doing the asking is itself one of them,
 and a machine with nothing left over is a machine that stops responding.
 Asking for more processes than there are starts wastes the cost of starting
 them, which on Windows is seconds rather than microseconds.

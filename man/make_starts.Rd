@@ -28,7 +28,7 @@ Each coordinate's range is cut into \code{n - 1} strata, each used exactly
 once, so the starts cannot all fall in one corner the way independent draws
 can. The range is \code{par} plus or minus \code{3 * spread} on the
 unconstrained scale, which for an unbounded parameter is the parameter itself
-and for a bounded one is its log or logit — so a start for a variance is drawn
-as a log and comes back positive without a single rejected draw.
+and for a bounded one is its log or logit. A start for a variance is
+therefore drawn as a log and comes back positive with no rejected draw.
 }
 \keyword{internal}

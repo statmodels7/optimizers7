@@ -11,7 +11,7 @@ NULL
 #' Built by [multistart()]. Its seven shared properties describe the wrapper
 #' and not the inner run: `criterion`, `max_eval` and the rest are copied
 #' from the optimizer inside so that printing tells the truth, while `maxit`
-#' counts **starts** rather than iterations.
+#' counts **starts**.
 #'
 #' @details
 #' Beyond the seven shared properties a `MultiStart` carries six of its own:
@@ -79,8 +79,8 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' @param verbose Report each start as it finishes? Defaults to `FALSE`.
 #' @param refresh Report every this many starts. Defaults to `1`.
 #' @param keep_trace Keep the per-start summary? Defaults to `TRUE`, unlike
-#'   every other optimizer, because here the trace is one row per **start**
-#'   and not one per iteration.
+#'   every other optimizer, because here the trace is one row per **start**,
+#'   not one per iteration.
 #'
 #' @details
 #' # What the result reports
@@ -114,12 +114,11 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' creation, package loading, random-stream assignment and shutdown are
 #' handled internally: on Unix-alikes the workers are forks, on Windows a
 #' socket cluster. If the workers cannot load the package the run warns and
-#' proceeds sequentially, which is what happens under `pkgload`, the workers
+#' proceeds sequentially. That is what happens under `pkgload`, the workers
 #' being separate sessions that do not inherit this one's loaded packages.
 #'
-#' Processes are used and not threads because the stopping rule is an R
-#' object consulted at every iteration, and R cannot be called from several
-#' threads.
+#' Processes are used because the stopping rule is an R object consulted at
+#' every iteration, and R cannot be called from several threads.
 #'
 #' The starting points are drawn in the calling session before dispatch, and
 #' each worker receives a random stream derived from the session's seed, so
@@ -261,8 +260,8 @@ S7::method(with_maxit, MultiStart) <- function(optimizer, maxit) {
 #' once, so the starts cannot all fall in one corner the way independent draws
 #' can. The range is `par` plus or minus `3 * spread` on the
 #' unconstrained scale, which for an unbounded parameter is the parameter itself
-#' and for a bounded one is its log or logit — so a start for a variance is drawn
-#' as a log and comes back positive without a single rejected draw.
+#' and for a bounded one is its log or logit. A start for a variance is
+#' therefore drawn as a log and comes back positive with no rejected draw.
 #'
 #' @param par The user's starting value.
 #' @param n Total number of starts, including `par`.
@@ -395,7 +394,7 @@ capture_seed <- function() {
 #'
 #' @details
 #' The rule is `min(n, max(1, detectCores() - 2))`. Two are held back
-#' rather than one because the session doing the asking is itself one of them,
+#' and not one, because the session doing the asking is itself one of them,
 #' and a machine with nothing left over is a machine that stops responding.
 #' Asking for more processes than there are starts wastes the cost of starting
 #' them, which on Windows is seconds rather than microseconds.
@@ -429,7 +428,7 @@ resolve_ncores <- function(ncores, n) {
 #' processes, and cleans up after itself.
 #'
 #' @details
-#' Three routes, chosen for the caller rather than by them.
+#' Three routes, chosen here so that the caller need not.
 #'
 #' One process is the sequential loop, and it is the only route that can report
 #' progress as it goes, a worker having nowhere to print to that the caller
@@ -437,8 +436,8 @@ resolve_ncores <- function(ncores, n) {
 #'
 #' On a Unix-alike the workers are **forks**, through
 #' `parallel::mclapply()`. A fork starts in microseconds and inherits this
-#' session entire, so there is nothing to load and nothing to export — including
-#' a package loaded with \pkg{pkgload}, which is why this works during
+#' session entire, so there is nothing to load and nothing to export. That
+#' includes a package loaded with \pkg{pkgload}, so this route works during
 #' development where a socket cluster does not.
 #'
 #' On Windows there is no `fork`, so a **socket cluster** is started
@@ -533,7 +532,7 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
 #'
 #' @details
 #' The count of distinct optima is the reason to run this at all, so it is
-#' computed rather than left to the caller: the values reached are sorted and
+#' computed here: the values reached are sorted and
 #' cut wherever consecutive ones differ by more than `distinct_tol`. It is
 #' a statement about the objective, not about the optimizer, and it is the one
 #' piece of evidence a single run can never supply.

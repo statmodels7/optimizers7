@@ -44,7 +44,7 @@ An optimizer wrapping another and running it from several starting points.
 Built by \code{\link[=multistart]{multistart()}}. Its seven shared properties describe the wrapper
 and not the inner run: \code{criterion}, \code{max_eval} and the rest are copied
 from the optimizer inside so that printing tells the truth, while \code{maxit}
-counts \strong{starts} rather than iterations.
+counts \strong{starts}.
 }
 \details{
 Beyond the seven shared properties a \code{MultiStart} carries six of its own:

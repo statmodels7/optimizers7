@@ -45,8 +45,8 @@ the same optimum. Defaults to \code{1e-6}.}
 \item{refresh}{Report every this many starts. Defaults to \code{1}.}
 
 \item{keep_trace}{Keep the per-start summary? Defaults to \code{TRUE}, unlike
-every other optimizer, because here the trace is one row per \strong{start}
-and not one per iteration.}
+every other optimizer, because here the trace is one row per \strong{start},
+not one per iteration.}
 }
 \value{
 An S7 object of class \link{MultiStart}, inheriting from \code{\link[=optimizer]{optimizer()}},
@@ -87,12 +87,11 @@ The starts are independent and are run over \code{ncores} processes. Worker
 creation, package loading, random-stream assignment and shutdown are
 handled internally: on Unix-alikes the workers are forks, on Windows a
 socket cluster. If the workers cannot load the package the run warns and
-proceeds sequentially, which is what happens under \code{pkgload}, the workers
+proceeds sequentially. That is what happens under \code{pkgload}, the workers
 being separate sessions that do not inherit this one's loaded packages.
 
-Processes are used and not threads because the stopping rule is an R
-object consulted at every iteration, and R cannot be called from several
-threads.
+Processes are used because the stopping rule is an R object consulted at
+every iteration, and R cannot be called from several threads.
 
 The starting points are drawn in the calling session before dispatch, and
 each worker receives a random stream derived from the session's seed, so
