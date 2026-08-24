@@ -8,14 +8,27 @@
 \item{optimizer}{A \code{NelderMead} or \code{Compass} object.}
 }
 \value{
-A character vector.
+The character vector \code{"stationarity"}.
 }
 \description{
-The objective and a stationarity measure, but no gradient.
+Both derivative-free methods report \code{"stationarity"} and no gradient,
+having none to report. A rule reading a gradient is refused when the run
+starts, so it cannot sit there testing \code{NULL} at every iteration and never
+firing.
 }
 \details{
-A rule reading a gradient is rejected rather than left testing \code{NULL} at
-every iteration and never firing. \code{\link[=crit_stationary]{crit_stationary()}} is what
-takes its place.
+The measure differs by method and \code{\link[=crit_stationary]{crit_stationary()}} reads whichever is
+offered: for \code{\link[=nelder_mead]{nelder_mead()}} the \strong{diameter of the simplex}, so the
+tolerance is on the parameter scale, and for \code{\link[=compass]{compass()}} the \strong{poll size}
+\eqn{\Delta}, the quantity Torczon's theorem is stated in.
+}
+\examples{
+optimizer_provides(nelder_mead())
+optimizer_provides(compass())
+
+# So a gradient rule is refused, naming the method.
+try(minimize(nelder_mead(criterion = crit_grad()),
+             function(p) sum(p^2), c(1, 1)))
+
 }
 \keyword{internal}

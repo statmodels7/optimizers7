@@ -19,22 +19,25 @@ compass(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule. Defaults to
-\code{crit_stationary(1e-8)}, on the poll size.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
+\code{crit_stationary(1e-8)}, read on the poll size \eqn{\Delta}. This is the
+rule with a theorem behind it: the limit points of a pattern search with
+\eqn{\Delta \to 0} are Clarke stationary.}
 
 \item{step}{Initial poll size, scaled by the largest coordinate of the
-starting value. Defaults to \code{0.1}.}
+starting value. A single positive number, default \code{0.1}.}
 
-\item{directions}{\code{"mads"} (default) or \code{"coordinate"}; see
-Details.}
+\item{directions}{\code{"mads"} (default) or \code{"coordinate"}. Partial matching
+applies and any other string is refused, naming both.}
 
-\item{opportunistic}{Move to the first improvement found rather than polling
-every direction? Defaults to \code{TRUE}.}
+\item{opportunistic}{Move to the first improvement found instead of
+polling every direction? \code{TRUE} or \code{FALSE}, default \code{TRUE}.}
 
-\item{expand}{Factor applied to the poll size after a success. Defaults to
-\code{2}.}
+\item{expand}{Factor applied to the poll size after a success. A single
+number of at least 1, default \code{2}.}
 
-\item{shrink}{Factor applied after a failure. Defaults to \code{0.5}.}
+\item{shrink}{Factor applied after a failure. A single number strictly
+inside \eqn{(0, 1)}, default \code{0.5}.}
 
 \item{maxit}{Maximum iterations. Defaults to 2000.}
 
@@ -49,8 +52,8 @@ no evaluation budget, so the run stops on the criterion or on
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{Compass}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{Compass}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
+be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Looks around the current point along a set of directions; moves to the first
@@ -59,52 +62,77 @@ Uses no derivative, and unlike \code{\link[=nelder_mead]{nelder_mead()}} it come
 convergence theorem.
 }
 \details{
-The directions form a \emph{positive spanning set}: any vector in the space
-is a non-negative combination of them, which is what
-buys the theorem — if the current point is not stationary then some direction
-in the set goes downhill, so a poll that fails everywhere is evidence about
-the point rather than about the directions. A failed poll therefore licenses
-shrinking the radius, and the limit points of a run in which the radius goes
-to zero are stationary.
-
-\subsection{Poll directions}{
+The directions form a \emph{positive spanning set}: every vector in the space
+is a non-negative combination of them. That is what buys the theorem. If
+the current point is not stationary then some direction in the set goes
+downhill, so a poll that fails everywhere is evidence about the point and
+not about the directions. A failed poll therefore licenses shrinking the
+radius, and the limit points of a run whose radius goes to zero are
+stationary.
+}
+\section{Poll directions}{
 \describe{
-\item{\code{"coordinate"}}{the \eqn{2p} signed axes: this is compass
-search. Cheap, deterministic, reproducible. The theorem it enjoys assumes
-\eqn{f} is continuously differentiable.}
-\item{\code{"mads"}}{a fresh random orthonormal basis at every poll,
-taken plus and minus.}
-}
-The difference is not cosmetic on the problems this method exists for. When
-\eqn{f} is merely Lipschitz — has kinks — a \emph{fixed} set of directions can
-fail: a kink whose ridge runs diagonally is descended by no coordinate
-direction, the poll fails at a point that is not stationary, and the run
-stops there. The repair, which is the idea behind MADS, is to let the set of
-directions used over the whole run become dense in the sphere, so no
-direction of descent can be missed for ever; drawing a new orthonormal basis
-at each poll achieves that with probability one. What is implemented here is
-that idea rather than LTMADS as published, but it is the property the
-convergence proof rests on.
-
-The cost is reproducibility: a random poll draws from \R's generator, so
-\code{set.seed()} governs the run.
+\item{\code{"coordinate"}}{the \eqn{2p} signed axes, which is compass search.
+Cheap, deterministic and reproducible without a seed. The theorem it
+enjoys assumes \eqn{f} is continuously differentiable.}
+\item{\code{"mads"}}{a fresh random orthonormal basis at every poll, taken
+plus and minus.}
 }
 
-\subsection{Opportunistic polling}{
-Accepting the first improvement rather than the best costs a worse direction
-and saves up to \eqn{2p - 1} evaluations. On an expensive objective that
-trade is usually favorable, so it is the default; on a cheap one,
-\code{opportunistic = FALSE} tends to need fewer iterations.
+The difference decides the outcome on the problems this method exists for.
+Where \eqn{f} is merely Lipschitz, a \emph{fixed} set of directions can fail: a
+kink whose ridge runs diagonally is descended by no coordinate direction,
+so the poll fails at a point that is not stationary and the run stops
+there. Measured on \eqn{\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2},
+whose minimum is 0, coordinate polling from \eqn{(1, 0.5)} stops at
+\code{0.05} on every one of ten runs, the same value each time; the random
+poll has a median of \code{0.014} and reaches \code{9.8e-05} at best.
+
+The repair, which is the idea behind MADS, is to let the directions used
+over the whole run become dense in the sphere, so no direction of descent
+is missed for ever, and drawing a new orthonormal basis at each poll
+achieves that with probability one. What is implemented is that idea
+rather than LTMADS as published, and it is the property the convergence
+proof rests on. The cost is reproducibility: a random poll draws from \R's
+generator, so \code{set.seed()} governs the run and the state is recorded in
+the result's \code{seed}.
 }
+
+\section{Opportunistic polling}{
+Accepting the first improvement instead of the best costs a worse
+direction and saves up to \eqn{2p - 1} evaluations per poll. Measured on
+the quadratic below: 332 evaluations against 393, in 96 iterations against
+98. The saving in evaluations is real and the cost in iterations was not
+visible here, so \code{TRUE} is the default.
 }
+
 \examples{
 compass()
 
-# a kink running diagonally, which no coordinate direction descends
+# A kink running diagonally, which no coordinate direction descends. The
+# true minimum is 0. Coordinate polling stops at the same wrong point every
+# time; the random poll gets past it.
 f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
-minimize(compass(), f, c(1, 0.5))@value
+minimize(compass(directions = "coordinate"), f, c(1, 0.5))@value
+minimize(compass(directions = "coordinate"), f, c(1, 0.5))@value
 set.seed(1)
 minimize(compass(directions = "mads"), f, c(1, 0.5))@value
+
+# A coordinate poll needs no seed, a random one does, and it records the
+# state it used.
+a <- minimize(compass(directions = "coordinate"), f, c(1, 0.5))
+b <- minimize(compass(directions = "coordinate"), f, c(1, 0.5))
+c(identical(a@par, b@par), is.null(a@seed))
+
+set.seed(7); m1 <- minimize(compass(), f, c(1, 0.5))
+set.seed(7); m2 <- minimize(compass(), f, c(1, 0.5))
+c(identical(m1@par, m2@par), length(m1@seed) > 0)
+
+# Polling every direction costs more evaluations for the same answer.
+q <- function(p) sum((p - c(1, 2))^2)
+set.seed(5); first <- minimize(compass(), q, c(0, 0))
+set.seed(5); every <- minimize(compass(opportunistic = FALSE), q, c(0, 0))
+c(first = first@counts[["f"]], every = every@counts[["f"]])
 
 }
 \references{
@@ -116,6 +144,6 @@ for constrained optimization. \emph{SIAM Journal on Optimization}
 \strong{17}, 188--217.
 }
 \seealso{
-\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=bundle]{bundle()}},
-\code{\link[=crit_stationary]{crit_stationary()}}
+\code{\link[=nelder_mead]{nelder_mead()}} for the simplex, \code{\link[=bundle]{bundle()}} when subgradients are
+available, \code{\link[=crit_stationary]{crit_stationary()}} for the rule this method reads.
 }

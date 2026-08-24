@@ -23,21 +23,34 @@ NelderMead(
 \arguments{
 \item{step}{Relative size of the initial simplex.}
 
-\item{adaptive}{Whether to use dimension-dependent coefficients.}
+\item{adaptive}{Logical; whether the dimension-dependent coefficients of
+Gao and Han are used.}
 
 \item{max_restarts}{How many times a degenerate simplex may be rebuilt.}
 
 \item{degenerate_tol}{The conditioning below which it is rebuilt.}
 
-\item{simplex}{An optional starting simplex.}
+\item{simplex}{An optional starting simplex, a matrix with one vertex per
+row, or \code{NULL}.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{NelderMead} inheriting from \code{\link[=optimizer]{optimizer()}},
+with the five properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=nelder_mead]{nelder_mead()}} instantiates.
+An optimizer holding the size and shape of the initial simplex, which set
+of reflection coefficients to use, and the safeguard against a simplex
+that has collapsed. Built by \code{\link[=nelder_mead]{nelder_mead()}}. The simplex itself moves
+inside the run; the \code{simplex} property is a starting one, or \code{NULL}.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{NelderMead} carries
+five of its own: \code{step} and \code{simplex} describe where the run begins,
+\code{adaptive} which coefficients it uses, and \code{max_restarts} with
+\code{degenerate_tol} the safeguard.
 }
 \seealso{
-\code{\link[=nelder_mead]{nelder_mead()}}
+\code{\link[=nelder_mead]{nelder_mead()}} for the constructor, \link{Compass} for the other
+derivative-free method.
 }
 \keyword{internal}

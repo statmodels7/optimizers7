@@ -8,14 +8,32 @@ NULL
 
 
 #' @title S7 Class for Nelder-Mead
-#' @description The class [nelder_mead()] instantiates.
+#'
+#' @description
+#' An optimizer holding the size and shape of the initial simplex, which set
+#' of reflection coefficients to use, and the safeguard against a simplex
+#' that has collapsed. Built by [nelder_mead()]. The simplex itself moves
+#' inside the run; the `simplex` property is a starting one, or `NULL`.
+#'
+#' @details
+#' Beyond the seven properties every optimizer has, a `NelderMead` carries
+#' five of its own: `step` and `simplex` describe where the run begins,
+#' `adaptive` which coefficients it uses, and `max_restarts` with
+#' `degenerate_tol` the safeguard.
+#'
 #' @param step Relative size of the initial simplex.
-#' @param adaptive Whether to use dimension-dependent coefficients.
+#' @param adaptive Logical; whether the dimension-dependent coefficients of
+#'   Gao and Han are used.
 #' @param max_restarts How many times a degenerate simplex may be rebuilt.
 #' @param degenerate_tol The conditioning below which it is rebuilt.
-#' @param simplex An optional starting simplex.
-#' @return An S7 object inheriting from [optimizer()].
-#' @seealso [nelder_mead()]
+#' @param simplex An optional starting simplex, a matrix with one vertex per
+#'   row, or `NULL`.
+#'
+#' @return An S7 object of class `NelderMead` inheriting from [optimizer()],
+#'   with the five properties above beside the seven shared ones.
+#'
+#' @seealso [nelder_mead()] for the constructor, [Compass] for the other
+#'   derivative-free method.
 #' @name NelderMead-class
 #' @aliases NelderMead
 #' @keywords internal
@@ -36,19 +54,23 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' worst is reflected, expanded, contracted or shrunk through the centroid of
 #' the others. Only objective values are used; no derivative is required.
 #'
-#' @param criterion The stopping rule. Defaults to
-#'   `crit_stationary(1e-8)`, on the diameter of the simplex.
-#' @param step Size of the initial simplex, relative to each coordinate of the
-#'   starting value. Defaults to `0.1`.
-#' @param adaptive Use Gao and Han's dimension-dependent coefficients? Defaults
-#'   to `TRUE`; see Details.
-#' @param max_restarts How many times a collapsed simplex may be rebuilt.
-#'   Defaults to `3`. Zero disables the safeguard.
-#' @param degenerate_tol Rebuild the simplex when its conditioning falls below
-#'   this. Defaults to `1e-6`.
+#' @param criterion The stopping rule, a [criterion()] object. Defaults to
+#'   `crit_stationary(1e-8)`, read on the diameter of the simplex, so the
+#'   tolerance is on the parameter scale. A gradient rule is refused when the
+#'   run starts.
+#' @param step Size of the initial simplex, relative to each coordinate of
+#'   the starting value. A single positive number, default `0.1`.
+#' @param adaptive Use Gao and Han's dimension-dependent coefficients?
+#'   `TRUE` or `FALSE`, default `TRUE`; see below. At \eqn{p = 2} the two
+#'   settings are identical.
+#' @param max_restarts How many times a collapsed simplex may be rebuilt. A
+#'   single non-negative number, default `3`; `0` turns the safeguard off.
+#' @param degenerate_tol Rebuild the simplex when its conditioning falls
+#'   below this, a single positive number, default `1e-6`. A non-positive
+#'   value is refused, with a message naming `tol` rather than the argument.
 #' @param simplex An optional starting simplex: a matrix with \eqn{p+1} rows,
-#'   one vertex per row. Defaults to `NULL`, meaning build one from
-#'   `par` and `step`.
+#'   one vertex per row. Defaults to `NULL`, meaning build one from `par` and
+#'   `step`. Anything that is not a matrix or `NULL` is refused.
 #' @param maxit Maximum iterations. Defaults to 2000.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
@@ -59,55 +81,59 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #'
 #' @details
 #' Reflect the worst vertex through the centroid of the rest; if that is the
-#' best point yet, try going further; if it is no better than the second worst,
-#' pull back; and if even that fails, shrink everything towards the best vertex.
-#' No model of the function is built and no derivative is assumed to exist,
-#' which is why it survives a kink — and also why it is slow, since an ordering
-#' of \eqn{p+1} values is very little information about a surface.
+#' best point yet, try going further; if it is no better than the second
+#' worst, pull back; and if even that fails, shrink everything towards the
+#' best vertex. No model of the function is built and no derivative is
+#' assumed to exist, which is why the method survives a kink. It is also why
+#' it is slow: an ordering of \eqn{p+1} values is very little information
+#' about a surface, and on the quadratic below it costs 133 evaluations where
+#' [bfgs()] costs 3.
 #'
-#' \subsection{Degenerate simplices}{
-#' Nelder-Mead can converge to a point that is not a minimizer. McKinnon (1998)
-#' exhibited a strictly convex function with continuous derivatives on which it
-#' performs inside contractions for ever: the simplex flattens onto a line
-#' through a point where the gradient is not zero, every vertex agrees, and
-#' every ordinary stopping rule reports success. There is no defense in the
-#' *values* — they behave exactly as convergence would — because what has
-#' gone wrong is the *shape* of the simplex.
+#' # Degenerate simplices
 #'
-#' So the shape is what is watched. The conditioning measured is
-#' \eqn{\lvert \det E \rvert} divided by the product of the edge lengths, where
-#' \eqn{E} holds the edges from the best vertex: it is 1 for a right-angled
-#' simplex, 0 for one that has collapsed into a lower dimension, and unchanged
-#' by rescaling, so one threshold serves at every size. When it falls below
-#' `degenerate_tol` the simplex is rebuilt right-angled at the current best
-#' vertex, at the diameter it had reached — keeping the scale the run has earned
-#' rather than starting over. Each rebuild is counted, reported in the trace as
-#' `"restart"` and in the result's message.
+#' Nelder-Mead can converge to a point that is not a minimizer. McKinnon
+#' (1998) exhibited a strictly convex function with continuous derivatives on
+#' which it performs inside contractions for ever: the simplex flattens onto
+#' a line through a point where the gradient is not zero, every vertex
+#' agrees, and every ordinary stopping rule reports success. The *values*
+#' offer no defense, behaving exactly as convergence would; what has gone
+#' wrong is the *shape*.
+#'
+#' So the shape is watched. The conditioning measured is
+#' \eqn{\lvert \det E \rvert} divided by the product of the edge lengths,
+#' where \eqn{E} holds the edges from the best vertex. It is 1 for a
+#' right-angled simplex, 0 for one that has collapsed into a lower dimension,
+#' and unchanged by rescaling, so one threshold serves at every size. When it
+#' falls below `degenerate_tol` the simplex is rebuilt right-angled at the
+#' current best vertex, at the diameter it had reached, so the scale the run
+#' has earned is kept. Each rebuild is counted, appears in the trace as
+#' `restart` and is reported in the result's `message`.
 #'
 #' The safeguard is not free: a restart costs \eqn{p+1} evaluations and can
 #' delay a genuine convergence. `max_restarts = 0` turns it off.
-#' }
 #'
-#' \subsection{Adaptive coefficients}{
+#' # Adaptive coefficients
+#'
 #' The classical reflection, expansion, contraction and shrink factors are
 #' \eqn{1, 2, 1/2, 1/2}, chosen when the method was proposed for two or three
 #' parameters. In higher dimension a fixed expansion of 2 makes the simplex
 #' overshoot along whichever direction it happened to try. Gao and Han (2012)
 #' replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
-#' \eqn{p = 2} reduce *exactly* to the classical values — so the default is
-#' `TRUE` at no cost to the small problems anyone would recognize.
-#' }
+#' \eqn{p = 2} are *exactly* the classical values, so `TRUE` is the default
+#' at no cost to the small problems anyone would recognize. At \eqn{p = 10}
+#' they are \eqn{1, 1.2, 0.7, 0.9}, and on a quadratic in ten unknowns the
+#' adaptive run takes 959 iterations against 1230.
 #'
-#' \subsection{Scope}{
-#' Rarely, and knowingly. If the objective is smooth, every gradient-based
-#' method here will beat it by orders of magnitude. Its place is an objective
-#' that is genuinely non-smooth or noisy and whose subgradients are not
-#' available; if they *are* available, [bundle()] is the better
-#' tool, since it uses them and this uses nothing.
-#' }
+#' # When to reach for it
 #'
-#' @return An S7 object of class `NelderMead`, inheriting from
-#'   [optimizer()].
+#' Rarely, and knowingly. On a smooth objective every gradient-based method
+#' here beats it by orders of magnitude. Its place is an objective that is
+#' genuinely non-smooth or noisy and whose subgradients are unavailable.
+#' Where subgradients *are* available, [bundle()] uses them and this method
+#' uses nothing.
+#'
+#' @return An S7 object of class [NelderMead], inheriting from [optimizer()],
+#'   to be handed to [minimize()].
 #'
 #' @references
 #' Nelder, J. A. and Mead, R. (1965). A simplex method for function
@@ -123,18 +149,33 @@ NelderMead <- S7::new_class("NelderMead", parent = optimizer,
 #' @examples
 #' nelder_mead()
 #'
-#' # a smooth problem, to show it works and to show what it costs
-#' minimize(nelder_mead(), function(p) sum((p - c(1, 2))^2), c(0, 0))
+#' # A smooth problem, to show that it works and what it costs. BFGS reaches
+#' # the same point in 3 evaluations.
+#' q <- function(p) sum((p - c(1, 2))^2)
+#' minimize(nelder_mead(), q, c(0, 0))@counts[["f"]]
+#' minimize(bfgs(), q, c(0, 0), gr = function(p) 2 * (p - c(1, 2)))@counts[["f"]]
 #'
-#' # what it is actually for: a sum of absolute deviations, whose minimizer is
-#' # the median and whose derivative does not exist there
+#' # What it is for: a sum of absolute deviations, whose minimizer is the
+#' # median and whose derivative does not exist there.
 #' set.seed(1)
 #' y <- rcauchy(101)
-#' minimize(nelder_mead(), function(p) sum(abs(y - p)), par = 0)@par
-#' median(y)
+#' r <- minimize(nelder_mead(), function(p) sum(abs(y - p)), par = 0)
+#' c(nelder_mead = r@par, median = median(y))
+#' abs(r@par - median(y))
 #'
-#' @seealso [compass()], [bundle()],
-#'   [crit_stationary()]
+#' # The adaptive coefficients are the classical ones at p = 2 and differ
+#' # above it, where they save iterations.
+#' f10 <- function(x) sum((x - 1:10)^2)
+#' c(adaptive = minimize(nelder_mead(maxit = 20000), f10, numeric(10))@iterations,
+#'   classical = minimize(nelder_mead(adaptive = FALSE, maxit = 20000),
+#'                        f10, numeric(10))@iterations)
+#'
+#' # The trace names the simplex operation taken at each iteration.
+#' unique(minimize(nelder_mead(keep_trace = TRUE), q, c(0, 0))@trace$safeguard)
+#'
+#' @seealso [compass()] for the derivative-free method with a convergence
+#'   theorem, [bundle()] when subgradients are available,
+#'   [crit_stationary()] for the rule this method reads.
 #' @export
 nelder_mead <- function(criterion = crit_stationary(),
                         step = 0.1, adaptive = TRUE,
@@ -167,13 +208,32 @@ nelder_mead <- function(criterion = crit_stationary(),
 
 
 #' @title S7 Class for Pattern Search
-#' @description The class [compass()] instantiates.
+#'
+#' @description
+#' An optimizer holding the poll size and how it changes, which set of poll
+#' directions is used, and whether the poll stops at the first improvement.
+#' Built by [compass()]. With `directions = "mads"` a run draws from \R's
+#' generator and records its seed; with `"coordinate"` it is deterministic
+#' and records none.
+#'
+#' @details
+#' Beyond the seven properties every optimizer has, a `Compass` carries five
+#' of its own: `step`, `expand` and `shrink` govern the poll radius,
+#' `directions` says which set is polled, and `opportunistic` when the poll
+#' stops.
+#'
 #' @param step Initial poll size, relative to the starting value.
 #' @param directions Either `"mads"` or `"coordinate"`.
-#' @param opportunistic Whether to accept the first improvement found.
-#' @param expand,shrink Factors applied to the poll size.
-#' @return An S7 object inheriting from [optimizer()].
-#' @seealso [compass()]
+#' @param opportunistic Logical; whether the poll stops at the first
+#'   improvement it finds.
+#' @param expand,shrink Factors applied to the poll size after a success and
+#'   after a failure.
+#'
+#' @return An S7 object of class `Compass` inheriting from [optimizer()],
+#'   with the five properties above beside the seven shared ones.
+#'
+#' @seealso [compass()] for the constructor, [NelderMead] for the other
+#'   derivative-free method.
 #' @name Compass-class
 #' @aliases Compass
 #' @keywords internal
@@ -195,17 +255,20 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' Uses no derivative, and unlike [nelder_mead()] it comes with a
 #' convergence theorem.
 #'
-#' @param criterion The stopping rule. Defaults to
-#'   `crit_stationary(1e-8)`, on the poll size.
+#' @param criterion The stopping rule, a [criterion()] object. Defaults to
+#'   `crit_stationary(1e-8)`, read on the poll size \eqn{\Delta}. This is the
+#'   rule with a theorem behind it: the limit points of a pattern search with
+#'   \eqn{\Delta \to 0} are Clarke stationary.
 #' @param step Initial poll size, scaled by the largest coordinate of the
-#'   starting value. Defaults to `0.1`.
-#' @param directions `"mads"` (default) or `"coordinate"`; see
-#'   Details.
-#' @param opportunistic Move to the first improvement found rather than polling
-#'   every direction? Defaults to `TRUE`.
-#' @param expand Factor applied to the poll size after a success. Defaults to
-#'   `2`.
-#' @param shrink Factor applied after a failure. Defaults to `0.5`.
+#'   starting value. A single positive number, default `0.1`.
+#' @param directions `"mads"` (default) or `"coordinate"`. Partial matching
+#'   applies and any other string is refused, naming both.
+#' @param opportunistic Move to the first improvement found instead of
+#'   polling every direction? `TRUE` or `FALSE`, default `TRUE`.
+#' @param expand Factor applied to the poll size after a success. A single
+#'   number of at least 1, default `2`.
+#' @param shrink Factor applied after a failure. A single number strictly
+#'   inside \eqn{(0, 1)}, default `0.5`.
 #' @param maxit Maximum iterations. Defaults to 2000.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
@@ -215,46 +278,52 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' @param keep_trace Store the iteration path? Defaults to `FALSE`.
 #'
 #' @details
-#' The directions form a *positive spanning set*: any vector in the space
-#' is a non-negative combination of them, which is what
-#' buys the theorem — if the current point is not stationary then some direction
-#' in the set goes downhill, so a poll that fails everywhere is evidence about
-#' the point rather than about the directions. A failed poll therefore licenses
-#' shrinking the radius, and the limit points of a run in which the radius goes
-#' to zero are stationary.
+#' The directions form a *positive spanning set*: every vector in the space
+#' is a non-negative combination of them. That is what buys the theorem. If
+#' the current point is not stationary then some direction in the set goes
+#' downhill, so a poll that fails everywhere is evidence about the point and
+#' not about the directions. A failed poll therefore licenses shrinking the
+#' radius, and the limit points of a run whose radius goes to zero are
+#' stationary.
 #'
-#' \subsection{Poll directions}{
+#' # Poll directions
+#'
 #' \describe{
-#'   \item{`"coordinate"`}{the \eqn{2p} signed axes: this is compass
-#'     search. Cheap, deterministic, reproducible. The theorem it enjoys assumes
-#'     \eqn{f} is continuously differentiable.}
-#'   \item{`"mads"`}{a fresh random orthonormal basis at every poll,
-#'     taken plus and minus.}
-#' }
-#' The difference is not cosmetic on the problems this method exists for. When
-#' \eqn{f} is merely Lipschitz — has kinks — a *fixed* set of directions can
-#' fail: a kink whose ridge runs diagonally is descended by no coordinate
-#' direction, the poll fails at a point that is not stationary, and the run
-#' stops there. The repair, which is the idea behind MADS, is to let the set of
-#' directions used over the whole run become dense in the sphere, so no
-#' direction of descent can be missed for ever; drawing a new orthonormal basis
-#' at each poll achieves that with probability one. What is implemented here is
-#' that idea rather than LTMADS as published, but it is the property the
-#' convergence proof rests on.
-#'
-#' The cost is reproducibility: a random poll draws from \R's generator, so
-#' `set.seed()` governs the run.
+#'   \item{`"coordinate"`}{the \eqn{2p} signed axes, which is compass search.
+#'     Cheap, deterministic and reproducible without a seed. The theorem it
+#'     enjoys assumes \eqn{f} is continuously differentiable.}
+#'   \item{`"mads"`}{a fresh random orthonormal basis at every poll, taken
+#'     plus and minus.}
 #' }
 #'
-#' \subsection{Opportunistic polling}{
-#' Accepting the first improvement rather than the best costs a worse direction
-#' and saves up to \eqn{2p - 1} evaluations. On an expensive objective that
-#' trade is usually favorable, so it is the default; on a cheap one,
-#' `opportunistic = FALSE` tends to need fewer iterations.
-#' }
+#' The difference decides the outcome on the problems this method exists for.
+#' Where \eqn{f} is merely Lipschitz, a *fixed* set of directions can fail: a
+#' kink whose ridge runs diagonally is descended by no coordinate direction,
+#' so the poll fails at a point that is not stationary and the run stops
+#' there. Measured on \eqn{\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2},
+#' whose minimum is 0, coordinate polling from \eqn{(1, 0.5)} stops at
+#' `0.05` on every one of ten runs, the same value each time; the random
+#' poll has a median of `0.014` and reaches `9.8e-05` at best.
 #'
-#' @return An S7 object of class `Compass`, inheriting from
-#'   [optimizer()].
+#' The repair, which is the idea behind MADS, is to let the directions used
+#' over the whole run become dense in the sphere, so no direction of descent
+#' is missed for ever, and drawing a new orthonormal basis at each poll
+#' achieves that with probability one. What is implemented is that idea
+#' rather than LTMADS as published, and it is the property the convergence
+#' proof rests on. The cost is reproducibility: a random poll draws from \R's
+#' generator, so `set.seed()` governs the run and the state is recorded in
+#' the result's `seed`.
+#'
+#' # Opportunistic polling
+#'
+#' Accepting the first improvement instead of the best costs a worse
+#' direction and saves up to \eqn{2p - 1} evaluations per poll. Measured on
+#' the quadratic below: 332 evaluations against 393, in 96 iterations against
+#' 98. The saving in evaluations is real and the cost in iterations was not
+#' visible here, so `TRUE` is the default.
+#'
+#' @return An S7 object of class [Compass], inheriting from [optimizer()], to
+#'   be handed to [minimize()].
 #'
 #' @references
 #' Torczon, V. (1997). On the convergence of pattern search algorithms.
@@ -267,14 +336,33 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' @examples
 #' compass()
 #'
-#' # a kink running diagonally, which no coordinate direction descends
+#' # A kink running diagonally, which no coordinate direction descends. The
+#' # true minimum is 0. Coordinate polling stops at the same wrong point every
+#' # time; the random poll gets past it.
 #' f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
-#' minimize(compass(), f, c(1, 0.5))@value
+#' minimize(compass(directions = "coordinate"), f, c(1, 0.5))@value
+#' minimize(compass(directions = "coordinate"), f, c(1, 0.5))@value
 #' set.seed(1)
 #' minimize(compass(directions = "mads"), f, c(1, 0.5))@value
 #'
-#' @seealso [nelder_mead()], [bundle()],
-#'   [crit_stationary()]
+#' # A coordinate poll needs no seed, a random one does, and it records the
+#' # state it used.
+#' a <- minimize(compass(directions = "coordinate"), f, c(1, 0.5))
+#' b <- minimize(compass(directions = "coordinate"), f, c(1, 0.5))
+#' c(identical(a@par, b@par), is.null(a@seed))
+#'
+#' set.seed(7); m1 <- minimize(compass(), f, c(1, 0.5))
+#' set.seed(7); m2 <- minimize(compass(), f, c(1, 0.5))
+#' c(identical(m1@par, m2@par), length(m1@seed) > 0)
+#'
+#' # Polling every direction costs more evaluations for the same answer.
+#' q <- function(p) sum((p - c(1, 2))^2)
+#' set.seed(5); first <- minimize(compass(), q, c(0, 0))
+#' set.seed(5); every <- minimize(compass(opportunistic = FALSE), q, c(0, 0))
+#' c(first = first@counts[["f"]], every = every@counts[["f"]])
+#'
+#' @seealso [nelder_mead()] for the simplex, [bundle()] when subgradients are
+#'   available, [crit_stationary()] for the rule this method reads.
 #' @export
 compass <- function(criterion = crit_stationary(),
                     step = 0.1,
@@ -309,14 +397,31 @@ compass <- function(criterion = crit_stationary(),
 
 #' @title What a Derivative-Free Method Can Offer a Stopping Rule
 #' @name optimizer_provides.NelderMead
+#'
 #' @description
-#' The objective and a stationarity measure, but no gradient.
+#' Both derivative-free methods report `"stationarity"` and no gradient,
+#' having none to report. A rule reading a gradient is refused when the run
+#' starts, so it cannot sit there testing `NULL` at every iteration and never
+#' firing.
+#'
 #' @details
-#' A rule reading a gradient is rejected rather than left testing `NULL` at
-#' every iteration and never firing. [crit_stationary()] is what
-#' takes its place.
+#' The measure differs by method and [crit_stationary()] reads whichever is
+#' offered: for [nelder_mead()] the **diameter of the simplex**, so the
+#' tolerance is on the parameter scale, and for [compass()] the **poll size**
+#' \eqn{\Delta}, the quantity Torczon's theorem is stated in.
+#'
 #' @param optimizer A `NelderMead` or `Compass` object.
-#' @return A character vector.
+#'
+#' @return The character vector `"stationarity"`.
+#'
+#' @examples
+#' optimizer_provides(nelder_mead())
+#' optimizer_provides(compass())
+#'
+#' # So a gradient rule is refused, naming the method.
+#' try(minimize(nelder_mead(criterion = crit_grad()),
+#'              function(p) sum(p^2), c(1, 1)))
+#'
 #' @keywords internal
 S7::method(optimizer_provides, NelderMead) <- function(optimizer)
   "stationarity"
@@ -330,12 +435,30 @@ S7::method(optimizer_provides, Compass) <- function(optimizer)
 
 #' @title Minimize by Nelder-Mead
 #' @name minimize.NelderMead
-#' @description Runs [nelder_mead()] on the objective.
+#'
+#' @description
+#' Runs [nelder_mead()] on the objective: build a simplex of \eqn{p+1}
+#' vertices from `par` and `step`, then reflect, expand, contract or shrink
+#' it until its diameter falls below the tolerance.
+#'
+#' @details
+#' A `simplex` supplied on the optimizer is checked here against the
+#' starting value, since only now is the number of parameters known: it must
+#' have \eqn{p+1} rows and \eqn{p} columns, and a mismatch reports both
+#' shapes.
+#'
 #' @param optimizer A `NelderMead` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and
-#'   `he` are accepted and ignored: the method uses no derivative, and
-#'   rejecting them would force calling code to branch on the algorithm.
-#' @return An [optimizer_result()].
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
+#'   accepted and ignored, the method using no derivative; refusing them
+#'   would force calling code to branch on the algorithm. Bounds are taken
+#'   and removed by reparametrization.
+#'
+#' @return An [optimizer_result()] whose `gradient` is `NULL` and whose trace
+#'   carries a `stationarity` column holding the simplex diameter. The
+#'   `safeguard` column names the operation taken at each iteration:
+#'   `reflect`, `expand`, `contract in`, `contract out`, `shrink`, or
+#'   `restart` when a degenerate simplex was rebuilt.
+#'
 #' @keywords internal
 S7::method(minimize, NelderMead) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
@@ -372,11 +495,23 @@ S7::method(minimize, NelderMead) <-
 
 #' @title Minimize by Pattern Search
 #' @name minimize.Compass
-#' @description Runs [compass()] on the objective.
+#'
+#' @description
+#' Runs [compass()] on the objective: poll the directions around the current
+#' point at the current radius, move to an improvement if one is found and
+#' expand, and shrink the radius when the poll fails everywhere.
+#'
 #' @param optimizer A `Compass` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and
-#'   `he` are accepted and ignored.
-#' @return An [optimizer_result()].
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
+#'   accepted and ignored, the method using no derivative. Bounds are taken
+#'   and removed by reparametrization.
+#'
+#' @return An [optimizer_result()] whose `gradient` is `NULL` and whose trace
+#'   carries a `stationarity` column holding the poll size. With
+#'   `directions = "mads"` the `seed` is recorded, the poll drawing from \R's
+#'   generator; with `"coordinate"` it is `NULL` and the run repeats without
+#'   one.
+#'
 #' @keywords internal
 S7::method(minimize, Compass) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,

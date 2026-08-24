@@ -25,17 +25,31 @@ Compass(
 
 \item{directions}{Either \code{"mads"} or \code{"coordinate"}.}
 
-\item{opportunistic}{Whether to accept the first improvement found.}
+\item{opportunistic}{Logical; whether the poll stops at the first
+improvement it finds.}
 
-\item{expand, shrink}{Factors applied to the poll size.}
+\item{expand, shrink}{Factors applied to the poll size after a success and
+after a failure.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Compass} inheriting from \code{\link[=optimizer]{optimizer()}},
+with the five properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=compass]{compass()}} instantiates.
+An optimizer holding the poll size and how it changes, which set of poll
+directions is used, and whether the poll stops at the first improvement.
+Built by \code{\link[=compass]{compass()}}. With \code{directions = "mads"} a run draws from \R's
+generator and records its seed; with \code{"coordinate"} it is deterministic
+and records none.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{Compass} carries five
+of its own: \code{step}, \code{expand} and \code{shrink} govern the poll radius,
+\code{directions} says which set is polled, and \code{opportunistic} when the poll
+stops.
 }
 \seealso{
-\code{\link[=compass]{compass()}}
+\code{\link[=compass]{compass()}} for the constructor, \link{NelderMead} for the other
+derivative-free method.
 }
 \keyword{internal}
