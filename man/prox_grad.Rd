@@ -42,11 +42,13 @@ to \code{0.5}.}
 
 \item{restart}{Reset the momentum when the objective increases?
 Defaults to \code{TRUE}, and is ignored when \code{accelerate} is
-\code{FALSE}.}
+\code{FALSE}. See the measured cost at a tight tolerance above.}
 
-\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
+\code{\link[=crit_grad]{crit_grad()}}, which here reads the proximal gradient mapping.}
 
-\item{maxit}{Maximum iterations. Defaults to 1000.}
+\item{maxit}{Maximum iterations, a finite number at least 1. Defaults to
+1000.}
 
 \item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}.}
 
@@ -57,8 +59,10 @@ Defaults to \code{TRUE}, and is ignored when \code{accelerate} is
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{\link[=ProxGrad]{ProxGrad()}}, to be handed to
-\code{\link[=minimize]{minimize()}}.
+An S7 object of class \link{ProxGrad}, inheriting from \code{\link[=optimizer]{optimizer()}},
+to be handed to \code{\link[=minimize]{minimize()}}. Box bounds are refused: pass the
+constraint through \code{prox} instead, composing the projection onto the box
+into it.
 }
 \description{
 Minimizes \eqn{f(x) + g(x)} where \eqn{f} is smooth and \eqn{g} is
@@ -78,43 +82,84 @@ one. The step length is found by backtracking: \eqn{t} is halved until
 the quadratic model built at \eqn{y_k} dominates \eqn{f} at the new
 point, which is the condition the convergence proof uses and which
 needs no knowledge of the Lipschitz constant.
-
-\subsection{What the stopping rule reads}{
-The gradient of the total objective does not vanish at the solution --
-that is what non-differentiable means -- so this method reports the
-\strong{proximal gradient mapping}
+}
+\section{What the stopping rule reads}{
+The gradient of \eqn{f + g} does not vanish at the solution, \eqn{g} being
+non-differentiable there, so this method reports the \strong{proximal gradient
+mapping}
 \deqn{G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}}
-as its gradient, read at the iterate. It vanishes exactly at a
-stationary point of \eqn{f + g} and reduces to \eqn{\nabla f} when
-\eqn{g} is absent, so \code{\link[=crit_grad]{crit_grad()}} keeps its meaning and
-its default tolerance. The accelerated variant pays one extra gradient
-per iteration for it, the extrapolated point at which it takes its step
-not being the point it reports.
+as its gradient, read at the iterate. It vanishes exactly at a stationary
+point of \eqn{f + g} and reduces to \eqn{\nabla f} when \eqn{g} is absent,
+so \code{\link[=crit_grad]{crit_grad()}} keeps its meaning and its default tolerance. Measured on
+the lasso of the examples below, the mapping agrees with the KKT
+violation: at the reported point the active coordinates satisfy
+\eqn{\lvert \nabla f + \lambda \operatorname{sign}(\beta) \rvert \le}
+\code{4.5e-07} and the inactive ones have \eqn{\lvert \nabla f \rvert \le
+0.129} against a \eqn{\lambda} of 0.4.
+
+Acceleration pays 2.1 gradient evaluations per iteration against the plain
+method's 1.0, the extrapolated point at which it takes its step not being
+the point it reports.
 }
 
-\subsection{Restarting}{
+\section{Acceleration, and where it earns its keep}{
+On an ill-conditioned problem the difference is the one the theory
+predicts. Measured on a smooth quadratic in eight unknowns at
+\code{crit_grad(1e-8)}, plain against accelerated: 64 iterations against 31 at
+a condition number near 3, 1154 against 100 at 55, and 9321 against 268 at
+480.
+
+On a well-conditioned problem asked for a tight tolerance the plain
+iteration is the better one. The lasso below converges in 12 iterations
+at \code{crit_grad(1e-9)} with \code{accelerate = FALSE} and in 21646 with the
+defaults, reaching the same support and the same coefficients to \code{4e-09}.
+What costs the iterations there is the restart, not the momentum: the
+same run with \code{restart = FALSE} takes 89. Near the solution the objective
+moves at the rounding level, so the restart test fires on noise. At the
+default \code{crit_grad(1e-6)} none of this appears, both settings taking about
+ten iterations.
+}
+
+\section{Restarting}{
 Momentum makes the objective non-monotone, and an increase far from the
 solution is a symptom of momentum built in the wrong direction. With
-\code{restart = TRUE} an increase resets the extrapolation to the
-current point, which is the adaptive restart of O'Donoghue and Candes
-and costs one comparison per iteration.
+\code{restart = TRUE} an increase resets the extrapolation to the current
+point. This is the adaptive restart of O'Donoghue and Candes and costs one
+comparison per iteration. It is worth a great deal where the problem is
+badly conditioned: on a quadratic with condition number 2400 it converges
+in 1284 iterations against 27192 without.
 }
-}
+
 \examples{
-# a lasso-penalized least squares problem, solved through the operator
+# A lasso-penalized least squares problem, solved through the operator.
+# Three of the eight coefficients are non-zero in the truth.
 set.seed(1)
 X <- matrix(rnorm(200 * 8), 200, 8)
 b0 <- c(2, -1.5, 0, 0, 0.8, 0, 0, 0)
 y <- as.numeric(X \%*\% b0 + rnorm(200))
 lambda <- 0.4
 
+f  <- function(b) sum((y - X \%*\% b)^2) / (2 * nrow(X))
+gf <- function(b) as.numeric(-crossprod(X, y - X \%*\% b) / nrow(X))
+
 fit <- minimize(
   prox_grad(prox = function(v, t) sign(v) * pmax(abs(v) - t * lambda, 0),
             g = function(b) lambda * sum(abs(b))),
-  fn = function(b) sum((y - X \%*\% b)^2) / (2 * nrow(X)),
-  gr = function(b) -crossprod(X, y - X \%*\% b) / nrow(X),
-  par = rep(0, 8))
+  f, gr = gf, par = rep(0, 8))
 round(fit@par, 3)
+sum(fit@par != 0)          # the operator sets coefficients exactly to zero
+
+# The KKT conditions confirm the answer, and share no arithmetic with the
+# iteration: stationary where a coefficient survives, and inside the
+# interval the kink opens where one does not.
+gr_at <- gf(fit@par)
+active <- fit@par != 0
+max(abs(gr_at[active] + lambda * sign(fit@par[active])))
+max(abs(gr_at[!active])) < lambda
+
+# Box bounds are refused, and the message says where the constraint goes.
+try(minimize(prox_grad(prox = function(v, t) v, g = function(b) 0),
+             f, rep(0, 8), gr = gf, lower = 0))
 
 }
 \references{

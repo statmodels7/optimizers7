@@ -11,20 +11,28 @@ prox_grad_run(optimizer, spec, par)
 
 \item{spec}{The objective handle from \code{\link[=as_objective]{as_objective()}}.}
 
-\item{par}{The starting point.}
+\item{par}{The starting point, a numeric vector.}
 }
 \value{
-A list in the shape \code{\link[=build_result]{build_result()}} consumes.
+A list in the shape \code{\link[=build_result]{build_result()}} consumes: the point, the
+total objective there, the mapping, the counts, the iteration count, the
+verdict and the trace.
 }
 \description{
-The iteration behind \code{\link[=prox_grad]{prox_grad()}}: a backtracked gradient
-step on the smooth part, the proximal operator applied to its result,
-and the momentum extrapolation with its restart.
+The iteration behind \code{\link[=prox_grad]{prox_grad()}}: a backtracked gradient step on the
+smooth part, the proximal operator applied to its result, and the momentum
+extrapolation with its restart. Counts its own evaluations, so the caller
+need not.
 }
 \details{
-Written in R rather than compiled, because every iteration calls the
-objective, its gradient and the proximal operator, all of which are R
-functions supplied by the caller; the loop around them costs a fraction
-of a microsecond against those.
+This is the one method in the package written in R instead of compiled.
+Every iteration calls the objective, its gradient and the proximal
+operator, all three R functions supplied by the caller, and the loop
+around them costs a fraction of a microsecond against those. Compiling it
+would move the callbacks and change nothing else.
+
+The stationarity measure is read \strong{at the iterate} and not at the
+extrapolated point. With momentum the two differ, and reading the
+extrapolated one leaves a mapping that never vanishes.
 }
 \keyword{internal}

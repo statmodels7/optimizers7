@@ -6,12 +6,19 @@
 \arguments{
 \item{optimizer}{A \code{ProxGrad} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. A finite \code{lower}
+or \code{upper} raises an error; \code{he} is accepted and ignored.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}.
+An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{value} is the \strong{total} objective
+\eqn{f(x) + g(x)}, which is why \code{g} is required alongside \code{prox}, and
+whose \code{gradient} is the proximal gradient mapping at \code{par} rather than
+\eqn{\nabla f}.
 }
 \description{
-Runs \code{\link[=prox_grad]{prox_grad()}} on the objective.
+Runs \code{\link[=prox_grad]{prox_grad()}} on the objective: a backtracked gradient step on the
+smooth part, the proximal operator applied to the result, and the momentum
+extrapolation with its restart. Box bounds are refused here, with a
+message naming \code{prox} as where the constraint belongs.
 }
 \keyword{internal}

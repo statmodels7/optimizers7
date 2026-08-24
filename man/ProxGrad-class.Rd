@@ -22,25 +22,38 @@ ProxGrad(
 )
 }
 \arguments{
-\item{prox}{The proximal operator of the non-smooth part.}
+\item{prox}{The proximal operator of the non-smooth part, \code{prox(v, step)}.}
 
-\item{g}{The value of the non-smooth part.}
+\item{g}{The value of the non-smooth part, \code{g(par)}.}
 
-\item{accelerate}{Whether the momentum extrapolation is applied.}
+\item{accelerate}{Logical; whether the momentum extrapolation is applied.}
 
-\item{step}{The initial step length.}
+\item{step}{The initial step length offered to the backtracking search.}
 
-\item{shrink}{The backtracking factor.}
+\item{shrink}{The factor a rejected step is multiplied by.}
 
-\item{restart}{Whether an increase in the objective resets the momentum.}
+\item{restart}{Logical; whether an increase in the objective resets the
+momentum.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{ProxGrad} inheriting from \code{\link[=optimizer]{optimizer()}},
+with the six properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=prox_grad]{prox_grad()}} instantiates.
+An optimizer holding the two descriptions of the non-smooth part of an
+objective, its proximal operator and its value, together with the three
+settings of the accelerated iteration. Built by \code{\link[=prox_grad]{prox_grad()}}. It is the
+one shipped class whose \code{\link[=optimizer_bounded]{optimizer_bounded()}} is \code{FALSE}: its constraint
+travels inside \code{prox}, so box bounds are refused.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{ProxGrad} carries six
+of its own. \code{prox} and \code{g} describe the same non-smooth term from two
+sides and are both required. \code{accelerate}, \code{step}, \code{shrink} and \code{restart}
+govern the iteration.
 }
 \seealso{
-\code{\link[=prox_grad]{prox_grad()}}
+\code{\link[=prox_grad]{prox_grad()}} for the constructor, \code{\link[=minimize.ProxGrad]{minimize.ProxGrad()}} for the
+run.
 }
 \keyword{internal}
