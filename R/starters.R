@@ -62,12 +62,6 @@ starter <- S7::new_class("starter", abstract = TRUE,
 #'
 #' @return A single logical.
 #'
-#' @examples
-#' is_starter(start_zeros())
-#' is_starter(start_runif(-2, 2))
-#' is_starter(c(0, 0))
-#' is_starter(bfgs())
-#'
 #' @keywords internal
 is_starter <- function(x) S7::S7_inherits(x, starter)
 

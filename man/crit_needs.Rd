@@ -30,11 +30,6 @@ objective needs no method here: every optimizer evaluates the objective
 and no rule reading it is ever refused. The two names the shipped rules
 declare are \code{"gradient"} and \code{"stationarity"}.
 }
-\examples{
-crit_needs(crit_grad(1e-8))
-crit_needs(crit_rel_obj(1e-10))
-
-}
 \seealso{
 \code{\link[=crit_met]{crit_met()}} for the rule itself, \code{\link[=check_criterion]{check_criterion()}} for the
 rejection this feeds, \code{\link[=optimizer_provides]{optimizer_provides()}} for the other half of the

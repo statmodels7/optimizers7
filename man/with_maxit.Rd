@@ -29,9 +29,4 @@ right for any optimizer whose own budget is the one the run obeys. A
 wrapper needs a method of its own so that the change reaches the optimizer
 inside; \code{\link[=multistart]{multistart()}} has one.
 }
-\examples{
-with_maxit(bfgs(), 7)@maxit
-class(with_maxit(newton(), 7))
-
-}
 \keyword{internal}

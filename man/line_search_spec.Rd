@@ -33,10 +33,4 @@ There are only \strong{two} types. \code{\link[=nonmonotone]{nonmonotone()}} des
 reference value alone, so the compiled loop needs no third branch. That is
 the same fact the \code{memory = 0} identity records from the other side.
 }
-\examples{
-str(line_search_spec(armijo()))
-str(line_search_spec(wolfe(c2 = 0.1)))
-str(line_search_spec(nonmonotone(memory = 4)))
-
-}
 \keyword{internal}

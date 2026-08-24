@@ -21,9 +21,4 @@ a second, seconds below a minute, whole minutes and seconds below an hour,
 whole hours and minutes above. Used by
 \code{\link[=print.optimizer_result]{print.optimizer_result()}} for the \code{elapsed} line.
 }
-\examples{
-vapply(c(1e-5, 5e-4, 0.25, 12, 90, 4000), format_elapsed, "")
-format_elapsed(NA)
-
-}
 \keyword{internal}

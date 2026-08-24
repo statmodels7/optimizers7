@@ -21,9 +21,4 @@ which holds a list of them, and \code{\link[=check_optimizer]{check_optimizer()}
 Each rejects a non-optimizer with a message of its own; without the check
 the failure would surface later, inside \code{\link[=minimize]{minimize()}} dispatch.
 }
-\examples{
-S7::S7_inherits(bfgs(), optimizer_class())
-S7::S7_inherits(crit_grad(), optimizer_class())
-
-}
 \keyword{internal}

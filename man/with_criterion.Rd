@@ -39,12 +39,4 @@ S7::set_props(ms, criterion = crit_abs_obj(1e-4))@optimizer@criterion@label
 \code{\link[=chain]{chain()}} has a method of its own for the same reason, its reported rule
 being the last stage's.
 }
-\examples{
-with_criterion(bfgs(), crit_abs_obj())@criterion@label
-
-# On a wrapper, the rule that will be evaluated is the one that changes.
-ms <- multistart(bfgs(), n = 3)
-with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
-
-}
 \keyword{internal}

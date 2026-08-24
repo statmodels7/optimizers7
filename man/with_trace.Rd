@@ -25,8 +25,4 @@ The default method sets the property with \code{S7::set_props()}. A wrapper
 needs a method of its own so that the inner optimizer records a path too;
 \code{\link[=multistart]{multistart()}} has one.
 }
-\examples{
-with_trace(bfgs())@keep_trace
-
-}
 \keyword{internal}

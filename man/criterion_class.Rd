@@ -22,8 +22,4 @@ with \verb{`class` must be an <S7_class> or NULL}. Reaching the class
 through a function of no arguments looks it up in the namespace, past the
 formal. \code{\link[=check_optimizer_args]{check_optimizer_args()}} is the caller.
 }
-\examples{
-S7::S7_inherits(crit_grad(), criterion_class())
-
-}
 \keyword{internal}

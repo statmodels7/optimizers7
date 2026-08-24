@@ -124,10 +124,6 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #'
 #' @return A character vector of `state` component names, possibly empty.
 #'
-#' @examples
-#' crit_needs(crit_grad(1e-8))
-#' crit_needs(crit_rel_obj(1e-10))
-#'
 #' @seealso [crit_met()] for the rule itself, [check_criterion()] for the
 #'   rejection this feeds, [optimizer_provides()] for the other half of the
 #'   comparison.

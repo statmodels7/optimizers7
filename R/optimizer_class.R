@@ -184,9 +184,6 @@ check_optimizer_args <- function(criterion, maxit, max_eval, verbose, refresh,
 #'
 #' @return The [criterion()] class object, an `S7_class`.
 #'
-#' @examples
-#' S7::S7_inherits(crit_grad(), criterion_class())
-#'
 #' @keywords internal
 criterion_class <- function() criterion
 
@@ -206,10 +203,6 @@ criterion_class <- function() criterion
 #' the failure would surface later, inside [minimize()] dispatch.
 #'
 #' @return The [optimizer()] class object, an `S7_class`.
-#'
-#' @examples
-#' S7::S7_inherits(bfgs(), optimizer_class())
-#' S7::S7_inherits(crit_grad(), optimizer_class())
 #'
 #' @keywords internal
 optimizer_class <- function() optimizer

@@ -145,10 +145,6 @@ optimizer_result <- S7::new_class(
 #'   `"1 h 7 min"`. `NA_character_` when `sec` is empty, missing or not
 #'   finite, so an unmeasured duration is reported as unmeasured.
 #'
-#' @examples
-#' vapply(c(1e-5, 5e-4, 0.25, 12, 90, 4000), format_elapsed, "")
-#' format_elapsed(NA)
-#'
 #' @keywords internal
 format_elapsed <- function(sec) {
   if (!length(sec) || !is.finite(sec)) return(NA_character_)

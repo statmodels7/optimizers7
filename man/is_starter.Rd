@@ -18,11 +18,4 @@ otherwise. \code{\link[=minimize]{minimize()}} asks it to decide whether \code{p
 used as given or an object to be resolved into one, and the question has a
 name so that the test is written once.
 }
-\examples{
-is_starter(start_zeros())
-is_starter(start_runif(-2, 2))
-is_starter(c(0, 0))
-is_starter(bfgs())
-
-}
 \keyword{internal}

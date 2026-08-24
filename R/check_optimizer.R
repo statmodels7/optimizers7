@@ -355,10 +355,6 @@ print_optimizer_check <- function(optimizer, ok, battery) {
 #'
 #' @return An optimizer of the same class as `optimizer`.
 #'
-#' @examples
-#' with_maxit(bfgs(), 7)@maxit
-#' class(with_maxit(newton(), 7))
-#'
 #' @aliases with_maxit.optimizer
 #' @keywords internal
 with_maxit <- S7::new_generic("with_maxit", "optimizer",
@@ -385,9 +381,6 @@ S7::method(with_maxit, optimizer) <- function(optimizer, maxit)
 #'
 #' @return An optimizer of the same class as `optimizer`, with
 #'   `keep_trace` `TRUE`.
-#'
-#' @examples
-#' with_trace(bfgs())@keep_trace
 #'
 #' @aliases with_trace.optimizer
 #' @keywords internal
@@ -427,13 +420,6 @@ S7::method(with_trace, optimizer) <- function(optimizer)
 #' @param criterion The new rule, a [criterion()] object.
 #'
 #' @return An optimizer of the same class as `optimizer`.
-#'
-#' @examples
-#' with_criterion(bfgs(), crit_abs_obj())@criterion@label
-#'
-#' # On a wrapper, the rule that will be evaluated is the one that changes.
-#' ms <- multistart(bfgs(), n = 3)
-#' with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
 #'
 #' @aliases with_criterion.optimizer
 #' @keywords internal

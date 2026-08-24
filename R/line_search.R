@@ -440,11 +440,6 @@ wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30, resolution = 0) {
 #' @return A list of seven: `type` (`"armijo"` or `"wolfe"`), `c1`, `c2`,
 #'   `shrink`, `max_step` (integer), `memory` (integer) and `resolution`.
 #'
-#' @examples
-#' str(line_search_spec(armijo()))
-#' str(line_search_spec(wolfe(c2 = 0.1)))
-#' str(line_search_spec(nonmonotone(memory = 4)))
-#'
 #' @aliases line_search_spec.ArmijoSearch line_search_spec.WolfeSearch
 #' @keywords internal
 line_search_spec <- S7::new_generic("line_search_spec", "x",
