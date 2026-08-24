@@ -18,41 +18,50 @@ newton(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
+\code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}; see
+\code{\link[=crit_any]{crit_any()}} for what that disjunction buys and costs.}
 
 \item{hessian_mod}{How to repair an indefinite Hessian: \code{"eigen"}
-(default) or \code{"ridge"}. See Details.}
+(default) or \code{"ridge"}. Partial matching applies and any other string is
+refused, naming both.}
 
-\item{floor}{The smallest eigenvalue the repaired Hessian is allowed.
-Defaults to \code{1e-8}.}
+\item{floor}{The smallest eigenvalue the repaired Hessian is allowed, a
+single positive number. Defaults to \code{1e-8}, relative to the largest
+eigenvalue.}
 
-\item{step}{Initial step length offered to the line search. Defaults to
-\code{1}, which is the natural Newton step and is accepted unchanged near
-the solution.}
+\item{step}{Initial step length offered to the line search, a single
+positive number. Defaults to \code{1}, which is the natural Newton step and
+is accepted unchanged near the solution.}
 
-\item{line_search}{See \code{\link[=armijo]{armijo()}} and \code{\link[=wolfe]{wolfe()}}.}
+\item{line_search}{A \code{\link[=line_search]{line_search()}} object. Defaults to \code{\link[=armijo]{armijo()}}, the
+curvature condition \code{\link[=bfgs]{bfgs()}} needs being unnecessary here because the
+curvature is read from the Hessian.}
 
-\item{maxit, max_eval, verbose, refresh, keep_trace}{As in
-\code{\link[=gd]{gd()}}.}
+\item{maxit, max_eval, verbose, refresh, keep_trace}{As in \code{\link[=optimizer]{optimizer()}}.
+\code{maxit} defaults to 200 here rather than 500, a Newton run that has not
+arrived in 200 iterations being in trouble of another kind.}
 }
 \value{
-An S7 object of class \code{Newton}.
+An S7 object of class \link{Newton}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
+be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Solves \eqn{H d = -g} for the direction, repairing \eqn{H} when it is not
-positive definite, and then line searches along it.
+positive definite, and then line searches along it. Converges
+quadratically near a minimum: on Rosenbrock from the customary start it
+reaches a value of \code{3.7e-21} in 21 iterations, 29 objective evaluations
+and 21 Hessians.
 }
-\details{
-Newton's method converges quadratically near a minimum and is unreliable away
-from one: \eqn{H^{-1}g} is only a
-descent direction when \eqn{H} is positive definite. Where the objective
-curves downwards the unmodified step points towards a saddle or a maximum, and
-no line search can rescue it — every step along an ascent direction increases
-the objective. This is not an edge case; it is the ordinary situation far from
-the solution.
+\section{Why the Hessian has to be repaired}{
+\eqn{H^{-1}g} is a descent direction only when \eqn{H} is positive
+definite. Where the objective curves downwards the unmodified step points
+towards a saddle or a maximum, and no line search can rescue it: every
+step along an ascent direction increases the objective. That is the
+ordinary situation far from the solution, not an edge case.
 
 Both repairs begin with an attempted Cholesky factorization, which when it
-succeeds is simultaneously the test for positive definiteness and the solve.
+succeeds is at once the test for positive definiteness and the solve.
 When it fails:
 
 \describe{
@@ -66,39 +75,44 @@ the Newton step at \eqn{\tau = 0} and a scaled steepest-descent step for
 large \eqn{\tau}. Cheaper, and blunter.}
 }
 
-Which repair fired is recorded in the trace, so the trace shows a run
-that spent its time repairing rather than converging.
+Which repair fired is recorded in the trace, under the names
+\verb{hessian modified} and \verb{hessian modified (capped)}, so a run that spent
+its time repairing can be told from one that spent it converging.
+}
 
-\strong{A repaired step is capped, and an unrepaired one is not.} Where the
-factorization succeeds, \eqn{H^{-1}g} is the Newton step and \eqn{step = 1}
-is its own unit, so it is taken as it is. Where it fails, the component of
-the direction in the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}},
-whose size is set by \code{floor} rather than by any curvature of the
-objective: the direction is therefore scaled to
+\section{A repaired step is capped and an unrepaired one is not}{
+Where the factorization succeeds, \eqn{H^{-1}g} is the Newton step and
+\code{step = 1} is its own unit, so it is taken as it stands. Where it fails,
+the component of the direction in the floored subspace is
+\eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is set by \code{floor} and by no
+curvature of the objective. The direction is therefore scaled to
 \eqn{\min(1, 1/\lVert d\rVert_\infty)}, a displacement of order one in the
-parameters. This is the rule \code{\link[=bb]{bb()}} applies when its secant pair
-reports no curvature and the one \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}}
-apply to their first direction, and it ONLY EVER SHORTENS, so a run whose
-repaired steps were already of order one is unchanged. The trace reports it
-as \code{"hessian modified (capped)"}. The same scaling is applied to the
+parameters. That is the rule \code{\link[=bb]{bb()}} applies when its secant pair reports
+no curvature and the one \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} apply to their first
+direction, and it can only ever shorten a step, so a run whose repaired
+steps were already of order one is untouched. The same scaling reaches the
 gradient the method falls back on when a solve fails.
 
-Without it the length of a repaired step is unbounded and the line search is
-the only thing that bounds it, at one objective evaluation per backtrack:
-measured on a marginal criterion whose outer Hessian is indefinite at
-ordinary points, a gradient of 29 along a direction floored at
-\eqn{10^{-8}\lambda_{\max}} gave a step of \eqn{4\times 10^{4}} on a log
-scale, and each of the 23 backtracks that followed was a whole penalized
-refit that could not be evaluated.
-
-\strong{On the Hessian itself.} If \code{he} is not supplied to
-\code{\link[=minimize]{minimize()}}, the Hessian is obtained by differencing the gradient.
-That is one numerical differentiation when the gradient is analytic and
-acceptable; when the gradient is \emph{also} differenced it is two composed,
-which is the one place in the package where that happens and where the result
-is correspondingly poor. An objective with neither derivative is better served
-by \code{\link[=bfgs]{bfgs()}}, which never needs a Hessian at all.
+Without the cap the length of a repaired step is unbounded and the line
+search is the only thing bounding it, at one objective evaluation per
+backtrack. Measured on a marginal criterion whose outer Hessian is
+indefinite at ordinary points, a gradient of 29 along a direction floored
+at \eqn{10^{-8}\lambda_{\max}} gave a step of \eqn{4\times 10^{4}} on a
+log scale, and each of the 23 backtracks that followed was a whole
+penalized refit that could not be evaluated.
 }
+
+\section{On the Hessian itself}{
+When \code{he} is not supplied to \code{\link[=minimize]{minimize()}} the Hessian is obtained by
+differencing the gradient. With an analytic gradient that is one numerical
+differentiation and is acceptable. When the gradient is \emph{also} differenced
+it is two composed, the one place in the package where that happens, and
+the cost shows: one Newton iteration on a quadratic in 20 unknowns takes
+1682 objective evaluations without a gradient and 42 gradient evaluations
+with one. An objective with neither derivative is better served by
+\code{\link[=bfgs]{bfgs()}}, which needs no Hessian at all.
+}
+
 \examples{
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 rosen_gr <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
@@ -109,6 +123,22 @@ rosen_he <- function(p) matrix(
 
 minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 
+# A saddle, where the unrepaired step points the wrong way. The Hessian at
+# the start has eigenvalues 2 and -1.99, and both repairs reach the minimum
+# in five iterations, reporting the repair in the trace.
+sad <- function(p) p[1]^2 - p[2]^2 + 0.1 * p[2]^4
+sg  <- function(p) c(2 * p[1], -2 * p[2] + 0.4 * p[2]^3)
+sh  <- function(p) matrix(c(2, 0, 0, -2 + 1.2 * p[2]^2), 2, 2)
+eigen(sh(c(0.5, 0.1)), only.values = TRUE)$values
+
+r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, he = sh)
+c(value = r@value, iterations = r@iterations)
+unique(r@trace$safeguard)
+
+# summary() counts the repairs, which is how a struggling run is read.
+summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
+                 gr = rosen_gr, he = rosen_he))
+
 }
 \references{
 Gill, P. E., Murray, W. and Wright, M. H. (1981).
@@ -118,5 +148,7 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}}, \code{\link[=minimize]{minimize()}}
+\code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} when no Hessian is available,
+\code{\link[=armijo]{armijo()}} for the line search, \code{\link[=summary.optimizer_result]{summary.optimizer_result()}} for the
+safeguard counts.
 }

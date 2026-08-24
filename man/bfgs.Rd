@@ -18,53 +18,93 @@ bfgs(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
+\code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}.}
 
 \item{curv_tol}{The update is skipped when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
-Defaults to \code{1e-10}.}
+Defaults to \code{1e-10}. A larger value skips more often; note that this
+argument is \strong{not validated}, so a negative one is accepted and simply
+never fires.}
 
-\item{max_skip}{Consecutive skipped updates before the approximation is reset
-to the identity. Defaults to 5.}
+\item{max_skip}{Consecutive skipped updates before the approximation is
+reset to the identity. Defaults to 5. Not validated either.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
-\code{\link[=newton]{newton()}}. The default line search is \code{\link[=wolfe]{wolfe()}}; see
-Details.}
+\code{\link[=newton]{newton()}}, except that \code{line_search} defaults to \code{\link[=wolfe]{wolfe()}} and \code{maxit}
+to 500. See below for why the line search matters here.}
 }
 \value{
-An S7 object of class \code{Bfgs}.
+An S7 object of class \link{Bfgs}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
+handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-Builds an approximation to the inverse Hessian from successive gradients, so
-the direction is a matrix-vector product and no second derivatives are ever
-required.
+Builds an approximation to the inverse Hessian from successive gradients,
+so the direction is a matrix-vector product and no second derivatives are
+ever required. The default method for a smooth problem of moderate size:
+on Rosenbrock from the customary start it converges in 35 iterations and
+49 objective evaluations with the gradient supplied.
 }
-\details{
-The default line search is the strong Wolfe one, and that is a requirement
-rather than a preference. BFGS updates its approximation from the secant pair
-\eqn{(s, y)} with \eqn{s = x_{new} - x_{old}} and
-\eqn{y = g_{new} - g_{old}}, and the update is only meaningful when
-\eqn{s^\top y > 0}. Armijo backtracking can accept a step so short that the
-gradient has barely moved, giving a pair with no curvature information in it;
-the Wolfe curvature condition is exactly the guarantee that this does not
-happen. Run on Armijo alone, BFGS loses the property that makes it BFGS.
-
-When the curvature condition fails anyway the update is \strong{skipped}
-rather than applied. A small \eqn{s^\top y} makes \eqn{\rho = 1/s^\top y}
-enormous and one bad step destroys the accumulated approximation; a stale but
-sound matrix is better than a fresh but corrupted one. After
-\code{max_skip} consecutive skips there is no curvature information left worth
-keeping, and the matrix is reset to the identity — the method restarts as
-steepest descent and rebuilds.
-
-The first accepted pair also rescales the identity by
-\eqn{s^\top y / y^\top y}. Without it the first quasi-Newton step is taken
-with a unit Hessian, which on a badly scaled problem has entirely the wrong
-magnitude and wastes a line search discovering so.
+\section{Notation}{
+\eqn{s = x_{new} - x_{old}} is the \strong{secant vector} and
+\eqn{y = g_{new} - g_{old}} the change in the gradient. The scalar step
+length a line search chooses is \eqn{\alpha}, a different quantity; the
+two are related by \eqn{s = \alpha d} for the direction \eqn{d}.
 }
+
+\section{Why the line search is the strong Wolfe one}{
+The update is meaningful only when \eqn{s^\top y > 0}, and the Wolfe
+curvature condition is exactly the guarantee that it holds: Armijo
+backtracking can accept a step so short that the gradient has barely
+moved, leaving a pair with no curvature in it.
+
+In practice the guarantee is worth less than it sounds, and the honest
+measurement is worth having. Over the eight problems of
+\code{\link[=test_problems]{test_problems()}}, BFGS under Armijo skips an update on three of them,
+once each, and matches Wolfe elsewhere: Rosenbrock 39 iterations against
+35, himmelblau 11 against 10, and on the non-smooth \code{abs_sum} Armijo is
+the \strong{better} of the two, reaching \code{6.8e-08} in 37 iterations where Wolfe
+stops at \code{1.3e-02} reporting failure. Wolfe is the default because it
+makes the update sound by construction; Armijo is a reasonable choice
+where evaluations are dear.
+}
+
+\section{Skipping and resetting}{
+When the curvature condition fails anyway the update is \strong{skipped}. A
+small \eqn{s^\top y} makes \eqn{\rho = 1/s^\top y} enormous and one bad
+step destroys the accumulated approximation; a stale but sound matrix
+beats a fresh but corrupted one. After \code{max_skip} consecutive skips there
+is no curvature information left worth keeping and the matrix is reset to
+the identity, so the method restarts as steepest descent and rebuilds.
+Both events appear in the trace, as \verb{bfgs update skipped} and
+\verb{bfgs reset}.
+
+The first accepted pair rescales the identity by \eqn{s^\top y / y^\top y}.
+Without it the first quasi-Newton step is taken with a unit Hessian, which
+on a badly scaled problem has the wrong magnitude entirely and wastes a
+line search discovering so. The first direction is also scaled to
+\eqn{\min(1, 1/\lVert g\rVert_\infty)}, a displacement of order one in the
+parameters, which can only ever shorten it.
+}
+
 \examples{
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
-minimize(bfgs(), rosen, c(-1.2, 1))
+rg <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                    200 * (p[2] - p[1]^2))
+minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
+
+# Armijo instead of Wolfe: the update is skipped once here, which the trace
+# reports, and the run still arrives.
+a <- minimize(bfgs(line_search = armijo(), keep_trace = TRUE), rosen,
+              c(-1.2, 1), gr = rg)
+c(iterations = a@iterations, skips = sum(a@trace$safeguard == "bfgs update skipped"))
+
+# Forcing the skip: a curvature threshold nothing can meet exhausts the
+# budget, and the trace names both safeguards.
+b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
+              gr = rg)
+c(converged = b@converged, value = b@value)
+unique(b@trace$safeguard)
 
 }
 \references{
@@ -77,6 +117,6 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link[=lbfgs]{lbfgs()}} for many parameters, \code{\link[=newton]{newton()}} when a
-Hessian is available.
+\code{\link[=lbfgs]{lbfgs()}} for many parameters, \code{\link[=newton]{newton()}} when a Hessian is
+available, \code{\link[=wolfe]{wolfe()}} for the line search this method wants.
 }

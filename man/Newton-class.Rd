@@ -20,19 +20,31 @@ Newton(
 )
 }
 \arguments{
-\item{step, line_search}{As in \code{\link[=newton]{newton()}}.}
+\item{step, line_search}{The initial step length and the \code{\link[=line_search]{line_search()}}
+object, as in \code{\link[=newton]{newton()}}.}
 
-\item{hessian_mod}{How an indefinite Hessian is repaired.}
+\item{hessian_mod}{How an indefinite Hessian is repaired, \code{"eigen"} or
+\code{"ridge"}.}
 
 \item{floor}{The smallest eigenvalue the repaired Hessian may have.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Newton} inheriting from \code{\link[=optimizer]{optimizer()}}, with
+the four properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=newton]{newton()}} instantiates.
+An optimizer holding the initial step length, the line search, and the two
+settings that decide how an indefinite Hessian is repaired. Built by
+\code{\link[=newton]{newton()}}. It is the only shipped method that reads the \code{he} argument of
+\code{\link[=minimize]{minimize()}}.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{Newton} carries four:
+\code{step} and \code{line_search}, shared with the other line-search methods, and
+\code{hessian_mod} and \code{floor}, which are its own.
 }
 \seealso{
-\code{\link[=newton]{newton()}}
+\code{\link[=newton]{newton()}} for the constructor, \code{\link[=bfgs]{bfgs()}} for the method that
+needs no Hessian.
 }
 \keyword{internal}

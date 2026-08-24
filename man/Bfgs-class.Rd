@@ -20,19 +20,31 @@ Bfgs(
 )
 }
 \arguments{
-\item{step, line_search}{As in \code{\link[=bfgs]{bfgs()}}.}
+\item{step, line_search}{The initial step length and the \code{\link[=line_search]{line_search()}}
+object, as in \code{\link[=bfgs]{bfgs()}}.}
 
 \item{curv_tol}{The curvature threshold below which the update is skipped.}
 
-\item{max_skip}{Consecutive skips before the approximation is reset.}
+\item{max_skip}{Consecutive skips before the approximation is reset to the
+identity.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Bfgs} inheriting from \code{\link[=optimizer]{optimizer()}}, with
+the four properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=bfgs]{bfgs()}} instantiates.
+An optimizer holding the initial step length, the line search, and the two
+settings that govern what happens when a secant pair carries no usable
+curvature. Built by \code{\link[=bfgs]{bfgs()}}. The inverse-Hessian approximation itself is
+not a property: it is built inside the run and discarded with it.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{Bfgs} carries four:
+\code{step} and \code{line_search}, shared with the other line-search methods, and
+\code{curv_tol} and \code{max_skip}, which are its own.
 }
 \seealso{
-\code{\link[=bfgs]{bfgs()}}
+\code{\link[=bfgs]{bfgs()}} for the constructor, \link{Lbfgs} for the limited-memory
+version.
 }
 \keyword{internal}

@@ -18,43 +18,106 @@ lbfgs(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
+\code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}.}
 
-\item{memory}{How many secant pairs to keep. Defaults to 10.}
+\item{memory}{How many secant pairs to keep, a single positive number.
+Defaults to 10. A non-integer is accepted and truncated.}
 
 \item{curv_tol}{A pair is discarded when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
-Defaults to \code{1e-10}.}
+Defaults to \code{1e-10}. Not validated.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
 \code{\link[=bfgs]{bfgs()}}.}
 }
 \value{
-An S7 object of class \code{Lbfgs}.
+An S7 object of class \link{Lbfgs}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
+be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-BFGS without ever forming the matrix: only the last \code{memory} secant
-pairs are kept, and the direction comes from the two-loop recursion.
+BFGS without ever forming the matrix: only the last \code{memory} secant pairs
+are kept, and the direction comes from the two-loop recursion. Costs
+\eqn{O(mp)} in time and memory where \code{\link[=bfgs]{bfgs()}} costs \eqn{O(p^2)}, and
+returns the same direction the full matrix would when the pairs are the
+same.
 }
-\details{
-The cost is \eqn{O(mp)} in both time and memory rather than \eqn{O(p^2)}. For
-a handful of parameters that is no gain whatever and \code{\link[=bfgs]{bfgs()}} will
-converge in fewer iterations, since it carries the whole approximation; the
-crossover is somewhere in the hundreds of parameters, and beyond a few
-thousand the full matrix is simply not storable.
+\section{Notation}{
+\eqn{s = x_{new} - x_{old}} is the secant vector and
+\eqn{y = g_{new} - g_{old}} the change in the gradient. The scalar step
+length is \eqn{\alpha}, a different quantity.
+}
+
+\section{Where the saving is}{
+The two-loop recursion returns exactly the product the explicitly
+assembled inverse would: built from the same four pairs and the same
+scaling, the two agree to \code{1.7e-16}. What differs is the cost.
+
+Measured on a dense quadratic, both methods taking the gradient and
+converging to the same point:
+
+\tabular{lll}{
+\strong{p} \tab \strong{bfgs} \tab \strong{lbfgs} \cr
+5 \tab 9 iterations \tab 8 iterations \cr
+50 \tab 15 \tab 15 \cr
+200 \tab 16, 0.06 s \tab 17, 0.00 s \cr
+800 \tab 16, \strong{4.06 s} \tab 17, \strong{0.02 s} \cr
+}
+
+The iteration counts barely differ; the cost per iteration is what
+diverges, and it does so between 200 and 800 parameters. Beyond a few
+thousand the full matrix is not storable at all.
 
 The recursion is scaled at each iteration by the most recent pair's
-\eqn{s^\top y / y^\top y}. That single number is doing the work the full
-matrix would otherwise do, and it is the reason the method converges at all
-without one.
-
-A larger \code{memory} is not uniformly better: old pairs describe curvature
-at points the iterate has left, and on a strongly nonlinear objective they can
-be worse than no information. Ten is the conventional choice for good reason.
+\eqn{s^\top y / y^\top y}. That single number does the work the full
+matrix would otherwise do, and is the reason the method converges without
+one.
 }
+
+\section{Choosing memory}{
+More is not better. Old pairs describe curvature at points the iterate has
+left, and they cost \eqn{O(p)} each per iteration. Measured on Rosenbrock,
+\code{memory} of 3, 5, 10, 30 and 100 gives 38, 36, 37, 37 and 37 iterations:
+past a handful there is nothing left to gain and the arithmetic keeps
+rising. Ten is the conventional choice for that reason.
+}
+
 \examples{
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
-minimize(lbfgs(memory = 5), rosen, c(-1.2, 1))
+rg <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                    200 * (p[2] - p[1]^2))
+minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
+
+# The two-loop recursion is not an approximation to the full update: on the
+# same pairs it returns the same product, to machine precision.
+set.seed(1)
+p <- 6
+S <- matrix(rnorm(p * 4), p, 4)
+Y <- matrix(rnorm(p * 4), p, 4) + 3 * S      # positive curvature
+g <- rnorm(p)
+gamma <- sum(S[, 4] * Y[, 4]) / sum(Y[, 4]^2)
+
+H <- diag(gamma, p)                          # the explicit inverse
+for (j in 1:4) {
+  s <- S[, j]; y <- Y[, j]; rho <- 1 / sum(s * y)
+  V <- diag(p) - rho * outer(s, y)
+  H <- V \%*\% H \%*\% t(V) + rho * outer(s, s)
+}
+
+two_loop <- function(g, S, Y, gamma) {       # the recursion
+  m <- ncol(S); a <- numeric(m); q <- g
+  for (j in m:1) {
+    rho <- 1 / sum(S[, j] * Y[, j])
+    a[j] <- rho * sum(S[, j] * q); q <- q - a[j] * Y[, j]
+  }
+  r <- gamma * q
+  for (j in 1:m) {
+    rho <- 1 / sum(S[, j] * Y[, j])
+    b <- rho * sum(Y[, j] * r); r <- r + S[, j] * (a[j] - b)
+  }
+  r
+}
+max(abs(H \%*\% g - two_loop(g, S, Y, gamma)))
 
 }
 \references{
@@ -66,5 +129,6 @@ for large scale optimization. \emph{Mathematical Programming}
 \strong{45}, 503--528.
 }
 \seealso{
-\code{\link[=bfgs]{bfgs()}}
+\code{\link[=bfgs]{bfgs()}} for a few parameters, \code{\link[=newton]{newton()}} when a Hessian is
+available.
 }

@@ -20,19 +20,31 @@ Lbfgs(
 )
 }
 \arguments{
-\item{step, line_search}{As in \code{\link[=lbfgs]{lbfgs()}}.}
+\item{step, line_search}{The initial step length and the \code{\link[=line_search]{line_search()}}
+object, as in \code{\link[=lbfgs]{lbfgs()}}.}
 
 \item{memory}{How many secant pairs to keep.}
 
 \item{curv_tol}{The curvature threshold below which a pair is not stored.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Lbfgs} inheriting from \code{\link[=optimizer]{optimizer()}}, with
+the four properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=lbfgs]{lbfgs()}} instantiates.
+An optimizer holding how many secant pairs to keep, the curvature
+threshold a pair must meet to be stored, and the usual step length and
+line search. Built by \code{\link[=lbfgs]{lbfgs()}}. The pairs themselves live inside the run.
+}
+\details{
+Beyond the seven properties every optimizer has, an \code{Lbfgs} carries four:
+\code{step} and \code{line_search}, and \code{memory} and \code{curv_tol}, which are its own.
+Where \link{Bfgs} has \code{max_skip}, this class has nothing corresponding: a pair
+failing the curvature test is discarded rather than skipped, so there is
+no accumulated matrix to protect.
 }
 \seealso{
-\code{\link[=lbfgs]{lbfgs()}}
+\code{\link[=lbfgs]{lbfgs()}} for the constructor, \link{Bfgs} for the full-matrix
+version.
 }
 \keyword{internal}
