@@ -12,9 +12,11 @@ check_count(v, nm)
 \item{nm}{Its name, for the message.}
 }
 \value{
-Invisibly \code{TRUE}; raises an error otherwise.
+Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
-Validate a Positive Whole Number
+Checks that the value is a single positive integer. Used for \code{max_step},
+which counts trials and not lengths, so a fractional value is a mistake
+rather than a request.
 }
 \keyword{internal}

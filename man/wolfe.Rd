@@ -7,15 +7,16 @@
 wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
 }
 \arguments{
-\item{c1}{Sufficient-decrease constant. Defaults to \code{1e-4}.}
+\item{c1}{Sufficient-decrease constant, strictly inside \eqn{(0, 1)}.
+Defaults to \code{1e-4}.}
 
-\item{c2}{Curvature constant, with \eqn{c_1 < c_2 < 1}. Defaults to
-\code{0.9}, the usual choice for a quasi-Newton method; \code{0.1} is
-conventional for nonlinear conjugate gradients, which want a more exact
-line search.}
+\item{c2}{Curvature constant, with \eqn{c_1 < c_2 < 1}. Defaults to \code{0.9},
+the usual choice for a quasi-Newton method; \code{\link[=cg]{cg()}} defaults to \code{0.1},
+wanting a more exact line search. A \code{c2} at or below \code{c1} is refused,
+the two conditions being unsatisfiable together then.}
 
-\item{max_step}{Maximum trial steps in each of the bracketing and zoom
-phases. Defaults to 30.}
+\item{max_step}{Maximum trial steps in \strong{each} of the bracketing and zoom
+phases, a positive whole number. Defaults to 30.}
 
 \item{resolution}{The smallest difference in the objective that means
 anything, in the objective's own units, or a function of no arguments
@@ -24,35 +25,62 @@ does not ask the question; see \code{\link[=armijo]{armijo()}} for what it is fo
 why it is asked at the full step rather than during the search.}
 }
 \value{
-A \code{\link[=line_search]{line_search()}} object.
+An S7 object of class \link{WolfeSearch}, inheriting from
+\code{\link[=line_search]{line_search()}}, to be passed as an optimizer's \code{line_search}.
 }
 \description{
-Sufficient decrease and a curvature condition together:
-\deqn{f(x + s d) \leq f(x) + c_1 s\, g^\top d, \qquad
-      \lvert g(x + s d)^\top d \rvert \leq c_2 \lvert g^\top d \rvert .}
+Finds a step satisfying both Wolfe conditions, sufficient decrease and
+curvature together:
+\deqn{f(x + \alpha d) \leq f(x) + c_1 \alpha\, g^\top d, \qquad
+      \lvert g(x + \alpha d)^\top d \rvert \leq c_2 \lvert g^\top d \rvert .}
+Evaluates the gradient at trial points as well as the objective, which is
+what the second condition costs and what \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} need.
 }
-\details{
-The curvature condition is what \code{\link[=armijo]{armijo()}} cannot provide, and it is
-not a refinement: a quasi-Newton method needs it to work at all. BFGS builds
-its approximation from the secant pair \eqn{(s, y)} with
-\eqn{y = g_{new} - g_{old}}, and a step so short that the gradient has barely
-moved gives a pair carrying no curvature information — so the update must
-either be skipped or it corrupts the matrix. Requiring the gradient along the
-direction to have shrunk by a factor \eqn{c_2} is exactly the guarantee that
-this does not happen.
+\section{What the curvature condition is for}{
+\code{\link[=armijo]{armijo()}} cannot provide it, and a quasi-Newton method needs it to work
+at all. BFGS builds its approximation from the secant pair \eqn{(s, y)}
+with \eqn{s = \alpha d} and \eqn{y = g_{new} - g_{old}}, and a step so
+short that the gradient has barely moved gives a pair carrying no
+curvature: the update is then either skipped or it corrupts the matrix.
+Requiring the gradient along the direction to have shrunk by a factor
+\eqn{c_2} is exactly the guarantee that this does not happen.
 
-The implementation is the bracketing-and-zoom scheme, with bisection inside
-the zoom rather than polynomial interpolation: a few more evaluations, and it
-cannot be defeated by an awkwardly shaped interval.
-
-It costs gradient evaluations at trial points, which \code{\link[=armijo]{armijo()}} does
-not, so it is the more expensive choice per iteration and usually the cheaper
-one per problem.
+In practice the guarantee is worth less than it sounds, and the honest
+measurement belongs here: over the eight problems of \code{\link[=test_problems]{test_problems()}},
+BFGS under Armijo skips an update on three of them, once each. See
+\code{\link[=bfgs]{bfgs()}} for the numbers.
 }
+
+\section{The implementation}{
+Bracketing and zoom, with \strong{bisection} inside the zoom instead of
+polynomial interpolation. That costs a few more evaluations and cannot be
+defeated by an awkwardly shaped interval.
+
+Gradient evaluations at trial points are the price, so this is the dearer
+choice per iteration and usually the cheaper one per problem.
+}
+
 \examples{
 wolfe()
-minimize(gd(line_search = wolfe(), maxit = 200),
-         function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2, c(-1.2, 1))
+wolfe(c2 = 0.1)
+
+# Even gradient descent gets to the answer with it, given the budget.
+minimize(gd(line_search = wolfe(), maxit = 2000),
+         function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2,
+         c(-1.2, 1))@par
+
+# The tighter constant matters to conjugate gradients, which has no
+# curvature approximation to repair a loose step with.
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                   200 * (p[2] - p[1]^2))
+c(tight = minimize(cg(line_search = wolfe(c2 = 0.1)), f, c(-1.2, 1),
+                   gr = g)@iterations,
+  loose = minimize(cg(line_search = wolfe(c2 = 0.9)), f, c(-1.2, 1),
+                   gr = g)@iterations)
+
+# The two conditions have to be satisfiable together.
+try(wolfe(c1 = 0.5, c2 = 0.4))
 
 }
 \references{
@@ -63,5 +91,6 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link[=armijo]{armijo()}}
+\code{\link[=armijo]{armijo()}} for the cheap search, \code{\link[=nonmonotone]{nonmonotone()}} for the relaxed
+reference value, \code{\link[=bfgs]{bfgs()}} for the method that needs this one.
 }

@@ -2,6 +2,8 @@
 % Please edit documentation in R/line_search.R
 \name{line_search_spec}
 \alias{line_search_spec}
+\alias{line_search_spec.ArmijoSearch}
+\alias{line_search_spec.WolfeSearch}
 \alias{line_search_spec.NonmonotoneSearch}
 \title{Describe a Line Search to the C++ Side}
 \usage{
@@ -11,13 +13,30 @@ line_search_spec(x)
 \item{x}{A \code{\link[=line_search]{line_search()}} object.}
 }
 \value{
-A list with \code{type}, \code{c1}, \code{c2}, \code{shrink} and
-\code{max_step}. Fields a given search does not use are filled with values
-the C++ side ignores, so that the structure is the same shape whichever
-search it describes.
+A list of seven: \code{type} (\code{"armijo"} or \code{"wolfe"}), \code{c1}, \code{c2},
+\code{shrink}, \code{max_step} (integer), \code{memory} (integer) and \code{resolution}.
 }
 \description{
-Flattens a \code{\link[=line_search]{line_search()}} object into the list the compiled code
-reads.
+Flattens a \code{\link[=line_search]{line_search()}} object into the plain list the compiled loop
+reads, so the C++ side needs no knowledge of S7. Every search produces the
+same seven fields whichever subclass it is, and the compiled code branches
+on \code{type} alone.
+}
+\details{
+A field the given search has no use for is filled with a value the
+compiled side ignores: \code{c2 = 0.9} for the two backtracking searches,
+\code{shrink = 0.5} for Wolfe, \code{memory = 0} for both of the monotone ones.
+Keeping the shape fixed is what lets one struct read all three.
+
+There are only \strong{two} types. \code{\link[=nonmonotone]{nonmonotone()}} describes itself as
+\code{type = "armijo"} with \code{memory} above zero, the two differing in the
+reference value alone, so the compiled loop needs no third branch. That is
+the same fact the \code{memory = 0} identity records from the other side.
+}
+\examples{
+str(line_search_spec(armijo()))
+str(line_search_spec(wolfe(c2 = 0.1)))
+str(line_search_spec(nonmonotone(memory = 4)))
+
 }
 \keyword{internal}

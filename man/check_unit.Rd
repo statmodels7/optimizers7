@@ -12,9 +12,12 @@ check_unit(v, nm)
 \item{nm}{Its name, for the message.}
 }
 \value{
-Invisibly \code{TRUE}; raises an error otherwise.
+Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
-Validate a Constant in the Unit Interval
+Checks that the value is a single number \strong{strictly} inside
+\eqn{(0, 1)}. Both endpoints are refused: \code{c1 = 0} asks for no decrease at
+all and \code{c1 = 1} asks for the whole decrease the linear model predicts,
+which a curved objective cannot supply.
 }
 \keyword{internal}

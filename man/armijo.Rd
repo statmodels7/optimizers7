@@ -7,15 +7,17 @@
 armijo(c1 = 1e-04, shrink = 0.5, max_step = 30, resolution = 0)
 }
 \arguments{
-\item{c1}{Sufficient-decrease constant, in \eqn{(0, 1)}. Defaults to
-\code{1e-4}, the conventional value: it demands a decrease, but only a tiny
-fraction of what the linear model predicts, so it almost never rejects a
-sensible step.}
+\item{c1}{Sufficient-decrease constant, strictly inside \eqn{(0, 1)}.
+Defaults to \code{1e-4}, the conventional value: it demands a decrease, but
+only a tiny fraction of what the linear model predicts, so it almost
+never rejects a sensible step.}
 
-\item{shrink}{Factor applied on each backtrack, in \eqn{(0, 1)}. Defaults to
-\code{0.5}.}
+\item{shrink}{Factor applied on each backtrack, strictly inside
+\eqn{(0, 1)}. Defaults to \code{0.5}.}
 
-\item{max_step}{Maximum backtracks before the search gives up. Defaults to 30.}
+\item{max_step}{Maximum \strong{backtracks} before the search gives up, a
+positive whole number. Defaults to 30. The name says step and the
+quantity is a count.}
 
 \item{resolution}{The smallest difference in the objective that means
 anything, in the objective's own units, or a function of no arguments
@@ -23,68 +25,88 @@ returning it where it moves as the run goes. Defaults to \code{0}, which
 does not ask the question. See the section below.}
 }
 \value{
-A \code{\link[=line_search]{line_search()}} object.
+An S7 object of class \link{ArmijoSearch}, inheriting from
+\code{\link[=line_search]{line_search()}}, to be passed as an optimizer's \code{line_search}.
 }
 \description{
-Shrink the step until the objective decreases by enough:
-\deqn{f(x + s d) \leq f(x) + c_1 s\, g^\top d .}
+Halves the step until the objective decreases by enough:
+\deqn{f(x + \alpha d) \leq f(x) + c_1 \alpha\, g^\top d .}
+Evaluates the objective at each trial point and never the gradient, which
+makes it the cheap line search and the one a method with no curvature
+approximation to protect should use.
 }
 \details{
-The \eqn{c_1 s\, g^\top d} term is essential, and dropping it — testing
-merely \eqn{f_{new} \le f} — is a real defect rather than a simplification.
-On a quadratic with unit step the gradient update reflects the iterate through
-the minimum, leaving the objective \emph{exactly} unchanged; the weak test
-accepts it, the iterate oscillates forever, and a stopping rule watching the
-objective sees no change and reports convergence at a point that is not a
-minimum.
+The \eqn{c_1 \alpha\, g^\top d} term is essential, and dropping it to test
+merely \eqn{f_{new} \le f} is a real defect. On a quadratic with unit step
+the gradient update reflects the iterate through the minimum, leaving the
+objective \emph{exactly} unchanged; the weak test accepts that step, the
+iterate oscillates for ever, and a stopping rule watching the objective
+sees no change and reports convergence at a point that is not a minimum.
 
-Cheap: it evaluates the objective at trial points and never the gradient. That
-is enough for a method that only needs to make progress, and not enough for a
-quasi-Newton method, which needs \code{\link[=wolfe]{wolfe()}}.
+The search evaluates the objective at trial points and never the gradient.
+That is enough for a method that has only to make progress, and not enough
+for a quasi-Newton method, which needs \code{\link[=wolfe]{wolfe()}}.
 }
 \section{What the objective can resolve}{
 
-An objective computed by a procedure rather than by a formula returns
-slightly different values for the same argument -- a fit warm-started from
+An objective computed by a procedure instead of by a formula returns
+slightly different values for the same argument: a fit warm-started from
 wherever the last evaluation ended, a quadrature whose panels move, a
-simulation. Below that spread its values carry no information.
+simulation. Below that spread its values carry no information, and a
+search asked to verify a smaller decrease backtracks to exhaustion.
 
-The test is made ONCE, before any trial is paid for, on the improvement the
-method's own linear model predicts over the full step,
-\eqn{s_0 \lvert g^\top d\rvert}. Where that is below \code{resolution} the
-search returns immediately: the point is optimal to the accuracy the
-objective has, which is a weaker statement than a stopping rule being met
-and is reported in different words.
+The test is made \strong{once}, before any trial is paid for, on the
+improvement the method's own linear model predicts over the full step,
+\eqn{\alpha_0 \lvert g^\top d\rvert}. Where that is below \code{resolution} the
+search returns immediately, and the run reports that the point is optimal
+to the accuracy the objective has. That is a weaker statement than a
+stopping rule being met, and it is reported in different words.
 
-\strong{It is not asked inside the backtracking loop, and that is what makes
-it safe.} There the two situations cannot be told apart, since
-\eqn{x + s d \to x} as the step shrinks and the objective stops resolving
-the change whether the point is optimal or the DIRECTION is wrong. Tested at
-the full step they separate: a bad direction predicts a large improvement
-and is still reported as the failure it is. Measured, with the test inside
-the loop a mis-stated gradient at a point nowhere near stationary was
-promoted to a converged run.
+\strong{It is not asked inside the backtracking loop, and that is what makes it
+safe.} There the two situations cannot be told apart, since
+\eqn{x + \alpha d \to x} as the step shrinks and the objective stops
+resolving the change whether the point is optimal or the direction is
+wrong. Tested at the full step they separate: a bad direction predicts a
+large improvement, does not obtain it, and is still reported as the failure
+it is. Measured, with the test inside the loop a mis-stated gradient at a
+point nowhere near stationary was promoted to a converged run.
 
 The quantity is the predicted decrease and not the Armijo demand
-\eqn{c_1 s_0 \lvert g^\top d\rvert}, which is four orders smaller and would
-fire where the method still had real progress to make.
+\eqn{c_1 \alpha_0 \lvert g^\top d\rvert}, which is four orders smaller and
+would fire where the method still had real progress to make.A resolution that moves
 
-\subsection{A resolution that moves}{
-Where the objective settles as the run goes -- a fit warm-started from the
-previous evaluation locates its own answer better each time -- the
+Where the objective settles as the run goes, a fit warm-started from the
+previous evaluation locating its own answer better each time, the
 resolution at the start is the reading from the worst point of the whole
-run. Passing a FUNCTION of no arguments instead of a number has it asked
-again at every iteration, once per invocation of the search and not once per
-trial, so it costs one call an iteration. What the function returns is the
-resolution in force for the step about to be taken; a value that is not
-finite and positive is read as \code{0}, which asks nothing.
-}
+run. Passing a \strong{function} of no arguments instead of a number has it
+asked again at every iteration, once per invocation of the search and not
+once per trial, so it costs one call an iteration. What the function
+returns is the resolution in force for the step about to be taken; a value
+that is not finite and positive is read as \code{0}, which asks nothing.
 }
 
 \examples{
 armijo()
+armijo(shrink = 0.2, max_step = 10)
+
 minimize(gd(line_search = armijo(shrink = 0.2)),
-         function(p) sum((p - 1:2)^2), c(0, 0))
+         function(p) sum((p - 1:2)^2), c(0, 0))@par
+
+# The cheapness shows where the method has to backtrack often. Under
+# Barzilai-Borwein, which relies on steps that go uphill, an Armijo
+# condition rejects exactly those and the run costs more than twice as
+# much.
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                   200 * (p[2] - p[1]^2))
+c(armijo      = minimize(bb(line_search = armijo()), f, c(-1.2, 1),
+                         gr = g)@counts[["f"]],
+  nonmonotone = minimize(bb(), f, c(-1.2, 1), gr = g)@counts[["f"]])
+
+# Constants outside their intervals are refused by name.
+try(armijo(c1 = 1))
+try(armijo(shrink = 1.5))
+try(armijo(max_step = 2.5))
 
 }
 \references{
@@ -97,5 +119,6 @@ In J. Abadie (ed.), \emph{Integer and Nonlinear Programming},
 37--86. North-Holland, Amsterdam.
 }
 \seealso{
-\code{\link[=wolfe]{wolfe()}}
+\code{\link[=wolfe]{wolfe()}} for the curvature condition, \code{\link[=nonmonotone]{nonmonotone()}} for the
+relaxed reference value, \code{\link[=line_search]{line_search()}} for the shared contract.
 }

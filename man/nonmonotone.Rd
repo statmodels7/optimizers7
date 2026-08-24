@@ -44,40 +44,56 @@ The condition is Grippo, Lampariello and Lucidi's:
 which is Armijo's with the reference replaced by the largest of the last
 \eqn{m+1} values. Every step it accepts improves on the worst of recent
 memory; none is required to improve on the present.
-
-\subsection{Purpose}{
+}
+\section{Purpose}{
 Some methods are efficient \emph{because} of steps that make the objective
-worse. \code{\link[=bb]{bb()}} is the clear case: its step length is a curvature
-estimate taken from the last secant pair, and following that estimate
-faithfully means occasionally going somewhere higher in order to be aligned
-with the curvature when it matters. An Armijo condition forbids exactly those
-steps and backtracks until it finds a shorter one, which is safe and is also
-most of what the method was for.
+worse. \code{\link[=bb]{bb()}} is the clear case: its step length is a curvature estimate
+taken from the last secant pair, and following that estimate faithfully
+means occasionally going somewhere higher in order to be aligned with the
+curvature when it matters. An Armijo condition forbids exactly those steps
+and backtracks until it finds a shorter one, which is safe and is also most
+of what the method was for.
+
+Measured on Rosenbrock, \code{\link[=bb]{bb()}} takes 58 iterations and 67 objective
+evaluations under \code{nonmonotone()} and 72 iterations and 154 evaluations
+under \code{\link[=armijo]{armijo()}}.
 
 The cost is that the guarantee weakens. A monotone method cannot cycle,
-because the objective is a decreasing sequence bounded below; a nonmonotone
-one needs the finite memory to play that role, and the convergence result is
-correspondingly more delicate. Use it where a method asks for it, not as a
-faster default.
+the objective being a decreasing sequence bounded below; a nonmonotone one
+needs the finite memory to play that role, and the convergence result is
+correspondingly more delicate. Use it where a method asks for it.
 }
 
-\subsection{Compatibility}{
-The curvature condition is a statement about the gradient at the trial point
-and has nothing to say about which value the decrease is measured against, so
-a nonmonotone Wolfe search would be a different object rather than an option
-on this one. There is not one here.
+\section{memory = 0}{
+At \code{memory = 0} the reference is the current value and the condition is
+Armijo's exactly. Measured, \code{nonmonotone(memory = 0)} and \code{\link[=armijo]{armijo()}} give
+the identical run, 72 iterations and 154 evaluations on the same problem,
+so a comparison between the two settings is a comparison of the memory
+alone.
 }
+
+\section{No nonmonotone Wolfe}{
+The curvature condition is a statement about the gradient at the trial
+point and says nothing about which value the decrease is measured against,
+so a nonmonotone Wolfe search would be a fourth object rather than an
+option on this one. There is not one here.
 }
+
 \examples{
 nonmonotone()
 nonmonotone(memory = 5)
 
-# what it buys the method it was added for
+# What it buys the method it was added for.
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
-minimize(bb(line_search = armijo()), f, c(-1.2, 1), gr = gr)@iterations
-minimize(bb(), f, c(-1.2, 1), gr = gr)@iterations
+evals <- function(ls) minimize(bb(line_search = ls), f, c(-1.2, 1),
+                               gr = gr)@counts[["f"]]
+c(nonmonotone = evals(nonmonotone()), armijo = evals(armijo()))
+
+# And that memory = 0 is armijo(), which is what makes the comparison one
+# of the memory alone.
+identical(evals(nonmonotone(memory = 0)), evals(armijo()))
 
 }
 \references{
@@ -90,5 +106,6 @@ scale unconstrained minimization problem. \emph{SIAM Journal on
 Optimization} \strong{7}, 26--33.
 }
 \seealso{
-\code{\link[=armijo]{armijo()}}, \code{\link[=bb]{bb()}}
+\code{\link[=armijo]{armijo()}} for the monotone version, \code{\link[=bb]{bb()}} for the method that
+needs this one, \code{\link[=line_search]{line_search()}} for the shared contract.
 }
