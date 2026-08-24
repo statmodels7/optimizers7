@@ -7,14 +7,25 @@
 run_battery(optimizer, problems)
 }
 \arguments{
-\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to run.}
 
 \item{problems}{A list in the shape \code{\link[=test_problems]{test_problems()}} returns.}
 }
 \value{
-A data frame with one row per problem.
+A data frame with one row per problem and the columns \code{problem}
+(character), \code{value} and \code{gap} (numeric), \code{converged} (logical),
+\code{evaluations} (integer) and \code{note} (character, \code{"multimodal"},
+\code{"non-smooth"}, an error message, or empty).
 }
 \description{
-The gap from each known minimum, as information rather than as a verdict.
+Runs the optimizer on each problem from that problem's own starting point
+and records the gap between the value reached and the known minimum. The
+result is information: no row is a pass or a failure.
+}
+\details{
+A problem the optimizer cannot run at all is caught rather than
+propagated, so one method that refuses one problem does not lose the other
+seven. Such a row carries \code{NA} in every numeric column and the error
+message in \code{note}.
 }
 \keyword{internal}

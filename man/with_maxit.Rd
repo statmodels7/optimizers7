@@ -2,6 +2,7 @@
 % Please edit documentation in R/check_optimizer.R, R/chain.R, R/multistart.R
 \name{with_maxit}
 \alias{with_maxit}
+\alias{with_maxit.optimizer}
 \alias{with_maxit.Chain}
 \alias{with_maxit.MultiStart}
 \title{Rebuild an Optimizer With a Different Iteration Budget}
@@ -9,14 +10,28 @@
 with_maxit(optimizer, maxit)
 }
 \arguments{
-\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to copy.}
 
-\item{maxit}{The new budget.}
+\item{maxit}{The new budget, a single finite number at least 1.}
 }
 \value{
-An optimizer of the same class.
+An optimizer of the same class as \code{optimizer}.
 }
 \description{
-Rebuild an Optimizer With a Different Iteration Budget
+Returns a copy of the optimizer with \code{maxit} replaced, keeping its class
+and every other setting. \code{\link[=check_optimizer]{check_optimizer()}} needs it for check 3, which
+starves an optimizer of iterations to see whether it still claims
+convergence, and it cannot name the class it was handed.
+}
+\details{
+The default method sets the property with \code{S7::set_props()}, which is
+right for any optimizer whose own budget is the one the run obeys. A
+wrapper needs a method of its own so that the change reaches the optimizer
+inside; \code{\link[=multistart]{multistart()}} has one.
+}
+\examples{
+with_maxit(bfgs(), 7)@maxit
+class(with_maxit(newton(), 7))
+
 }
 \keyword{internal}

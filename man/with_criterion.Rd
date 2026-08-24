@@ -2,6 +2,7 @@
 % Please edit documentation in R/check_optimizer.R, R/chain.R, R/multistart.R
 \name{with_criterion}
 \alias{with_criterion}
+\alias{with_criterion.optimizer}
 \alias{with_criterion.Chain}
 \alias{with_criterion.MultiStart}
 \title{Rebuild an Optimizer With a Different Stopping Rule}
@@ -9,21 +10,41 @@
 with_criterion(optimizer, criterion)
 }
 \arguments{
-\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to copy.}
 
-\item{criterion}{The new rule.}
+\item{criterion}{The new rule, a \code{\link[=criterion]{criterion()}} object.}
 }
 \value{
-An optimizer of the same class.
+An optimizer of the same class as \code{optimizer}.
 }
 \description{
-Replaces the criterion, and for a wrapper replaces the one that will actually
-be consulted.
+Returns a copy of the optimizer with its criterion replaced, keeping its
+class and every other setting. For a wrapper it replaces the rule that is
+actually consulted, which is not always the one on the outside.
 }
 \details{
-The distinction matters. \code{\link[=multistart]{multistart()}} carries a criterion only so
-that printing it tells the truth; the rule that is evaluated belongs to the
-optimizer inside. Setting the outer one and expecting a different run is the
-sort of thing that makes a check pass while testing nothing.
+\code{\link[=multistart]{multistart()}} carries a criterion so that printing it tells the truth;
+the rule the run evaluates belongs to the optimizer inside. Setting the
+outer one alone changes the printing and nothing else, which is exactly
+the sort of thing that makes a check pass while testing nothing:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ms <- multistart(bfgs(), n = 3)
+with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
+# "|df| < 1e-04"  -- the inner rule changed too
+
+S7::set_props(ms, criterion = crit_abs_obj(1e-4))@optimizer@criterion@label
+# "gradient (max-norm) < 1e-06 or ..."  -- unchanged
+}\if{html}{\out{</div>}}
+
+\code{\link[=chain]{chain()}} has a method of its own for the same reason, its reported rule
+being the last stage's.
+}
+\examples{
+with_criterion(bfgs(), crit_abs_obj())@criterion@label
+
+# On a wrapper, the rule that will be evaluated is the one that changes.
+ms <- multistart(bfgs(), n = 3)
+with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
+
 }
 \keyword{internal}

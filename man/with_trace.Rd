@@ -2,17 +2,31 @@
 % Please edit documentation in R/check_optimizer.R
 \name{with_trace}
 \alias{with_trace}
+\alias{with_trace.optimizer}
 \title{Rebuild an Optimizer With the Trace Switched On}
 \usage{
 with_trace(optimizer)
 }
 \arguments{
-\item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to copy.}
 }
 \value{
-An optimizer of the same class.
+An optimizer of the same class as \code{optimizer}, with
+\code{keep_trace} \code{TRUE}.
 }
 \description{
-Rebuild an Optimizer With the Trace Switched On
+Returns a copy of the optimizer with \code{keep_trace = TRUE}, keeping its
+class and every other setting. \code{\link[=check_optimizer]{check_optimizer()}} needs it for check 6,
+which asks whether the trace is well formed, and a trace has to be asked
+for.
+}
+\details{
+The default method sets the property with \code{S7::set_props()}. A wrapper
+needs a method of its own so that the inner optimizer records a path too;
+\code{\link[=multistart]{multistart()}} has one.
+}
+\examples{
+with_trace(bfgs())@keep_trace
+
 }
 \keyword{internal}

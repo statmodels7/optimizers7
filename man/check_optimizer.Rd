@@ -12,86 +12,110 @@ check_optimizer(
 )
 }
 \arguments{
-\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to check.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to check. Anything else raises an error
+naming \code{bfgs()} as an example.}
 
-\item{problems}{The battery; defaults to \code{\link[=test_problems]{test_problems()}}.}
+\item{problems}{A list of problems in the shape \code{\link[=test_problems]{test_problems()}} returns.
+Defaults to all eight. Pass a subset to keep the report short:
+\code{test_problems("sphere")}.}
 
-\item{verbose}{Print the report? Defaults to \code{TRUE}.}
+\item{verbose}{\code{TRUE} (default) prints the twelve verdicts and the battery
+table; \code{FALSE} returns the same information silently.}
 
-\item{tol}{Tolerance for the checks that compare numbers. Defaults to
-\code{1e-6}.}
+\item{tol}{Tolerance for the checks that compare numbers, a single
+positive number, default \code{1e-6}. It governs checks 1, 2 and 9; check 12
+uses a fixed \code{1e-3} on the distance to the solution, and check 7 tests
+the bounds strictly and reads no tolerance at all.}
 }
 \value{
-Invisibly, a named list: \code{checks}, a logical vector with one
-entry per numbered check, and \code{battery}, a data frame of gaps.
+Invisibly, a named list of two:
+\describe{
+\item{\code{checks}}{a named logical vector of length 12, one entry per
+numbered check, named by what the check asserts.}
+\item{\code{battery}}{a data frame with one row per problem and the columns
+\code{problem}, \code{value}, \code{gap}, \code{converged}, \code{evaluations} and \code{note}. A
+problem the optimizer could not run at all has \code{NA} throughout and
+the error message in \code{note}.}
+}
 }
 \description{
-Runs an optimizer through a series of checks on what it \emph{reports}, and
-then through the standard test problems. Written for whoever adds a method of
-their own, and run against every method here.
+Puts an optimizer through twelve checks on what it \emph{reports}, prints the
+verdict on each, and then runs it over the standard test problems and
+reports the gap it reached on every one. Written for whoever adds a method
+of their own; all twelve shipped methods pass all twelve checks.
 }
-\details{
-\strong{What this checks is the contract, not the power.} Those are different
-questions and conflating them would make the function useless: gradient
-descent does not solve Rosenbrock in five hundred iterations, and it is not
-broken — it is slow, which is a documented property of the method and not a
-defect for a validator to report. So the numbered checks are all statements an
-optimizer must satisfy however weak it is, and how strong it is comes
-afterwards, as a table of gaps rather than as a verdict.
+\section{The contract and the power are different questions}{
+The twelve numbered checks are statements an optimizer must satisfy
+however weak it is. How strong it is comes afterwards, as a table of gaps
+with no verdict attached. Conflating the two would make the function
+useless: gradient descent does not solve Rosenbrock in five hundred
+iterations, and it is slow rather than broken, which is a documented
+property of the method.
 
-The one performance requirement among the numbered checks is that the
-optimizer minimizes a quadratic. That is a floor no correct method can fail.
+The one performance requirement among the numbered checks is check 12,
+minimizing a quadratic. That is a floor no correct method can fail.
+}
 
-\subsection{The checks}{
+\section{The twelve checks}{
 \enumerate{
-\item \code{value} is the objective at \code{par}. A method that reports a
-value from a point it has since left is the kind of defect that survives
-every test written in terms of the value alone.
-\item the reported gradient is the gradient at \code{par}, checked only for
-optimizers that offer \code{"gradient"} to a stopping rule and so are
-claiming it is one. \code{\link[=bundle]{bundle()}} reports an aggregate subgradient
-and does not make that claim, so it is not held to it.
-\item \code{converged} follows the stopping rule and is never inferred from
-the run having ended. Checked by starving the optimizer of iterations: a
+\item \code{value} is the objective at \code{par}. A method reporting a value from a
+point it has since left is a defect that survives every test written in
+terms of the value alone.
+\item the reported gradient is the gradient at \code{par}. Checked only for an
+optimizer that offers \code{"gradient"} through \code{\link[=optimizer_provides]{optimizer_provides()}}, and
+so is claiming that what it reports is one. \code{\link[=bundle]{bundle()}} reports an
+aggregate subgradient and makes no such claim, so it is exempt.
+\item \code{converged} follows the stopping rule and is never inferred from the
+run having ended. Checked by starving the optimizer of iterations: a
 run cut off after one must not report success.
-\item budgets are respected — \code{iterations} never exceeds \code{maxit}.
-\item evaluations are counted; a method reporting zero of them did not
-evaluate anything.
-\item the trace, when kept, is a data frame whose iteration numbers run
-from one and increase.
-\item bounds are respected \strong{strictly}: a probability of exactly 1 is
-not a probability inside \eqn{(0, 1)}, and the caller's next act is
-usually to divide by it.
-\item the run repeats. A deterministic method must give the same answer
-twice; a stochastic one must give it again from the seed it recorded,
-which tests the recording as well as the repeatability.
+\item budgets are respected: \code{iterations} never exceeds \code{maxit}.
+\item evaluations are counted. A method reporting zero of them evaluated
+nothing.
+\item the trace, when kept, is a data frame whose iteration numbers start at
+one and increase.
+\item bounds are respected \strong{strictly}. A probability of exactly 1 is not a
+probability inside \eqn{(0, 1)}, and the caller's next act is usually
+to divide by it.
+\item the run repeats. A deterministic method gives the same answer twice; a
+stochastic one gives it again from the seed it recorded, which tests
+the recording as well as the repeatability.
 \item \code{\link[=maximize]{maximize()}} is \code{\link[=minimize]{minimize()}} of the negative.
-\item a stopping rule the optimizer cannot evaluate is rejected, rather than
-accepted and left never to fire.
-\item a starting point where the objective is not finite is an error, not a
-run that quietly returns \code{NaN}.
+\item a stopping rule the optimizer cannot evaluate is rejected at
+construction, not accepted and left never to fire.
+\item a starting point where the objective is not finite raises an error, so
+no run quietly returns \code{NaN}.
 \item it minimizes a quadratic.
 }
 
+A deliberately lying optimizer, one returning a made-up point with
+\code{converged = TRUE}, fails six of the twelve: 1, 2, 3, 10, 11 and 12. The
+six it passes are the bookkeeping ones, which is why the battery is not
+the whole check.
 }
 
-\subsection{The problem battery}{
+\section{The problem battery}{
 The table reports the gap between the value reached and the known minimum,
-and it is information rather than judgement. A large gap on
-\code{rastrigin} or \code{himmelblau} means the method found a different
-local minimum, which for a local method is correct behavior; a large gap on
-\code{abs_sum} means it was defeated by a kink, which is what
-\code{\link[=bundle]{bundle()}} and the derivative-free methods are for.
+as information. A large gap on \code{rastrigin} or \code{himmelblau} means the
+method found a different local minimum, which for a local method is
+correct behavior, and the \code{note} column labels those two. A large gap on
+\code{abs_sum} means the method was defeated by a kink, which is what
+\code{\link[=bundle]{bundle()}} and the derivative-free methods exist for.
 }
-}
+
 \examples{
 check_optimizer(bfgs())
 
-# a method that does not compute a gradient is held to fewer claims, and to
-# the same standard on the ones it does make
-check_optimizer(nelder_mead(), problems = test_problems("sphere"))
+# A method that computes no gradient is held to fewer claims, and to the
+# same standard on the ones it does make.
+res <- check_optimizer(nelder_mead(), problems = test_problems("sphere"))
+all(res$checks)
+
+# The battery is a table, so it can be read rather than printed.
+check_optimizer(cg(), verbose = FALSE)$battery
 
 }
 \seealso{
-\code{\link[=test_problems]{test_problems()}}, \code{\link[=minimize]{minimize()}}
+\code{\link[=test_problems]{test_problems()}} for the battery, \code{\link[=check_criterion]{check_criterion()}} and
+\code{\link[=check_bounds]{check_bounds()}} for the two pieces a method of your own has to use,
+\code{\link[=optimizer_provides]{optimizer_provides()}} for the claim check 2 rests on.
 }

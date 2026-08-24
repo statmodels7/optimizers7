@@ -7,16 +7,19 @@
 print_optimizer_check(optimizer, ok, battery)
 }
 \arguments{
-\item{optimizer}{The optimizer checked.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} checked, read for its name.}
 
-\item{ok}{The logical vector of checks.}
+\item{ok}{The named logical vector of twelve checks.}
 
-\item{battery}{The data frame of gaps.}
+\item{battery}{The data frame \code{\link[=run_battery]{run_battery()}} returned.}
 }
 \value{
-Invisibly \code{NULL}.
+Invisibly \code{NULL}. Called for the output.
 }
 \description{
-Print the Report of check_optimizer
+Writes the twelve verdicts, one per line as \verb{[PASSED]} or \verb{[FAILED]}, then
+a summary naming every failing check, then the battery as one line per
+problem with its gap, its convergence flag, its evaluation count and its
+note.
 }
 \keyword{internal}
