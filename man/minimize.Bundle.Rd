@@ -6,15 +6,20 @@
 \arguments{
 \item{optimizer}{A \code{Bundle} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} should
-return a subgradient; \code{he} is ignored.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} should return
+a \strong{subgradient}, not a difference taken across a kink; \code{he} is
+accepted and ignored. Bounds are taken and removed by
+reparametrization.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}, whose \code{gradient} is the
-\emph{aggregate} subgradient, the one quantity of that shape which goes to
-zero at a solution.
+An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is the \strong{aggregate}
+subgradient, the one quantity of that shape which goes to zero at a
+solution, and whose \code{message} reports the serious and null step counts.
 }
 \description{
-Runs \code{\link[=bundle]{bundle()}} on the objective.
+Runs \code{\link[=bundle]{bundle()}} on the objective: a cutting-plane model built from the
+subgradients collected so far, a proximal subproblem solved for the step,
+and an acceptance test that turns each trial into a serious step or a null
+one.
 }
 \keyword{internal}

@@ -55,8 +55,8 @@ no evaluation budget, so the run stops on the criterion or on
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{Bundle}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{Bundle}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
+be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Proximal bundle method for convex non-smooth objectives: subgradients
@@ -65,22 +65,23 @@ term keeps the step near the stability center, and convergence is tested on
 the aggregate subgradient rather than on any single one, which does not
 vanish at a kink.
 }
-\details{
-\subsection{Behavior at a kink}{
+\section{Behavior at a kink}{
 At the minimum of \eqn{\lvert x \rvert} the evaluated subgradient is
 \eqn{\pm 1}. A descent method therefore sees a large gradient, proposes a
-step, finds no acceptable one, and stops reporting failure while standing
-exactly on the answer — and no tolerance can fix that, because the quantity
-it is testing does not become small.
+step, finds no acceptable one, and stops while standing exactly on the
+answer. No tolerance can fix that: the quantity being tested never becomes
+small. Measured on the median example below, \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} both
+land on the median to six figures and report \code{converged = FALSE} with
+\verb{stopped without converging}.
 
-The bundle method does not test any single subgradient. It keeps a
-\emph{collection} of them, from the points it has visited, and builds the
-piecewise-linear model \eqn{\max_j \{ f_j + g_j'(x - x_j) \}} — the largest of
-the linearizations. A kink is exactly what such a model represents well: two
+The bundle method tests no single subgradient. It keeps a \emph{collection} of
+them, from the points it has visited, and builds the piecewise-linear
+model \eqn{\max_j \{ f_j + g_j'(x - x_j) \}}, the largest of the
+linearizations. A kink is exactly what such a model represents well: two
 linearizations meeting. At the minimum of \eqn{\lvert x \rvert} the bundle
-holds subgradients near \eqn{+1} and near \eqn{-1}, and \eqn{0} is a convex
-combination of them, which is precisely the statement that \eqn{0} lies in
-the subdifferential.
+holds subgradients near \eqn{+1} and near \eqn{-1}, and \eqn{0} is a
+convex combination of them, which is precisely the statement that \eqn{0}
+lies in the subdifferential.
 
 That is what is tested. The step solves
 \deqn{\min_d\ \max_j \{ -\alpha_j + g_j'd \} + \frac{1}{2t}\lVert d \rVert^2,}
@@ -101,87 +102,107 @@ steep. Dropping the factor leaves the model's own claim, which no amount of
 shrinking can flatter.
 }
 
-\subsection{Serious steps and null steps}{
-A trial point is accepted — a \emph{serious step} — only if it delivers at
+\section{Serious steps and null steps}{
+A trial point is accepted, making a \emph{serious step}, only if it delivers at
 least \code{m_serious} of the decrease the model promised. That is the same
 bargain an Armijo condition strikes, for the same reason: accepting any
 decrease at all lets a sequence of ever tinier improvements masquerade as
 progress.
 
-When it is rejected, the iteration is not wasted. The trial point contributes
-its subgradient to the bundle, so the model is strictly better next time;
-this is a \emph{null step}, and a run that reports many of them is refining
-its picture of a kink, not failing. Both counts appear in the result's
-message.
+A rejected trial is not a wasted iteration. The trial point contributes its
+subgradient to the bundle, so the model is strictly better next time. That
+is a \emph{null step}, and a run reporting many of them is refining its picture
+of a kink. Both counts appear in the result's \code{message}, as in
+\verb{8 serious, 14 null}.
 
 \code{t} is halved after a null step and doubled after a serious one, within
-\code{t_min} and \code{t_max}. Kiwiel's rule chooses the factor from a
-curvature estimate and is better; this is the safeguarded version, which is
-cruder and bounded.
+\code{t_min} and \code{t_max}. Kiwiel's rule chooses the factor from a curvature
+estimate and is better; this is the safeguarded version, cruder and
+bounded.
 }
 
-\subsection{The trust parameter t0}{
+\section{The trust parameter t0}{
 The step is \eqn{d = -t\,p}, so a bare \code{t} would make the first step as
 long as the gradient happens to be big. On Rosenbrock from its usual start
-that is 233 units, landing where the objective is \eqn{10^{11}} and its
-gradient \eqn{10^{15}}; the null step that follows halves \code{t} while the
-gradient has squared, so \code{t} can never catch up and the run spends its
-entire budget on rejected steps before returning the point it began at.
+the gradient has norm 232.9, and a step of that length lands where the
+objective is \eqn{2.1 \times 10^{11}}. The null step that follows halves
+\code{t} while the gradient has squared, so \code{t} can never catch up and the run
+spends its whole budget on rejected steps before returning the point it
+began at.
 
 \code{t0} is therefore divided by the size of the gradient at the starting
-point, which makes the first step of length \code{t0} in parameter space.
-It is the same normalization a line search performs when it starts at 1 along
-a unit direction, and \code{t_min} and \code{t_max} move with it since they
-bound the same quantity. Raise \code{t0} for a problem whose optimum is far
-away, lower it for one where the model is trustworthy only nearby.
+point, which makes the first step of length \code{t0} in parameter space. It is
+the same normalization a line search performs when it starts at 1 along a
+unit direction, and \code{t_min} and \code{t_max} move with it, bounding the same
+quantity. Raise \code{t0} for a problem whose optimum is far away, lower it for
+one where the model is trustworthy only nearby.
 
-Should a subgradient overflow anyway — possible for an objective that grows
-fast enough — the run stops with a message, rather than spending its budget on a
-subproblem whose matrix contains an infinity.
+Should a subgradient overflow anyway, which an objective that grows fast
+enough can produce, the run stops with a message instead of spending its
+budget on a subproblem whose matrix contains an infinity.
 }
 
-\subsection{Bounded memory}{
-Left alone the bundle grows without limit. When it reaches
-\code{bundle_size} the oldest linearizations are replaced by the
-\emph{aggregate} — the single affine function the subproblem's solution
-defines — rather than discarded. Discarding loses what they knew and can stall
-the method; the aggregate keeps a summary of all of it in one element, which
-is what makes a bounded bundle safe.
+\section{Bounded memory}{
+Left alone the bundle grows without limit. When it reaches \code{bundle_size}
+the oldest linearizations are replaced by the \emph{aggregate}, the single
+affine function the subproblem's solution defines. Discarding them instead
+would lose what they knew and can stall the method; the aggregate keeps a
+summary of all of it in one element, and that is what makes a bounded
+bundle safe.
 }
 
-\subsection{Convexity requirement}{
+\section{Convexity requirement}{
 The theory is for convex \eqn{f}, where the linearization errors
-\eqn{\alpha_j} are non-negative automatically. On a non-convex objective they
-can come out negative and are clipped at zero. The method then still runs and
-usually works, but that clip is exactly where the guarantee stops: a negative
-error is the model reporting that \eqn{f} lies below its own linearization,
-and setting it to zero suppresses the information rather than using it.
+\eqn{\alpha_j} are non-negative automatically. On a non-convex objective
+they can come out negative and are clipped at zero. The method still runs
+and usually works, and that clip is exactly where the guarantee stops: a
+negative error is the model reporting that \eqn{f} lies below its own
+linearization, and setting it to zero suppresses the information instead of
+using it.
 }
 
-\subsection{Subgradients}{
-Supply \code{gr}. Without one the package differences the objective, and
-although a difference is a perfectly good gradient wherever \eqn{f} is
-differentiable — which is almost everywhere, so a run mostly gets away with
-it — a difference taken \emph{across} a kink is not a subgradient of anything
-and the model will be built from a number that belongs to no linearization.
+\section{Subgradients}{
+Supply \code{gr}. Without one the package differences the objective, and a
+difference is a perfectly good gradient wherever \eqn{f} is
+differentiable, which is almost everywhere, so a run mostly gets away with
+it. A difference taken \emph{across} a kink is a subgradient of nothing, and the
+model is then built from a number that belongs to no linearization.
 }
-}
+
 \examples{
 bundle()
 
-# the median, as the minimizer of a sum of absolute deviations: the objective
-# has a kink at every observation, and one of them is the answer
+# The median, as the minimizer of a sum of absolute deviations: the
+# objective has a kink at every observation, and one of them is the answer.
 set.seed(1)
 y <- rnorm(101)
 f <- function(p) sum(abs(y - p))
 g <- function(p) -sum(sign(y - p))
+
 r <- minimize(bundle(), f, par = 0, gr = g)
 c(bundle = r@par, median = median(y))
+abs(r@par - median(y))     # 8e-16
+r@message                  # how many trials were accepted
 
-# a kink running diagonally, where a coordinate-wise search stalls
-minimize(bundle(), function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2),
-         c(1, 0.5), gr = function(p) c(sign(p[1] + p[2]), sign(p[1] + p[2])) +
-                         0.2 * p)@value
+# The aggregate subgradient does go to zero at the kink, where every single
+# subgradient the objective offers there has norm 1.
+r@gradient
+abs(g(r@par - 1e-9))
+
+# A descent method lands on the same point and cannot certify it.
+d <- minimize(bfgs(criterion = crit_grad()), f, par = 0, gr = g)
+c(par = d@par, converged = d@converged)
+
+# A kink running diagonally. The bundle method and the simplex both find it;
+# a coordinatewise search cannot, its axes never crossing the kink.
+ff <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
+gg <- function(p) c(sign(p[1] + p[2]), sign(p[1] + p[2])) + 0.2 * p
+c(bundle      = minimize(bundle(), ff, c(1, 0.5), gr = gg)@value,
+  nelder_mead = minimize(nelder_mead(), ff, c(1, 0.5))@value,
+  compass     = minimize(compass(), ff, c(1, 0.5))@value)
+
+# A gradient rule is refused, this method offering no gradient.
+try(minimize(bundle(criterion = crit_grad()), f, par = 0, gr = g))
 
 }
 \references{
@@ -193,6 +214,7 @@ Mäkelä, M. M. (2002). Survey of bundle methods for nonsmooth optimization.
 \emph{Optimization Methods and Software} \strong{17}, 1--29.
 }
 \seealso{
-\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}},
-\code{\link[=crit_stationary]{crit_stationary()}}
+\code{\link[=prox_grad]{prox_grad()}} for the non-smooth case where a proximal operator is
+available, \code{\link[=nelder_mead]{nelder_mead()}} and \code{\link[=compass]{compass()}} for the derivative-free
+methods, \code{\link[=crit_stationary]{crit_stationary()}} for the rule this one reads.
 }

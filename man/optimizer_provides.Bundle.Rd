@@ -7,17 +7,29 @@
 \item{optimizer}{A \code{Bundle} object.}
 }
 \value{
-A character vector.
+The character vector \code{"stationarity"}.
 }
 \description{
-The objective and the predicted decrease, but not a gradient.
+Reports \code{"stationarity"} and withholds \code{"gradient"}, though the method
+evaluates subgradients and reports their aggregate. The omission is
+deliberate: \code{\link[=crit_grad]{crit_grad()}} would test a quantity that never goes to zero,
+since at the minimum of \eqn{\lvert x \rvert} every subgradient has norm 1,
+so the rule would sit on the answer without firing.
 }
 \details{
-It evaluates subgradients and reports their aggregate, but it does not offer
-\code{"gradient"}, and the omission is deliberate. \code{\link[=crit_grad]{crit_grad()}}
-would then test a quantity that does not go to zero — at the minimum of
-\eqn{\lvert x \rvert} every subgradient has norm 1 — so the rule would never
-fire while sitting on the answer. \code{\link[=crit_stationary]{crit_stationary()}} tests the
-predicted decrease instead, which does go to zero.
+\code{\link[=crit_stationary]{crit_stationary()}} reads the optimality estimate
+\eqn{\lVert p \rVert^{2} + \alpha} instead, which does go to zero, and is
+this method's default rule. \code{\link[=check_optimizer]{check_optimizer()}} also consults this
+function before its second check, so a bundle run is not asked to prove
+that what it reports as \code{gradient} is one.
+}
+\examples{
+optimizer_provides(bundle())
+
+# So a gradient rule is refused when the run starts.
+f <- function(p) sum(abs(p - c(1, -2)))
+try(minimize(bundle(criterion = crit_grad()), f, c(0, 0),
+             gr = function(p) sign(p - c(1, -2))))
+
 }
 \keyword{internal}
