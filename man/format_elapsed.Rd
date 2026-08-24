@@ -7,15 +7,23 @@
 format_elapsed(sec)
 }
 \arguments{
-\item{sec}{A single non-negative number of seconds.}
+\item{sec}{A single number of seconds.}
 }
 \value{
-A character string, or \code{NA_character_} when \code{sec} is
-missing or not finite.
+A character string such as \code{"250 ms"}, \code{"1 min 30 s"} or
+\code{"1 h 7 min"}. \code{NA_character_} when \code{sec} is empty, missing or not
+finite, so an unmeasured duration is reported as unmeasured.
 }
 \description{
-Renders a time in seconds using the unit its magnitude calls for:
-microseconds below a millisecond, milliseconds below a second, seconds below
-a minute, minutes and seconds below an hour, hours and minutes above.
+Renders a time in seconds using the unit its magnitude calls for, to three
+significant figures: microseconds below a millisecond, milliseconds below
+a second, seconds below a minute, whole minutes and seconds below an hour,
+whole hours and minutes above. Used by
+\code{\link[=print.optimizer_result]{print.optimizer_result()}} for the \code{elapsed} line.
+}
+\examples{
+vapply(c(1e-5, 5e-4, 0.25, 12, 90, 4000), format_elapsed, "")
+format_elapsed(NA)
+
 }
 \keyword{internal}

@@ -20,68 +20,122 @@ optimizer_result(
 )
 }
 \arguments{
-\item{par}{The minimizer.}
+\item{par}{The minimizer reached, a numeric vector of the same length as
+the starting point.}
 
-\item{value}{The objective there.}
+\item{value}{The objective at \code{par}, a single number. For a run started by
+\code{\link[=maximize]{maximize()}} this is the value of the original objective, with the sign
+already undone.}
 
-\item{gradient}{The gradient there, or \code{NULL} if the method computes none.}
+\item{gradient}{The gradient at \code{par}, a numeric vector, or \code{NULL} for a
+method that computes none. \code{\link[=prox_grad]{prox_grad()}} reports the proximal gradient
+mapping here.}
 
-\item{counts}{Evaluations of the objective and of the gradient.}
+\item{counts}{A named integer vector of length three, \code{f}, \code{g} and \code{h}:
+evaluations of the objective, the gradient and the Hessian. A gradient
+obtained by differencing is counted in \code{f}, one per coordinate per
+side.}
 
-\item{iterations}{Iterations performed.}
+\item{iterations}{The number of iterations performed, a single integer.}
 
-\item{converged}{Logical; see Details.}
+\item{converged}{A single logical; see Details.}
 
-\item{criterion_met}{Which rule ended the run.}
+\item{criterion_met}{A single string: the label of the rule that fired, or
+\verb{iteration budget reached} or \verb{evaluation budget exhausted} when the run
+ended without one.}
 
-\item{message}{A human-readable account.}
+\item{message}{A single string, empty when there is nothing to report.
+Carries notes such as \verb{gradient obtained by finite differences}.}
 
-\item{trace}{The iteration path, or \code{NULL}.}
+\item{trace}{The iteration path as a data frame, or \code{NULL} when the
+optimizer was built with \code{keep_trace = FALSE}, which is the default.}
 
-\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} that produced this, kept so the
-run can be repeated exactly.}
+\item{optimizer}{The \code{\link[=optimizer]{optimizer()}} that produced the result, kept whole so
+the run can be repeated or restarted from where it stopped.}
 
-\item{elapsed}{Seconds.}
+\item{elapsed}{Wall-clock seconds, a single number. Measured to the
+platform's clock resolution, so a fast run can read exactly \code{0}.}
 
-\item{seed}{The state of the random number generator when the run began, for
-a method that draws any, and \code{NULL} otherwise.}
+\item{seed}{The state of the random number generator when the run began,
+an integer vector, or \code{NULL} for a deterministic method.}
 }
 \value{
-An S7 object of class \code{optimizer_result}.
+An S7 object of class \code{optimizer_result} carrying the twelve
+properties above. Built by the methods of \code{\link[=minimize]{minimize()}}; a caller
+receives one rather than constructing it.
 }
 \description{
-What \code{\link[=minimize]{minimize()}} returns: the answer, how it was reached, and
-enough of the run to diagnose it when it was not reached.
+What \code{\link[=minimize]{minimize()}} and \code{\link[=maximize]{maximize()}} return: the point reached and the value
+there, the evaluation counts, whether a stopping rule was satisfied and
+which one, and enough of the run to diagnose it when none was. The
+optimizer itself is kept on the object, so a run can be repeated from what
+it returned.
 }
-\details{
-\code{converged} is \code{TRUE} only when the stopping rule was satisfied. It
-is \strong{never} \code{TRUE} because the iteration budget ran out — that is
-the commonest defect in hand-written optimization loops, and it turns a
-failure into a silently wrong answer.
-
-\code{trace}, present when the optimizer was built with
-\code{keep_trace = TRUE}, records for each iteration the objective, the
-quantity the criterion is watching, the step actually taken, and the name of
-any safeguard that fired. That last column is what turns "it did not
-converge" into a diagnosis.
-
-\code{seed} is filled in by the methods that draw random numbers -- a
-\code{"mads"} poll, a subsampling \code{\link[=adam]{adam()}}, a
-\code{\link[=multistart]{multistart()}} generating its own starts. Assigning it back with
-\code{assign(".Random.seed", res@seed, globalenv())} reproduces the run
-exactly. A stochastic method that cannot be repeated is very hard to debug,
-and remembering to call \code{set.seed()} beforehand is not something anyone
-does until the second time they need it.
+\section{\code{converged} means a rule fired}{
+\code{converged} is \code{TRUE} only when the stopping rule was satisfied. Running
+out of iterations or of evaluations leaves it \code{FALSE} and puts
+\verb{iteration budget reached} or \verb{evaluation budget exhausted} into
+\code{criterion_met}. Reporting a budget as a success is the commonest defect
+in a hand-written optimization loop; it turns a failure into a wrong
+answer that nothing downstream can detect.
 }
+
+\section{The trace, and the column that changes name}{
+With \code{keep_trace = TRUE} on the optimizer, \code{trace} is a data frame with
+one row per iteration and five columns: \code{iteration}, \code{value}, the
+quantity the stopping rule is watching, \code{step} and \code{safeguard}. The third
+column is \code{gnorm} for a method that computes a gradient and
+\code{stationarity} for one that does not, so code reading a trace should ask
+for the column by position or check \code{names(trace)}.
+
+\code{safeguard} names the repair the algorithm applied to its own step, or
+\code{"none"}. The names differ by method and are worth reading: \verb{step shortened} and \verb{step adjusted} for the line-search methods, \verb{cg restart}
+when conjugacy is lost, \verb{bb curvature reset} when a secant pair reports
+none, and \code{reflect}, \code{expand}, \verb{contract in} and \verb{contract out} for the
+simplex. \code{summary()} tabulates them.
+}
+
+\section{Repeating a stochastic run}{
+\code{seed} holds \code{.Random.seed} as it stood when the run began, and is filled
+in only by the methods that draw: \code{\link[=sa]{sa()}}, a resampling \code{\link[=adam]{adam()}}, a
+\code{\link[=multistart]{multistart()}} generating its own starts. Assigning it back reproduces
+the run exactly:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{a <- minimize(sa(maxit = 300), f, c(-1.2, 1))
+assign(".Random.seed", a@seed, globalenv())
+b <- minimize(sa(maxit = 300), f, c(-1.2, 1))
+identical(a@par, b@par)   # TRUE
+}\if{html}{\out{</div>}}
+
+For a deterministic method \code{seed} is \code{NULL}.
+}
+
 \examples{
-res <- minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0, 0),
-                gr = function(p) 2 * (p - c(1, 2)))
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                   200 * (p[2] - p[1]^2))
+
+res <- minimize(bfgs(keep_trace = TRUE), f, c(-1.2, 1), gr = g)
 res@par
 res@converged
 res@criterion_met
 res@counts
 
+# A budget stops the run and leaves converged FALSE, with the reason.
+short <- minimize(bfgs(maxit = 3), f, c(-1.2, 1), gr = g)
+c(short@converged, short@criterion_met)
+
+# The trace names its third column after what the rule watches.
+names(res@trace)
+names(minimize(nelder_mead(keep_trace = TRUE), f, c(-1.2, 1))@trace)
+
+# The optimizer travels with the result, so the run can be repeated.
+again <- minimize(res@optimizer, f, c(-1.2, 1), gr = g)
+all.equal(again@par, res@par)
+
 }
 \seealso{
-\code{\link[=minimize]{minimize()}}
+\code{\link[=minimize]{minimize()}}, \code{\link[=print.optimizer_result]{print.optimizer_result()}} and
+\code{\link[=summary.optimizer_result]{summary.optimizer_result()}} for the two views of it,
+\code{\link[=plot.optimizer_result]{plot.optimizer_result()}} for the trace.
 }

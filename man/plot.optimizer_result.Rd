@@ -6,19 +6,40 @@
 \arguments{
 \item{x}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 
-\item{...}{Passed to \code{\link[graphics:plot.default]{graphics::plot()}}.}
+\item{...}{Passed to \code{\link[graphics:plot.default]{graphics::plot()}}. \code{type}, \code{lwd}, \code{las}, \code{xlab},
+\code{ylab} and \code{main} are already set and passing them again is an error, as
+it is for any duplicated argument.}
 }
 \value{
-No return value; called for the plot.
+\code{NULL}, invisibly. Called for the plot.
 }
 \description{
-The objective against iteration, with any iteration at which a safeguard
-fired marked. Requires \code{keep_trace = TRUE}.
+Draws the objective against the iteration number as a line, with a filled
+point at every iteration where a safeguard fired and a legend saying so.
+The method's name is the title. Reading the marks against the curve shows
+where the algorithm was in trouble and whether the objective moved when it
+was.
+}
+\details{
+The plot is built from the \code{trace}, so the optimizer must have been
+created with \code{keep_trace = TRUE}. Without one the method stops with a
+message naming that argument, since an empty plot would say nothing.
+
+The vertical axis is the objective on its own scale; a run whose objective
+falls over several orders of magnitude is better read with \code{log = "y"},
+which passes through to \code{\link[graphics:plot.default]{graphics::plot()}} like any other argument.
 }
 \examples{
-res <- minimize(gd(keep_trace = TRUE),
-                function(p) sum((p - 1:2)^2), c(0, 0))
-plot(res)
+f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                   200 * (p[2] - p[1]^2))
+
+# The marked iterations are the ones where a step had to be repaired.
+plot(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g), log = "y")
+
+# Without a trace there is nothing to draw, and the method says which
+# argument was missing.
+try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
 
 }
 \keyword{internal}

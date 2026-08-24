@@ -4,55 +4,112 @@ NULL
 #' @title S7 Class for the Result of an Optimization
 #'
 #' @description
-#' What [minimize()] returns: the answer, how it was reached, and
-#' enough of the run to diagnose it when it was not reached.
-#'
-#' @param par The minimizer.
-#' @param value The objective there.
-#' @param gradient The gradient there, or `NULL` if the method computes none.
-#' @param counts Evaluations of the objective and of the gradient.
-#' @param iterations Iterations performed.
-#' @param converged Logical; see Details.
-#' @param criterion_met Which rule ended the run.
-#' @param message A human-readable account.
-#' @param trace The iteration path, or `NULL`.
-#' @param optimizer The [optimizer()] that produced this, kept so the
-#'   run can be repeated exactly.
-#' @param elapsed Seconds.
-#' @param seed The state of the random number generator when the run began, for
-#'   a method that draws any, and `NULL` otherwise.
+#' What [minimize()] and [maximize()] return: the point reached and the value
+#' there, the evaluation counts, whether a stopping rule was satisfied and
+#' which one, and enough of the run to diagnose it when none was. The
+#' optimizer itself is kept on the object, so a run can be repeated from what
+#' it returned.
 #'
 #' @details
-#' `converged` is `TRUE` only when the stopping rule was satisfied. It
-#' is **never** `TRUE` because the iteration budget ran out — that is
-#' the commonest defect in hand-written optimization loops, and it turns a
-#' failure into a silently wrong answer.
+#' # `converged` means a rule fired
 #'
-#' `trace`, present when the optimizer was built with
-#' `keep_trace = TRUE`, records for each iteration the objective, the
-#' quantity the criterion is watching, the step actually taken, and the name of
-#' any safeguard that fired. That last column is what turns "it did not
-#' converge" into a diagnosis.
+#' `converged` is `TRUE` only when the stopping rule was satisfied. Running
+#' out of iterations or of evaluations leaves it `FALSE` and puts
+#' `iteration budget reached` or `evaluation budget exhausted` into
+#' `criterion_met`. Reporting a budget as a success is the commonest defect
+#' in a hand-written optimization loop; it turns a failure into a wrong
+#' answer that nothing downstream can detect.
 #'
-#' `seed` is filled in by the methods that draw random numbers -- a
-#' `"mads"` poll, a subsampling [adam()], a
-#' [multistart()] generating its own starts. Assigning it back with
-#' `assign(".Random.seed", res@seed, globalenv())` reproduces the run
-#' exactly. A stochastic method that cannot be repeated is very hard to debug,
-#' and remembering to call `set.seed()` beforehand is not something anyone
-#' does until the second time they need it.
+#' # The trace, and the column that changes name
 #'
-#' @return An S7 object of class `optimizer_result`.
+#' With `keep_trace = TRUE` on the optimizer, `trace` is a data frame with
+#' one row per iteration and five columns: `iteration`, `value`, the
+#' quantity the stopping rule is watching, `step` and `safeguard`. The third
+#' column is `gnorm` for a method that computes a gradient and
+#' `stationarity` for one that does not, so code reading a trace should ask
+#' for the column by position or check `names(trace)`.
+#'
+#' `safeguard` names the repair the algorithm applied to its own step, or
+#' `"none"`. The names differ by method and are worth reading: `step
+#' shortened` and `step adjusted` for the line-search methods, `cg restart`
+#' when conjugacy is lost, `bb curvature reset` when a secant pair reports
+#' none, and `reflect`, `expand`, `contract in` and `contract out` for the
+#' simplex. `summary()` tabulates them.
+#'
+#' # Repeating a stochastic run
+#'
+#' `seed` holds `.Random.seed` as it stood when the run began, and is filled
+#' in only by the methods that draw: [sa()], a resampling [adam()], a
+#' [multistart()] generating its own starts. Assigning it back reproduces
+#' the run exactly:
+#'
+#' ```r
+#' a <- minimize(sa(maxit = 300), f, c(-1.2, 1))
+#' assign(".Random.seed", a@seed, globalenv())
+#' b <- minimize(sa(maxit = 300), f, c(-1.2, 1))
+#' identical(a@par, b@par)   # TRUE
+#' ```
+#'
+#' For a deterministic method `seed` is `NULL`.
+#'
+#' @param par The minimizer reached, a numeric vector of the same length as
+#'   the starting point.
+#' @param value The objective at `par`, a single number. For a run started by
+#'   [maximize()] this is the value of the original objective, with the sign
+#'   already undone.
+#' @param gradient The gradient at `par`, a numeric vector, or `NULL` for a
+#'   method that computes none. [prox_grad()] reports the proximal gradient
+#'   mapping here.
+#' @param counts A named integer vector of length three, `f`, `g` and `h`:
+#'   evaluations of the objective, the gradient and the Hessian. A gradient
+#'   obtained by differencing is counted in `f`, one per coordinate per
+#'   side.
+#' @param iterations The number of iterations performed, a single integer.
+#' @param converged A single logical; see Details.
+#' @param criterion_met A single string: the label of the rule that fired, or
+#'   `iteration budget reached` or `evaluation budget exhausted` when the run
+#'   ended without one.
+#' @param message A single string, empty when there is nothing to report.
+#'   Carries notes such as `gradient obtained by finite differences`.
+#' @param trace The iteration path as a data frame, or `NULL` when the
+#'   optimizer was built with `keep_trace = FALSE`, which is the default.
+#' @param optimizer The [optimizer()] that produced the result, kept whole so
+#'   the run can be repeated or restarted from where it stopped.
+#' @param elapsed Wall-clock seconds, a single number. Measured to the
+#'   platform's clock resolution, so a fast run can read exactly `0`.
+#' @param seed The state of the random number generator when the run began,
+#'   an integer vector, or `NULL` for a deterministic method.
+#'
+#' @return An S7 object of class `optimizer_result` carrying the twelve
+#'   properties above. Built by the methods of [minimize()]; a caller
+#'   receives one rather than constructing it.
 #'
 #' @examples
-#' res <- minimize(bfgs(), function(p) sum((p - c(1, 2))^2), c(0, 0),
-#'                 gr = function(p) 2 * (p - c(1, 2)))
+#' f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+#' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+#'                    200 * (p[2] - p[1]^2))
+#'
+#' res <- minimize(bfgs(keep_trace = TRUE), f, c(-1.2, 1), gr = g)
 #' res@par
 #' res@converged
 #' res@criterion_met
 #' res@counts
 #'
-#' @seealso [minimize()]
+#' # A budget stops the run and leaves converged FALSE, with the reason.
+#' short <- minimize(bfgs(maxit = 3), f, c(-1.2, 1), gr = g)
+#' c(short@converged, short@criterion_met)
+#'
+#' # The trace names its third column after what the rule watches.
+#' names(res@trace)
+#' names(minimize(nelder_mead(keep_trace = TRUE), f, c(-1.2, 1))@trace)
+#'
+#' # The optimizer travels with the result, so the run can be repeated.
+#' again <- minimize(res@optimizer, f, c(-1.2, 1), gr = g)
+#' all.equal(again@par, res@par)
+#'
+#' @seealso [minimize()], [print.optimizer_result()] and
+#'   [summary.optimizer_result()] for the two views of it,
+#'   [plot.optimizer_result()] for the trace.
 #' @export
 optimizer_result <- S7::new_class(
   "optimizer_result",
@@ -76,13 +133,22 @@ optimizer_result <- S7::new_class(
 #' Format a Duration With a Unit Matched to Its Size
 #'
 #' @description
-#' Renders a time in seconds using the unit its magnitude calls for:
-#' microseconds below a millisecond, milliseconds below a second, seconds below
-#' a minute, minutes and seconds below an hour, hours and minutes above.
+#' Renders a time in seconds using the unit its magnitude calls for, to three
+#' significant figures: microseconds below a millisecond, milliseconds below
+#' a second, seconds below a minute, whole minutes and seconds below an hour,
+#' whole hours and minutes above. Used by
+#' [print.optimizer_result()] for the `elapsed` line.
 #'
-#' @param sec A single non-negative number of seconds.
-#' @return A character string, or `NA_character_` when `sec` is
-#'   missing or not finite.
+#' @param sec A single number of seconds.
+#'
+#' @return A character string such as `"250 ms"`, `"1 min 30 s"` or
+#'   `"1 h 7 min"`. `NA_character_` when `sec` is empty, missing or not
+#'   finite, so an unmeasured duration is reported as unmeasured.
+#'
+#' @examples
+#' vapply(c(1e-5, 5e-4, 0.25, 12, 90, 4000), format_elapsed, "")
+#' format_elapsed(NA)
+#'
 #' @keywords internal
 format_elapsed <- function(sec) {
   if (!length(sec) || !is.finite(sec)) return(NA_character_)
@@ -100,19 +166,35 @@ format_elapsed <- function(sec) {
 
 #' @title Print Method for an Optimization Result
 #' @name print.optimizer_result
+#'
 #' @description
-#' Prints the objective value, the leading parameters, the evaluation counts,
-#' the elapsed time and the convergence status.
+#' Shows the run in six lines at most: the method's name, the objective
+#' value, the leading parameters, the iteration and evaluation counts, the
+#' elapsed time and the convergence status with the rule that fired. A
+#' non-empty `message` adds a `note` line. A failure prints `NO` in capitals,
+#' so a run that did not converge cannot be skimmed past.
+#'
 #' @param x An [optimizer_result()].
-#' @param digits Decimal places the parameters are rounded to. Defaults to 4.
-#' @param max_par How many parameters to show; any remainder is summarized as
-#'   a count. Defaults to 6.
+#' @param digits Decimal places the parameters are rounded to. A single
+#'   non-negative whole number, default 4. Anything else raises an error.
+#'   The objective value is not affected: it always prints to six
+#'   significant figures.
+#' @param max_par How many parameters to show. A single positive whole
+#'   number, default 6; the remainder is reported as
+#'   `... (6 of 40 shown)`.
 #' @param ... Unused.
-#' @return `x`, invisibly.
+#'
+#' @return `x`, invisibly. Called for the output.
+#'
 #' @examples
 #' res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
-#' print(res)
+#' res
 #' print(res, digits = 2, max_par = 1)
+#'
+#' # A run stopped by its budget says so on the converged line.
+#' rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+#' print(minimize(gd(maxit = 5), rosen, c(-1.2, 1)))
+#'
 #' @keywords internal
 S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
                                                 ...) {
@@ -151,13 +233,38 @@ S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
 
 #' @title Summary Method for an Optimization Result
 #' @name summary.optimizer_result
+#'
+#' @description
+#' Everything [print.optimizer_result()] shows, followed by a count of each
+#' safeguard the run applied to its own steps. This is the view that answers
+#' *why* a run behaved as it did: a Newton run that shortened four steps was
+#' repairing an indefinite Hessian, and a Barzilai-Borwein run resetting its
+#' curvature had secant pairs carrying none.
+#'
+#' @details
+#' The safeguard table needs a trace, so the optimizer must have been built
+#' with `keep_trace = TRUE`. Without one the method prints what
+#' [print.optimizer_result()] prints and stops there. With a trace in which
+#' nothing fired it says `safeguards : none fired`, which is information
+#' rather than silence.
+#'
 #' @param object An [optimizer_result()].
 #' @param ... Unused.
+#'
 #' @return `object`, invisibly. Called for the printed summary.
+#'
 #' @examples
-#' res <- minimize(gd(keep_trace = TRUE),
-#'                 function(p) sum((p - 1:2)^2), c(0, 0))
-#' summary(res)
+#' f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+#' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+#'                    200 * (p[2] - p[1]^2))
+#'
+#' # Newton on the curved valley shortens a few steps on the way in.
+#' summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
+#'
+#' # A quadratic gives it no trouble at all.
+#' summary(minimize(newton(keep_trace = TRUE),
+#'                  function(p) sum((p - 1:2)^2), c(0, 0)))
+#'
 #' @keywords internal
 S7::method(summary, optimizer_result) <- function(object, ...) {
   print(object)
@@ -182,18 +289,39 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 #' @name plot.optimizer_result
 #'
 #' @description
-#' The objective against iteration, with any iteration at which a safeguard
-#' fired marked. Requires `keep_trace = TRUE`.
+#' Draws the objective against the iteration number as a line, with a filled
+#' point at every iteration where a safeguard fired and a legend saying so.
+#' The method's name is the title. Reading the marks against the curve shows
+#' where the algorithm was in trouble and whether the objective moved when it
+#' was.
+#'
+#' @details
+#' The plot is built from the `trace`, so the optimizer must have been
+#' created with `keep_trace = TRUE`. Without one the method stops with a
+#' message naming that argument, since an empty plot would say nothing.
+#'
+#' The vertical axis is the objective on its own scale; a run whose objective
+#' falls over several orders of magnitude is better read with `log = "y"`,
+#' which passes through to [graphics::plot()] like any other argument.
 #'
 #' @param x An [optimizer_result()].
-#' @param ... Passed to [graphics::plot()].
+#' @param ... Passed to [graphics::plot()]. `type`, `lwd`, `las`, `xlab`,
+#'   `ylab` and `main` are already set and passing them again is an error, as
+#'   it is for any duplicated argument.
 #'
-#' @return No return value; called for the plot.
+#' @return `NULL`, invisibly. Called for the plot.
 #'
 #' @examples
-#' res <- minimize(gd(keep_trace = TRUE),
-#'                 function(p) sum((p - 1:2)^2), c(0, 0))
-#' plot(res)
+#' f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+#' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+#'                    200 * (p[2] - p[1]^2))
+#'
+#' # The marked iterations are the ones where a step had to be repaired.
+#' plot(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g), log = "y")
+#'
+#' # Without a trace there is nothing to draw, and the method says which
+#' # argument was missing.
+#' try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
 #'
 #' @importFrom graphics plot points grid legend
 #' @keywords internal

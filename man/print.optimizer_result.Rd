@@ -6,23 +6,35 @@
 \arguments{
 \item{x}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 
-\item{digits}{Decimal places the parameters are rounded to. Defaults to 4.}
+\item{digits}{Decimal places the parameters are rounded to. A single
+non-negative whole number, default 4. Anything else raises an error.
+The objective value is not affected: it always prints to six
+significant figures.}
 
-\item{max_par}{How many parameters to show; any remainder is summarized as
-a count. Defaults to 6.}
+\item{max_par}{How many parameters to show. A single positive whole
+number, default 6; the remainder is reported as
+\verb{... (6 of 40 shown)}.}
 
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly.
+\code{x}, invisibly. Called for the output.
 }
 \description{
-Prints the objective value, the leading parameters, the evaluation counts,
-the elapsed time and the convergence status.
+Shows the run in six lines at most: the method's name, the objective
+value, the leading parameters, the iteration and evaluation counts, the
+elapsed time and the convergence status with the rule that fired. A
+non-empty \code{message} adds a \code{note} line. A failure prints \code{NO} in capitals,
+so a run that did not converge cannot be skimmed past.
 }
 \examples{
 res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
-print(res)
+res
 print(res, digits = 2, max_par = 1)
+
+# A run stopped by its budget says so on the converged line.
+rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+print(minimize(gd(maxit = 5), rosen, c(-1.2, 1)))
+
 }
 \keyword{internal}
