@@ -23,12 +23,22 @@ GradientDescent(
 \item{line_search}{A \code{\link[=line_search]{line_search()}} object.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{GradientDescent} inheriting from
+\code{\link[=optimizer]{optimizer()}}, with \code{step} and \code{line_search} beside the seven shared
+properties.
 }
 \description{
-The class \code{\link[=gd]{gd()}} instantiates.
+An optimizer holding the initial step length and the line search, and
+nothing else: steepest descent carries no model of the surface, so there
+is nothing else to hold. Built by \code{\link[=gd]{gd()}}.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{GradientDescent}
+carries \code{step} and \code{line_search}, both shared with the other line-search
+methods. It is the smallest optimizer class in the package.
 }
 \seealso{
-\code{\link[=gd]{gd()}}
+\code{\link[=gd]{gd()}} for the constructor, \link{Cg} and \link{Bb} for the two first-order
+methods that carry a little more.
 }
 \keyword{internal}

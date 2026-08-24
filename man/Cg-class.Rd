@@ -20,21 +20,32 @@ Cg(
 )
 }
 \arguments{
-\item{beta}{Which update formula.}
+\item{beta}{Which update formula, one of \code{"pr"}, \code{"fr"}, \code{"hs"}, \code{"dy"}.}
 
-\item{restart_every}{How often the method is restarted at steepest descent.}
+\item{restart_every}{How often the method is restarted at steepest
+descent; \code{0} means never.}
 
 \item{step}{The initial step length offered to the line search.}
 
 \item{line_search}{A \code{\link[=line_search]{line_search()}} object.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Cg} inheriting from \code{\link[=optimizer]{optimizer()}}, with the
+four properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=cg]{cg()}} instantiates.
+An optimizer holding which of the four \eqn{\beta} formulas bends the
+direction, how often the method is restarted at steepest descent, and the
+usual step length and line search. Built by \code{\link[=cg]{cg()}}.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{Cg} carries four:
+\code{step} and \code{line_search}, shared with the other line-search methods, and
+\code{beta} and \code{restart_every}, which are its own. The previous direction is
+not a property; it lives in the run.
 }
 \seealso{
-\code{\link[=cg]{cg()}}
+\code{\link[=cg]{cg()}} for the constructor, \link{GradientDescent} for the method it
+improves on.
 }
 \keyword{internal}

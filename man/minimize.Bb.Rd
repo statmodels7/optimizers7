@@ -6,12 +6,17 @@
 \arguments{
 \item{optimizer}{A \code{Bb} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{he} is accepted
+and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}.
+An \code{\link[=optimizer_result]{optimizer_result()}} whose trace, when kept, reports
+\verb{bb curvature reset} where a secant pair carried none and
+\verb{step shortened} where the step was clamped or backtracked.
 }
 \description{
-Runs \code{\link[=bb]{bb()}} on the objective.
+Runs \code{\link[=bb]{bb()}} on the objective: form the step length from the previous
+secant pair, offer that step to the line search unaltered, and backtrack
+only if it is rejected. Shares the descent loop with \code{\link[=gd]{gd()}} and \code{\link[=cg]{cg()}}.
 }
 \keyword{internal}

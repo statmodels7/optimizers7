@@ -6,12 +6,17 @@
 \arguments{
 \item{optimizer}{A \code{Cg} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{he} is accepted
+and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}.
+An \code{\link[=optimizer_result]{optimizer_result()}} whose trace, when kept, reports
+\verb{cg restart} at each iteration where the bend was clamped to zero or the
+direction was replaced by the gradient.
 }
 \description{
-Runs \code{\link[=cg]{cg()}} on the objective.
+Runs \code{\link[=cg]{cg()}} on the objective: bend each direction with the previous one by
+the chosen \eqn{\beta}, and let the line search choose how far along it to
+go. Shares the descent loop with \code{\link[=gd]{gd()}} and \code{\link[=bb]{bb()}}.
 }
 \keyword{internal}

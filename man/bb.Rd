@@ -56,8 +56,8 @@ no evaluation budget, so the run stops on the criterion or on
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{Bb}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{Bb}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
+handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Gradient descent with the Barzilai-Borwein step length: the direction is
@@ -75,42 +75,49 @@ everything except one scalar. On a quadratic, where the curvature is
 constant, that scalar is exactly right.
 
 On a quadratic, where the curvature is constant, the estimate is exact and
-the method converges in two iterations; on a general smooth objective it
-typically needs more iterations than \code{\link[=bfgs]{bfgs()}} while storing a
-single scalar instead of a matrix.
-
-\subsection{Variants}{
-\code{"bb1"} and \code{"bb2"} are the two quotients above, and
-\code{"alternate"}, the default, switches between them at each iteration:
-they estimate the same curvature from opposite ends, and alternating them is
-more robust than either alone.
+the method converges in \strong{two} iterations. On a general smooth objective
+it needs more iterations than \code{\link[=bfgs]{bfgs()}} while storing a single scalar
+instead of a matrix: on Rosenbrock 58 iterations against 35, but 67
+objective evaluations against 49.
+}
+\section{Variants}{
+\code{"bb1"} and \code{"bb2"} are the two quotients above, and \code{"alternate"}, the
+default, switches between them at each iteration. They estimate the same
+curvature from opposite ends, and alternating is the more robust choice
+across problems, though not always the fastest on any one: measured on
+Rosenbrock, \code{bb1} takes 56 iterations and 97 evaluations, \code{bb2} 51 and 56,
+\code{alternate} 58 and 67.
 }
 
-\subsection{Line search}{
-The Barzilai-Borwein step is offered to the line search first and unaltered,
-and backtracking occurs only when it fails the acceptance test. Because the
-method makes progress through steps that may increase the objective
-temporarily, the default acceptance test is \code{\link[=nonmonotone]{nonmonotone()}}, which
-requires improvement over the maximum of the last \code{memory} values
-rather than over the current one; a plain Armijo condition rejects exactly
-the steps the method relies on and slows it considerably.
-\code{\link[=nonmonotone]{nonmonotone()}} with \code{memory = 0} coincides with
-\code{\link[=armijo]{armijo()}}.
+\section{Line search}{
+The Barzilai-Borwein step is offered to the line search first and
+unaltered, and backtracking occurs only when it fails the acceptance test.
+The method makes progress through steps that may increase the objective
+temporarily, so the default acceptance test is \code{\link[=nonmonotone]{nonmonotone()}}, which asks
+for improvement over the maximum of the last \code{memory} values instead of
+over the current one. A plain Armijo condition rejects exactly the steps
+the method relies on: measured on Rosenbrock, 72 iterations and 154
+evaluations against 58 and 67.
+
+\code{nonmonotone(memory = 0)} is \code{\link[=armijo]{armijo()}} value for value, and the two give
+the identical run here, 72 iterations and 154 evaluations. That identity is
+what makes the comparison a comparison of the memory alone.
 }
 
-\subsection{Rejected secant pairs}{
+\section{Rejected secant pairs}{
 A pair is used only if it reports positive curvature by a relative margin,
 \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
-\eqn{c} the \code{curv_tol} argument -- the same test \code{\link[=bfgs]{bfgs()}}
-applies. When a pair is rejected, the step length is reset to
-\eqn{1/\lVert g \rVert_\infty}{1/max|g|}, giving a trial displacement of
-order one in the parameters. This reset depends on the current gradient
-rather than on the step length being replaced or on a fixed constant, so it
-can neither freeze the iteration at a too-short step nor produce a step the
-backtracking cannot rescale. Steps outside \verb{[alpha_min, alpha_max]} are
-clamped, and both the reset and the clamp are recorded in the trace.
+\eqn{c} the \code{curv_tol} argument, the same test \code{\link[=bfgs]{bfgs()}} applies. When a
+pair is rejected the step length is reset to
+\eqn{1/\lVert g \rVert_\infty}{1/max|g|}, a trial displacement of order one
+in the parameters. The reset reads the current gradient and not the step
+length being replaced or a fixed constant, so it can neither freeze the
+iteration at a too-short step nor produce one the backtracking cannot
+rescale. Steps outside \verb{[alpha_min, alpha_max]} are clamped, and both the
+reset and the clamp appear in the trace, as \verb{bb curvature reset} and
+\verb{step shortened}.
 }
-}
+
 \examples{
 bb()
 
@@ -119,9 +126,23 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(bb(), f, c(-1.2, 1), gr = gr)@par
 
-# two iterations on a quadratic: one secant pair determines the curvature
+# Two iterations on a quadratic: one secant pair determines the curvature,
+# and on a quadratic that curvature is exactly right.
 minimize(bb(), function(p) sum((p - c(1, 2))^2), c(0, 0),
          gr = function(p) 2 * (p - c(1, 2)))@iterations
+
+# The nonmonotone rule is what the method needs. With memory = 0 it is
+# armijo() value for value, and both give the identical, slower run.
+evals <- function(ls) minimize(bb(line_search = ls), f, c(-1.2, 1),
+                               gr = gr)@counts[["f"]]
+c(nonmonotone = evals(nonmonotone()),
+  memory_zero = evals(nonmonotone(memory = 0)),
+  armijo      = evals(armijo()))
+
+# Which variant is fastest is a property of the problem.
+vapply(c("bb1", "bb2", "alternate"),
+       function(v) minimize(bb(variant = v), f, c(-1.2, 1), gr = gr)@iterations,
+       integer(1))
 
 }
 \references{
@@ -129,5 +150,7 @@ Barzilai, J. and Borwein, J. M. (1988). Two-point step size gradient methods.
 \emph{IMA Journal of Numerical Analysis} \strong{8}, 141--148.
 }
 \seealso{
-\code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=lbfgs]{lbfgs()}}
+\code{\link[=gd]{gd()}} for the same direction with a line-searched step,
+\code{\link[=nonmonotone]{nonmonotone()}} for the acceptance test this method needs, \code{\link[=lbfgs]{lbfgs()}}
+for the next amount of curvature to carry.
 }

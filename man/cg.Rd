@@ -20,9 +20,9 @@ cg(
 \arguments{
 \item{criterion}{The stopping rule; see \code{\link[=crit_any]{crit_any()}}.}
 
-\item{beta}{Which formula for the bend: \code{"pr"} (Polak–Ribière, the
-default), \code{"fr"} (Fletcher–Reeves), \code{"hs"} (Hestenes–Stiefel) or
-\code{"dy"} (Dai–Yuan). See Details.}
+\item{beta}{Which formula for the bend: \code{"pr"} (Polak-Ribière, the
+default), \code{"fr"} (Fletcher-Reeves), \code{"hs"} (Hestenes-Stiefel) or
+\code{"dy"} (Dai-Yuan). See Details.}
 
 \item{restart_every}{Restart at steepest descent every this many iterations.
 Defaults to \code{0}, meaning never; a positive value is usually the
@@ -47,8 +47,8 @@ no evaluation budget, so the run stops on the criterion or on
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{Cg}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{Cg}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
+handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Nonlinear conjugate gradients: the direction is
@@ -59,43 +59,57 @@ matrix, which suits problems too large for a Hessian.
 \details{
 The direction is
 \deqn{d_k = -g_k + \beta_k d_{k-1},}
-and the methods differ only in the choice of \eqn{\beta}. On a quadratic with an
-exact line search the directions come out conjugate with respect to the
-Hessian, so the method terminates in \eqn{p} steps exactly — \emph{without
-ever forming that Hessian}, which is the point. The storage is two vectors
-against \code{\link[=bfgs]{bfgs()}}'s \eqn{p \times p} matrix.
-
-\subsection{Choice of beta}{
-All four agree on a quadratic with an exact line search and differ everywhere
-else. \code{"fr"} has the cleanest convergence theory and the well-known
-practical fault of stalling for many iterations after a poor step.
-\code{"pr"} recovers from a poor step immediately, because a small
-\eqn{y = g_k - g_{k-1}} sends \eqn{\beta} towards zero and the method back to
-steepest descent; its known theoretical non-convergence is repaired by
-clamping \eqn{\beta} at zero, which restarts the method and is recorded as a
-restart in the trace. \code{"hs"} and \code{"dy"} are the other two standard
-choices.
+and the methods differ only in the choice of \eqn{\beta}. The storage is
+two vectors against \code{\link[=bfgs]{bfgs()}}'s \eqn{p \times p} matrix.
+}
+\section{What conjugacy buys, and what it needs}{
+On a quadratic \strong{with an exact line search} the directions come out
+conjugate with respect to the Hessian, and the method then terminates in
+\eqn{p} steps without ever forming that Hessian. The line search here is
+inexact, so that guarantee does not transfer: measured on dense quadratics
+at \code{crit_grad(1e-12)}, the run takes 16, 34 and 70 iterations at
+\eqn{p = 3, 8, 20}. The saving is still real, since each iteration costs
+two vectors.
 }
 
-\subsection{Line search}{
-The theory behind every one of these formulas assumes a step satisfying the
-\strong{strong} Wolfe conditions, and uses it to prove that the direction
-produced is a descent direction at all. Backtracking gives no such guarantee,
-so \code{\link[=wolfe]{wolfe()}} is the default and departing from it is departing
-from the theory.
+\section{Choice of beta}{
+All four agree on a quadratic under an exact line search and differ
+everywhere else. \code{"fr"} has the cleanest convergence theory and the
+well-known practical fault of stalling for many iterations after a poor
+step. \code{"pr"} recovers from a poor step immediately, a small
+\eqn{y = g_k - g_{k-1}} sending \eqn{\beta} towards zero and the method
+back to steepest descent; its known theoretical non-convergence is
+repaired by clamping \eqn{\beta} at zero, which restarts the method and
+appears in the trace as \verb{cg restart}. \code{"hs"} and \code{"dy"} are the other two
+standard choices.
 
-The constant matters as much as the search. \code{\link[=wolfe]{wolfe()}} defaults to
-\eqn{c_2 = 0.9}, which is right for \code{\link[=bfgs]{bfgs()}}, where the curvature
-approximation repairs a loose step. Conjugate gradients has nothing to repair
-with: the accumulated conjugacy is only as good as the line search that
-produced it, and a loose one degrades it directly. Measured on Rosenbrock,
-\eqn{c_2 = 0.9} needs 120 iterations against 35 at \eqn{c_2 = 0.1}, which is
-why the default here is the tighter one.
+Measured on Rosenbrock from the customary start, iterations and objective
+evaluations: \code{pr} 25 and 249 with twelve clamps, \code{fr} 59 and 743, \code{hs} 17
+and 166, \code{dy} 50 and 667. \code{pr} is the default as the safest of the four on
+a general objective, and \code{hs} was the fastest here; on another problem the
+order will differ.
+}
 
-As a safeguard against the cases the theory misses, a direction that comes
-out non-descent is replaced by \eqn{-g} and the substitution is reported.
+\section{Line search}{
+The theory behind every one of these formulas assumes a step satisfying
+the \strong{strong} Wolfe conditions, and uses it to prove that the direction
+produced is a descent direction at all. Backtracking gives no such
+guarantee, so \code{\link[=wolfe]{wolfe()}} is the default and departing from it departs from
+the theory.
+
+The constant matters too. \code{\link[=wolfe]{wolfe()}} defaults to \eqn{c_2 = 0.9}, which is
+right for \code{\link[=bfgs]{bfgs()}}, where the curvature approximation repairs a loose
+step. Conjugate gradients has nothing to repair with: the accumulated
+conjugacy is only as good as the line search that produced it. The default
+here is therefore \code{wolfe(c2 = 0.1)}, and the cost of loosening it is
+modest on Rosenbrock, 28 iterations against 25, with the value reached
+\code{3.3e-08} against \code{7.4e-10}.
+
+A direction that comes out non-descent is replaced by \eqn{-g} and the
+substitution is reported in the trace, as a safeguard against the cases
+the theory misses.
 }
-}
+
 \examples{
 cg()
 cg(beta = "fr", restart_every = 10)
@@ -104,6 +118,18 @@ f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(cg(), f, c(-1.2, 1), gr = gr)@par
+
+# The four formulas on the same problem. They agree on a quadratic under an
+# exact line search and differ here, and which is best is a property of the
+# problem.
+vapply(c("pr", "fr", "hs", "dy"),
+       function(b) minimize(cg(beta = b), f, c(-1.2, 1), gr = gr)@iterations,
+       integer(1))
+
+# Polak-Ribiere clamps beta at zero when a step goes badly, which restarts
+# the method; the trace counts those.
+r <- minimize(cg(keep_trace = TRUE), f, c(-1.2, 1), gr = gr)
+table(r@trace$safeguard)
 
 }
 \references{
@@ -120,5 +146,7 @@ strong global convergence property. \emph{SIAM Journal on Optimization}
 \strong{10}, 177--182.
 }
 \seealso{
-\code{\link[=gd]{gd()}}, \code{\link[=lbfgs]{lbfgs()}}, \code{\link[=bb]{bb()}}
+\code{\link[=gd]{gd()}} for the direction this one bends, \code{\link[=lbfgs]{lbfgs()}} for a method
+with the same storage order and more curvature, \code{\link[=bb]{bb()}} for the scalar
+estimate.
 }

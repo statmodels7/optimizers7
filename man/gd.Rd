@@ -39,8 +39,8 @@ no evaluation budget, so the run stops on the criterion or on
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
 }
 \value{
-An S7 object of class \code{GradientDescent}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{GradientDescent}, inheriting from
+\code{\link[=optimizer]{optimizer()}}, to be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Steepest descent: the search direction is the negative gradient
@@ -50,17 +50,27 @@ Steepest descent: the search direction is the negative gradient
 The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
 Euclidean length. Under an exact line search consecutive directions are
 orthogonal, so on an ill-conditioned objective the iterates zigzag and
-converge slowly; \code{\link[=cg]{cg()}} corrects this by combining each direction
-with the previous one at no extra cost per iteration. Gradient descent is
-mainly useful as a baseline: on smooth problems \code{\link[=bfgs]{bfgs()}} converges
-in far fewer iterations.
+converge slowly. \code{\link[=cg]{cg()}} repairs that by combining each direction with the
+previous one at no extra cost per iteration.
+
+Gradient descent is a baseline. On Rosenbrock from the customary start it
+exhausts its budget of 500 iterations at a value of \code{1.9e-03} after 4905
+objective evaluations, where \code{\link[=cg]{cg()}} reaches \code{7.4e-10} in 25 iterations,
+\code{\link[=bb]{bb()}} \code{5.2e-09} in 58 and \code{\link[=bfgs]{bfgs()}} \code{3.2e-13} in 35.
 }
 \examples{
 gd()
 gd(criterion = crit_grad(1e-10), maxit = 2000)
 
+# It solves an easy problem readily.
 minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),
          gr = function(p) 2 * (p - c(1, 2)))
+
+# And is the wrong tool for a curved valley: the budget runs out first.
+ros <- test_problems("rosenbrock")[[1]]
+r <- minimize(gd(), ros$fn, ros$par, gr = ros$gr)
+c(converged = r@converged, iterations = r@iterations,
+  evaluations = r@counts[["f"]], value = r@value)
 
 }
 \references{
@@ -71,5 +81,6 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}}, \code{\link[=bfgs]{bfgs()}}
+\code{\link[=cg]{cg()}} for the same storage and a better direction, \code{\link[=bb]{bb()}} for a
+scalar curvature estimate, \code{\link[=bfgs]{bfgs()}} for a matrix one.
 }

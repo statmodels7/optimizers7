@@ -6,12 +6,16 @@
 \arguments{
 \item{optimizer}{A \code{GradientDescent} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{he} is accepted
+and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}.
+An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is \eqn{\nabla f} at
+\code{par} and whose trace, when kept, carries a \code{gnorm} column.
 }
 \description{
-Runs \code{\link[=gd]{gd()}} on the objective.
+Runs \code{\link[=gd]{gd()}} on the objective: take \eqn{-g} as the direction and let the
+line search choose how far. Shares the descent loop with \code{\link[=cg]{cg()}} and
+\code{\link[=bb]{bb()}}, which differ from it only in how the direction is formed.
 }
 \keyword{internal}
