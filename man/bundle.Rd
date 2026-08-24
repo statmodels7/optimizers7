@@ -88,7 +88,7 @@ That is what is tested. The step solves
 where \eqn{\alpha_j \ge 0} measures how badly linearization \eqn{j} misses
 the current point and the quadratic term keeps the step inside the region
 where the model is believed. Its optimal value \eqn{v \le 0} is the
-\emph{predicted decrease}, which is what the acceptance test below uses.
+\emph{predicted decrease}, the quantity the acceptance test below reads.
 
 What \code{\link[=crit_stationary]{crit_stationary()}} watches is a related but different
 quantity, the \emph{optimality estimate}
@@ -147,8 +147,8 @@ Left alone the bundle grows without limit. When it reaches \code{bundle_size}
 the oldest linearizations are replaced by the \emph{aggregate}, the single
 affine function the subproblem's solution defines. Discarding them instead
 would lose what they knew and can stall the method; the aggregate keeps a
-summary of all of it in one element, and that is what makes a bounded
-bundle safe.
+summary of all of it in one element, which is what keeps a bounded bundle
+safe.
 }
 
 \section{Convexity requirement}{

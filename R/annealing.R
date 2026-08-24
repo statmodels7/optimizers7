@@ -72,10 +72,10 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' The parameters are moved one coordinate at a time, and after every `steps`
 #' sweeps each coordinate's step is multiplied or divided according to how
 #' often its moves were accepted, so that the rate is held inside a band
-#' around `target_accept` (Corana et al. 1987). The adaptation is what makes
-#' the method usable on a statistical objective, whose unconstrained
-#' coordinates sit on scales orders of magnitude apart: one step length is
-#' wrong for all of them. A coordinate accepting almost everything is being
+#' around `target_accept` (Corana et al. 1987). The adaptation makes the
+#' method usable on a statistical objective, whose unconstrained coordinates
+#' sit on scales orders of magnitude apart: one step length is wrong for all
+#' of them. A coordinate accepting almost everything is being
 #' proposed too timidly to explore, and one accepting almost nothing is being
 #' thrown too far to land.
 #'
@@ -134,7 +134,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' Whether the run converged is a separate question, never answered by the
 #' schedule having finished. The stationarity measure reported is Corana's
 #' own termination rule, by how much the best value has moved over the last
-#' `n_eps` temperature levels, so [crit_stationary()] is that rule and not a
+#' `n_eps` temperature levels, so [crit_stationary()] is that rule and no
 #' second convention invented beside it. A run that merely exhausts `maxit`
 #' reports `converged = FALSE`, which for a global search is the ordinary
 #' outcome.

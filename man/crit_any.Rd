@@ -28,18 +28,18 @@ and never earlier.
 
 What that buys and what it costs was measured over the package's own
 \code{\link[=test_problems]{test_problems()}}, six methods on eight problems. Against the
-gradient rule alone it converges on 44 of the 48 runs rather than 41, and
-costs 19370 objective evaluations rather than 22299. The three it gains are
+gradient rule alone it converges on 44 of the 48 runs against 41, and costs
+19370 objective evaluations against 22299. The three it gains are
 \code{cg} and \code{bb} on the non-smooth \code{abs_sum} and \code{gd} on
 Beale, and none is lost.
 
 The cost is that a run stops sooner, so the point it reports is further from
 the solution. Measured, 10 of the 48 end at a gradient more than a hundred
 times larger, and the worst are runs that were reaching absurd precision
-anyway: \code{bfgs} on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, with
-the objective 3.2e-13 above its minimum rather than 1.2e-21. On one run the
-difference is real rather than cosmetic -- \code{cg} on \code{abs_sum},
-where the objective ends 4.5e-02 above the minimum rather than 1.9e-03, and
+anyway: \code{bfgs} on Rosenbrock ends at 8.1e-06 against 4.4e-10, with the
+objective 3.2e-13 above its minimum against 1.2e-21. On one run the
+difference is substantive, \code{cg} on \code{abs_sum}, where the
+objective ends 4.5e-02 above the minimum against 1.9e-03 and
 the flag reads \code{TRUE} where it used to read \code{FALSE}. That is a
 smooth method on a non-smooth problem, where the objective stalls far from
 the solution and a rule that reads a stall cannot tell the two apart. A

@@ -66,8 +66,8 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   curvature condition [bfgs()] needs being unnecessary here because the
 #'   curvature is read from the Hessian.
 #' @param maxit,max_eval,verbose,refresh,keep_trace As in [optimizer()].
-#'   `maxit` defaults to 200 here rather than 500, a Newton run that has not
-#'   arrived in 200 iterations being in trouble of another kind.
+#'   `maxit` defaults to 200 here where [optimizer()] uses 500, a Newton run
+#'   that has not arrived in 200 iterations being in trouble of another kind.
 #'
 #' @details
 #' # Why the Hessian has to be repaired

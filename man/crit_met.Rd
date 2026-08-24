@@ -32,9 +32,9 @@ method does not compute one.}
 supplied by the derivative-free methods in place of a gradient, or
 \code{NULL}. See \code{\link[=crit_stationary]{crit_stationary()}}.}
 }
-A rule that needs something absent from \code{state} — a gradient, from a
-derivative-free method — must say so through \code{\link[=crit_needs]{crit_needs()}} rather
-than silently never firing.
+A rule needing something absent from \code{state}, such as a gradient on a
+derivative-free method, says so through \code{\link[=crit_needs]{crit_needs()}}, so that the
+optimizer can refuse it when the run starts.
 }
 \examples{
 st <- list(iter = 3, f_new = 1.0000001, f_old = 1.0000002,

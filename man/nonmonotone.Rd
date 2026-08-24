@@ -28,7 +28,7 @@ nonmonotone(
 anything, in the objective's own units, or a function of no arguments
 returning it where it moves as the run goes. Defaults to \code{0}, which
 does not ask the question; see \code{\link[=armijo]{armijo()}} for what it is for and
-why it is asked at the full step rather than during the search.}
+why the question is put at the full step, before the search begins.}
 }
 \value{
 A \code{\link[=line_search]{line_search()}} object.

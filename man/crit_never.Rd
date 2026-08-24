@@ -17,17 +17,17 @@ convergence rule could read is an estimate.
 }
 \details{
 This is not a placeholder. For a stochastic method there is often nothing
-left to test: every quantity a convergence rule could look at — the
-objective, the gradient — is a noisy estimate drawn from whichever
-observations happened to be sampled, and a tolerance applied to one of those
-measures the noise rather than the progress. Such a run is meant to be
-governed by its budget, and saying so with an object is better than leaving a
-real criterion in place that quietly never fires.
+left to test: every quantity a convergence rule could look at, the
+objective and the gradient alike, is a noisy estimate drawn from whichever
+observations happened to be sampled, and a tolerance applied to one of
+those measures the noise. Such a run is meant to be governed by its
+budget, and saying so with an object beats leaving a real criterion in
+place that quietly never fires.
 
-A run that ends this way reports \code{converged = FALSE}, which is the
-truth: the budget ran out, and nothing checked whether the answer was any
-good. It is the same discipline everywhere else in the package — convergence
-is what a rule confirmed, never what the run merely stopped doing.
+A run that ends this way reports \code{converged = FALSE}, which is the truth:
+the budget ran out, and nothing checked whether the answer was any good.
+That is the package's rule everywhere. Convergence is what a stopping rule
+confirmed, never what the run merely stopped doing.
 }
 \examples{
 crit_never()

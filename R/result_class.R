@@ -241,8 +241,8 @@ S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
 #' The safeguard table needs a trace, so the optimizer must have been built
 #' with `keep_trace = TRUE`. Without one the method prints what
 #' [print.optimizer_result()] prints and stops there. With a trace in which
-#' nothing fired it says `safeguards : none fired`, which is information
-#' rather than silence.
+#' nothing fired it says `safeguards : none fired`, so the absence is
+#' reported explicitly.
 #'
 #' @param object An [optimizer_result()].
 #' @param ... Unused.

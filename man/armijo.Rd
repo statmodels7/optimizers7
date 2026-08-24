@@ -44,8 +44,8 @@ iterate oscillates for ever, and a stopping rule watching the objective
 sees no change and reports convergence at a point that is not a minimum.
 
 The search evaluates the objective at trial points and never the gradient.
-That is enough for a method that has only to make progress, and not enough
-for a quasi-Newton method, which needs \code{\link[=wolfe]{wolfe()}}.
+That is enough for a method that has only to make progress. A quasi-Newton
+method needs more, and \code{\link[=wolfe]{wolfe()}} supplies it.
 }
 \section{What the objective can resolve}{
 
@@ -62,8 +62,8 @@ search returns immediately, and the run reports that the point is optimal
 to the accuracy the objective has. That is a weaker statement than a
 stopping rule being met, and it is reported in different words.
 
-\strong{It is not asked inside the backtracking loop, and that is what makes it
-safe.} There the two situations cannot be told apart, since
+\strong{It is not asked inside the backtracking loop, and that restriction is
+what keeps it safe.} There the two situations cannot be told apart, since
 \eqn{x + \alpha d \to x} as the step shrinks and the objective stops
 resolving the change whether the point is optimal or the direction is
 wrong. Tested at the full step they separate: a bad direction predicts a
@@ -79,8 +79,8 @@ Where the objective settles as the run goes, a fit warm-started from the
 previous evaluation locating its own answer better each time, the
 resolution at the start is the reading from the worst point of the whole
 run. Passing a \strong{function} of no arguments instead of a number has it
-asked again at every iteration, once per invocation of the search and not
-once per trial, so it costs one call an iteration. What the function
+asked again at every iteration, once per invocation of the search rather
+than once per trial, so it costs one call an iteration. What the function
 returns is the resolution in force for the step about to be taken; a value
 that is not finite and positive is read as \code{0}, which asks nothing.
 }

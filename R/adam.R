@@ -68,7 +68,8 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' @param amsgrad Hold the second moment at its running maximum? Defaults to
 #'   `FALSE`; see Details.
 #' @param maxit Maximum iterations. Defaults to 1000, higher than the other
-#'   methods because Adam takes many small steps rather than few large ones.
+#'   methods because Adam takes many small steps where a second-order method
+#'   takes few large ones.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
 #'   `maxit`. Set a finite value to cap the cost of a run.

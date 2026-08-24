@@ -98,8 +98,8 @@ The table reports the gap between the value reached and the known minimum,
 as information. A large gap on \code{rastrigin} or \code{himmelblau} means the
 method found a different local minimum, which for a local method is
 correct behavior, and the \code{note} column labels those two. A large gap on
-\code{abs_sum} means the method was defeated by a kink, which is what
-\code{\link[=bundle]{bundle()}} and the derivative-free methods exist for.
+\code{abs_sum} means the method was defeated by a kink, the case \code{\link[=bundle]{bundle()}} and
+the derivative-free methods exist for.
 }
 
 \examples{

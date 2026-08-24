@@ -28,7 +28,7 @@ fills in the point and the value, the counts and the trace, decides the
 verdict, and composes the message from whatever needs reporting.
 }
 \details{
-The one judgement here is the meaning of \code{converged}: it is taken
+The one judgment here is the meaning of \code{converged}: it is taken
 straight from whether the stopping rule fired, and never inferred from the
 run having ended. An optimizer that exhausted its iterations has not
 converged, and saying otherwise turns a failure into a wrong answer that

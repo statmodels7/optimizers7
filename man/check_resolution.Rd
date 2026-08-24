@@ -17,10 +17,10 @@ A single non-negative finite number, zero meaning the question is not asked,
 or a function of no arguments returning one.
 }
 \details{
-The function form is for an objective whose resolution MOVES. It is asked
+The function form is for an objective whose resolution moves. It is asked
 once per invocation of the search rather than per trial, so it costs one
-call an iteration, and it is what lets a caller whose objective settles as
-it goes report the resolution of the current point instead of the reading
+call an iteration. A caller whose objective settles as the run goes can
+then report the resolution of the current point instead of the reading
 from the worst-located point of the run.
 }
 \seealso{

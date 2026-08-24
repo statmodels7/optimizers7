@@ -29,7 +29,7 @@ through \code{\link[=bounded_transform]{bounded_transform()}} before any method 
 \code{npar} is passed by \code{\link[=minimize]{minimize()}}, which has already settled it from the
 starter's own \code{npar}, from the length of the bounds, or by probing the
 objective with \code{\link[=infer_npar]{infer_npar()}}. A method for this generic therefore reads
-the argument and not \code{starter@npar}.
+the argument, not \code{starter@npar}.
 
 The two shipped starters are \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}, and they
 are what a caller has available. A starter of a third kind is a subclass of

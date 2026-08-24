@@ -24,8 +24,8 @@ unconstrained scale and mapped back through the bounds, so no draw is ever
 rejected for being outside the box.
 }
 \details{
-The range is in unconstrained units, and that is what makes a single
-default workable. A draw in \eqn{(-1, 1)} becomes a variance between
+The range is in unconstrained units, and a single default is workable
+because of it. A draw in \eqn{(-1, 1)} becomes a variance between
 \code{0.368} and \code{2.72}, a probability between \code{0.269} and \code{0.731}, and a
 parameter bounded on both sides lands well inside its interval. The same
 numbers on the parameter scale would mean quite different things and would

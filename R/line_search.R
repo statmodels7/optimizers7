@@ -158,8 +158,8 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' to the accuracy the objective has. That is a weaker statement than a
 #' stopping rule being met, and it is reported in different words.
 #'
-#' **It is not asked inside the backtracking loop, and that is what makes it
-#' safe.** There the two situations cannot be told apart, since
+#' **It is not asked inside the backtracking loop, and that restriction is
+#' what keeps it safe.** There the two situations cannot be told apart, since
 #' \eqn{x + \alpha d \to x} as the step shrinks and the objective stops
 #' resolving the change whether the point is optimal or the direction is
 #' wrong. Tested at the full step they separate: a bad direction predicts a
@@ -177,8 +177,8 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' previous evaluation locating its own answer better each time, the
 #' resolution at the start is the reading from the worst point of the whole
 #' run. Passing a **function** of no arguments instead of a number has it
-#' asked again at every iteration, once per invocation of the search and not
-#' once per trial, so it costs one call an iteration. What the function
+#' asked again at every iteration, once per invocation of the search rather
+#' than once per trial, so it costs one call an iteration. What the function
 #' returns is the resolution in force for the step about to be taken; a value
 #' that is not finite and positive is read as `0`, which asks nothing.
 #'
@@ -191,8 +191,8 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' sees no change and reports convergence at a point that is not a minimum.
 #'
 #' The search evaluates the objective at trial points and never the gradient.
-#' That is enough for a method that has only to make progress, and not enough
-#' for a quasi-Newton method, which needs [wolfe()].
+#' That is enough for a method that has only to make progress. A quasi-Newton
+#' method needs more, and [wolfe()] supplies it.
 #'
 #' @return An S7 object of class [ArmijoSearch], inheriting from
 #'   [line_search()], to be passed as an optimizer's `line_search`.
@@ -250,10 +250,10 @@ armijo <- function(c1 = 1e-4, shrink = 0.5, max_step = 30, resolution = 0) {
 #' or a function of no arguments returning one.
 #'
 #' @details
-#' The function form is for an objective whose resolution MOVES. It is asked
+#' The function form is for an objective whose resolution moves. It is asked
 #' once per invocation of the search rather than per trial, so it costs one
-#' call an iteration, and it is what lets a caller whose objective settles as
-#' it goes report the resolution of the current point instead of the reading
+#' call an iteration. A caller whose objective settles as the run goes can
+#' then report the resolution of the current point instead of the reading
 #' from the worst-located point of the run.
 #'
 #' @param x What the constructor was given.
@@ -287,8 +287,8 @@ check_resolution <- function(x) {
 #' @description
 #' A line search that brackets a step satisfying both Wolfe conditions and
 #' then bisects inside the bracket. Built by [wolfe()]. It evaluates the
-#' **gradient** at trial points as well as the objective, which is what the
-#' curvature condition costs and what a quasi-Newton method needs.
+#' **gradient** at trial points as well as the objective. That is what the
+#' curvature condition costs, and what a quasi-Newton method needs.
 #'
 #' @details
 #' Beyond the `label` every line search carries, a `WolfeSearch` holds `c1`,
@@ -338,7 +338,7 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #'   anything, in the objective's own units, or a function of no arguments
 #'   returning it where it moves as the run goes. Defaults to `0`, which
 #'   does not ask the question; see [armijo()] for what it is for and
-#'   why it is asked at the full step rather than during the search.
+#'   why the question is put at the full step, before the search begins.
 #'
 #' @details
 #' # What the curvature condition is for
@@ -428,7 +428,7 @@ wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30, resolution = 0) {
 #' A field the given search has no use for is filled with a value the
 #' compiled side ignores: `c2 = 0.9` for the two backtracking searches,
 #' `shrink = 0.5` for Wolfe, `memory = 0` for both of the monotone ones.
-#' Keeping the shape fixed is what lets one struct read all three.
+#' One struct reads all three because the shape is fixed.
 #'
 #' There are only **two** types. [nonmonotone()] describes itself as
 #' `type = "armijo"` with `memory` above zero, the two differing in the
@@ -514,7 +514,7 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #'   anything, in the objective's own units, or a function of no arguments
 #'   returning it where it moves as the run goes. Defaults to `0`, which
 #'   does not ask the question; see [armijo()] for what it is for and
-#'   why it is asked at the full step rather than during the search.
+#'   why the question is put at the full step, before the search begins.
 #'
 #' @details
 #' The condition is Grippo, Lampariello and Lucidi's:
@@ -653,8 +653,7 @@ check_unit <- function(v, nm) {
 #'
 #' @description
 #' Checks that the value is a single positive integer. Used for `max_step`,
-#' which counts trials and not lengths, so a fractional value is a mistake
-#' rather than a request.
+#' which counts trials, so a fractional value is a mistake and is refused.
 #'
 #' @param v The value.
 #' @param nm Its name, for the message.
@@ -679,7 +678,7 @@ check_count <- function(v, nm) {
 #'
 #' @details
 #' Comparing S7 classes by identity is object identity, so it is `FALSE`
-#' for a class rebuilt from the same definition -- which is what happens under
+#' for a class rebuilt from the same definition, as happens under
 #' any loader that re-evaluates the code rather than loading it, \pkg{covr}
 #' among them. The same defect in \pkg{linkfunctions7} silently turned every
 #' numerical fallback into a chain of first differences, and only the coverage

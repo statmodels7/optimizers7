@@ -43,7 +43,8 @@ t)}. Defaults to \code{0}, a constant rate; see Details.}
 \code{FALSE}; see Details.}
 
 \item{maxit}{Maximum iterations. Defaults to 1000, higher than the other
-methods because Adam takes many small steps rather than few large ones.}
+methods because Adam takes many small steps where a second-order method
+takes few large ones.}
 
 \item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
 no evaluation budget, so the run stops on the criterion or on

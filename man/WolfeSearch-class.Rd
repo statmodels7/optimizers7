@@ -30,8 +30,8 @@ An S7 object of class \code{WolfeSearch} inheriting from
 \description{
 A line search that brackets a step satisfying both Wolfe conditions and
 then bisects inside the bracket. Built by \code{\link[=wolfe]{wolfe()}}. It evaluates the
-\strong{gradient} at trial points as well as the objective, which is what the
-curvature condition costs and what a quasi-Newton method needs.
+\strong{gradient} at trial points as well as the objective. That is what the
+curvature condition costs, and what a quasi-Newton method needs.
 }
 \details{
 Beyond the \code{label} every line search carries, a \code{WolfeSearch} holds \code{c1},

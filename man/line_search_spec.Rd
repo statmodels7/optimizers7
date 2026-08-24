@@ -26,7 +26,7 @@ on \code{type} alone.
 A field the given search has no use for is filled with a value the
 compiled side ignores: \code{c2 = 0.9} for the two backtracking searches,
 \code{shrink = 0.5} for Wolfe, \code{memory = 0} for both of the monotone ones.
-Keeping the shape fixed is what lets one struct read all three.
+One struct reads all three because the shape is fixed.
 
 There are only \strong{two} types. \code{\link[=nonmonotone]{nonmonotone()}} describes itself as
 \code{type = "armijo"} with \code{memory} above zero, the two differing in the

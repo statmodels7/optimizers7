@@ -27,8 +27,8 @@ method needs to know that starters exist.
 The class is abstract and carries one property, \code{npar}, an integer or
 \code{NULL}. A subclass needs a method for \code{\link[=starting_values]{starting_values()}} and nothing
 else. The class is not exported as of version 0.6.0, so subclassing it is
-available inside the package and not outside it; \code{\link[=is_starter]{is_starter()}} is what
-\code{\link[=minimize]{minimize()}} tests, and a class parented elsewhere fails that test.
+available inside the package only. \code{\link[=minimize]{minimize()}} tests
+\code{\link[=is_starter]{is_starter()}}, and a class parented elsewhere fails that test.
 }
 \seealso{
 \code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}}, \code{\link[=starting_values]{starting_values()}}.

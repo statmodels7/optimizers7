@@ -18,7 +18,7 @@
   4.5e-02 above the minimum rather than 1.9e-03 and now reports success --
   which is a smooth method on a non-smooth problem, where the objective stalls
   far from the solution and a rule reading a stall cannot tell the two apart.
-  `criterion = crit_grad()` restores the old behaviour.
+  `criterion = crit_grad()` restores the old behavior.
 
 * `crit_rel_obj()` leaves the default rule, having never fired in it: measured
   over the same 48 runs, the rule with it and the rule without it agree on
@@ -86,9 +86,9 @@
   objective has, reported as `no decrease above the objective's resolution`
   rather than as a stopping rule being met.
 
-* ⚠️ Asking it inside the loop was tried first and is UNSAFE. There the two
+* Asking it inside the loop was tried first and is unsafe. There the two
   situations cannot be told apart, `x + s d` tending to `x` as the step shrinks
-  whether the point is optimal or the DIRECTION is wrong; measured, a
+  whether the point is optimal or the direction is wrong; measured, a
   mis-stated gradient at a point nowhere near stationary was promoted to a
   converged run. Tested at the full step the two separate, a bad direction
   predicting a large improvement and still being reported as the failure it is.
@@ -158,7 +158,7 @@
   from R's generator in the same order, so from one seed they are the same
   run and the test needs no tolerance. Measured, the port is worth 1.74x on
   an objective costing 0.7 microseconds and 1.34x on one costing 3.8; on an
-  objective of half a millisecond, which is what a modelling layer's inner
+  objective of half a millisecond, which is what a modeling layer's inner
   one costs, the loop's overhead is a quarter of a per cent and the port
   buys nothing.
 

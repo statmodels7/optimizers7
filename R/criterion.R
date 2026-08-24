@@ -83,9 +83,9 @@ criterion <- S7::new_class(
 #'     supplied by the derivative-free methods in place of a gradient, or
 #'     `NULL`. See [crit_stationary()].}
 #' }
-#' A rule that needs something absent from `state` — a gradient, from a
-#' derivative-free method — must say so through [crit_needs()] rather
-#' than silently never firing.
+#' A rule needing something absent from `state`, such as a gradient on a
+#' derivative-free method, says so through [crit_needs()], so that the
+#' optimizer can refuse it when the run starts.
 #'
 #' @return A single logical.
 #'
@@ -123,6 +123,16 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' @param criterion A [criterion()] object.
 #'
 #' @return A character vector of `state` component names, possibly empty.
+#'
+#' @examples
+#' # A rule reading only the objective declares nothing; a gradient rule
+#' # declares the one component it reads.
+#' crit_needs(crit_abs_obj())
+#' crit_needs(crit_grad())
+#'
+#' # A combination declares the union, so a method missing any one of them
+#' # is refused.
+#' crit_needs(crit_any(crit_grad(), crit_stationary()))
 #'
 #' @seealso [crit_met()] for the rule itself, [check_criterion()] for the
 #'   rejection this feeds, [optimizer_provides()] for the other half of the
@@ -219,7 +229,7 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' gradient --- takes the attainable gradient from `1.9e-9` at
 #' \eqn{f^{*} = 0} to `4.4e-8` at \eqn{f^{*} = 1} and `6.5e-5` at
 #' \eqn{f^{*} = 10^{6}}. The default suits an objective of order one at its
-#' solution, which is what a log-likelihood per observation is; an objective
+#' solution, as a log-likelihood per observation is; an objective
 #' that lands in the millions needs a correspondingly looser tolerance, and one
 #' that lands at zero can be asked for much more.
 #'
@@ -739,17 +749,17 @@ S7::method(crit_met, CritNever) <- function(criterion, state) FALSE
 #'
 #' @details
 #' This is not a placeholder. For a stochastic method there is often nothing
-#' left to test: every quantity a convergence rule could look at — the
-#' objective, the gradient — is a noisy estimate drawn from whichever
-#' observations happened to be sampled, and a tolerance applied to one of those
-#' measures the noise rather than the progress. Such a run is meant to be
-#' governed by its budget, and saying so with an object is better than leaving a
-#' real criterion in place that quietly never fires.
+#' left to test: every quantity a convergence rule could look at, the
+#' objective and the gradient alike, is a noisy estimate drawn from whichever
+#' observations happened to be sampled, and a tolerance applied to one of
+#' those measures the noise. Such a run is meant to be governed by its
+#' budget, and saying so with an object beats leaving a real criterion in
+#' place that quietly never fires.
 #'
-#' A run that ends this way reports `converged = FALSE`, which is the
-#' truth: the budget ran out, and nothing checked whether the answer was any
-#' good. It is the same discipline everywhere else in the package — convergence
-#' is what a rule confirmed, never what the run merely stopped doing.
+#' A run that ends this way reports `converged = FALSE`, which is the truth:
+#' the budget ran out, and nothing checked whether the answer was any good.
+#' That is the package's rule everywhere. Convergence is what a stopping rule
+#' confirmed, never what the run merely stopped doing.
 #'
 #' @return An S7 object of class [CritNever], inheriting from [criterion()].
 #'
@@ -875,18 +885,18 @@ combine_criteria <- function(dots, how) {
 #'
 #' What that buys and what it costs was measured over the package's own
 #' [test_problems()], six methods on eight problems. Against the
-#' gradient rule alone it converges on 44 of the 48 runs rather than 41, and
-#' costs 19370 objective evaluations rather than 22299. The three it gains are
+#' gradient rule alone it converges on 44 of the 48 runs against 41, and costs
+#' 19370 objective evaluations against 22299. The three it gains are
 #' `cg` and `bb` on the non-smooth `abs_sum` and `gd` on
 #' Beale, and none is lost.
 #'
 #' The cost is that a run stops sooner, so the point it reports is further from
 #' the solution. Measured, 10 of the 48 end at a gradient more than a hundred
 #' times larger, and the worst are runs that were reaching absurd precision
-#' anyway: `bfgs` on Rosenbrock ends at 8.1e-06 rather than 4.4e-10, with
-#' the objective 3.2e-13 above its minimum rather than 1.2e-21. On one run the
-#' difference is real rather than cosmetic -- `cg` on `abs_sum`,
-#' where the objective ends 4.5e-02 above the minimum rather than 1.9e-03, and
+#' anyway: `bfgs` on Rosenbrock ends at 8.1e-06 against 4.4e-10, with the
+#' objective 3.2e-13 above its minimum against 1.2e-21. On one run the
+#' difference is substantive, `cg` on `abs_sum`, where the
+#' objective ends 4.5e-02 above the minimum against 1.9e-03 and
 #' the flag reads `TRUE` where it used to read `FALSE`. That is a
 #' smooth method on a non-smooth problem, where the objective stalls far from
 #' the solution and a rule that reads a stall cannot tell the two apart. A

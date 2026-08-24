@@ -33,8 +33,8 @@ NULL
 #' The class is abstract and carries one property, `npar`, an integer or
 #' `NULL`. A subclass needs a method for [starting_values()] and nothing
 #' else. The class is not exported as of version 0.6.0, so subclassing it is
-#' available inside the package and not outside it; [is_starter()] is what
-#' [minimize()] tests, and a class parented elsewhere fails that test.
+#' available inside the package only. [minimize()] tests
+#' [is_starter()], and a class parented elsewhere fails that test.
 #'
 #' @param npar The number of parameters, an integer, or `NULL` to have
 #'   [minimize()] work it out from the bounds or from the objective.
@@ -86,7 +86,7 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #' `npar` is passed by [minimize()], which has already settled it from the
 #' starter's own `npar`, from the length of the bounds, or by probing the
 #' objective with [infer_npar()]. A method for this generic therefore reads
-#' the argument and not `starter@npar`.
+#' the argument, not `starter@npar`.
 #'
 #' The two shipped starters are [start_zeros()] and [start_runif()], and they
 #' are what a caller has available. A starter of a third kind is a subclass of
@@ -252,8 +252,8 @@ UniformStart <- S7::new_class("UniformStart", parent = starter,
 #'   it out from the bounds or from the objective; see [minimize()].
 #'
 #' @details
-#' The range is in unconstrained units, and that is what makes a single
-#' default workable. A draw in \eqn{(-1, 1)} becomes a variance between
+#' The range is in unconstrained units, and a single default is workable
+#' because of it. A draw in \eqn{(-1, 1)} becomes a variance between
 #' `0.368` and `2.72`, a probability between `0.269` and `0.731`, and a
 #' parameter bounded on both sides lands well inside its interval. The same
 #' numbers on the parameter scale would mean quite different things and would

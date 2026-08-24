@@ -22,8 +22,8 @@ curvature had secant pairs carrying none.
 The safeguard table needs a trace, so the optimizer must have been built
 with \code{keep_trace = TRUE}. Without one the method prints what
 \code{\link[=print.optimizer_result]{print.optimizer_result()}} prints and stops there. With a trace in which
-nothing fired it says \verb{safeguards : none fired}, which is information
-rather than silence.
+nothing fired it says \verb{safeguards : none fired}, so the absence is
+reported explicitly.
 }
 \examples{
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2

@@ -16,7 +16,6 @@ Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
 Checks that the value is a single positive integer. Used for \code{max_step},
-which counts trials and not lengths, so a fractional value is a mistake
-rather than a request.
+which counts trials, so a fractional value is a mistake and is refused.
 }
 \keyword{internal}

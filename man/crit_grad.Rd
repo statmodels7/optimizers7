@@ -43,7 +43,7 @@ a constant to the objective --- which moves neither the minimizer nor the
 gradient --- takes the attainable gradient from \code{1.9e-9} at
 \eqn{f^{*} = 0} to \code{4.4e-8} at \eqn{f^{*} = 1} and \code{6.5e-5} at
 \eqn{f^{*} = 10^{6}}. The default suits an objective of order one at its
-solution, which is what a log-likelihood per observation is; an objective
+solution, as a log-likelihood per observation is; an objective
 that lands in the millions needs a correspondingly looser tolerance, and one
 that lands at zero can be asked for much more.
 

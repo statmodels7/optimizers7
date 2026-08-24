@@ -30,6 +30,17 @@ objective needs no method here: every optimizer evaluates the objective
 and no rule reading it is ever refused. The two names the shipped rules
 declare are \code{"gradient"} and \code{"stationarity"}.
 }
+\examples{
+# A rule reading only the objective declares nothing; a gradient rule
+# declares the one component it reads.
+crit_needs(crit_abs_obj())
+crit_needs(crit_grad())
+
+# A combination declares the union, so a method missing any one of them
+# is refused.
+crit_needs(crit_any(crit_grad(), crit_stationary()))
+
+}
 \seealso{
 \code{\link[=crit_met]{crit_met()}} for the rule itself, \code{\link[=check_criterion]{check_criterion()}} for the
 rejection this feeds, \code{\link[=optimizer_provides]{optimizer_provides()}} for the other half of the

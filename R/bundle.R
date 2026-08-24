@@ -102,7 +102,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' where \eqn{\alpha_j \ge 0} measures how badly linearization \eqn{j} misses
 #' the current point and the quadratic term keeps the step inside the region
 #' where the model is believed. Its optimal value \eqn{v \le 0} is the
-#' *predicted decrease*, which is what the acceptance test below uses.
+#' *predicted decrease*, the quantity the acceptance test below reads.
 #'
 #' What [crit_stationary()] watches is a related but different
 #' quantity, the *optimality estimate*
@@ -160,8 +160,8 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' the oldest linearizations are replaced by the *aggregate*, the single
 #' affine function the subproblem's solution defines. Discarding them instead
 #' would lose what they knew and can stall the method; the aggregate keeps a
-#' summary of all of it in one element, and that is what makes a bounded
-#' bundle safe.
+#' summary of all of it in one element, which is what keeps a bounded bundle
+#' safe.
 #'
 #' # Convexity requirement
 #'

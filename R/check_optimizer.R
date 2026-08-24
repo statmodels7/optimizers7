@@ -65,8 +65,8 @@ NULL
 #' as information. A large gap on `rastrigin` or `himmelblau` means the
 #' method found a different local minimum, which for a local method is
 #' correct behavior, and the `note` column labels those two. A large gap on
-#' `abs_sum` means the method was defeated by a kink, which is what
-#' [bundle()] and the derivative-free methods exist for.
+#' `abs_sum` means the method was defeated by a kink, the case [bundle()] and
+#' the derivative-free methods exist for.
 #'
 #' @param optimizer The [optimizer()] to check. Anything else raises an error
 #'   naming `bfgs()` as an example.

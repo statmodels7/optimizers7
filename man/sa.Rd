@@ -100,10 +100,10 @@ intended use is to hand its result to one of them; see \code{\link[=chain]{chain
 The parameters are moved one coordinate at a time, and after every \code{steps}
 sweeps each coordinate's step is multiplied or divided according to how
 often its moves were accepted, so that the rate is held inside a band
-around \code{target_accept} (Corana et al. 1987). The adaptation is what makes
-the method usable on a statistical objective, whose unconstrained
-coordinates sit on scales orders of magnitude apart: one step length is
-wrong for all of them. A coordinate accepting almost everything is being
+around \code{target_accept} (Corana et al. 1987). The adaptation makes the
+method usable on a statistical objective, whose unconstrained coordinates
+sit on scales orders of magnitude apart: one step length is wrong for all
+of them. A coordinate accepting almost everything is being
 proposed too timidly to explore, and one accepting almost nothing is being
 thrown too far to land.
 }
@@ -162,7 +162,7 @@ non-increasing.
 Whether the run converged is a separate question, never answered by the
 schedule having finished. The stationarity measure reported is Corana's
 own termination rule, by how much the best value has moved over the last
-\code{n_eps} temperature levels, so \code{\link[=crit_stationary]{crit_stationary()}} is that rule and not a
+\code{n_eps} temperature levels, so \code{\link[=crit_stationary]{crit_stationary()}} is that rule and no
 second convention invented beside it. A run that merely exhausts \code{maxit}
 reports \code{converged = FALSE}, which for a global search is the ordinary
 outcome.

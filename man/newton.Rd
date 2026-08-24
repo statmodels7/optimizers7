@@ -39,8 +39,8 @@ curvature condition \code{\link[=bfgs]{bfgs()}} needs being unnecessary here bec
 curvature is read from the Hessian.}
 
 \item{maxit, max_eval, verbose, refresh, keep_trace}{As in \code{\link[=optimizer]{optimizer()}}.
-\code{maxit} defaults to 200 here rather than 500, a Newton run that has not
-arrived in 200 iterations being in trouble of another kind.}
+\code{maxit} defaults to 200 here where \code{\link[=optimizer]{optimizer()}} uses 500, a Newton run
+that has not arrived in 200 iterations being in trouble of another kind.}
 }
 \value{
 An S7 object of class \link{Newton}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
