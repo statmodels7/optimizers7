@@ -12,7 +12,9 @@ bounded_forward(b, theta)
 \item{theta}{A numeric vector strictly inside the bounds.}
 }
 \value{
-A numeric vector on the unconstrained scale.
+A numeric vector on the unconstrained scale, as long as \code{theta}.
+A value on or outside a bound gives an infinite or \code{NaN} entry rather
+than an error, the check belonging to \code{\link[=check_bounds]{check_bounds()}}.
 }
 \description{
 Maps a parameter from inside its bounds to the unconstrained scale: the
@@ -20,15 +22,26 @@ inverse of \code{\link[=bounded_transform]{bounded_transform()}}'s \code{h}, and
 value goes through before an unconstrained run.
 }
 \details{
-Strictly inside. A value on a bound maps to an infinite \eqn{\eta}, so a run
-started there begins at infinity and fails far from its cause; that is why
-\code{\link[=minimize]{minimize()}} rejects such a starting value by name.
+Strictly inside. A value \strong{on} a bound maps to an infinite \eqn{\eta}, so
+a run started there begins at infinity and fails far from its cause. That
+is why \code{\link[=minimize]{minimize()}} rejects such a starting value by name, before anything
+is evaluated.
 }
 \examples{
 bounded_forward(c(0, Inf), c(0.5, 1, 8))
 bounded_forward(c(0, 1), 0.5)
 
+# A value on a bound has no finite image, so such a starting point is
+# unusable and minimize() refuses it.
+bounded_forward(c(0, 1), c(0, 1))
+
+# Round trip, in this direction too.
+eta <- c(-2, 0, 3)
+all.equal(bounded_forward(c(0, Inf), bounded_transform(c(0, Inf), eta)$h),
+          eta)
+
 }
 \seealso{
-\code{\link[=bounded_transform]{bounded_transform()}}
+\code{\link[=bounded_transform]{bounded_transform()}} for the inverse and its derivatives,
+\code{\link[=check_bounds]{check_bounds()}} for the validation.
 }

@@ -2,6 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{optimizer_provides}
 \alias{optimizer_provides}
+\alias{optimizer_provides.optimizer}
 \title{What an Optimizer Can Offer a Stopping Rule}
 \usage{
 optimizer_provides(optimizer)
@@ -10,28 +11,45 @@ optimizer_provides(optimizer)
 \item{optimizer}{An \code{\link[=optimizer]{optimizer()}}.}
 }
 \value{
-A character vector. The names the shipped criteria read are
-\code{"gradient"} and \code{"stationarity"}.
+A character vector of \code{state} component names. The two the shipped
+criteria read are \code{"gradient"} and \code{"stationarity"}.
 }
 \description{
 The names of the \code{state} components an optimizer is able to fill in, so
 that \code{\link[=check_criterion]{check_criterion()}} can reject a rule it could never satisfy.
 }
 \details{
-Gradient-based methods provide a gradient. The derivative-free ones provide
-a stationarity measure instead, since no single derivative they could report
-goes to zero at a solution.
+The gradient-based methods provide \code{"gradient"}. The derivative-free ones
+provide \code{"stationarity"} instead, no single derivative they could report
+going to zero at a solution: \code{\link[=nelder_mead]{nelder_mead()}} offers the simplex diameter,
+\code{\link[=compass]{compass()}} the poll size, \code{\link[=sa]{sa()}} Corana's termination measure and
+\code{\link[=bundle]{bundle()}} its optimality estimate.
 
 Every optimizer evaluates the objective, so there is no token for that and
-rules reading it are never rejected. A user-defined method inherits the
-default, which claims a gradient; if that is not true of it, say so, because
-the rejection machinery relies on this declaration being accurate.
+a rule reading the objective is never rejected. \code{\link[=prox_grad]{prox_grad()}} answers
+\code{"gradient"} and means the proximal gradient mapping, which vanishes at a
+stationary point of the whole objective.
+
+The \strong{default method} answers \code{"gradient"}, so an optimizer written
+outside the package claims one unless it says otherwise. Say otherwise if
+it is untrue: the rejection machinery relies on this declaration being
+accurate, and a method that claims a gradient it does not compute will
+accept a rule that can never fire.
 }
 \examples{
-optimizer_provides(bfgs())
-optimizer_provides(nelder_mead())
+# The two answers, across the shipped methods.
+vapply(list(bfgs(), newton(), cg(), bb(), gd(), adam()),
+       optimizer_provides, "")
+vapply(list(nelder_mead(), compass(), sa(), bundle()),
+       optimizer_provides, "")
+
+# A wrapper answers for whichever run reports the result.
+optimizer_provides(chain(sa(), bfgs()))
+optimizer_provides(multistart(nelder_mead()))
 
 }
 \seealso{
-\code{\link[=check_criterion]{check_criterion()}}, \code{\link[=crit_needs]{crit_needs()}}
+\code{\link[=check_criterion]{check_criterion()}} for the rejection this feeds, \code{\link[=crit_needs]{crit_needs()}}
+for the other half of the comparison, \code{\link[=optimizer_bounded]{optimizer_bounded()}} for the
+package's other declaration generic.
 }

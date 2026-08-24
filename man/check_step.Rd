@@ -10,9 +10,10 @@ check_step(step)
 \item{step}{The value supplied.}
 }
 \value{
-Invisibly \code{TRUE}; raises an error otherwise.
+Invisibly \code{TRUE}. Raises an error naming \code{step} otherwise.
 }
 \description{
-Validate an Initial Step Length
+Checks that \code{step} is a single positive number, so that all six methods
+taking one reject the same nonsense in the same words.
 }
 \keyword{internal}

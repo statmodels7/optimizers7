@@ -10,9 +10,11 @@ check_line_search(x)
 \item{x}{The value supplied.}
 }
 \value{
-Invisibly \code{TRUE}; raises an error otherwise.
+Invisibly \code{TRUE}. Raises an error naming \code{line_search} otherwise.
 }
 \description{
-Validate a Line Search
+Checks that the value inherits from the abstract \code{\link[=line_search]{line_search()}} class.
+The message names \code{\link[=armijo]{armijo()}} as an example, the commonest mistake being to
+pass the string \code{"armijo"} instead of the object.
 }
 \keyword{internal}

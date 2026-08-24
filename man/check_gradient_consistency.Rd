@@ -17,25 +17,27 @@ check_gradient_consistency(fn, gr, par)
 Invisibly \code{TRUE}; warns on a gross mismatch.
 }
 \description{
-Compares the directional derivative of \code{fn} along the gradient
-direction at \code{par}, obtained from one central difference, with the rate
-the supplied \code{gr} predicts. A gradient computed from a different model
-than the objective -- a fixed predictor where the objective uses the
-parameter, a stale copy of the data -- makes the two disagree grossly, and
-the symptom downstream is otherwise a mute line-search failure at the first
-iteration.
+Compares the directional derivative of \code{fn} along the gradient direction
+at \code{par}, obtained from one central difference, with the rate the supplied
+\code{gr} predicts. A gradient computed from a different model than the
+objective, such as one holding a predictor fixed where the objective
+varies it or reading a stale copy of the data, makes the two disagree
+grossly. Without this check the symptom downstream is a mute line-search
+failure at the first iteration.
 }
 \details{
 The check costs one call to \code{gr} and two to \code{fn}, runs once per
-\code{\link[=minimize]{minimize()}} call, and is skipped whenever it cannot be decisive:
-a non-function objective, a non-finite gradient at \code{par}, an objective
-that is not finite at the probe points, and a gradient too small to be
+\code{\link[=minimize]{minimize()}} call, and is skipped whenever it cannot be decisive: a
+non-function objective, a non-finite gradient at \code{par}, an objective that
+is not finite at the probe points, and a gradient too small to be
 distinguished from the truncation error of the difference it is compared
-with --- which is what a caller who starts at the optimum supplies. The
-tolerance is
-deliberately loose -- a relative disagreement above one half -- so that
-finite-difference error or a subgradient of a non-smooth objective does not
-trip it; it exists to catch the wrong function, not the eighth digit.
+with. That last case is the one a caller who starts at the optimum
+supplies, and firing there would penalize the best possible start.
+
+The tolerance is deliberately loose, a relative disagreement above one
+half, so that finite-difference error or a subgradient of a non-smooth
+objective does not trip it. It exists to catch the wrong function, not the
+eighth digit.
 
 Setting \code{options(optimizers7.check_gradient = FALSE)} disables it, and
 \code{\link[=multistart]{multistart()}} disables it for its inner runs after the first.

@@ -13,7 +13,12 @@ bounded_transform(b, eta)
 \item{eta}{A numeric vector on the unconstrained scale.}
 }
 \value{
-A list with \code{h} (the parameter), \code{d1} and \code{d2}.
+A named list of three numeric vectors, each as long as \code{eta}:
+\describe{
+\item{\code{h}}{the parameter \eqn{\theta = h(\eta)}, inside the box.}
+\item{\code{d1}}{\eqn{h'(\eta)}, the chain-rule factor for a gradient.}
+\item{\code{d2}}{\eqn{h''(\eta)}, needed only for a Hessian.}
+}
 }
 \description{
 Evaluates the reparametrization a set of bounds implies. This is how the
@@ -21,35 +26,60 @@ package removes a box, and it is exported so that a \code{\link[=minimize]{minim
 user-defined method can remove one the same way.
 }
 \details{
-Bounds are not enforced here, they are removed: a shifted log for a one-sided
-bound, a scaled logit for two, and the identity for neither. Optimize in
-\eqn{\eta} and every proposed point is admissible by construction.
+Bounds are removed here, not enforced. The map is a shifted log for a
+one-sided bound, a scaled logit for a two-sided one, and the identity for
+neither, so optimizing in \eqn{\eta} makes every proposed point admissible
+by construction.
 
-To honor \code{bounds} in a user-defined method: map the starting value with
-\code{\link[=bounded_forward]{bounded_forward()}}, run unconstrained, and wrap the objective so
-that it maps back before evaluating. The Jacobian is diagonal, so the chain
-rule is short —
-\eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'} —
+What \eqn{\eta = 0} becomes is the midpoint of the box in the map's own
+sense: \code{1} for \eqn{(0, \infty)}, \code{0.5} for \eqn{(0, 1)}, \code{4} for
+\eqn{(2, 6)}, and \code{0} where there is no bound at all. That is why
+\code{\link[=start_zeros]{start_zeros()}} is a sensible default start whatever the parameter means.
+}
+\section{Using it in a method of your own}{
+Map the starting value with \code{\link[=bounded_forward]{bounded_forward()}}, run unconstrained, and
+wrap the objective so that it maps back before evaluating. The Jacobian is
+diagonal, so the chain rule is one product per coordinate,
+\eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'},
 and \code{d2} is needed only when a Hessian is transformed, where it appears on
-the diagonal alone. Report \code{par} on the user's scale.
+the diagonal alone. Report \code{par} on the caller's scale.
+}
 
-These are \pkg{linkfunctions7}'s \code{bounded_link()}, written out in C++
-because the transform is applied on every objective evaluation and a callback
-into R there would undo the reason for compiling the loop. The test suite
-pins them to \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} on
+\section{Where it comes from}{
+These are \pkg{linkfunctions7}'s \code{bounded_link()} written out in C++,
+because the transform is applied at every objective evaluation and a
+callback into R there would undo the reason for compiling the loop. The
+test suite pins them to \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} on
 every run, so the copy cannot drift from the original.
 }
-\examples{
-# a variance: the whole line maps onto the positive half
-bounded_transform(c(0, Inf), c(-2, 0, 2))$h
 
-# a probability, and the derivative that carries a gradient across
+\examples{
+# A variance: the whole line maps onto the positive half, and no value of
+# eta, however absurd, leaves it.
+bounded_transform(c(0, Inf), c(-2, 0, 2))$h
+bounded_transform(c(0, Inf), c(-500, 500))$h > 0
+
+# A probability, with the derivative that carries a gradient across.
 str(bounded_transform(c(0, 1), c(-1, 0, 1)))
 
-# the round trip
-bounded_transform(c(0, 1), bounded_forward(c(0, 1), c(0.1, 0.5, 0.9)))$h
+# Zero is the middle of the box, whichever box it is. This is why
+# start_zeros() means something sensible for every kind of parameter.
+vapply(list(c(-Inf, Inf), c(0, Inf), c(0, 1), c(2, 6)),
+       function(b) bounded_transform(b, 0)$h, 0)
+
+# The two maps are inverse to each other.
+theta <- c(0.1, 0.5, 0.9)
+all.equal(bounded_transform(c(0, 1), bounded_forward(c(0, 1), theta))$h,
+          theta)
+
+# d1 is a derivative, and a central difference confirms it.
+h <- 1e-6
+(bounded_transform(c(0, 1), 0.3 + h)$h - bounded_transform(c(0, 1), 0.3 - h)$h) /
+  (2 * h)
+bounded_transform(c(0, 1), 0.3)$d1
 
 }
 \seealso{
-\code{\link[=bounded_forward]{bounded_forward()}}, \code{\link[=minimize]{minimize()}}
+\code{\link[=bounded_forward]{bounded_forward()}} for the inverse, \code{\link[=check_bounds]{check_bounds()}} for the
+shape \code{b} comes in, \code{\link[=minimize]{minimize()}} for the run that uses both.
 }

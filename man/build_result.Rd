@@ -23,7 +23,9 @@ method that draws no random numbers.}
 An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Turns what the C++ loop returned into an \code{\link[=optimizer_result]{optimizer_result()}}.
+Turns the list the compiled loop returned into an \code{\link[=optimizer_result]{optimizer_result()}}:
+fills in the point and the value, the counts and the trace, decides the
+verdict, and composes the message from whatever needs reporting.
 }
 \details{
 The one judgement here is the meaning of \code{converged}: it is taken

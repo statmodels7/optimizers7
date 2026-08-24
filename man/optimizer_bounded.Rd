@@ -2,6 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{optimizer_bounded}
 \alias{optimizer_bounded}
+\alias{optimizer_bounded.optimizer}
 \title{Whether an Optimizer Takes Box Bounds}
 \usage{
 optimizer_bounded(optimizer)
@@ -13,22 +14,37 @@ optimizer_bounded(optimizer)
 A single logical.
 }
 \description{
-\code{TRUE} when the optimizer honours the \code{lower} and \code{upper}
-arguments of \code{\link[=minimize]{minimize()}}, so that
-\code{\link[=check_optimizer]{check_optimizer()}} tests them, and \code{FALSE} for a method
-that takes its constraint another way.
+\code{TRUE} when the optimizer honors the \code{lower} and \code{upper} arguments of
+\code{\link[=minimize]{minimize()}}, so that \code{\link[=check_optimizer]{check_optimizer()}} tests them, and \code{FALSE} for a
+method that takes its constraint another way.
 }
 \details{
-Every method of the package removes bounds by reparametrization and
-answers \code{TRUE}, which is the default. A proximal method is the
-exception: a constraint reaches it inside the proximal operator, where it
-composes with the term already there, so bounds beside the objective would
-be a second and conflicting route to the same thing.
+Every method here removes bounds by reparametrization and answers \code{TRUE},
+which is the default. \code{\link[=prox_grad]{prox_grad()}} is the one exception: a constraint
+reaches it inside the proximal operator, where it composes with the term
+already there, so bounds beside the objective would be a second and
+conflicting route to the same thing.
+
+A wrapper answers for what it contains. \code{\link[=chain]{chain()}} is bounded only when
+\strong{every} stage is, the bounds being passed to all of them.
+
+The declaration is read by \code{\link[=check_optimizer]{check_optimizer()}} before its seventh check,
+so a method answering \code{FALSE} is not failed for refusing a box it never
+promised.
 }
 \examples{
 optimizer_bounded(bfgs())
 
+pg <- prox_grad(prox = function(v, t) v, g = function(b) 0)
+optimizer_bounded(pg)
+
+# A chain is bounded only if every stage is.
+c(optimizer_bounded(chain(bfgs(), newton())),
+  optimizer_bounded(chain(bfgs(), pg)))
+
 }
 \seealso{
-\code{\link[=optimizer_provides]{optimizer_provides()}}
+\code{\link[=optimizer_provides]{optimizer_provides()}} for the other declaration generic,
+\code{\link[=check_bounds]{check_bounds()}} for what a method that answers \code{TRUE} receives,
+\code{\link[=prox_grad]{prox_grad()}} for the one that answers \code{FALSE}.
 }

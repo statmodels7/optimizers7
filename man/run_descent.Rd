@@ -25,9 +25,9 @@ direction, and assembles the result.
 }
 \details{
 Newton, BFGS, L-BFGS and gradient descent differ only in the \code{method}
-list, which names the direction and carries its parameters. Everything
-else — the line search, the stopping rule, the budgets, the trace, the
-reporting — is the same code for all of them, which is what makes adding a
-fifth method a Direction in C++ and a constructor in R.
+list, which names the direction and carries its parameters. The line
+search, the stopping rule, the budgets, the trace and the reporting are
+the same code for all of them, so adding a fifth method is a \code{Direction}
+in C++ and a constructor in R.
 }
 \keyword{internal}
