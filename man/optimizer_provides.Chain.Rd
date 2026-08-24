@@ -7,10 +7,20 @@
 \item{optimizer}{A \code{Chain} object.}
 }
 \value{
-A character vector.
+A character vector of \code{state} component names, the last stage's.
 }
 \description{
-Whatever the LAST stage offers, that being the stage whose rule ends the run
-and whose result is reported.
+Reports whatever the last stage offers. The chain's stopping rule is the
+last stage's, so it is that stage which has to be able to evaluate it, and
+a chain opening with a derivative-free search can still carry a gradient
+rule.
+}
+\examples{
+# A search then a descent: the descent's gradient is what the rule reads.
+optimizer_provides(chain(sa(), bfgs()))
+
+# The other order offers only the simplex-free measure.
+optimizer_provides(chain(bfgs(), nelder_mead()))
+
 }
 \keyword{internal}

@@ -17,15 +17,27 @@ Chain(
 )
 }
 \arguments{
-\item{stages}{The optimizers, in the order they run.}
+\item{stages}{A list of \code{\link[=optimizer]{optimizer()}} objects, in the order they run.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Chain} inheriting from \code{\link[=optimizer]{optimizer()}}, with
+the property \code{stages} beside the seven shared ones.
 }
 \description{
-The class \code{\link[=chain]{chain()}} instantiates.
+An optimizer holding a list of optimizers to be run in order, each from
+the point the previous one reached. Built by \code{\link[=chain]{chain()}}. Because it
+inherits from \code{\link[=optimizer]{optimizer()}} it is accepted anywhere a single method is,
+including inside \code{\link[=multistart]{multistart()}}.
+}
+\details{
+Beyond the seven properties every optimizer has, a \code{Chain} carries
+\code{stages}, the list of optimizers in running order. The seven it inherits
+describe the \strong{last} stage: its \code{criterion}, \code{maxit} and \code{max_eval} are
+copied from there, because the last stage is the one whose rule ends the
+run and whose result is reported. \code{refresh} is fixed at 1, the chain's own
+progress being one line per stage.
 }
 \seealso{
-\code{\link[=chain]{chain()}}
+\code{\link[=chain]{chain()}} for the constructor, \code{\link[=minimize.Chain]{minimize.Chain()}} for the run.
 }
 \keyword{internal}

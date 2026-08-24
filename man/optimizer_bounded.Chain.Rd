@@ -10,8 +10,22 @@
 A single logical.
 }
 \description{
-\code{TRUE} only when EVERY stage takes them: bounds are passed to all of
-them, so one stage that would ignore them makes the chain unable to promise
-the box.
+\code{TRUE} when every stage takes bounds, \code{FALSE} otherwise. The bounds are
+passed to all of them, so a single stage that would ignore them leaves the
+chain unable to promise the box.
+}
+\details{
+\code{\link[=prox_grad]{prox_grad()}} is the one shipped method that answers \code{FALSE}: it takes its
+constraint inside the proximal operator, where the constraint composes
+with the penalty already there. A chain containing it is therefore
+unbounded whatever else is in it.
+}
+\examples{
+optimizer_bounded(chain(bfgs(), newton()))
+
+pg <- prox_grad(prox = function(v, t) v, g = function(b) 0)
+optimizer_bounded(pg)
+optimizer_bounded(chain(bfgs(), pg))
+
 }
 \keyword{internal}

@@ -7,17 +7,29 @@
 build_chain_result(results, optimizer, elapsed)
 }
 \arguments{
-\item{results}{The per-stage results, in order.}
+\item{results}{The per-stage \code{\link[=optimizer_result]{optimizer_result()}} objects, in order.}
 
-\item{optimizer}{The \code{Chain}.}
+\item{optimizer}{The \code{Chain} that produced them.}
 
-\item{elapsed}{Total seconds.}
+\item{elapsed}{Total seconds for the whole chain.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-The last stage's point and verdict, with the work of every stage summed and
-the traces stacked.
+Combines the per-stage results into one: the last stage's point, value,
+gradient, iteration count and verdict, the evaluation counts added over
+every stage, the traces stacked with a \code{stage} column, and the messages
+joined with their stage numbers.
+}
+\details{
+The counts are added with \code{Reduce("+")} rather than summed coordinate by
+coordinate, so that the storage type survives: a chain of one stage must
+report that stage's counts identically, and a \code{sum()} over a \code{vapply()}
+would hand back doubles where the stage had integers.
+
+Traces are stacked only when every stage reports the same columns. A
+derivative-free stage has a \code{stationarity} column where a descent has
+\code{gnorm}, and when they disagree the last stage's trace is kept alone.
 }
 \keyword{internal}
