@@ -22,23 +22,35 @@ Adam(
 )
 }
 \arguments{
-\item{alpha}{The learning rate.}
+\item{alpha}{The learning rate, the size of a step when the gradient is
+steady.}
 
-\item{beta1, beta2}{Decay rates for the two moment estimates.}
+\item{beta1, beta2}{Decay rates for the first and second moment estimates.}
 
-\item{eps}{The denominator floor.}
+\item{eps}{Added to the square-rooted second moment before dividing.}
 
 \item{decay}{Rate at which the learning rate is reduced.}
 
-\item{amsgrad}{Whether to hold the second moment at its running maximum.}
+\item{amsgrad}{Logical; whether the second moment is held at its running
+maximum.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Adam} inheriting from \code{\link[=optimizer]{optimizer()}}, with
+the six properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=adam]{adam()}} instantiates.
+An optimizer holding the learning rate, the two moment decay rates and the
+three safeguards of the Adam iteration. Built by \code{\link[=adam]{adam()}}. It is the one
+shipped method whose default stopping rule is \code{\link[=crit_never]{crit_never()}}, so a run
+ends on its iteration budget and reports \code{converged = FALSE}.
+}
+\details{
+Beyond the seven properties every optimizer has, an \code{Adam} carries six of
+its own: \code{alpha}, \code{beta1} and \code{beta2} for the iteration as Kingma and Ba
+published it, and \code{eps}, \code{decay} and \code{amsgrad} for the three repairs.
 }
 \seealso{
-\code{\link[=adam]{adam()}}
+\code{\link[=adam]{adam()}} for the constructor, \code{\link[=crit_never]{crit_never()}} for its default
+rule.
 }
 \keyword{internal}

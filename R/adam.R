@@ -4,14 +4,31 @@
 NULL
 
 #' @title S7 Class for Adam
-#' @description The class [adam()] instantiates.
-#' @param alpha The learning rate.
-#' @param beta1,beta2 Decay rates for the two moment estimates.
-#' @param eps The denominator floor.
+#'
+#' @description
+#' An optimizer holding the learning rate, the two moment decay rates and the
+#' three safeguards of the Adam iteration. Built by [adam()]. It is the one
+#' shipped method whose default stopping rule is [crit_never()], so a run
+#' ends on its iteration budget and reports `converged = FALSE`.
+#'
+#' @details
+#' Beyond the seven properties every optimizer has, an `Adam` carries six of
+#' its own: `alpha`, `beta1` and `beta2` for the iteration as Kingma and Ba
+#' published it, and `eps`, `decay` and `amsgrad` for the three repairs.
+#'
+#' @param alpha The learning rate, the size of a step when the gradient is
+#'   steady.
+#' @param beta1,beta2 Decay rates for the first and second moment estimates.
+#' @param eps Added to the square-rooted second moment before dividing.
 #' @param decay Rate at which the learning rate is reduced.
-#' @param amsgrad Whether to hold the second moment at its running maximum.
-#' @return An S7 object inheriting from [optimizer()].
-#' @seealso [adam()]
+#' @param amsgrad Logical; whether the second moment is held at its running
+#'   maximum.
+#'
+#' @return An S7 object of class `Adam` inheriting from [optimizer()], with
+#'   the six properties above beside the seven shared ones.
+#'
+#' @seealso [adam()] for the constructor, [crit_never()] for its default
+#'   rule.
 #' @name Adam-class
 #' @aliases Adam
 #' @keywords internal
@@ -37,8 +54,8 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'
 #' @param criterion The stopping rule. Defaults to [crit_never()], so
 #'   the run is governed by `maxit`; see Details.
-#' @param alpha The learning rate — the size of a step when the gradient is
-#'   steady. Defaults to `0.01`.
+#' @param alpha The learning rate, a single positive number: the size of a
+#'   step when the gradient is steady. Defaults to `0.01`.
 #' @param beta1 Decay rate of the first moment, the smoothed gradient. Defaults
 #'   to `0.9`.
 #' @param beta2 Decay rate of the second moment, the smoothed squared gradient.
@@ -67,92 +84,104 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' gradient has been consistently large is divided by a large number and moves
 #' modestly, while one whose gradient is small but persistent still moves. It is
 #' a diagonal preconditioner assembled from the gradients already seen, so it
-#' costs nothing beyond them — and that is also its limit, since a diagonal
-#' cannot represent the correlation between parameters that [bfgs()]
-#' learns from the same information.
+#' costs nothing beyond them. That is also its limit: a diagonal cannot
+#' represent the correlation between parameters that [bfgs()] learns from the
+#' same information.
 #'
 #' Both averages start at zero, so early on they are pulled towards it; dividing
 #' by \eqn{1 - \beta^t} removes exactly that bias, and without it the first
 #' iterations would barely move.
 #'
-#' \subsection{Relation to descent methods}{
-#' Adam takes no line search and makes no attempt to decrease the objective at
-#' every step. That is deliberate, not an omission: the freedom to go uphill is
-#' most of why it tolerates a gradient that is only right on average. It also
-#' means that none of the usual reassurances apply. There is no guarantee of
-#' monotone progress, and the run may end somewhere worse than it passed
-#' through.
+#' # Relation to the descent methods
 #'
-#' The practical consequence is that Adam is the wrong tool for a small smooth
-#' problem where a Hessian is affordable. Use [newton()] or
-#' [bfgs()] there and reach machine precision in a dozen iterations.
-#' Adam is appropriate when the parameter vector is long, when the objective is
-#' noisy, or when the surface is rough enough that a quadratic model is a
-#' fiction.
-#' }
+#' Adam takes no line search and makes no attempt to decrease the objective
+#' at every step. That freedom to go uphill is most of why it tolerates a
+#' gradient that is right only on average, and it also means that none of the
+#' usual reassurances apply: there is no guarantee of monotone progress, and
+#' the run may end somewhere worse than it passed through.
 #'
-#' \subsection{Stochastic objectives}{
-#' Adam does **not** draw subsamples, and the omission is the design rather
-#' than a gap in it. An optimizer does not know what an observation is; a
-#' version that did would need a second kind of objective to be told, a rule for
-#' which stopping rules such an objective allows, and a way to report which of
-#' them was in force. None of that buys anything a closure cannot do, because a
-#' stochastic objective is just an objective:
+#' The practical consequence is that Adam is the wrong tool for a small
+#' smooth problem where a Hessian is affordable. Measured on
+#' \eqn{\sum(x - (1, 2))^2} from the origin, `adam(alpha = 0.1)` reaches the
+#' answer in 2000 iterations and 2002 evaluations while [bfgs()] reaches it
+#' in 2 and 3. Adam is for a long parameter vector, a noisy objective, or a
+#' surface rough enough that a quadratic model is a fiction.
 #'
-#' \preformatted{
+#' # Stochastic objectives
+#'
+#' Adam draws no subsamples of its own, and that is the design. An optimizer
+#' has no notion of an observation; a version that did would need a second
+#' kind of objective to be told, a rule for which stopping rules such an
+#' objective allows, and a way to report which was in force. A closure does
+#' all of it in two lines, because a stochastic objective is an objective:
+#'
+#' ```r
 #' batch <- function(par) {
 #'   i <- sample.int(n, size = 0.05 * n)
 #'   sum((y[i] - par)^2) / 2
 #' }
 #' minimize(adam(), batch, par = 0, gr = batch_gr)
-#' }
+#' ```
 #'
-#' Adam then behaves exactly as it would on a minibatch of its own drawing, and
-#' `set.seed()` governs it because the draws happen in the caller's code.
+#' Adam then behaves as it would on a minibatch of its own drawing, and
+#' `set.seed()` governs the run because the draws happen in the caller's
+#' code.
 #'
-#' **Resample inside the objective, not around the run.** It is tempting to
-#' call `minimize(adam(maxit = 1), ...)` in a loop, drawing a new batch each
-#' time. That does not work: \eqn{m} and \eqn{v} start at zero and the bias
-#' correction restarts at \eqn{t = 1}, so every call takes a first step of length
-#' \eqn{\alpha} and the accumulated moments — the whole of the method — are
-#' thrown away at each one.
-#' }
+#' **Resample inside the objective, not around the run.** Calling
+#' `minimize(adam(maxit = 1), ...)` in a loop and drawing a new batch each
+#' time does not work: \eqn{m} and \eqn{v} start at zero and the bias
+#' correction restarts at \eqn{t = 1}, so every call takes a first step of
+#' length \eqn{\alpha} and the accumulated moments, which are the whole of
+#' the method, are thrown away at each one. Measured on the example below,
+#' 200 one-iteration runs reach `2.90` where one 200-iteration run reaches
+#' `2.956`, against a target of `2.986`.
 #'
-#' \subsection{Stopping}{
-#' The default criterion is [crit_never()]: the run ends when
-#' `maxit` is reached, and reports `converged = FALSE`, which is the
-#' truth about a run that nothing checked. With a fixed `alpha` Adam
-#' generally circles an optimum rather than settling on it, so a tolerance on
-#' the gradient is usually a rule that never fires.
+#' One thing to expect on such a run. The gradient consistency check
+#' [minimize()] makes before starting compares `fn` and `gr` at one point,
+#' and on a resampling objective those are two different minibatches, so the
+#' check warns on every stochastic fit and the warning means nothing. Set
+#' `options(optimizers7.check_gradient = FALSE)` around it.
 #'
-#' On an exact objective a real rule may be passed and will work. On a noisy one
-#' nothing based on the objective or the gradient means much, since both are
-#' then estimates; that is a property of the supplied objective, which the
-#' package cannot detect.
-#' }
+#' # Stopping
 #'
-#' \subsection{The safeguards}{
-#' `eps` floors the denominator. `decay` makes the learning rate
-#' \eqn{O(1/t)}, which is the Robbins–Monro condition a run on a noisy objective
-#' needs to settle at the optimum rather than rattle about it at a radius set by
-#' \eqn{\alpha}; it is off by default because on an exact objective there is
-#' nothing to average away.
+#' The default criterion is [crit_never()], so the run ends when `maxit` is
+#' reached and reports `converged = FALSE`, which is the truth about a run
+#' nothing checked. With a fixed `alpha` Adam circles an optimum instead of
+#' settling on it, so a tolerance on the gradient is usually a rule that
+#' never fires.
 #'
-#' `amsgrad` replaces \eqn{v_t} by its running maximum. This is not
-#' cosmetic: Reddi, Kale and Kumar (2018) exhibited a convex problem on which
-#' Adam as published fails to converge, because \eqn{v_t} can shrink and let a
-#' single large gradient dominate the iterate long after it has passed. The
-#' maximum forbids that, at the cost of steps that only ever get shorter. It is
-#' `FALSE` by default so that `adam()` is Adam — a run that silently
-#' did something else would not reproduce anything; it can be enabled
-#' whenever a run fails to settle.
+#' On an exact objective a real rule can be passed and will work. On a noisy
+#' one nothing read from the objective or the gradient means much, both being
+#' estimates, and the package cannot detect which kind it was given.
 #'
-#' A non-finite gradient or update stops the run with a message, rather than
-#' propagating a `NaN` into every iterate after it.
-#' }
+#' # The safeguards
 #'
-#' @return An S7 object of class `Adam`, inheriting from
-#'   [optimizer()].
+#' `eps` floors the denominator, so a coordinate whose gradient has been
+#' uniformly zero is not divided by zero.
+#'
+#' `decay` makes the learning rate \eqn{O(1/t)}, which is the Robbins-Monro
+#' condition a run on a noisy objective needs to settle at the optimum
+#' instead of rattling about it at a radius set by \eqn{\alpha}. In the
+#' minibatch example below, five runs at `alpha = 0.05` scatter with a
+#' standard deviation of `0.033` at `decay = 0` and `0.0079` at `0.01`. It
+#' is off by default, an exact objective having nothing to average away.
+#'
+#' `amsgrad` replaces \eqn{v_t} by its running maximum. Reddi, Kale and Kumar
+#' (2018) exhibited a convex problem on which Adam as published fails to
+#' converge, because \eqn{v_t} can shrink and let a single large gradient
+#' dominate the iterate long after it has passed. The maximum forbids that,
+#' and the price is that a coordinate's effective rate
+#' \eqn{\alpha/\sqrt{\max_s v_s}} can then never grow again. It is `FALSE` by
+#' default so that `adam()` is Adam, and worth turning on when a run fails to
+#' settle.
+#'
+#' A non-finite gradient or update ends the run rather than propagating a
+#' `NaN` into every iterate after it. The result reports
+#' `converged = FALSE` with the message `gradient not finite; stopped`, and
+#' `par` is the last usable point.
+#'
+#' @return An S7 object of class [Adam], inheriting from [optimizer()], to be
+#'   handed to [minimize()].
 #'
 #' @references
 #' Kingma, D. P. and Ba, J. (2015). Adam: A Method for Stochastic Optimization.
@@ -165,23 +194,41 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' adam()
 #' adam(alpha = 0.05, amsgrad = TRUE)
 #'
-#' # on a quadratic
-#' minimize(adam(alpha = 0.1, maxit = 2000),
-#'          function(p) sum((p - c(1, 2))^2), c(0, 0),
-#'          gr = function(p) 2 * (p - c(1, 2)))
+#' # On an exact quadratic it arrives, and pays for it: 2002 evaluations
+#' # against BFGS's 3. The flag is FALSE because crit_never() checked nothing.
+#' q <- function(p) sum((p - c(1, 2))^2)
+#' qg <- function(p) 2 * (p - c(1, 2))
+#' a <- minimize(adam(alpha = 0.1, maxit = 2000), q, c(0, 0), gr = qg)
+#' c(a@par, evaluations = a@counts[["f"]], converged = a@converged)
+#' minimize(bfgs(), q, c(0, 0), gr = qg)@counts[["f"]]
 #'
-#' # on a noisy objective, which is what it is for: the minibatch is drawn
-#' # inside the function, so the optimizer never has to know about it
+#' # The objective it is for: the minibatch is drawn inside the function, so
+#' # the optimizer never has to know about it. The check that compares fn
+#' # against gr would compare two different batches, so it is turned off.
 #' set.seed(1)
 #' y <- rnorm(2000, mean = 3)
 #' m <- 100
 #' batch    <- function(p) { i <- sample.int(2000, m); sum((y[i] - p)^2) / 2 }
 #' batch_gr <- function(p) { i <- sample.int(2000, m); -sum(y[i] - p) }
+#'
+#' old <- options(optimizers7.check_gradient = FALSE)
 #' minimize(adam(alpha = 0.05, decay = 0.01, maxit = 2000),
 #'          batch, par = 0, gr = batch_gr)@par
 #' mean(y)
 #'
-#' @seealso [bfgs()], [crit_never()]
+#' # A decaying rate settles the run: the scatter over five runs falls with it.
+#' spread <- function(d) sd(replicate(5,
+#'   minimize(adam(alpha = 0.05, decay = d, maxit = 2000),
+#'            batch, par = 0, gr = batch_gr)@par))
+#' set.seed(2); c(none = spread(0), some = spread(0.01))
+#' options(old)
+#'
+#' # A gradient that is not finite ends the run and says so.
+#' bad <- minimize(adam(maxit = 50), q, c(0, 0), gr = function(p) c(NaN, 1))
+#' c(bad@converged, bad@message)
+#'
+#' @seealso [bfgs()] for the smooth case, [crit_never()] for the default
+#'   stopping rule, [sa()] for the other method that goes uphill on purpose.
 #' @export
 adam <- function(criterion = crit_never(),
                  alpha = 0.01, beta1 = 0.9, beta2 = 0.999, eps = 1e-8,
@@ -223,11 +270,20 @@ adam <- function(criterion = crit_never(),
 
 #' @title Minimize by Adam
 #' @name minimize.Adam
+#'
 #' @description
-#' Runs [adam()] on the objective.
+#' Runs [adam()] on the objective: one gradient per iteration, the two
+#' exponentially weighted moments updated from it, and a coordinatewise step
+#' taken with no line search and no test that the objective fell.
+#'
 #' @param optimizer An `Adam` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
-#' @return An [optimizer_result()].
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
+#'   and ignored. Bounds are taken and removed by reparametrization.
+#'
+#' @return An [optimizer_result()]. Under the default [crit_never()] it
+#'   reports `converged = FALSE` and `criterion_met` `iteration budget
+#'   reached`, the run having ended on its budget.
+#'
 #' @keywords internal
 S7::method(minimize, Adam) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,

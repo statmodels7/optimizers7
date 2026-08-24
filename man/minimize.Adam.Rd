@@ -6,12 +6,16 @@
 \arguments{
 \item{optimizer}{An \code{Adam} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{he} is accepted
+and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}.
+An \code{\link[=optimizer_result]{optimizer_result()}}. Under the default \code{\link[=crit_never]{crit_never()}} it
+reports \code{converged = FALSE} and \code{criterion_met} \verb{iteration budget reached}, the run having ended on its budget.
 }
 \description{
-Runs \code{\link[=adam]{adam()}} on the objective.
+Runs \code{\link[=adam]{adam()}} on the objective: one gradient per iteration, the two
+exponentially weighted moments updated from it, and a coordinatewise step
+taken with no line search and no test that the objective fell.
 }
 \keyword{internal}
