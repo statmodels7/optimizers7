@@ -6,14 +6,20 @@
 \arguments{
 \item{optimizer}{An \code{Sa} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr}
-and \code{he} are accepted and ignored: the method uses no derivative, and
-rejecting them would force calling code to branch on the algorithm.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{he} are
+accepted and ignored, the method using no derivative; refusing them
+would force calling code to branch on the algorithm. Bounds are taken
+and removed by reparametrization like any other method's.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}.
+An \code{\link[=optimizer_result]{optimizer_result()}} holding the best point seen, with \code{seed}
+filled in and \code{converged} \code{TRUE} only when Corana's rule fired.
 }
 \description{
-Runs \code{\link[=sa]{sa()}} on the objective.
+Runs \code{\link[=sa]{sa()}} on the objective: a Metropolis walk over one coordinate at a
+time, with the step of each coordinate adapted to hold its acceptance rate
+near the target, and the temperature cooled geometrically. Records the
+state of the random number generator before the first draw, so the run can
+be repeated.
 }
 \keyword{internal}

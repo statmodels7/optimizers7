@@ -20,29 +20,34 @@ sa_run_r(
 )
 }
 \arguments{
-\item{fn}{The objective.}
+\item{fn}{The objective, a function of the parameter vector.}
 
-\item{par}{The starting value.}
+\item{par}{The starting value, a numeric vector.}
 
-\item{cauchy}{Whether the proposal is Cauchy rather than uniform.}
+\item{cauchy}{\code{TRUE} for the Cauchy proposal, \code{FALSE} for the uniform one.}
 
-\item{t0}{The initial temperature, or a non-positive value to calibrate it.}
+\item{t0}{The initial temperature, or a non-positive value to calibrate
+it. \code{-1} is what \code{\link[=minimize.Sa]{minimize.Sa()}} passes for \code{t0 = NULL}.}
 
 \item{cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit}{As in
 \code{\link[=sa]{sa()}}.}
 }
 \value{
-A list with \code{par}, \code{value} and \code{n_value}.
+A list with \code{par} (the best point seen), \code{value} (the objective
+there) and \code{n_value} (the evaluation count). It reports no trace and no
+stationarity measure, the comparison being of the walk alone.
 }
 \description{
-The loop \code{sa_run()} replaces, kept so the compiled route has something
-to be compared against that shares none of its code.
+The annealing loop written in R, the twin of the compiled \code{sa_run()}. It
+exists so that the kernel has something to be compared against that shares
+none of its code, and it is used by the tests alone.
 }
 \details{
 It draws from \R's generator in the same order as the kernel, so from one
-seed the two runs are the same run and the comparison needs no tolerance.
-The order is what has to match: one uniform per proposal, and a second one
-for the Metropolis test ONLY when the proposal is uphill, which is where a
-transcription most easily drifts.
+seed the two are the same run and the comparison needs no tolerance at
+all. The order is the thing that has to match: one uniform per proposal,
+and a second one for the Metropolis test only when the proposal is uphill.
+A transcription that consumes a uniform unconditionally passes every test
+written on the answer and fails this one immediately.
 }
 \keyword{internal}

@@ -25,13 +25,16 @@ Sa(
 )
 }
 \arguments{
-\item{visiting}{Which proposal the walk uses.}
+\item{visiting}{\code{"uniform"} or \code{"cauchy"}, which proposal the walk draws
+its moves from.}
 
-\item{t0}{The initial temperature, or \code{NULL} to calibrate it.}
+\item{t0}{The initial temperature, or \code{NULL} to calibrate it from the
+objective.}
 
-\item{cooling}{The geometric cooling factor.}
+\item{cooling}{The geometric cooling factor, in \eqn{(0, 1)}.}
 
-\item{cycles, steps}{The work done at each temperature.}
+\item{cycles, steps}{The work done at each temperature level:
+\code{cycles * steps * p} evaluations.}
 
 \item{step}{The initial step, relative to the starting value.}
 
@@ -42,12 +45,25 @@ Sa(
 \item{n_eps}{How many temperature levels the stopping rule looks back over.}
 }
 \value{
-An S7 object inheriting from \code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \code{Sa} inheriting from \code{\link[=optimizer]{optimizer()}}, with the
+nine properties above beside the seven shared ones.
 }
 \description{
-The class \code{\link[=sa]{sa()}} instantiates.
+An optimizer holding the annealing schedule and the step adaptation: which
+proposal the walk draws from, the temperature and how it cools, how much
+work is done at each level, and the acceptance rate the per-coordinate
+steps are tuned to. Built by \code{\link[=sa]{sa()}}. It is the package's only global
+search and the only method whose result depends on the state of the random
+number generator.
+}
+\details{
+Beyond the seven properties every optimizer has, an \code{Sa} carries nine of
+its own. They fall into three groups: the proposal (\code{visiting}, \code{step}),
+the schedule (\code{t0}, \code{cooling}, \code{cycles}, \code{steps}), and the adaptation and
+its stopping rule (\code{target_accept}, \code{adjust}, \code{n_eps}).
 }
 \seealso{
-\code{\link[=sa]{sa()}}
+\code{\link[=sa]{sa()}} for the constructor, \code{\link[=chain]{chain()}} for handing its answer to a
+local method.
 }
 \keyword{internal}

@@ -23,41 +23,53 @@ sa(
 )
 }
 \arguments{
-\item{criterion}{The stopping rule. Defaults to
-\code{crit_stationary(1e-8)}, read on the measure described above.}
+\item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
+\code{crit_stationary(1e-8)}, read on Corana's measure above. A rule reading
+a gradient is refused when the run starts, this method computing none.}
 
-\item{visiting}{\code{"uniform"} (default) or \code{"cauchy"}.}
+\item{visiting}{\code{"uniform"} (default) or \code{"cauchy"}. Partial matching
+applies, and any other string is refused by name.}
 
-\item{t0}{The initial temperature. \code{NULL}, the default, calibrates it
-from the objective.}
+\item{t0}{The initial temperature, a single positive number, or \code{NULL}
+(the default) to calibrate it from the objective at a cost of 20
+evaluations.}
 
-\item{cooling}{The factor the temperature is multiplied by at each level.
-Defaults to \code{0.85}.}
+\item{cooling}{The factor the temperature is multiplied by at each level, a
+single number \strong{strictly} inside \eqn{(0, 1)}. Defaults to \code{0.85}. \code{1}
+would never cool and \code{0} would freeze at once, so both endpoints are
+refused.}
 
-\item{cycles}{How many step-adjustment cycles per temperature level.
-Defaults to \code{3}.}
+\item{cycles}{How many step-adjustment cycles per temperature level, a
+positive whole number. Defaults to \code{3}.}
 
-\item{steps}{How many sweeps of every coordinate per cycle. Defaults to
-\code{10}. One temperature level therefore costs
-\code{cycles * steps * length(par)} evaluations.}
+\item{steps}{How many sweeps of every coordinate per cycle, a positive
+whole number. Defaults to \code{10}. One temperature level therefore costs
+\code{cycles * steps * length(par)} evaluations, and a whole run costs that
+times \code{maxit}, plus one for the starting value and 20 more if the
+temperature is calibrated.}
 
 \item{step}{The initial step, relative to the starting value. Defaults to
-\code{1}.}
+\code{1}. It is only a starting point: the adaptation moves each coordinate's
+step from here within the first few cycles.}
 
-\item{target_accept}{The acceptance rate the adaptation aims at, held inside
-a band of 0.1 either side. Defaults to \code{0.5}.}
+\item{target_accept}{The acceptance rate the adaptation aims at, held
+inside a band of 0.1 either side. A single number strictly inside
+\eqn{(0.1, 0.9)}; anything outside is refused, an extreme target being
+unreachable by any step. Defaults to \code{0.5}.}
 
-\item{adjust}{How hard the step is moved towards that rate. Defaults to
-\code{2}.}
+\item{adjust}{How hard the step is moved towards that rate, a single
+positive number. Defaults to \code{2}, which is Corana's own constant.}
 
-\item{n_eps}{How many temperature levels the stationarity measure looks back
-over. Defaults to \code{4}.}
+\item{n_eps}{How many temperature levels the stationarity measure looks
+back over, a positive whole number. Defaults to \code{4}.}
 
-\item{maxit}{Maximum temperature levels. Defaults to 100. It is the budget
-that decides how tightly the run finishes: the step adaptation shrinks the
-proposal as the acceptance rate falls with the temperature, so on a
-quadratic the answer improves from \eqn{2\times10^{-1}} at 15 levels to
-\eqn{5\times10^{-5}} at 100.}
+\item{maxit}{Maximum temperature levels. Defaults to 100. This is the
+budget that decides how tightly the run finishes, the step adaptation
+shrinking the proposal as the acceptance rate falls with the
+temperature. Measured on \eqn{\sum(x - (1, 2))^2} from the origin at one
+seed, the distance to the answer goes \code{2.7e-02}, \code{1.8e-02}, \code{3.0e-03},
+\code{2.3e-05} at 15, 30, 60 and 100 levels, for 921, 1821, 3621 and 6021
+evaluations.}
 
 \item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}.}
 
@@ -65,11 +77,12 @@ quadratic the answer improves from \eqn{2\times10^{-1}} at 15 levels to
 
 \item{refresh}{Report every this many levels. Defaults to 10.}
 
-\item{keep_trace}{Store the path? Defaults to \code{FALSE}.}
+\item{keep_trace}{Store the path? Defaults to \code{FALSE}. The \code{value} column
+is the best so far.}
 }
 \value{
-An S7 object of class \code{Sa}, inheriting from
-\code{\link[=optimizer]{optimizer()}}.
+An S7 object of class \link{Sa}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
+handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 A global search that accepts uphill moves with a probability falling as the
@@ -81,61 +94,116 @@ The method exists here for the problems the local ones cannot start on: a
 multimodal objective where the answer depends on which basin the run began
 in. It is not a competitor to \code{\link[=bfgs]{bfgs()}} or \code{\link[=newton]{newton()}} on a
 smooth problem, where it will be beaten by orders of magnitude, and the
-intended use is to hand its result to one of them --- see
-\code{\link[=chain]{chain()}}.
-
-\strong{The adaptive step.} The parameters are moved one coordinate at a
-time, and after every \code{steps} sweeps each coordinate's step is
-multiplied or divided according to how often its moves were accepted, so
-that the rate is held inside a band around \code{target_accept}
-(Corana et al. 1987). This is what makes the method usable on a statistical
-objective: the coordinates of an unconstrained parameter vector sit on
-scales orders of magnitude apart, and one step length is wrong for all of
-them. A coordinate accepting almost everything is being proposed too
-timidly to explore; one accepting almost nothing is being thrown too far to
-land.
-
-\strong{The proposal.} \code{"uniform"} draws the move uniformly on the
-coordinate's current step, which with the adaptation above is Corana's
-algorithm. \code{"cauchy"} draws it from a Cauchy, whose heavy tail lets a
-run leave a basin in one move rather than walking out of it; that is fast
-simulated annealing (Szu and Hartley 1987), and it is the \eqn{q = 2} member
-of the Tsallis family. The general Tsallis visiting distribution at
-arbitrary \eqn{q} is deliberately not offered: its generator would have to
-be transcribed and could not be checked against anything already here, and
-an unverified generator is worse than a case that can be verified.
-
-\strong{The temperature.} With \code{t0 = NULL} the initial temperature is
-calibrated from the objective's own variation, by sampling proposals around
-the starting value and setting \eqn{T_0} so that an average uphill move is
-accepted about four times in five. A fixed number cannot serve: on an
-objective of size \eqn{10^6} every move is accepted and the run is a random
-walk, on one of size \eqn{10^{-6}} none is and it is a poor local search.
-
-\strong{What the run returns is the best point SEEN}, not the last one. An
-annealing run wanders by construction, so its final iterate is a draw and
-not an answer.
-
-\strong{Whether it converged is a separate question} and is never answered
-by the schedule having finished. The stationarity measure reported is
-Corana's own termination rule --- by how much the best value has moved over
-the last \code{n_eps} temperature levels --- so \code{\link[=crit_stationary]{crit_stationary()}}
-IS that rule rather than a second convention invented beside it. A run that
-merely exhausts \code{maxit} reports \code{converged = FALSE}, which for a
-global search is the ordinary outcome and not a failure.
-
-\strong{The run is stochastic}, so \code{set.seed()} governs it and the
-state it started from is recorded in the result.
+intended use is to hand its result to one of them; see \code{\link[=chain]{chain()}}.
 }
+\section{The adaptive step}{
+The parameters are moved one coordinate at a time, and after every \code{steps}
+sweeps each coordinate's step is multiplied or divided according to how
+often its moves were accepted, so that the rate is held inside a band
+around \code{target_accept} (Corana et al. 1987). The adaptation is what makes
+the method usable on a statistical objective, whose unconstrained
+coordinates sit on scales orders of magnitude apart: one step length is
+wrong for all of them. A coordinate accepting almost everything is being
+proposed too timidly to explore, and one accepting almost nothing is being
+thrown too far to land.
+}
+
+\section{The proposal}{
+\code{"uniform"} draws the move uniformly on the coordinate's current step,
+which together with the adaptation above is Corana's algorithm.
+\code{"cauchy"} draws it from a Cauchy, whose heavy tail lets a run leave a
+basin in one move instead of walking out of it. That is fast simulated
+annealing (Szu and Hartley 1987), the \eqn{q = 2} member of the Tsallis
+family.
+
+The difference is large on a surface with many basins. Over thirty seeds
+on Rastrigin in two dimensions from \eqn{(4.4, -3.6)}, with 40 temperature
+levels: the Cauchy proposal has a median value of \code{0.0051} and gets below
+\code{0.01} on 19 of 30 runs, the uniform one a median of \code{0.94} and 1 of 30.
+The default is nevertheless \code{"uniform"}, that being Corana's algorithm as
+published and the better-behaved proposal where the objective is defined
+on a bounded region.
+
+The general Tsallis visiting distribution at arbitrary \eqn{q} is not
+offered. Its generator would have to be transcribed and could not be
+checked against anything already here.
+}
+
+\section{The temperature}{
+With \code{t0 = NULL} the initial temperature is calibrated from the
+objective's own variation, by sampling proposals around the starting value
+and setting \eqn{T_0} so that an average uphill move is accepted about
+four times in five. That costs 20 evaluations, once, before the run
+begins.
+
+A fixed number cannot serve, because the Metropolis probability
+\eqn{\exp(-\Delta f / T)} compares the temperature against the objective's
+own scale. At \eqn{T = 1} a step costing \eqn{10^{-6}} is accepted with
+probability 1 and the run is a random walk; one costing \eqn{10^{6}} is
+accepted with probability 0 and the method has become a local search.
+Measured over eight seeds on \eqn{10^{-6}\sum(x - (1,2))^2}, the
+calibrated run ends a median \code{0.0044} from the answer and \code{t0 = 1} a
+median \code{0.375}.
+
+The other side of that is worth knowing too: on a \strong{convex} objective too
+cold a temperature costs nothing, there being one basin to find. On
+\eqn{10^{6}\sum(x - (1,2))^2} the fixed \code{t0 = 1} reaches \code{4.6e-07} where
+the calibration reaches \code{0.0013}. The calibration is insurance against a
+multimodal surface, and on a problem that has no second basin it is a
+small tax.
+}
+
+\section{What the run returns, and what convergence means here}{
+The result is the best point \strong{seen}, not the last one. An annealing run
+wanders by construction, so its final iterate is a draw. The \code{value}
+column of the trace is correspondingly the best so far, and is monotone
+non-increasing.
+
+Whether the run converged is a separate question, never answered by the
+schedule having finished. The stationarity measure reported is Corana's
+own termination rule, by how much the best value has moved over the last
+\code{n_eps} temperature levels, so \code{\link[=crit_stationary]{crit_stationary()}} is that rule and not a
+second convention invented beside it. A run that merely exhausts \code{maxit}
+reports \code{converged = FALSE}, which for a global search is the ordinary
+outcome.
+
+The run is stochastic, so \code{set.seed()} governs it, and the state it began
+from is recorded in the result's \code{seed} for repeating it.
+}
+
 \examples{
 sa()
 
-# an objective with many local minima, where a local method stops in the
-# basin it started in and this one does not
+# Rastrigin has 121 local minima. A local method stops in the basin it
+# started in; this one leaves it.
 rastrigin <- function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p))
 set.seed(1)
-minimize(sa(), rastrigin, c(4.4, -3.6))@value
-minimize(bfgs(), rastrigin, c(4.4, -3.6))@value
+minimize(sa(), rastrigin, c(4.4, -3.6))@value    # 0.914
+minimize(bfgs(), rastrigin, c(4.4, -3.6))@value  # 7.96
+
+# The heavy-tailed proposal leaves a basin in one move, and on this surface
+# that is worth two orders of magnitude.
+set.seed(2)
+minimize(sa(visiting = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
+set.seed(2)
+minimize(sa(visiting = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
+
+# The reported value is the best seen, and the trace records the same:
+# it never rises, though the walk itself does.
+set.seed(5)
+r <- minimize(sa(maxit = 30, keep_trace = TRUE), rastrigin, c(4.4, -3.6))
+all(diff(r@trace$value) <= 0)
+all.equal(r@value, min(r@trace$value))
+
+# The run repeats exactly from the state it recorded.
+set.seed(11)
+a <- minimize(sa(maxit = 20), rastrigin, c(4.4, -3.6))
+assign(".Random.seed", a@seed, globalenv())
+b <- minimize(sa(maxit = 20), rastrigin, c(4.4, -3.6))
+identical(a@par, b@par)
+
+# A gradient rule is refused when the run starts, this method computing none.
+try(minimize(sa(criterion = crit_grad()), rastrigin, c(4.4, -3.6)))
 
 }
 \references{
@@ -151,6 +219,7 @@ Szu, H. and Hartley, R. (1987). Fast simulated annealing. \emph{Physics
 Letters A} \strong{122}, 157--162.
 }
 \seealso{
-\code{\link[=chain]{chain()}}, \code{\link[=multistart]{multistart()}},
-\code{\link[=crit_stationary]{crit_stationary()}}
+\code{\link[=chain]{chain()}} for handing the answer to a local method,
+\code{\link[=multistart]{multistart()}} for the other way of covering several basins,
+\code{\link[=crit_stationary]{crit_stationary()}} for the rule this method's measure feeds.
 }

@@ -7,15 +7,25 @@
 \item{optimizer}{An \code{Sa} object.}
 }
 \value{
-A character vector.
+The character vector \code{"stationarity"}.
 }
 \description{
-The objective and a stationarity measure, but no gradient.
+Reports \code{"stationarity"} and nothing else. The method draws proposals and
+compares values; it computes no derivative, so a rule reading a gradient
+is refused when the run starts instead of sitting there testing \code{NULL} and
+never firing.
 }
 \details{
-The measure is Corana's termination rule, by how much the best value has
-moved over the last \code{n_eps} temperature levels. A rule reading a
-gradient is rejected at construction rather than left testing \code{NULL}
-and never firing.
+The measure offered is Corana's termination rule: by how much the best
+value has moved over the last \code{n_eps} temperature levels. It is read by
+\code{\link[=crit_stationary]{crit_stationary()}}, which is this method's default rule.
+}
+\examples{
+optimizer_provides(sa())
+
+# So a gradient rule is refused, with both names in the message.
+rastrigin <- function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p))
+try(minimize(sa(criterion = crit_grad()), rastrigin, c(1, 1)))
+
 }
 \keyword{internal}
