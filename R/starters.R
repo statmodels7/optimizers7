@@ -32,9 +32,16 @@ NULL
 #' @details
 #' The class is abstract and carries one property, `npar`, an integer or
 #' `NULL`. A subclass needs a method for [starting_values()] and nothing
-#' else. The class is not exported as of version 0.6.0, so subclassing it is
-#' available inside the package only. [minimize()] tests
-#' [is_starter()], and a class parented elsewhere fails that test.
+#' else. [minimize()] decides whether `par` is a vector to use as given or an
+#' object to resolve by testing inheritance from this class, so a starter of
+#' your own has to be parented here; a class carrying a `starting_values()`
+#' method but parented elsewhere is refused with `'par' must be a numeric
+#' vector of starting values`.
+#'
+#' This is the third of the package's extension points and it is exported for
+#' the same reason as the other two, [criterion()] for a stopping rule and
+#' [optimizer()] for an algorithm: the generic is of no use without the class
+#' it dispatches on.
 #'
 #' @param npar The number of parameters, an integer, or `NULL` to have
 #'   [minimize()] work it out from the bounds or from the objective.
@@ -42,10 +49,25 @@ NULL
 #' @return An S7 object. The class is abstract, so every value is an object of
 #'   one of its subclasses.
 #'
+#' @examples
+#' # The class is abstract, so it cannot be instantiated directly...
+#' try(starter(npar = 3))
+#'
+#' # ...but a subclass with a starting_values() method is a starter, and
+#' # minimize() resolves it exactly as it resolves the two shipped ones.
+#' Grid <- S7::new_class("Grid", parent = starter)
+#' S7::method(starting_values, Grid) <- function(starter, npar)
+#'   seq(-1, 1, length.out = npar)
+#'
+#' starting_values(Grid(), 3)
+#'
+#' f <- function(p) sum((p - 1:3)^2)
+#' minimize(bfgs(), f, Grid(npar = 3))@par
+#'
 #' @seealso [start_zeros()], [start_runif()], [starting_values()].
 #' @name starter-class
 #' @aliases starter
-#' @keywords internal
+#' @export
 starter <- S7::new_class("starter", abstract = TRUE,
   properties = list(npar = S7::class_any))
 
@@ -88,14 +110,13 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #' objective with [infer_npar()]. A method for this generic therefore reads
 #' the argument, not `starter@npar`.
 #'
-#' The two shipped starters are [start_zeros()] and [start_runif()], and they
-#' are what a caller has available. A starter of a third kind is a subclass of
-#' the abstract [starter] class with a method for this generic and nothing
-#' else, but that class is not exported as of version 0.6.0, and
-#' [minimize()] accepts as `par` only a numeric vector or an object
-#' inheriting from it. A class of your own carrying a `starting_values()`
-#' method is therefore refused with `'par' must be a numeric vector of
-#' starting values`; resolve the vector yourself and pass it.
+#' The two shipped starters are [start_zeros()] and [start_runif()]. A
+#' starter of a third kind is a subclass of the abstract [starter] class with
+#' a method for this generic and nothing else, and [minimize()] then accepts
+#' it as `par` like either shipped one. The parent matters: `minimize()`
+#' accepts as `par` a numeric vector or an object inheriting from [starter],
+#' so a class carrying a method for this generic but parented elsewhere is
+#' refused with `'par' must be a numeric vector of starting values`.
 #'
 #' @return A numeric vector of length `npar`, on the unconstrained scale.
 #'

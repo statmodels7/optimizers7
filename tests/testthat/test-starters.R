@@ -212,3 +212,33 @@ test_that("the constructors refuse nonsense", {
   expect_error(start_runif(-Inf, 1), "finite")
   expect_error(start_runif(NA, 1), "finite")
 })
+
+
+test_that("a starter of your own is accepted, the class being exported", {
+  # The measurement Q25 recorded: a class carrying a starting_values() method
+  # but parented anywhere else is refused, so the generic is of no use unless
+  # the class it dispatches on can be reached from outside the package.
+  expect_true("starter" %in% getNamespaceExports("optimizers7"))
+
+  Grid <- S7::new_class("Grid", parent = starter)
+  S7::method(starting_values, Grid) <- function(starter, npar)
+    seq(-1, 1, length.out = npar)
+
+  expect_identical(starting_values(Grid(), 3), c(-1, 0, 1))
+
+  # It resolves under minimize() exactly as a shipped starter does, and the
+  # run is the one its values would have given passed as a vector.
+  a <- minimize(bfgs(), quad, Grid(npar = 3), gr = quad_g)
+  b <- minimize(bfgs(), quad, c(-1, 0, 1), gr = quad_g)
+  expect_identical(a@par, b@par)
+  expect_identical(a@counts, b@counts)
+
+  # The parent is what minimize() tests, not the presence of the method.
+  Elsewhere <- S7::new_class("Elsewhere", properties = list(npar = S7::class_any))
+  S7::method(starting_values, Elsewhere) <- function(starter, npar)
+    seq(-1, 1, length.out = npar)
+  expect_error(minimize(bfgs(), quad, Elsewhere(npar = 3)), "numeric vector")
+
+  # And the class is abstract, so it cannot stand in for a starter itself.
+  expect_error(starter(npar = 3))
+})

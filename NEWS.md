@@ -1,3 +1,17 @@
+# optimizers7 0.7.0
+
+* The abstract `starter` class is exported. It is the third of the package's
+  extension points and the only one whose class was not reachable: a stopping
+  rule inherits from `criterion()` and an algorithm from `optimizer()`, both
+  exported, while a starting-value generator had to inherit from a class
+  available inside the package only. `starting_values()` was exported and
+  documented as the extension point, so the generic could be given a method
+  and the resulting object was then refused by `minimize()` with `'par' must
+  be a numeric vector of starting values`, that test being inheritance from
+  the class. A starter of your own now runs as either shipped one does, and
+  its values give the run that passing them as a vector would have given.
+  Nothing changes for an existing call.
+
 # optimizers7 0.6.0
 
 * The six gradient methods -- `gd()`, `cg()`, `bb()`, `newton()`, `bfgs()` and

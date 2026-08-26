@@ -31,13 +31,13 @@ starter's own \code{npar}, from the length of the bounds, or by probing the
 objective with \code{\link[=infer_npar]{infer_npar()}}. A method for this generic therefore reads
 the argument, not \code{starter@npar}.
 
-The two shipped starters are \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}, and they
-are what a caller has available. A starter of a third kind is a subclass of
-the abstract \link{starter} class with a method for this generic and nothing
-else, but that class is not exported as of version 0.6.0, and
-\code{\link[=minimize]{minimize()}} accepts as \code{par} only a numeric vector or an object
-inheriting from it. A class of your own carrying a \code{starting_values()}
-method is therefore refused with \verb{'par' must be a numeric vector of starting values}; resolve the vector yourself and pass it.
+The two shipped starters are \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A
+starter of a third kind is a subclass of the abstract \link{starter} class with
+a method for this generic and nothing else, and \code{\link[=minimize]{minimize()}} then accepts
+it as \code{par} like either shipped one. The parent matters: \code{minimize()}
+accepts as \code{par} a numeric vector or an object inheriting from \link{starter},
+so a class carrying a method for this generic but parented elsewhere is
+refused with \verb{'par' must be a numeric vector of starting values}.
 }
 \examples{
 starting_values(start_zeros(), 3)

@@ -26,11 +26,32 @@ method needs to know that starters exist.
 \details{
 The class is abstract and carries one property, \code{npar}, an integer or
 \code{NULL}. A subclass needs a method for \code{\link[=starting_values]{starting_values()}} and nothing
-else. The class is not exported as of version 0.6.0, so subclassing it is
-available inside the package only. \code{\link[=minimize]{minimize()}} tests
-\code{\link[=is_starter]{is_starter()}}, and a class parented elsewhere fails that test.
+else. \code{\link[=minimize]{minimize()}} decides whether \code{par} is a vector to use as given or an
+object to resolve by testing inheritance from this class, so a starter of
+your own has to be parented here; a class carrying a \code{starting_values()}
+method but parented elsewhere is refused with \verb{'par' must be a numeric vector of starting values}.
+
+This is the third of the package's extension points and it is exported for
+the same reason as the other two, \code{\link[=criterion]{criterion()}} for a stopping rule and
+\code{\link[=optimizer]{optimizer()}} for an algorithm: the generic is of no use without the class
+it dispatches on.
+}
+\examples{
+# The class is abstract, so it cannot be instantiated directly...
+try(starter(npar = 3))
+
+# ...but a subclass with a starting_values() method is a starter, and
+# minimize() resolves it exactly as it resolves the two shipped ones.
+Grid <- S7::new_class("Grid", parent = starter)
+S7::method(starting_values, Grid) <- function(starter, npar)
+  seq(-1, 1, length.out = npar)
+
+starting_values(Grid(), 3)
+
+f <- function(p) sum((p - 1:3)^2)
+minimize(bfgs(), f, Grid(npar = 3))@par
+
 }
 \seealso{
 \code{\link[=start_zeros]{start_zeros()}}, \code{\link[=start_runif]{start_runif()}}, \code{\link[=starting_values]{starting_values()}}.
 }
-\keyword{internal}

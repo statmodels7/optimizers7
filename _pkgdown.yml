@@ -123,6 +123,7 @@ reference:
     the unconstrained scale, so a single constant means something sensible for
     every kind of parameter and no draw can land outside its bounds.
   contents:
+  - starter-class
   - start_zeros
   - start_runif
   - starting_values
