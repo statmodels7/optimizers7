@@ -1,3 +1,31 @@
+# optimizers7 0.8.0
+
+* `prox_grad()`'s adaptive restart measures an increase in the objective
+  against the objective's own rounding rather than against zero. The
+  objective is a sum, so its error grows with the number of terms, and a
+  test reading a bare `>` fires on that error once the iteration is near
+  enough to the solution: each spurious reset discards the momentum built
+  since the last one and the run creeps.
+
+  Measured on the lasso of the `prox_grad()` page -- 200 observations,
+  eight coefficients, three of them non-zero in the truth -- at
+  `crit_grad(1e-9)`: **21646 iterations before and 782 after**, at the same
+  support, the same objective to the last bit and the same coefficients to
+  8e-09. At the default `crit_grad(1e-6)` nothing moves, both readings
+  being 11.
+
+  The allowance is eight units in the last place of the current objective.
+  Swept, anything between one and thirty-two gives the same run, and 256
+  begins costing iterations on an ill-conditioned problem by suppressing
+  restarts that are real. The cost of the allowance, stated: on a smooth
+  quadratic in eight unknowns at `crit_grad(1e-8)` the restart's own
+  iteration counts go from 149, 571 and 934 to 150, 573 and 1042 at
+  condition numbers 55, 480 and 2400 -- about a tenth at the worst
+  conditioning, against a factor of 28 recovered at the tight tolerance.
+
+  `restart = FALSE` is unchanged and remains the lever: 89 iterations on
+  the same lasso, against the 782 the guarded restart now takes.
+
 # optimizers7 0.7.0
 
 * The abstract `starter` class is exported. It is the third of the package's

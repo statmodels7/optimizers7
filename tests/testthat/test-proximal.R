@@ -86,6 +86,76 @@ test_that("acceleration pays where the problem is ill conditioned", {
   expect_lt(fast@iterations, slow@iterations / 2, label = report)
 })
 
+test_that("the restart is not fired by the objective's own rounding", {
+  # Near the solution the objective moves at the rounding level, so a restart
+  # test reading a bare > discards the momentum over and over and the run
+  # creeps. The allowance is eight units in the last place of the current
+  # objective.
+  set.seed(1)
+  n <- 200L
+  p <- 8L
+  X <- matrix(rnorm(n * p), n, p)
+  b0 <- c(2, -1.5, 0, 0, 0.8, 0, 0, 0)
+  y <- as.numeric(X %*% b0 + rnorm(n))
+  lambda <- 0.4
+  fn <- function(b) sum((y - X %*% b)^2) / (2 * n)
+  gr <- function(b) -as.numeric(crossprod(X, y - X %*% b)) / n
+  prox <- function(v, t) sign(v) * pmax(abs(v) - t * lambda, 0)
+  gv <- function(b) lambda * sum(abs(b))
+
+  run <- function(...) {
+    minimize(prox_grad(prox, gv, criterion = crit_grad(1e-9),
+                       maxit = 100000L, ...),
+             fn = fn, gr = gr, par = rep(0, p))
+  }
+  kept <- run()
+  off <- run(restart = FALSE)
+  plain <- run(accelerate = FALSE)
+
+  # all three reach the same answer
+  expect_true(kept@converged && off@converged && plain@converged)
+  expect_equal(kept@par, plain@par, tolerance = 1e-7)
+  expect_identical(sum(kept@par != 0), sum(plain@par != 0))
+
+  # and the guarded restart is nowhere near the count the unguarded one took,
+  # which was 21646 on this problem. The bound is loose because an iteration
+  # count on a tight tolerance is platform arithmetic, and the counts are
+  # printed so a failure elsewhere can be read.
+  report <- sprintf("restart %d, restart=FALSE %d, plain %d",
+                    kept@iterations, off@iterations, plain@iterations)
+  expect_lt(kept@iterations, 5000L, label = report)
+
+  # the default tolerance never saw the defect and must not move
+  quick <- minimize(prox_grad(prox, gv, criterion = crit_grad(1e-6)),
+                    fn = fn, gr = gr, par = rep(0, p))
+  expect_lt(quick@iterations, 30L)
+})
+
+test_that("a real increase still restarts", {
+  # The negative control. On an ill-conditioned quadratic the increases the
+  # restart exists for are far above the objective's rounding, so the
+  # allowance must not suppress them: the accelerated run with the restart
+  # has to stay far ahead of the one without it.
+  p <- 8L
+  d <- exp(seq(0, log(2400), length.out = p))
+  set.seed(7)
+  b <- rnorm(p)
+  fn <- function(x) sum(d * (x - b)^2) / 2
+  gr <- function(x) d * (x - b)
+  run <- function(res) {
+    minimize(prox_grad(function(v, t) v, function(z) 0, restart = res,
+                       criterion = crit_grad(1e-8), maxit = 200000L),
+             fn = fn, gr = gr, par = rep(0, p))
+  }
+  on_ <- run(TRUE)
+  off <- run(FALSE)
+  expect_true(on_@converged && off@converged)
+  expect_equal(on_@par, b, tolerance = 1e-5)
+  report <- sprintf("restart %d, restart=FALSE %d",
+                    on_@iterations, off@iterations)
+  expect_lt(on_@iterations, off@iterations / 4, label = report)
+})
+
 test_that("with no non-smooth part the method is gradient descent", {
   # prox of zero is the identity, so the iteration reduces to the smooth one
   # and must land where a smooth method lands

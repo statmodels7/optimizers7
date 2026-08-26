@@ -40,9 +40,10 @@ Defaults to \code{1}.}
 \item{shrink}{The factor by which a rejected step is reduced. Defaults
 to \code{0.5}.}
 
-\item{restart}{Reset the momentum when the objective increases?
-Defaults to \code{TRUE}, and is ignored when \code{accelerate} is
-\code{FALSE}. See the measured cost at a tight tolerance above.}
+\item{restart}{Reset the momentum when the objective increases by more
+than the objective's own rounding? Defaults to \code{TRUE}, and is ignored
+when \code{accelerate} is \code{FALSE}. See the measured cost at a tight
+tolerance above.}
 
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
 \code{\link[=crit_grad]{crit_grad()}}, which here reads the proximal gradient mapping.}
@@ -110,14 +111,15 @@ a condition number near 3, 1154 against 100 at 55, and 9321 against 268 at
 480.
 
 On a well-conditioned problem asked for a tight tolerance the plain
-iteration is the better one. The lasso below converges in 12 iterations
-at \code{crit_grad(1e-9)} with \code{accelerate = FALSE} and in 21646 with the
-defaults, reaching the same support and the same coefficients to \code{4e-09}.
-What costs the iterations there is the restart, not the momentum: the
-same run with \code{restart = FALSE} takes 89. Near the solution the objective
-moves at the rounding level, so the restart test fires on noise. At the
-default \code{crit_grad(1e-6)} none of this appears, both settings taking about
-ten iterations.
+iteration is still the better one. The lasso below converges in 12
+iterations at \code{crit_grad(1e-9)} with \code{accelerate = FALSE}, in 89 with
+\code{restart = FALSE}, and in 782 with the defaults, all three reaching the
+same support, the same objective to the last bit and the same
+coefficients to \code{8e-09}. What costs the iterations is the restart rather
+than the momentum: near the solution the objective moves at the rounding
+level, and each spurious reset discards the momentum built since the last
+one. At the default \code{crit_grad(1e-6)} none of this appears, both settings
+taking about ten iterations.
 }
 
 \section{Restarting}{
@@ -126,8 +128,22 @@ solution is a symptom of momentum built in the wrong direction. With
 \code{restart = TRUE} an increase resets the extrapolation to the current
 point. This is the adaptive restart of O'Donoghue and Candes and costs one
 comparison per iteration. It is worth a great deal where the problem is
-badly conditioned: on a quadratic with condition number 2400 it converges
-in 1284 iterations against 27192 without.
+badly conditioned: on a smooth quadratic in eight unknowns at
+\code{crit_grad(1e-8)}, with the restart against without, 150 iterations
+against 858 at a condition number of 55, 573 against 5418 at 480, and
+1042 against 15104 at 2400.
+
+An increase is measured against the objective's own rounding and not
+against zero. The objective is a sum, so its error grows with the number
+of terms, and a test reading a bare \code{>} fires on that error once the
+iteration is near enough to the solution: the lasso below took 21646
+iterations at \code{crit_grad(1e-9)} before the allowance and takes 782 after
+it, at the same answer. The allowance is eight units in the last place of
+the current objective, measured to give the same run anywhere between one
+and thirty-two while 256 begins costing iterations on the ill-conditioned
+quadratic, where it suppresses restarts that are real. What it costs
+there is about a tenth: 149, 571 and 934 iterations at the three
+condition numbers before, against the 150, 573 and 1042 above.
 }
 
 \examples{

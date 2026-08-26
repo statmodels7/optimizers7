@@ -92,14 +92,15 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' 480.
 #'
 #' On a well-conditioned problem asked for a tight tolerance the plain
-#' iteration is the better one. The lasso below converges in 12 iterations
-#' at `crit_grad(1e-9)` with `accelerate = FALSE` and in 21646 with the
-#' defaults, reaching the same support and the same coefficients to `4e-09`.
-#' What costs the iterations there is the restart, not the momentum: the
-#' same run with `restart = FALSE` takes 89. Near the solution the objective
-#' moves at the rounding level, so the restart test fires on noise. At the
-#' default `crit_grad(1e-6)` none of this appears, both settings taking about
-#' ten iterations.
+#' iteration is still the better one. The lasso below converges in 12
+#' iterations at `crit_grad(1e-9)` with `accelerate = FALSE`, in 89 with
+#' `restart = FALSE`, and in 782 with the defaults, all three reaching the
+#' same support, the same objective to the last bit and the same
+#' coefficients to `8e-09`. What costs the iterations is the restart rather
+#' than the momentum: near the solution the objective moves at the rounding
+#' level, and each spurious reset discards the momentum built since the last
+#' one. At the default `crit_grad(1e-6)` none of this appears, both settings
+#' taking about ten iterations.
 #'
 #' # Restarting
 #'
@@ -108,8 +109,22 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' `restart = TRUE` an increase resets the extrapolation to the current
 #' point. This is the adaptive restart of O'Donoghue and Candes and costs one
 #' comparison per iteration. It is worth a great deal where the problem is
-#' badly conditioned: on a quadratic with condition number 2400 it converges
-#' in 1284 iterations against 27192 without.
+#' badly conditioned: on a smooth quadratic in eight unknowns at
+#' `crit_grad(1e-8)`, with the restart against without, 150 iterations
+#' against 858 at a condition number of 55, 573 against 5418 at 480, and
+#' 1042 against 15104 at 2400.
+#'
+#' An increase is measured against the objective's own rounding and not
+#' against zero. The objective is a sum, so its error grows with the number
+#' of terms, and a test reading a bare `>` fires on that error once the
+#' iteration is near enough to the solution: the lasso below took 21646
+#' iterations at `crit_grad(1e-9)` before the allowance and takes 782 after
+#' it, at the same answer. The allowance is eight units in the last place of
+#' the current objective, measured to give the same run anywhere between one
+#' and thirty-two while 256 begins costing iterations on the ill-conditioned
+#' quadratic, where it suppresses restarts that are real. What it costs
+#' there is about a tenth: 149, 571 and 934 iterations at the three
+#' condition numbers before, against the 150, 573 and 1042 above.
 #'
 #' @param prox The proximal operator of the non-smooth part, a function of
 #'   the point and the step length, `prox(v, step)`, returning the
@@ -126,9 +141,10 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #'   Defaults to `1`.
 #' @param shrink The factor by which a rejected step is reduced. Defaults
 #'   to `0.5`.
-#' @param restart Reset the momentum when the objective increases?
-#'   Defaults to `TRUE`, and is ignored when `accelerate` is
-#'   `FALSE`. See the measured cost at a tight tolerance above.
+#' @param restart Reset the momentum when the objective increases by more
+#'   than the objective's own rounding? Defaults to `TRUE`, and is ignored
+#'   when `accelerate` is `FALSE`. See the measured cost at a tight
+#'   tolerance above.
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   [crit_grad()], which here reads the proximal gradient mapping.
 #' @param maxit Maximum iterations, a finite number at least 1. Defaults to
@@ -380,8 +396,15 @@ prox_grad_run <- function(optimizer, spec, par) {
       gmap <- (y - x_new) / t
       f_new_total <- f_cand + gval(x_new)
 
+      # "Did the objective increase?" has to allow for the objective's own
+      # rounding, or near the solution the test fires on it and the momentum
+      # is discarded over and over. The objective is a sum, whose error grows
+      # with the number of terms, so the allowance is a few ulps of its own
+      # size rather than zero; measured, anything from 1 to 32 gives the same
+      # run and 256 starts costing iterations on an ill-conditioned problem.
+      slack <- 8 * .Machine$double.eps * max(1, abs(fx_total))
       if (optimizer@accelerate && optimizer@restart && k > 1L &&
-          f_new_total > fx_total) {
+          f_new_total > fx_total + slack) {
         y <- x
         k <- 1L
       } else {
