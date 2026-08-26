@@ -23,12 +23,15 @@ bfgs(
 
 \item{curv_tol}{The update is skipped when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
-Defaults to \code{1e-10}. A larger value skips more often; note that this
-argument is \strong{not validated}, so a negative one is accepted and simply
-never fires.}
+Defaults to \code{1e-10}. A larger value skips more often. Zero is admitted
+and gives the textbook condition \eqn{s^\top y > 0}; a negative value is
+refused, because the comparison would then hold for every pair and the
+skip protection would be off without saying so.}
 
 \item{max_skip}{Consecutive skipped updates before the approximation is
-reset to the identity. Defaults to 5. Not validated either.}
+reset to the identity. Defaults to 5, and has to be a whole number.
+Zero is admitted and resets on the first skip; a negative value is
+refused, the comparison being \code{>=}, which would make it behave as zero.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
 \code{\link[=newton]{newton()}}, except that \code{line_search} defaults to \code{\link[=wolfe]{wolfe()}} and \code{maxit}

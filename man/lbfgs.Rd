@@ -21,12 +21,14 @@ lbfgs(
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
 \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}.}
 
-\item{memory}{How many secant pairs to keep, a single positive number.
-Defaults to 10. A non-integer is accepted and truncated.}
+\item{memory}{How many secant pairs to keep, a single positive whole
+number. Defaults to 10. A fractional value is refused rather than
+truncated, the kernel reading the count through \code{as.integer()}.}
 
 \item{curv_tol}{A pair is discarded when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
-Defaults to \code{1e-10}. Not validated.}
+Defaults to \code{1e-10}. Zero is admitted and gives \eqn{s^\top y > 0}; a
+negative value is refused, for the reason \code{\link[=bfgs]{bfgs()}}'s page gives.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
 \code{\link[=bfgs]{bfgs()}}.}

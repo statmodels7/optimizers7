@@ -235,11 +235,14 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`.
 #' @param curv_tol The update is skipped when
 #'   \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
-#'   Defaults to `1e-10`. A larger value skips more often; note that this
-#'   argument is **not validated**, so a negative one is accepted and simply
-#'   never fires.
+#'   Defaults to `1e-10`. A larger value skips more often. Zero is admitted
+#'   and gives the textbook condition \eqn{s^\top y > 0}; a negative value is
+#'   refused, because the comparison would then hold for every pair and the
+#'   skip protection would be off without saying so.
 #' @param max_skip Consecutive skipped updates before the approximation is
-#'   reset to the identity. Defaults to 5. Not validated either.
+#'   reset to the identity. Defaults to 5, and has to be a whole number.
+#'   Zero is admitted and resets on the first skip; a negative value is
+#'   refused, the comparison being `>=`, which would make it behave as zero.
 #' @param step,line_search,maxit,max_eval,verbose,refresh,keep_trace As in
 #'   [newton()], except that `line_search` defaults to [wolfe()] and `maxit`
 #'   to 500. See below for why the line search matters here.
@@ -329,6 +332,8 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
+  check_nonneg(curv_tol, "curv_tol")
+  check_whole(max_skip, "max_skip")
   Bfgs(name = "BFGS", criterion = criterion, maxit = maxit,
        max_eval = max_eval, verbose = verbose, refresh = refresh,
        keep_trace = keep_trace, step = step, line_search = line_search,
@@ -380,11 +385,13 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`.
-#' @param memory How many secant pairs to keep, a single positive number.
-#'   Defaults to 10. A non-integer is accepted and truncated.
+#' @param memory How many secant pairs to keep, a single positive whole
+#'   number. Defaults to 10. A fractional value is refused rather than
+#'   truncated, the kernel reading the count through `as.integer()`.
 #' @param curv_tol A pair is discarded when
 #'   \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
-#'   Defaults to `1e-10`. Not validated.
+#'   Defaults to `1e-10`. Zero is admitted and gives \eqn{s^\top y > 0}; a
+#'   negative value is refused, for the reason [bfgs()]'s page gives.
 #' @param step,line_search,maxit,max_eval,verbose,refresh,keep_trace As in
 #'   [bfgs()].
 #'
@@ -489,6 +496,7 @@ lbfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par
   check_step(step)
   check_line_search(line_search)
   check_count(memory, "memory")
+  check_nonneg(curv_tol, "curv_tol")
   Lbfgs(name = "L-BFGS", criterion = criterion, maxit = maxit,
         max_eval = max_eval, verbose = verbose, refresh = refresh,
         keep_trace = keep_trace, step = step, line_search = line_search,

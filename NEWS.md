@@ -12,6 +12,33 @@
   its values give the run that passing them as a vector would have given.
   Nothing changes for an existing call.
 
+* `bfgs()` and `lbfgs()` validate `curv_tol`, and `bfgs()` validates
+  `max_skip`. Both were accepted at any value. `curv_tol` multiplies
+  `|s||y|` in the test that decides whether a secant pair carries usable
+  curvature, so a negative value makes the test hold for every pair and turns
+  the skip protection off; measured, `bfgs(curv_tol = -1)` ran identically to
+  the default on Rosenbrock, the protection never firing. `max_skip` is
+  compared with `>=`, so a negative value behaves as zero; measured,
+  `max_skip = -3`, `max_skip = 0` and `max_skip = 5` gave the same 500
+  iterations and the same value when the skip path was forced. Zero is
+  admitted for both, and in each place it says something a caller may want:
+  `curv_tol = 0` is the textbook condition `s'y > 0`, and `max_skip = 0`
+  resets the approximation on the first skipped update.
+
+* `check_count()` refuses a fractional value, which its own page has always
+  said it does. The consequences are that `lbfgs(memory = 2.5)` is refused
+  rather than run at a memory of 2 -- the kernel reads the count through
+  `as.integer()` -- and that `armijo(max_step = 2.5)`, `wolfe(max_step = 2.5)`
+  and `nonmonotone(max_step = 2.5)` are refused. The last three are what
+  `armijo()`'s own example asserts: it shows `try(armijo(max_step = 2.5))`
+  under the comment "Constants outside their intervals are refused by name",
+  and until now that line printed an object.
+
+* `check_whole()` and `check_nonneg()` are the two validators the family
+  lacked, for a count whose zero is meaningful and for a threshold that may
+  not be negative. `nonmonotone()` calls the first in place of the check it
+  carried inline, whose message and bounds it keeps.
+
 # optimizers7 0.6.0
 
 * The six gradient methods -- `gd()`, `cg()`, `bb()`, `newton()`, `bfgs()` and

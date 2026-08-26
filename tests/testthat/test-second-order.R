@@ -193,6 +193,32 @@ test_that("the three constructors validate their own settings", {
 })
 
 
+test_that("the quasi-Newton settings are validated at their own bounds", {
+  # curv_tol multiplies |s||y|, so a negative value makes the comparison hold
+  # for every pair and turns the skip protection off in silence.
+  expect_error(bfgs(curv_tol = -1), "'curv_tol'")
+  expect_error(lbfgs(curv_tol = -1e-16), "'curv_tol'")
+  expect_error(bfgs(curv_tol = Inf), "'curv_tol'")
+
+  # max_skip is compared with `>=`, so a negative value behaves as zero.
+  expect_error(bfgs(max_skip = -3), "'max_skip'")
+  expect_error(bfgs(max_skip = 2.5), "whole")
+
+  # memory reaches the kernel through as.integer(), so 2.5 would run at 2.
+  expect_error(lbfgs(memory = 2.5), "whole")
+
+  # The negative controls: the values either side of each bound still build,
+  # and zero is a setting rather than a mistake in the two places it means
+  # something -- curv_tol = 0 is the textbook condition s'y > 0, and
+  # max_skip = 0 resets on the first skip.
+  expect_s7_class(bfgs(curv_tol = 0), optimizers7:::Bfgs)
+  expect_s7_class(bfgs(max_skip = 0), optimizers7:::Bfgs)
+  expect_s7_class(bfgs(curv_tol = 1e10), optimizers7:::Bfgs)
+  expect_s7_class(lbfgs(memory = 1), optimizers7:::Lbfgs)
+  expect_s7_class(lbfgs(curv_tol = 0), optimizers7:::Lbfgs)
+})
+
+
 test_that("each carries its own settings and prints them", {
   expect_match(capture.output(print(newton()))[1], "Newton")
   expect_match(paste(capture.output(print(newton())), collapse = " "),

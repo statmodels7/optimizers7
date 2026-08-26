@@ -593,10 +593,7 @@ nonmonotone <- function(c1 = 1e-4, shrink = 0.5, memory = 10, max_step = 30,
   check_unit(shrink, "shrink")
   check_count(max_step, "max_step")
   check_resolution(resolution)
-  if (length(memory) != 1L || !is.numeric(memory) || is.na(memory) ||
-      memory < 0 || memory != round(memory)) {
-    stop("'memory' must be a single non-negative whole number.", call. = FALSE)
-  }
+  check_whole(memory, "memory")
   NonmonotoneSearch(
     label = paste0("nonmonotone backtracking (memory = ", format(memory), ")"),
     c1 = c1, shrink = shrink, memory = memory, max_step = max_step,
@@ -653,7 +650,65 @@ check_unit <- function(v, nm) {
 #'
 #' @description
 #' Checks that the value is a single positive integer. Used for `max_step`,
-#' which counts trials, so a fractional value is a mistake and is refused.
+#' which counts trials, and for [lbfgs()]'s `memory`, which counts secant
+#' pairs. A fractional value is a mistake in both places and is refused: the
+#' kernel receives the count through `as.integer()`, so `memory = 2.5` would
+#' otherwise run silently at a memory of 2.
+#'
+#' @param v The value.
+#' @param nm Its name, for the message.
+#'
+#' @return Invisibly `TRUE`. Raises an error naming `nm` otherwise.
+#'
+#' @seealso [check_whole()] for a count whose zero is meaningful.
+#' @keywords internal
+check_count <- function(v, nm) {
+  if (length(v) != 1L || !is.numeric(v) || is.na(v) || v < 1 ||
+      v != round(v)) {
+    stop("'", nm, "' must be a single positive whole number.", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+#' Validate a Non-Negative Whole Number
+#'
+#' @description
+#' Checks that the value is a single whole number, zero included. Used where
+#' a count says how many of something to tolerate, so that zero says
+#' *tolerate none* and is a legitimate setting:
+#' [nonmonotone()]'s `memory`, where zero makes the reference the current
+#' value and the search is [armijo()] exactly, and [bfgs()]'s `max_skip`,
+#' where zero resets the approximation on the first skipped update.
+#'
+#' A negative value is refused because the kernel compares against it with
+#' `>=`, so any negative setting behaves as zero without saying so.
+#'
+#' @param v The value.
+#' @param nm Its name, for the message.
+#'
+#' @return Invisibly `TRUE`. Raises an error naming `nm` otherwise.
+#'
+#' @seealso [check_count()] for a count that has to be at least one.
+#' @keywords internal
+check_whole <- function(v, nm) {
+  if (length(v) != 1L || !is.numeric(v) || is.na(v) || v < 0 ||
+      v != round(v)) {
+    stop("'", nm, "' must be a single non-negative whole number.",
+         call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
+#' Validate a Non-Negative Threshold
+#'
+#' @description
+#' Checks that the value is a single finite number that is not negative.
+#' Used for the curvature threshold `curv_tol` of [bfgs()] and [lbfgs()],
+#' which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
+#' \lVert y \rVert}. Zero is admitted and is the textbook curvature
+#' condition \eqn{s'y > 0}; a negative value is refused because it makes the
+#' comparison hold for every pair, which turns the skip protection off
+#' without saying so.
 #'
 #' @param v The value.
 #' @param nm Its name, for the message.
@@ -661,9 +716,11 @@ check_unit <- function(v, nm) {
 #' @return Invisibly `TRUE`. Raises an error naming `nm` otherwise.
 #'
 #' @keywords internal
-check_count <- function(v, nm) {
-  if (length(v) != 1L || !is.numeric(v) || is.na(v) || v < 1) {
-    stop("'", nm, "' must be a single positive number.", call. = FALSE)
+check_nonneg <- function(v, nm) {
+  if (length(v) != 1L || !is.numeric(v) || is.na(v) || !is.finite(v) ||
+      v < 0) {
+    stop("'", nm, "' must be a single finite number that is not negative.",
+         call. = FALSE)
   }
   invisible(TRUE)
 }

@@ -120,6 +120,19 @@ test_that("line searches are objects with validated settings", {
   expect_error(armijo(max_step = 0), "positive")
   expect_error(wolfe(c1 = 0.9, c2 = 0.1), "greater than")
   expect_error(gd(line_search = "armijo"), "line_search object")
+
+  # max_step counts trials, so a fractional value is a mistake. This is what
+  # armijo()'s own example asserts under "refused by name", and it is what
+  # check_count()'s page has always said.
+  expect_error(armijo(max_step = 2.5), "whole")
+  expect_error(wolfe(max_step = 2.5), "whole")
+  expect_error(nonmonotone(max_step = 2.5), "whole")
+
+  # nonmonotone()'s memory is the other kind of count: zero says look back
+  # over nothing, which is armijo() exactly, so zero is a setting.
+  expect_error(nonmonotone(memory = -1), "'memory'")
+  expect_error(nonmonotone(memory = 2.5), "'memory'")
+  expect_s3_class(nonmonotone(memory = 0), "S7_object")
 })
 
 
