@@ -74,16 +74,39 @@ test_that("acceleration pays where the problem is ill conditioned", {
   expect_true(slow@converged && fast@converged)
   expect_equal(fast@par, slow@par, tolerance = 1e-4)
 
-  # The RATIO is platform-dependent, and by more than one might expect: the
-  # plain method takes 4153 iterations here and 652 on macOS from the same
-  # start, the arithmetic of the products differing enough to change the
-  # trajectory on an ill-conditioned problem. The accelerated one is steadier
-  # (126 and 133). What is asserted is therefore the structural claim with
-  # room, and the counts are printed so that a failure on a platform this
-  # machine is not can be read rather than guessed at.
-  report <- sprintf("plain %d iterations, accelerated %d",
-                    slow@iterations, fast@iterations)
-  expect_lt(fast@iterations, slow@iterations / 2, label = report)
+  # An iteration count is a DISCONTINUOUS function of the data, so one draw
+  # cannot carry this claim. The restart is a discrete decision taken on a
+  # continuous quantity, and the plain method's stopping index is the crossing
+  # time of a nearly flat sequence: perturbing the response by a few ulps moves
+  # the plain count between 753 and 4153 at this seed alone, and across seeds
+  # it runs from 598 to 11964. Asserted on one draw, fast < slow/2 asserts the
+  # draw. Measured over twelve it fails on two of them here, and macOS is in
+  # effect a thirteenth: it reached 596 against a plain 652 and reddened this
+  # line while the other four platforms passed.
+  #
+  # What survives every draw is the claim in the median, which is what
+  # "acceleration pays" means. Over nine the ratios are 1.0, 7.8, 32.7, 6.6,
+  # 16.4, 1.4, 4.8, 6.6 and 7.7, so the median is 6.6 against a bound of 2 and
+  # five of the nine would have to collapse before this failed. They are
+  # printed so a failure elsewhere can be read rather than guessed at.
+  ratio <- function(seed) {
+    set.seed(seed)
+    Z <- matrix(rnorm(n * p), n, p)
+    X <- sqrt(1 - rho) * Z + sqrt(rho) * matrix(rnorm(n), n, p)
+    y <- as.numeric(X %*% b0 + rnorm(n))
+    fn <- function(b) sum((y - X %*% b)^2) / (2 * n)
+    gr <- function(b) -as.numeric(crossprod(X, y - X %*% b)) / n
+    count <- function(accel) {
+      minimize(prox_grad(prox, gv, accelerate = accel,
+                         criterion = crit_grad(1e-8), maxit = 20000),
+               fn = fn, gr = gr, par = rep(0, p))@iterations
+    }
+    count(FALSE) / count(TRUE)
+  }
+  ratios <- vapply(1:9, ratio, numeric(1))
+  report <- sprintf("plain/accelerated over nine draws: %s",
+                    paste(sprintf("%.1f", ratios), collapse = ", "))
+  expect_gt(median(ratios), 2, label = report)
 })
 
 test_that("the restart is not fired by the objective's own rounding", {

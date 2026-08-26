@@ -143,6 +143,15 @@ and thirty-two while 256 begins costing iterations on the ill-conditioned
 quadratic, where it suppresses restarts that are real. What it costs
 there is about a tenth: 149, 571 and 934 iterations at the three
 condition numbers before, against the 150, 573 and 1042 above.
+
+On an ill-conditioned lasso that tenth is a median and not a bound.
+Over twelve draws of one such problem the allowance costs a median of
+1.01 and a worst of 14, the accelerated count going from 111 to 1560
+on the draw that moves furthest, so a cost quoted from a single
+problem understates the spread. The allowance is kept, and is
+conservative rather than generous: the error of a sum of \code{n} terms is
+bounded by about \code{n/2} units in the last place, which for the four
+hundred observations of that lasso is far above the eight allowed.
 }
 
 \examples{

@@ -125,6 +125,15 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' there is about a tenth: 149, 571 and 934 iterations at the three
 #' condition numbers before, against the 150, 573 and 1042 above.
 #'
+#' On an ill-conditioned lasso that tenth is a median and not a bound.
+#' Over twelve draws of one such problem the allowance costs a median of
+#' 1.01 and a worst of 14, the accelerated count going from 111 to 1560
+#' on the draw that moves furthest, so a cost quoted from a single
+#' problem understates the spread. The allowance is kept, and is
+#' conservative rather than generous: the error of a sum of `n` terms is
+#' bounded by about `n/2` units in the last place, which for the four
+#' hundred observations of that lasso is far above the eight allowed.
+#'
 #' @param prox The proximal operator of the non-smooth part, a function of
 #'   the point and the step length, `prox(v, step)`, returning the
 #'   minimizer of \eqn{\lVert b - v \rVert^2/(2\,\mathrm{step}) + g(b)}.
