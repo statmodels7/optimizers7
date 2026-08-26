@@ -9,7 +9,7 @@ processes, and cleans up after itself."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,14 +79,14 @@ processes, and cleans up after itself.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Three routes, chosen for the caller rather than by them.</p>
+    <p>Three routes, chosen here so that the caller need not.</p>
 <p>One process is the sequential loop, and it is the only route that can report
 progress as it goes, a worker having nowhere to print to that the caller
 would see.</p>
 <p>On a Unix-alike the workers are <strong>forks</strong>, through
 <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>. A fork starts in microseconds and inherits this
-session entire, so there is nothing to load and nothing to export — including
-a package loaded with <span class="pkg">pkgload</span>, which is why this works during
+session entire, so there is nothing to load and nothing to export. That
+includes a package loaded with <span class="pkg">pkgload</span>, so this route works during
 development where a socket cluster does not.</p>
 <p>On Windows there is no <code>fork</code>, so a <strong>socket cluster</strong> is started
 here and stopped on exit. Its workers are fresh sessions that know nothing, so

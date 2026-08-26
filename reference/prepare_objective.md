@@ -14,7 +14,7 @@ prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
 - optimizer:
 
   The
-  [`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+  [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
 
 - fn, gr, he:
 
@@ -27,15 +27,12 @@ prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
 ## Value
 
 The objective handle from
-[`as_objective`](https://statmodels7.github.io/optimizers7/reference/as_objective.md).
+[`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md).
 
 ## Details
 
-The criterion check is the interesting one. A rule needing a gradient
-handed to a method that computes none would sit there testing `NULL` at
-every iteration and never fire, so the run would end on the iteration
-budget and report failure for a reason nowhere near the truth. Rejecting
-it here, by name, is the same discipline as `check_link()` in
-linkfunctions7 reporting a numerical derivative order as numerical
-rather than as passed: a check that cannot be evaluated must say so
-rather than pass or fail silently.
+The criterion check is the one worth explaining. A rule needing a
+gradient handed to a method that computes none would sit there testing
+`NULL` at every iteration and never fire, so the run would end on its
+iteration budget and report failure for a reason nowhere near the truth.
+Refusing it here, by name, turns that into an error a caller can act on.

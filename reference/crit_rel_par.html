@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,22 +54,38 @@
 
 
 <dl><dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
-<dd><p>Numeric tolerance. Defaults to <code>1e-8</code>.</p></dd>
+<dd><p>Numeric tolerance, a single positive number. Defaults to
+<code>1e-8</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="criterion.html">criterion</a></code> object.</p>
+    <p>An S7 object of class <a href="CritRelPar-class.html">CritRelPar</a>, inheriting from
+<code><a href="criterion.html">criterion()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The <code>+ tol</code> in each denominator is a floor, as in <code><a href="crit_rel_obj.html">crit_rel_obj()</a></code>: a
+coordinate sitting at zero would otherwise be divided by nothing. The same
+number therefore serves as the floor and as the threshold.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="crit_abs_par.html">crit_abs_par</a></code></p></div>
+    <div class="dont-index"><p><code><a href="crit_abs_par.html">crit_abs_par()</a></code> for the version in the parameters' own units.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">crit_rel_par</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;criterion&gt; |dx| &lt; 1e-08 (relative)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The same relative change at two very different scales.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>large <span class="op">=</span> <span class="fu"><a href="crit_met.html">crit_met</a></span><span class="op">(</span><span class="fu">crit_rel_par</span><span class="op">(</span><span class="fl">1e-6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x_new <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span>                                            x_old <span class="op">=</span> <span class="fl">1000.0001</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  small <span class="op">=</span> <span class="fu"><a href="crit_met.html">crit_met</a></span><span class="op">(</span><span class="fu">crit_rel_par</span><span class="op">(</span><span class="fl">1e-6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x_new <span class="op">=</span> <span class="fl">1e-3</span>,</span></span>
+<span class="r-in"><span>                                            x_old <span class="op">=</span> <span class="fl">1e-3</span> <span class="op">+</span> <span class="fl">1e-10</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> large small </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  TRUE  TRUE </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

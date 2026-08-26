@@ -37,7 +37,7 @@ A list of `n` results.
 
 ## Details
 
-Three routes, chosen for the caller rather than by them.
+Three routes, chosen here so that the caller need not.
 
 One process is the sequential loop, and it is the only route that can
 report progress as it goes, a worker having nowhere to print to that the
@@ -46,8 +46,8 @@ caller would see.
 On a Unix-alike the workers are **forks**, through
 [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html). A
 fork starts in microseconds and inherits this session entire, so there
-is nothing to load and nothing to export — including a package loaded
-with pkgload, which is why this works during development where a socket
+is nothing to load and nothing to export. That includes a package loaded
+with pkgload, so this route works during development where a socket
 cluster does not.
 
 On Windows there is no `fork`, so a **socket cluster** is started here

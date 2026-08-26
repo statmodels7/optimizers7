@@ -1,6 +1,9 @@
 # Print the Report of check_optimizer
 
-Print the Report of check_optimizer
+Writes the twelve verdicts, one per line as `[PASSED]` or `[FAILED]`,
+then a summary naming every failing check, then the battery as one line
+per problem with its gap, its convergence flag, its evaluation count and
+its note.
 
 ## Usage
 
@@ -12,16 +15,20 @@ print_optimizer_check(optimizer, ok, battery)
 
 - optimizer:
 
-  The optimizer checked.
+  The
+  [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
+  checked, read for its name.
 
 - ok:
 
-  The logical vector of checks.
+  The named logical vector of twelve checks.
 
 - battery:
 
-  The data frame of gaps.
+  The data frame
+  [`run_battery()`](https://statmodels7.github.io/optimizers7/reference/run_battery.md)
+  returned.
 
 ## Value
 
-Invisibly `NULL`.
+Invisibly `NULL`. Called for the output.

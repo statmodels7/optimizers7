@@ -1,5 +1,94 @@
 # Changelog
 
+## optimizers7 0.8.0
+
+- [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)’s
+  adaptive restart measures an increase in the objective against the
+  objective’s own rounding rather than against zero. The objective is a
+  sum, so its error grows with the number of terms, and a test reading a
+  bare `>` fires on that error once the iteration is near enough to the
+  solution: each spurious reset discards the momentum built since the
+  last one and the run creeps.
+
+  Measured on the lasso of the
+  [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
+  page – 200 observations, eight coefficients, three of them non-zero in
+  the truth – at `crit_grad(1e-9)`: **21646 iterations before and 782
+  after**, at the same support, the same objective to the last bit and
+  the same coefficients to 8e-09. At the default `crit_grad(1e-6)`
+  nothing moves, both readings being 11.
+
+  The allowance is eight units in the last place of the current
+  objective. Swept, anything between one and thirty-two gives the same
+  run, and 256 begins costing iterations on an ill-conditioned problem
+  by suppressing restarts that are real. The cost of the allowance,
+  stated: on a smooth quadratic in eight unknowns at `crit_grad(1e-8)`
+  the restart’s own iteration counts go from 149, 571 and 934 to 150,
+  573 and 1042 at condition numbers 55, 480 and 2400 – about a tenth at
+  the worst conditioning, against a factor of 28 recovered at the tight
+  tolerance.
+
+  `restart = FALSE` is unchanged and remains the lever: 89 iterations on
+  the same lasso, against the 782 the guarded restart now takes.
+
+## optimizers7 0.7.0
+
+- The abstract `starter` class is exported. It is the third of the
+  package’s extension points and the only one whose class was not
+  reachable: a stopping rule inherits from
+  [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
+  and an algorithm from
+  [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
+  both exported, while a starting-value generator had to inherit from a
+  class available inside the package only.
+  [`starting_values()`](https://statmodels7.github.io/optimizers7/reference/starting_values.md)
+  was exported and documented as the extension point, so the generic
+  could be given a method and the resulting object was then refused by
+  [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
+  with `'par' must be a numeric vector of starting values`, that test
+  being inheritance from the class. A starter of your own now runs as
+  either shipped one does, and its values give the run that passing them
+  as a vector would have given. Nothing changes for an existing call.
+
+- [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+  and
+  [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
+  validate `curv_tol`, and
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+  validates `max_skip`. Both were accepted at any value. `curv_tol`
+  multiplies `|s||y|` in the test that decides whether a secant pair
+  carries usable curvature, so a negative value makes the test hold for
+  every pair and turns the skip protection off; measured,
+  `bfgs(curv_tol = -1)` ran identically to the default on Rosenbrock,
+  the protection never firing. `max_skip` is compared with `>=`, so a
+  negative value behaves as zero; measured, `max_skip = -3`,
+  `max_skip = 0` and `max_skip = 5` gave the same 500 iterations and the
+  same value when the skip path was forced. Zero is admitted for both,
+  and in each place it says something a caller may want: `curv_tol = 0`
+  is the textbook condition `s'y > 0`, and `max_skip = 0` resets the
+  approximation on the first skipped update.
+
+- [`check_count()`](https://statmodels7.github.io/optimizers7/reference/check_count.md)
+  refuses a fractional value, which its own page has always said it
+  does. The consequences are that `lbfgs(memory = 2.5)` is refused
+  rather than run at a memory of 2 – the kernel reads the count through
+  [`as.integer()`](https://rdrr.io/r/base/integer.html) – and that
+  `armijo(max_step = 2.5)`, `wolfe(max_step = 2.5)` and
+  `nonmonotone(max_step = 2.5)` are refused. The last three are what
+  [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)’s
+  own example asserts: it shows `try(armijo(max_step = 2.5))` under the
+  comment “Constants outside their intervals are refused by name”, and
+  until now that line printed an object.
+
+- [`check_whole()`](https://statmodels7.github.io/optimizers7/reference/check_whole.md)
+  and
+  [`check_nonneg()`](https://statmodels7.github.io/optimizers7/reference/check_nonneg.md)
+  are the two validators the family lacked, for a count whose zero is
+  meaningful and for a threshold that may not be negative.
+  [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
+  calls the first in place of the check it carried inline, whose message
+  and bounds it keeps.
+
 ## optimizers7 0.6.0
 
 - The six gradient methods –
@@ -29,7 +118,7 @@
   than 1.9e-03 and now reports success – which is a smooth method on a
   non-smooth problem, where the objective stalls far from the solution
   and a rule reading a stall cannot tell the two apart.
-  `criterion = crit_grad()` restores the old behaviour.
+  `criterion = crit_grad()` restores the old behavior.
 
 - [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
   leaves the default rule, having never fired in it: measured over the
@@ -118,9 +207,9 @@
   `no decrease above the objective's resolution` rather than as a
   stopping rule being met.
 
-- ⚠️ Asking it inside the loop was tried first and is UNSAFE. There the
-  two situations cannot be told apart, `x + s d` tending to `x` as the
-  step shrinks whether the point is optimal or the DIRECTION is wrong;
+- Asking it inside the loop was tried first and is unsafe. There the two
+  situations cannot be told apart, `x + s d` tending to `x` as the step
+  shrinks whether the point is optimal or the direction is wrong;
   measured, a mis-stated gradient at a point nowhere near stationary was
   promoted to a converged run. Tested at the full step the two separate,
   a bad direction predicting a large improvement and still being
@@ -205,7 +294,7 @@
   generator in the same order, so from one seed they are the same run
   and the test needs no tolerance. Measured, the port is worth 1.74x on
   an objective costing 0.7 microseconds and 1.34x on one costing 3.8; on
-  an objective of half a millisecond, which is what a modelling layer’s
+  an objective of half a millisecond, which is what a modeling layer’s
   inner one costs, the loop’s overhead is a quarter of a per cent and
   the port buys nothing.
 

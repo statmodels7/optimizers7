@@ -387,6 +387,8 @@ on the unconstrained scale, so a single constant means something
 sensible for every kind of parameter and no draw can land outside its
 bounds.
 
+- [`starter()`](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
+  : S7 Class for a Starting-Value Generator
 - [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
   : Start From Zero on the Unconstrained Scale
 - [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)

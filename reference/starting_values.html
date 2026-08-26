@@ -9,7 +9,7 @@ unconstrained scale."><meta property="og:image" content="https://statmodels7.git
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ unconstrained scale."><meta property="og:image" content="https://statmodels7.git
 
 
 <dl><dt id="arg-starter">starter<a class="anchor" aria-label="anchor" href="#arg-starter"></a></dt>
-<dd><p>A <code><a href="start_zeros.html">start_zeros</a></code> or <code><a href="start_runif.html">start_runif</a></code>
+<dd><p>A <code><a href="start_zeros.html">start_zeros()</a></code> or <code><a href="start_runif.html">start_runif()</a></code>
 object, or a user-defined starter.</p></dd>
 
 
@@ -64,23 +64,32 @@ object, or a user-defined starter.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A numeric vector of length <code>npar</code>.</p>
+    <p>A numeric vector of length <code>npar</code>, on the unconstrained scale.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The unconstrained scale is the one the optimizer actually works on when there
-are bounds, so this is where a starter is entitled to be simple: zero means
+    <p>The unconstrained scale is the one the optimizer works on when there are
+bounds, and that is where a starter is entitled to be simple: zero means
 the middle of an interval, one for a variance, one half for a probability,
-and there is no way for it to fall outside a bound. <code><a href="minimize.html">minimize</a></code>
-maps the result back through <code><a href="bounded_transform.html">bounded_transform</a></code> before any
-method sees it.</p>
-<p>A user-defined starter is a subclass of <code>starter</code> with a method for
-this generic; nothing else is required.</p>
+and no value can fall outside a bound. <code><a href="minimize.html">minimize()</a></code> maps the result back
+through <code><a href="bounded_transform.html">bounded_transform()</a></code> before any method sees it.</p>
+<p><code>npar</code> is passed by <code><a href="minimize.html">minimize()</a></code>, which has already settled it from the
+starter's own <code>npar</code>, from the length of the bounds, or by probing the
+objective with <code><a href="infer_npar.html">infer_npar()</a></code>. A method for this generic therefore reads
+the argument, not <code>starter@npar</code>.</p>
+<p>The two shipped starters are <code><a href="start_zeros.html">start_zeros()</a></code> and <code><a href="start_runif.html">start_runif()</a></code>. A
+starter of a third kind is a subclass of the abstract <a href="starter-class.html">starter</a> class with
+a method for this generic and nothing else, and <code><a href="minimize.html">minimize()</a></code> then accepts
+it as <code>par</code> like either shipped one. The parent matters: <code><a href="minimize.html">minimize()</a></code>
+accepts as <code>par</code> a numeric vector or an object inheriting from <a href="starter-class.html">starter</a>,
+so a class carrying a method for this generic but parented elsewhere is
+refused with <code>'par' must be a numeric vector of starting values</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="start_zeros.html">start_zeros</a></code>, <code><a href="start_runif.html">start_runif</a></code>,
-<code><a href="minimize.html">minimize</a></code></p></div>
+    <div class="dont-index"><p><code><a href="start_zeros.html">start_zeros()</a></code> and <code><a href="start_runif.html">start_runif()</a></code> for the two shipped starters,
+<code><a href="minimize.html">minimize()</a></code> for where the resolution happens, <code><a href="infer_npar.html">infer_npar()</a></code> for how
+<code>npar</code> is worked out when nothing declares it.</p></div>
     </div>
 
     <div class="section level2">
@@ -91,6 +100,14 @@ this generic; nothing else is required.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">starting_values</span><span class="op">(</span><span class="fu"><a href="start_runif.html">start_runif</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.9379653 -0.5115044  0.2914135</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Resolving by hand gives exactly the vector minimize() would have used,</span></span></span>
+<span class="r-in"><span><span class="co"># so passing a starter and passing its values are the same run.</span></span></span>
+<span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>; <span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="start_runif.html">start_runif</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span>, npar <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>; <span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu">starting_values</span><span class="op">(</span><span class="fu"><a href="start_runif.html">start_runif</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">a</span><span class="op">@</span><span class="va">par</span>, <span class="va">b</span><span class="op">@</span><span class="va">par</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

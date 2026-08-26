@@ -21,12 +21,12 @@ check_resolution(x)
 
 ## Details
 
-The function form is for an objective whose resolution MOVES. It is
+The function form is for an objective whose resolution moves. It is
 asked once per invocation of the search rather than per trial, so it
-costs one call an iteration, and it is what lets a caller whose
-objective settles as it goes report the resolution of the current point
-instead of the reading from the worst-located point of the run.
+costs one call an iteration. A caller whose objective settles as the run
+goes can then report the resolution of the current point instead of the
+reading from the worst-located point of the run.
 
 ## See also
 
-[`armijo`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)

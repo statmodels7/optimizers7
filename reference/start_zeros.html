@@ -11,7 +11,7 @@ one half for a probability, zero for an unbounded one."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,24 +58,27 @@ one half for a probability, zero for an unbounded one.</p>
 
 <dl><dt id="arg-npar">npar<a class="anchor" aria-label="anchor" href="#arg-npar"></a></dt>
 <dd><p>The number of parameters. Defaults to <code>NULL</code>, meaning work
-it out from the bounds or from the objective; see <code><a href="minimize.html">minimize</a></code>.</p></dd>
+it out from the bounds or from the objective; see <code><a href="minimize.html">minimize()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code>ZeroStart</code>.</p>
+    <p>An S7 object of class <a href="ZeroStart-class.html">ZeroStart</a>, inheriting from <a href="starter-class.html">starter</a>, to be
+passed as <code>par</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Zero is the right constant only because it is applied on the unconstrained
-scale. A vector of zeros on the <em>parameter</em> scale is not a starting
-point at all for a model with a scale parameter in it: it sits exactly on the
-boundary, where the log-likelihood is usually infinite and the gradient
-certainly is.</p>
+scale. What it becomes after the bound transform depends on the box:</p>
+<table class="table table"><tr><td><strong>bounds</strong></td><td><strong>starting value</strong></td></tr><tr><td>\((-\infty, \infty)\)</td><td>0</td></tr><tr><td>\((0, \infty)\)</td><td>1</td></tr><tr><td>\((0, 1)\)</td><td>0.5</td></tr><tr><td>\((2, 6)\)</td><td>4</td></tr><tr><td>\((-\infty, 5)\)</td><td>4</td></tr></table><p>A vector of zeros on the <em>parameter</em> scale is no starting point at all for
+a model with a scale parameter in it: it sits exactly on the boundary,
+where the log-likelihood is usually infinite and the gradient certainly is.
+<code><a href="minimize.html">minimize()</a></code> refuses such a point for that reason.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="start_runif.html">start_runif</a></code>, <code><a href="starting_values.html">starting_values</a></code></p></div>
+    <div class="dont-index"><p><code><a href="start_runif.html">start_runif()</a></code> for a random start, <code><a href="starting_values.html">starting_values()</a></code> for the
+generic that resolves it, <code><a href="minimize.html">minimize()</a></code> for how <code>npar</code> is settled.</p></div>
     </div>
 
     <div class="section level2">
@@ -84,8 +87,17 @@ certainly is.</p>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu">start_zeros</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2 3</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># zero on the unconstrained scale is one on a positive parameter's scale</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu">start_zeros</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
+<span class="r-in"><span><span class="co"># Zero on the unconstrained scale is one on a positive parameter's scale,</span></span></span>
+<span class="r-in"><span><span class="co"># and the midpoint of a two-sided box.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="starting_values.html">starting_values</a></span><span class="op">(</span><span class="fu">start_zeros</span><span class="op">(</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0 0 0</span>
+<span class="r-in"><span><span class="fu"><a href="bounded_transform.html">bounded_transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span><span class="fu"><a href="bounded_transform.html">bounded_transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">6</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The count need not be given when the bounds already say it.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu">start_zeros</span><span class="op">(</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2 3</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

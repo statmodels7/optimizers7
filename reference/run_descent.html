@@ -11,7 +11,7 @@ direction, and assembles the result."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ direction, and assembles the result.</p>
 
 
 <dl><dt id="arg-optimizer">optimizer<a class="anchor" aria-label="anchor" href="#arg-optimizer"></a></dt>
-<dd><p>The <code><a href="optimizer.html">optimizer</a></code>.</p></dd>
+<dd><p>The <code><a href="optimizer.html">optimizer()</a></code>.</p></dd>
 
 
 <dt id="arg-fn-par-gr-he">fn, par, gr, he<a class="anchor" aria-label="anchor" href="#arg-fn-par-gr-he"></a></dt>
@@ -65,7 +65,7 @@ direction, and assembles the result.</p>
 
 
 <dt id="arg-lower-upper">lower, upper<a class="anchor" aria-label="anchor" href="#arg-lower-upper"></a></dt>
-<dd><p>Box constraints, as in <code><a href="minimize.html">minimize</a></code>.</p></dd>
+<dd><p>Box constraints, as in <code><a href="minimize.html">minimize()</a></code>.</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -74,15 +74,15 @@ direction, and assembles the result.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An <code><a href="optimizer_result.html">optimizer_result</a></code>.</p>
+    <p>An <code><a href="optimizer_result.html">optimizer_result()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Newton, BFGS, L-BFGS and gradient descent differ only in the <code>method</code>
-list, which names the direction and carries its parameters. Everything
-else — the line search, the stopping rule, the budgets, the trace, the
-reporting — is the same code for all of them, which is what makes adding a
-fifth method a Direction in C++ and a constructor in R.</p>
+list, which names the direction and carries its parameters. The line
+search, the stopping rule, the budgets, the trace and the reporting are
+the same code for all of them, so adding a fifth method is a <code>Direction</code>
+in C++ and a constructor in R.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

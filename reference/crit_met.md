@@ -1,6 +1,11 @@
 # Has the Stopping Rule Been Met?
 
-The one generic a criterion must implement.
+Asks a criterion whether the run should stop, given the state of the
+iteration just completed. This is the one generic a criterion must
+implement: a class inheriting from
+[`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
+with a method here is a stopping rule, and every algorithm in the
+package will consult it.
 
 ## Usage
 
@@ -13,7 +18,7 @@ crit_met(criterion, state)
 - criterion:
 
   A
-  [`criterion`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
+  [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
   object.
 
 - state:
@@ -49,18 +54,18 @@ A single logical.
 
   a non-negative measure of remaining progress, supplied by the
   derivative-free methods in place of a gradient, or `NULL`. See
-  [`crit_stationary`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md).
+  [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md).
 
-A rule that needs something absent from `state` — a gradient, from a
-derivative-free method — must say so through
-[`crit_needs`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md)
-rather than silently never firing.
+A rule needing something absent from `state`, such as a gradient on a
+derivative-free method, says so through
+[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
+so that the optimizer can refuse it when the run starts.
 
 ## See also
 
-[`as_objective`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
-[`crit_needs`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
-[`check_criterion`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
+[`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
+[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
+[`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
 
 ## Examples
 

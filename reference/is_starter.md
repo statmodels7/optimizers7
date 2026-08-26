@@ -1,7 +1,12 @@
-# The Number of Parameters a Starter Was Given
+# Is This a Starter?
 
-The class of an optimizer is not the place to look for this, so it has a
-name.
+`TRUE` when `x` inherits from the abstract
+[starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
+class, `FALSE` otherwise.
+[`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
+asks it to decide whether `par` is a vector to be used as given or an
+object to be resolved into one, and the question has a name so that the
+test is written once.
 
 ## Usage
 
@@ -17,4 +22,4 @@ is_starter(x)
 
 ## Value
 
-`TRUE` for a starter.
+A single logical.

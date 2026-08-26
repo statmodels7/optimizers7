@@ -25,11 +25,11 @@ A single integer, at least one.
 
 ## Details
 
-The rule is `min(n, max(1, detectCores() - 2))`. Two are held back
-rather than one because the session doing the asking is itself one of
-them, and a machine with nothing left over is a machine that stops
-responding. Asking for more processes than there are starts wastes the
-cost of starting them, which on Windows is seconds rather than
+The rule is `min(n, max(1, detectCores() - 2))`. Two are held back and
+not one, since the session doing the asking is itself one of them, and a
+machine with nothing left over is a machine that stops responding.
+Asking for more processes than there are starts wastes the cost of
+starting them, which on Windows costs seconds where a fork costs
 microseconds.
 
 It is capped at two under `R CMD check`, which sets

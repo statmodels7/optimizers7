@@ -9,7 +9,7 @@ starts, but never more than the machine can spare."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,10 +68,10 @@ starts, but never more than the machine can spare.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The rule is <code>min(n, max(1, detectCores() - 2))</code>. Two are held back
-rather than one because the session doing the asking is itself one of them,
+and not one, since the session doing the asking is itself one of them,
 and a machine with nothing left over is a machine that stops responding.
 Asking for more processes than there are starts wastes the cost of starting
-them, which on Windows is seconds rather than microseconds.</p>
+them, which on Windows costs seconds where a fork costs microseconds.</p>
 <p>It is capped at two under <code>R CMD check</code>, which sets
 <code>_R_CHECK_LIMIT_CORES_</code> and fails a package that ignores it, and it
 falls back to one process where <code>detectCores()</code> cannot tell.</p>

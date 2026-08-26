@@ -7,7 +7,7 @@ Print Method for Line Searches
 - x:
 
   A
-  [`line_search`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
+  [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
   object.
 
 - ...:

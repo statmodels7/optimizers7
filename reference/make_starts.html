@@ -9,7 +9,7 @@ unconstrained scale so that any bounds are respected by construction."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@ unconstrained scale so that any bounds are respected by construction.</p>
 
 
 <dt id="arg-bounds">bounds<a class="anchor" aria-label="anchor" href="#arg-bounds"></a></dt>
-<dd><p>Box constraints in the shape <code><a href="check_bounds.html">check_bounds</a></code>
+<dd><p>Box constraints in the shape <code><a href="check_bounds.html">check_bounds()</a></code>
 returns, possibly empty.</p></dd>
 
 </dl></div>
@@ -80,8 +80,8 @@ returns, possibly empty.</p></dd>
 once, so the starts cannot all fall in one corner the way independent draws
 can. The range is <code>par</code> plus or minus <code>3 * spread</code> on the
 unconstrained scale, which for an unbounded parameter is the parameter itself
-and for a bounded one is its log or logit — so a start for a variance is drawn
-as a log and comes back positive without a single rejected draw.</p>
+and for a bounded one is its log or logit. A start for a variance is
+therefore drawn as a log and comes back positive with no rejected draw.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

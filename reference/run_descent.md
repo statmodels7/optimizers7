@@ -15,7 +15,7 @@ run_descent(optimizer, fn, par, gr, he, lower, upper, method)
 - optimizer:
 
   The
-  [`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+  [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
 
 - fn, par, gr, he:
 
@@ -24,7 +24,7 @@ run_descent(optimizer, fn, par, gr, he, lower, upper, method)
 - lower, upper:
 
   Box constraints, as in
-  [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
+  [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 
 - method:
 
@@ -33,12 +33,12 @@ run_descent(optimizer, fn, par, gr, he, lower, upper, method)
 ## Value
 
 An
-[`optimizer_result`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
 
 ## Details
 
 Newton, BFGS, L-BFGS and gradient descent differ only in the `method`
-list, which names the direction and carries its parameters. Everything
-else — the line search, the stopping rule, the budgets, the trace, the
-reporting — is the same code for all of them, which is what makes adding
-a fifth method a Direction in C++ and a constructor in R.
+list, which names the direction and carries its parameters. The line
+search, the stopping rule, the budgets, the trace and the reporting are
+the same code for all of them, so adding a fifth method is a `Direction`
+in C++ and a constructor in R.

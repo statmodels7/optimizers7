@@ -1,6 +1,8 @@
 # Assemble the Result of a Multi-Start Run
 
-Picks the best run, and summarizes what the others found.
+Picks the run with the lowest value, keeps everything that run carried,
+and adds what the others found: the per-start table, the counts, and the
+number of distinct optima.
 
 ## Usage
 
@@ -33,12 +35,12 @@ build_multistart_result(res, S, optimizer, seed, elapsed)
 ## Value
 
 An
-[`optimizer_result`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
 
 ## Details
 
 The count of distinct optima is the reason to run this at all, so it is
-computed rather than left to the caller: the values reached are sorted
-and cut wherever consecutive ones differ by more than `distinct_tol`. It
-is a statement about the objective, not about the optimizer, and it is
-the one piece of evidence a single run can never supply.
+computed here: the values reached are sorted and cut wherever
+consecutive ones differ by more than `distinct_tol`. It is a statement
+about the objective, not about the optimizer, and it is the one piece of
+evidence a single run can never supply.

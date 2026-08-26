@@ -1,7 +1,11 @@
 # The criterion Class Object
 
-Fetched rather than captured, so that the check above cannot be fooled
-by the class being re-created.
+Returns the
+[`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
+class itself, for code that has to test whether a value inherits from
+it. The indirection exists because the functions asking that question
+take an argument named `criterion`, which shadows the class inside their
+own body.
 
 ## Usage
 
@@ -12,16 +16,15 @@ criterion_class()
 ## Value
 
 The
-[`criterion`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
-class object.
+[`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
+class object, an `S7_class`.
 
 ## Details
 
-Comparing S7 classes with
-[`identical()`](https://rdrr.io/r/base/identical.html) is object
-identity, and a class rebuilt from the same definition is not identical
-to the original. Under covr, which re-evaluates the code instead of
-loading it, that turned every numerical fallback into the chain of first
-differences the design exists to forbid – and the local suite,
-`R CMD check --as-cran` and a five-platform matrix all passed. Only the
-coverage job failed.
+Written directly, `S7_inherits(criterion, criterion)` inside a function
+whose formal is `criterion` compares the value with itself, and S7 stops
+with `` `class` must be an <S7_class> or NULL ``. Reaching the class
+through a function of no arguments looks it up in the namespace, past
+the formal.
+[`check_optimizer_args()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer_args.md)
+is the caller.

@@ -1,8 +1,10 @@
 # S7 Class for Newton's Method
 
-The class
-[`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md)
-instantiates.
+An optimizer holding the initial step length, the line search, and the
+two settings that decide how an indefinite Hessian is repaired. Built by
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
+It is the only shipped method that reads the `he` argument of
+[`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 
 ## Usage
 
@@ -26,12 +28,14 @@ Newton(
 
 - step, line_search:
 
-  As in
-  [`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md).
+  The initial step length and the
+  [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
+  object, as in
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - hessian_mod:
 
-  How an indefinite Hessian is repaired.
+  How an indefinite Hessian is repaired, `"eigen"` or `"ridge"`.
 
 - floor:
 
@@ -39,9 +43,19 @@ Newton(
 
 ## Value
 
-An S7 object inheriting from
-[`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+An S7 object of class `Newton` inheriting from
+[`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
+with the four properties above beside the seven shared ones.
+
+## Details
+
+Beyond the seven properties every optimizer has, a `Newton` carries
+four: `step` and `line_search`, shared with the other line-search
+methods, and `hessian_mod` and `floor`, which are its own.
 
 ## See also
 
-[`newton`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+for the constructor,
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+for the method that needs no Hessian.

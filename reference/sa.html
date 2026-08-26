@@ -11,7 +11,7 @@ that coordinate's acceptance rate near a target."><meta property="og:image" cont
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,61 +73,73 @@ that coordinate's acceptance rate near a target.</p>
 
 
 <dl><dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
-<dd><p>The stopping rule. Defaults to
-<code>crit_stationary(1e-8)</code>, read on the measure described above.</p></dd>
+<dd><p>The stopping rule, a <code><a href="criterion.html">criterion()</a></code> object. Defaults to
+<code>crit_stationary(1e-8)</code>, read on Corana's measure above. A rule reading
+a gradient is refused when the run starts, this method computing none.</p></dd>
 
 
 <dt id="arg-visiting">visiting<a class="anchor" aria-label="anchor" href="#arg-visiting"></a></dt>
-<dd><p><code>"uniform"</code> (default) or <code>"cauchy"</code>.</p></dd>
+<dd><p><code>"uniform"</code> (default) or <code>"cauchy"</code>. Partial matching
+applies, and any other string is refused by name.</p></dd>
 
 
 <dt id="arg-t-">t0<a class="anchor" aria-label="anchor" href="#arg-t-"></a></dt>
-<dd><p>The initial temperature. <code>NULL</code>, the default, calibrates it
-from the objective.</p></dd>
+<dd><p>The initial temperature, a single positive number, or <code>NULL</code>
+(the default) to calibrate it from the objective at a cost of 20
+evaluations.</p></dd>
 
 
 <dt id="arg-cooling">cooling<a class="anchor" aria-label="anchor" href="#arg-cooling"></a></dt>
-<dd><p>The factor the temperature is multiplied by at each level.
-Defaults to <code>0.85</code>.</p></dd>
+<dd><p>The factor the temperature is multiplied by at each level, a
+single number <strong>strictly</strong> inside \((0, 1)\). Defaults to <code>0.85</code>. <code>1</code>
+would never cool and <code>0</code> would freeze at once, so both endpoints are
+refused.</p></dd>
 
 
 <dt id="arg-cycles">cycles<a class="anchor" aria-label="anchor" href="#arg-cycles"></a></dt>
-<dd><p>How many step-adjustment cycles per temperature level.
-Defaults to <code>3</code>.</p></dd>
+<dd><p>How many step-adjustment cycles per temperature level, a
+positive whole number. Defaults to <code>3</code>.</p></dd>
 
 
 <dt id="arg-steps">steps<a class="anchor" aria-label="anchor" href="#arg-steps"></a></dt>
-<dd><p>How many sweeps of every coordinate per cycle. Defaults to
-<code>10</code>. One temperature level therefore costs
-<code>cycles * steps * length(par)</code> evaluations.</p></dd>
+<dd><p>How many sweeps of every coordinate per cycle, a positive
+whole number. Defaults to <code>10</code>. One temperature level therefore costs
+<code>cycles * steps * length(par)</code> evaluations, and a whole run costs that
+times <code>maxit</code>, plus one for the starting value and 20 more if the
+temperature is calibrated.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
 <dd><p>The initial step, relative to the starting value. Defaults to
-<code>1</code>.</p></dd>
+<code>1</code>. It is only a starting point: the adaptation moves each coordinate's
+step from here within the first few cycles.</p></dd>
 
 
 <dt id="arg-target-accept">target_accept<a class="anchor" aria-label="anchor" href="#arg-target-accept"></a></dt>
-<dd><p>The acceptance rate the adaptation aims at, held inside
-a band of 0.1 either side. Defaults to <code>0.5</code>.</p></dd>
+<dd><p>The acceptance rate the adaptation aims at, held
+inside a band of 0.1 either side. A single number strictly inside
+\((0.1, 0.9)\); anything outside is refused, an extreme target being
+unreachable by any step. Defaults to <code>0.5</code>.</p></dd>
 
 
 <dt id="arg-adjust">adjust<a class="anchor" aria-label="anchor" href="#arg-adjust"></a></dt>
-<dd><p>How hard the step is moved towards that rate. Defaults to
-<code>2</code>.</p></dd>
+<dd><p>How hard the step is moved towards that rate, a single
+positive number. Defaults to <code>2</code>, which is Corana's own constant.</p></dd>
 
 
 <dt id="arg-n-eps">n_eps<a class="anchor" aria-label="anchor" href="#arg-n-eps"></a></dt>
-<dd><p>How many temperature levels the stationarity measure looks back
-over. Defaults to <code>4</code>.</p></dd>
+<dd><p>How many temperature levels the stationarity measure looks
+back over, a positive whole number. Defaults to <code>4</code>.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
-<dd><p>Maximum temperature levels. Defaults to 100. It is the budget
-that decides how tightly the run finishes: the step adaptation shrinks the
-proposal as the acceptance rate falls with the temperature, so on a
-quadratic the answer improves from \(2\times10^{-1}\) at 15 levels to
-\(5\times10^{-5}\) at 100.</p></dd>
+<dd><p>Maximum temperature levels. Defaults to 100. This is the
+budget that decides how tightly the run finishes, the step adaptation
+shrinking the proposal as the acceptance rate falls with the
+temperature. Measured on \(\sum(x - (1, 2))^2\) from the origin at one
+seed, the distance to the answer goes <code>2.7e-02</code>, <code>1.8e-02</code>, <code>3.0e-03</code>,
+<code>2.3e-05</code> at 15, 30, 60 and 100 levels, for 921, 1821, 3621 and 6021
+evaluations.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
@@ -143,59 +155,91 @@ quadratic the answer improves from \(2\times10^{-1}\) at 15 levels to
 
 
 <dt id="arg-keep-trace">keep_trace<a class="anchor" aria-label="anchor" href="#arg-keep-trace"></a></dt>
-<dd><p>Store the path? Defaults to <code>FALSE</code>.</p></dd>
+<dd><p>Store the path? Defaults to <code>FALSE</code>. The <code>value</code> column
+is the best so far.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code>Sa</code>, inheriting from
-<code><a href="optimizer.html">optimizer</a></code>.</p>
+    <p>An S7 object of class <a href="Sa-class.html">Sa</a>, inheriting from <code><a href="optimizer.html">optimizer()</a></code>, to be
+handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The method exists here for the problems the local ones cannot start on: a
 multimodal objective where the answer depends on which basin the run began
-in. It is not a competitor to <code><a href="bfgs.html">bfgs</a></code> or <code><a href="newton.html">newton</a></code> on a
+in. It is not a competitor to <code><a href="bfgs.html">bfgs()</a></code> or <code><a href="newton.html">newton()</a></code> on a
 smooth problem, where it will be beaten by orders of magnitude, and the
-intended use is to hand its result to one of them — see
-<code><a href="chain.html">chain</a></code>.</p>
-<p><strong>The adaptive step.</strong> The parameters are moved one coordinate at a
-time, and after every <code>steps</code> sweeps each coordinate's step is
-multiplied or divided according to how often its moves were accepted, so
-that the rate is held inside a band around <code>target_accept</code>
-(Corana et al. 1987). This is what makes the method usable on a statistical
-objective: the coordinates of an unconstrained parameter vector sit on
-scales orders of magnitude apart, and one step length is wrong for all of
-them. A coordinate accepting almost everything is being proposed too
-timidly to explore; one accepting almost nothing is being thrown too far to
-land.</p>
-<p><strong>The proposal.</strong> <code>"uniform"</code> draws the move uniformly on the
-coordinate's current step, which with the adaptation above is Corana's
-algorithm. <code>"cauchy"</code> draws it from a Cauchy, whose heavy tail lets a
-run leave a basin in one move rather than walking out of it; that is fast
-simulated annealing (Szu and Hartley 1987), and it is the \(q = 2\) member
-of the Tsallis family. The general Tsallis visiting distribution at
-arbitrary \(q\) is deliberately not offered: its generator would have to
-be transcribed and could not be checked against anything already here, and
-an unverified generator is worse than a case that can be verified.</p>
-<p><strong>The temperature.</strong> With <code>t0 = NULL</code> the initial temperature is
-calibrated from the objective's own variation, by sampling proposals around
-the starting value and setting \(T_0\) so that an average uphill move is
-accepted about four times in five. A fixed number cannot serve: on an
-objective of size \(10^6\) every move is accepted and the run is a random
-walk, on one of size \(10^{-6}\) none is and it is a poor local search.</p>
-<p><strong>What the run returns is the best point SEEN</strong>, not the last one. An
-annealing run wanders by construction, so its final iterate is a draw and
-not an answer.</p>
-<p><strong>Whether it converged is a separate question</strong> and is never answered
-by the schedule having finished. The stationarity measure reported is
-Corana's own termination rule — by how much the best value has moved over
-the last <code>n_eps</code> temperature levels — so <code><a href="crit_stationary.html">crit_stationary</a></code>
-IS that rule rather than a second convention invented beside it. A run that
-merely exhausts <code>maxit</code> reports <code>converged = FALSE</code>, which for a
-global search is the ordinary outcome and not a failure.</p>
-<p><strong>The run is stochastic</strong>, so <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> governs it and the
-state it started from is recorded in the result.</p>
+intended use is to hand its result to one of them; see <code><a href="chain.html">chain()</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="the-adaptive-step">The adaptive step<a class="anchor" aria-label="anchor" href="#the-adaptive-step"></a></h2>
+    <p>The parameters are moved one coordinate at a time, and after every <code>steps</code>
+sweeps each coordinate's step is multiplied or divided according to how
+often its moves were accepted, so that the rate is held inside a band
+around <code>target_accept</code> (Corana et al. 1987). The adaptation makes the
+method usable on a statistical objective, whose unconstrained coordinates
+sit on scales orders of magnitude apart: one step length is wrong for all
+of them. A coordinate accepting almost everything is being
+proposed too timidly to explore, and one accepting almost nothing is being
+thrown too far to land.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="the-proposal">The proposal<a class="anchor" aria-label="anchor" href="#the-proposal"></a></h2>
+    <p><code>"uniform"</code> draws the move uniformly on the coordinate's current step,
+which together with the adaptation above is Corana's algorithm.
+<code>"cauchy"</code> draws it from a Cauchy, whose heavy tail lets a run leave a
+basin in one move instead of walking out of it. That is fast simulated
+annealing (Szu and Hartley 1987), the \(q = 2\) member of the Tsallis
+family.</p>
+<p>The difference is large on a surface with many basins. Over thirty seeds
+on Rastrigin in two dimensions from \((4.4, -3.6)\), with 40 temperature
+levels: the Cauchy proposal has a median value of <code>0.0051</code> and gets below
+<code>0.01</code> on 19 of 30 runs, the uniform one a median of <code>0.94</code> and 1 of 30.
+The default is nevertheless <code>"uniform"</code>, that being Corana's algorithm as
+published and the better-behaved proposal where the objective is defined
+on a bounded region.</p>
+<p>The general Tsallis visiting distribution at arbitrary \(q\) is not
+offered. Its generator would have to be transcribed and could not be
+checked against anything already here.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="the-temperature">The temperature<a class="anchor" aria-label="anchor" href="#the-temperature"></a></h2>
+    <p>With <code>t0 = NULL</code> the initial temperature is calibrated from the
+objective's own variation, by sampling proposals around the starting value
+and setting \(T_0\) so that an average uphill move is accepted about
+four times in five. That costs 20 evaluations, once, before the run
+begins.</p>
+<p>A fixed number cannot serve, because the Metropolis probability
+\(\exp(-\Delta f / T)\) compares the temperature against the objective's
+own scale. At \(T = 1\) a step costing \(10^{-6}\) is accepted with
+probability 1 and the run is a random walk; one costing \(10^{6}\) is
+accepted with probability 0 and the method has become a local search.
+Measured over eight seeds on \(10^{-6}\sum(x - (1,2))^2\), the
+calibrated run ends a median <code>0.0044</code> from the answer and <code>t0 = 1</code> a
+median <code>0.375</code>.</p>
+<p>The other side of that is worth knowing too: on a <strong>convex</strong> objective too
+cold a temperature costs nothing, there being one basin to find. On
+\(10^{6}\sum(x - (1,2))^2\) the fixed <code>t0 = 1</code> reaches <code>4.6e-07</code> where
+the calibration reaches <code>0.0013</code>. The calibration is insurance against a
+multimodal surface, and on a problem that has no second basin it is a
+small tax.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="what-the-run-returns-and-what-convergence-means-here">What the run returns, and what convergence means here<a class="anchor" aria-label="anchor" href="#what-the-run-returns-and-what-convergence-means-here"></a></h2>
+    <p>The result is the best point <strong>seen</strong>, not the last one. An annealing run
+wanders by construction, so its final iterate is a draw. The <code>value</code>
+column of the trace is correspondingly the best so far, and is monotone
+non-increasing.</p>
+<p>Whether the run converged is a separate question, never answered by the
+schedule having finished. The stationarity measure reported is Corana's
+own termination rule, by how much the best value has moved over the last
+<code>n_eps</code> temperature levels, so <code><a href="crit_stationary.html">crit_stationary()</a></code> is that rule and no
+second convention invented beside it. A run that merely exhausts <code>maxit</code>
+reports <code>converged = FALSE</code>, which for a global search is the ordinary
+outcome.</p>
+<p>The run is stochastic, so <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> governs it, and the state it began
+from is recorded in the result's <code>seed</code> for repeating it.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -210,8 +254,9 @@ Letters A</em> <strong>122</strong>, 157–162.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="chain.html">chain</a></code>, <code><a href="multistart.html">multistart</a></code>,
-<code><a href="crit_stationary.html">crit_stationary</a></code></p></div>
+    <div class="dont-index"><p><code><a href="chain.html">chain()</a></code> for handing the answer to a local method,
+<code><a href="multistart.html">multistart()</a></code> for the other way of covering several basins,
+<code><a href="crit_stationary.html">crit_stationary()</a></code> for the rule this method's measure feeds.</p></div>
     </div>
 
     <div class="section level2">
@@ -222,14 +267,45 @@ Letters A</em> <strong>122</strong>, 157–162.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 100, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : visiting = uniform, t0 = &lt;NULL&gt;, cooling = 0.85, cycles = 3, steps = 10, step = 1, target_accept = 0.5, adjust = 2, n_eps = 4</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># an objective with many local minima, where a local method stops in the</span></span></span>
-<span class="r-in"><span><span class="co"># basin it started in and this one does not</span></span></span>
+<span class="r-in"><span><span class="co"># Rastrigin has 121 local minima. A local method stops in the basin it</span></span></span>
+<span class="r-in"><span><span class="co"># started in; this one leaves it.</span></span></span>
 <span class="r-in"><span><span class="va">rastrigin</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">p</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">cos</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span>    <span class="co"># 0.914</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9141033</span>
-<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span>  <span class="co"># 7.96</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7.959662</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The heavy-tailed proposal leaves a basin in one move, and on this surface</span></span></span>
+<span class="r-in"><span><span class="co"># that is worth two orders of magnitude.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>visiting <span class="op">=</span> <span class="st">"cauchy"</span>, maxit <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.002005912</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>visiting <span class="op">=</span> <span class="st">"uniform"</span>, maxit <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5458509</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The reported value is the best seen, and the trace records the same:</span></span></span>
+<span class="r-in"><span><span class="co"># it never rises, though the walk itself does.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">30</span>, keep_trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diff.html" class="external-link">diff</a></span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">trace</span><span class="op">$</span><span class="va">value</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">value</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">trace</span><span class="op">$</span><span class="va">value</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The run repeats exactly from the state it recorded.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="st">".Random.seed"</span>, <span class="va">a</span><span class="op">@</span><span class="va">seed</span>, <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">globalenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">a</span><span class="op">@</span><span class="va">par</span>, <span class="va">b</span><span class="op">@</span><span class="va">par</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A gradient rule is refused when the run starts, this method computing none.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : The stopping rule needs gradient, which simulated annealing (uniform) does not provide.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Choose a criterion this optimizer can evaluate, or a method that provides it.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

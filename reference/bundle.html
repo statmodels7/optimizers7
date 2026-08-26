@@ -15,7 +15,7 @@ vanish at a kink."><meta property="og:image" content="https://statmodels7.github
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,34 +133,33 @@ no evaluation budget, so the run stops on the criterion or on
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code>Bundle</code>, inheriting from
-<code><a href="optimizer.html">optimizer</a></code>.</p>
+    <p>An S7 object of class <a href="Bundle-class.html">Bundle</a>, inheriting from <code><a href="optimizer.html">optimizer()</a></code>, to
+be handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-
-<div class="section">
-<h3 id="behavior-at-a-kink">Behavior at a kink<a class="anchor" aria-label="anchor" href="#behavior-at-a-kink"></a></h3>
-<p>At the minimum of \(\lvert x \rvert\) the evaluated subgradient is
+    <h2 id="behavior-at-a-kink">Behavior at a kink<a class="anchor" aria-label="anchor" href="#behavior-at-a-kink"></a></h2>
+    <p>At the minimum of \(\lvert x \rvert\) the evaluated subgradient is
 \(\pm 1\). A descent method therefore sees a large gradient, proposes a
-step, finds no acceptable one, and stops reporting failure while standing
-exactly on the answer — and no tolerance can fix that, because the quantity
-it is testing does not become small.</p>
-<p>The bundle method does not test any single subgradient. It keeps a
-<em>collection</em> of them, from the points it has visited, and builds the
-piecewise-linear model \(\max_j \{ f_j + g_j'(x - x_j) \}\) — the largest of
-the linearizations. A kink is exactly what such a model represents well: two
+step, finds no acceptable one, and stops while standing exactly on the
+answer. No tolerance can fix that: the quantity being tested never becomes
+small. Measured on the median example below, <code><a href="bfgs.html">bfgs()</a></code> and <code><a href="lbfgs.html">lbfgs()</a></code> both
+land on the median to six figures and report <code>converged = FALSE</code> with
+<code>stopped without converging</code>.</p>
+<p>The bundle method tests no single subgradient. It keeps a <em>collection</em> of
+them, from the points it has visited, and builds the piecewise-linear
+model \(\max_j \{ f_j + g_j'(x - x_j) \}\), the largest of the
+linearizations. A kink is exactly what such a model represents well: two
 linearizations meeting. At the minimum of \(\lvert x \rvert\) the bundle
-holds subgradients near \(+1\) and near \(-1\), and \(0\) is a convex
-combination of them, which is precisely the statement that \(0\) lies in
-the subdifferential.</p>
+holds subgradients near \(+1\) and near \(-1\), and \(0\) is a
+convex combination of them, which is precisely the statement that \(0\)
+lies in the subdifferential.</p>
 <p>That is what is tested. The step solves
 $$\min_d\ \max_j \{ -\alpha_j + g_j'd \} + \frac{1}{2t}\lVert d \rVert^2,$$
 where \(\alpha_j \ge 0\) measures how badly linearization \(j\) misses
 the current point and the quadratic term keeps the step inside the region
 where the model is believed. Its optimal value \(v \le 0\) is the
-<em>predicted decrease</em>, which is what the acceptance test below uses.</p>
-<p>What <code><a href="crit_stationary.html">crit_stationary</a></code> watches is a related but different
+<em>predicted decrease</em>, the quantity the acceptance test below reads.</p>
+<p>What <code><a href="crit_stationary.html">crit_stationary()</a></code> watches is a related but different
 quantity, the <em>optimality estimate</em>
 \(\lVert p \rVert^2 + \alpha\), where \(p\) is the aggregate
 subgradient. Both vanish together at a solution, and the distinction is not
@@ -170,74 +169,68 @@ parameter shrinking rather than by the point becoming stationary. A run doing
 that reports success while standing somewhere its own model still calls
 steep. Dropping the factor leaves the model's own claim, which no amount of
 shrinking can flatter.</p>
-</div>
-
-<div class="section">
-<h3 id="serious-steps-and-null-steps">Serious steps and null steps<a class="anchor" aria-label="anchor" href="#serious-steps-and-null-steps"></a></h3>
-<p>A trial point is accepted — a <em>serious step</em> — only if it delivers at
+    </div>
+    <div class="section level2">
+    <h2 id="serious-steps-and-null-steps">Serious steps and null steps<a class="anchor" aria-label="anchor" href="#serious-steps-and-null-steps"></a></h2>
+    <p>A trial point is accepted, making a <em>serious step</em>, only if it delivers at
 least <code>m_serious</code> of the decrease the model promised. That is the same
 bargain an Armijo condition strikes, for the same reason: accepting any
 decrease at all lets a sequence of ever tinier improvements masquerade as
 progress.</p>
-<p>When it is rejected, the iteration is not wasted. The trial point contributes
-its subgradient to the bundle, so the model is strictly better next time;
-this is a <em>null step</em>, and a run that reports many of them is refining
-its picture of a kink, not failing. Both counts appear in the result's
-message.</p>
+<p>A rejected trial is not a wasted iteration. The trial point contributes its
+subgradient to the bundle, so the model is strictly better next time. That
+is a <em>null step</em>, and a run reporting many of them is refining its picture
+of a kink. Both counts appear in the result's <code>message</code>, as in
+<code>8 serious, 14 null</code>.</p>
 <p><code>t</code> is halved after a null step and doubled after a serious one, within
-<code>t_min</code> and <code>t_max</code>. Kiwiel's rule chooses the factor from a
-curvature estimate and is better; this is the safeguarded version, which is
-cruder and bounded.</p>
-</div>
-
-<div class="section">
-<h3 id="the-trust-parameter-t-">The trust parameter t0<a class="anchor" aria-label="anchor" href="#the-trust-parameter-t-"></a></h3>
-<p>The step is \(d = -t\,p\), so a bare <code>t</code> would make the first step as
+<code>t_min</code> and <code>t_max</code>. Kiwiel's rule chooses the factor from a curvature
+estimate and is better; this is the safeguarded version, cruder and
+bounded.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="the-trust-parameter-t-">The trust parameter t0<a class="anchor" aria-label="anchor" href="#the-trust-parameter-t-"></a></h2>
+    <p>The step is \(d = -t\,p\), so a bare <code>t</code> would make the first step as
 long as the gradient happens to be big. On Rosenbrock from its usual start
-that is 233 units, landing where the objective is \(10^{11}\) and its
-gradient \(10^{15}\); the null step that follows halves <code>t</code> while the
-gradient has squared, so <code>t</code> can never catch up and the run spends its
-entire budget on rejected steps before returning the point it began at.</p>
+the gradient has norm 232.9, and a step of that length lands where the
+objective is \(2.1 \times 10^{11}\). The null step that follows halves
+<code>t</code> while the gradient has squared, so <code>t</code> can never catch up and the run
+spends its whole budget on rejected steps before returning the point it
+began at.</p>
 <p><code>t0</code> is therefore divided by the size of the gradient at the starting
-point, which makes the first step of length <code>t0</code> in parameter space.
-It is the same normalization a line search performs when it starts at 1 along
-a unit direction, and <code>t_min</code> and <code>t_max</code> move with it since they
-bound the same quantity. Raise <code>t0</code> for a problem whose optimum is far
-away, lower it for one where the model is trustworthy only nearby.</p>
-<p>Should a subgradient overflow anyway — possible for an objective that grows
-fast enough — the run stops with a message, rather than spending its budget on a
-subproblem whose matrix contains an infinity.</p>
-</div>
-
-<div class="section">
-<h3 id="bounded-memory">Bounded memory<a class="anchor" aria-label="anchor" href="#bounded-memory"></a></h3>
-<p>Left alone the bundle grows without limit. When it reaches
-<code>bundle_size</code> the oldest linearizations are replaced by the
-<em>aggregate</em> — the single affine function the subproblem's solution
-defines — rather than discarded. Discarding loses what they knew and can stall
-the method; the aggregate keeps a summary of all of it in one element, which
-is what makes a bounded bundle safe.</p>
-</div>
-
-<div class="section">
-<h3 id="convexity-requirement">Convexity requirement<a class="anchor" aria-label="anchor" href="#convexity-requirement"></a></h3>
-<p>The theory is for convex \(f\), where the linearization errors
-\(\alpha_j\) are non-negative automatically. On a non-convex objective they
-can come out negative and are clipped at zero. The method then still runs and
-usually works, but that clip is exactly where the guarantee stops: a negative
-error is the model reporting that \(f\) lies below its own linearization,
-and setting it to zero suppresses the information rather than using it.</p>
-</div>
-
-<div class="section">
-<h3 id="subgradients">Subgradients<a class="anchor" aria-label="anchor" href="#subgradients"></a></h3>
-<p>Supply <code>gr</code>. Without one the package differences the objective, and
-although a difference is a perfectly good gradient wherever \(f\) is
-differentiable — which is almost everywhere, so a run mostly gets away with
-it — a difference taken <em>across</em> a kink is not a subgradient of anything
-and the model will be built from a number that belongs to no linearization.</p>
-</div>
-
+point, which makes the first step of length <code>t0</code> in parameter space. It is
+the same normalization a line search performs when it starts at 1 along a
+unit direction, and <code>t_min</code> and <code>t_max</code> move with it, bounding the same
+quantity. Raise <code>t0</code> for a problem whose optimum is far away, lower it for
+one where the model is trustworthy only nearby.</p>
+<p>Should a subgradient overflow anyway, which an objective that grows fast
+enough can produce, the run stops with a message instead of spending its
+budget on a subproblem whose matrix contains an infinity.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="bounded-memory">Bounded memory<a class="anchor" aria-label="anchor" href="#bounded-memory"></a></h2>
+    <p>Left alone the bundle grows without limit. When it reaches <code>bundle_size</code>
+the oldest linearizations are replaced by the <em>aggregate</em>, the single
+affine function the subproblem's solution defines. Discarding them instead
+would lose what they knew and can stall the method; the aggregate keeps a
+summary of all of it in one element, so a bounded bundle stays safe.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="convexity-requirement">Convexity requirement<a class="anchor" aria-label="anchor" href="#convexity-requirement"></a></h2>
+    <p>The theory is for convex \(f\), where the linearization errors
+\(\alpha_j\) are non-negative automatically. On a non-convex objective
+they can come out negative and are clipped at zero. The method still runs
+and usually works, and that clip is exactly where the guarantee stops: a
+negative error is the model reporting that \(f\) lies below its own
+linearization, and setting it to zero suppresses the information instead of
+using it.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="subgradients">Subgradients<a class="anchor" aria-label="anchor" href="#subgradients"></a></h2>
+    <p>Supply <code>gr</code>. Without one the package differences the objective, and a
+difference is a perfectly good gradient wherever \(f\) is
+differentiable, which is almost everywhere, so a run mostly gets away with
+it. A difference taken <em>across</em> a kink is a subgradient of nothing, and the
+model is then built from a number that belongs to no linearization.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -249,8 +242,9 @@ nondifferentiable minimization. <em>Mathematical Programming</em> <strong>46</st
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="nelder_mead.html">nelder_mead</a></code>, <code><a href="compass.html">compass</a></code>,
-<code><a href="crit_stationary.html">crit_stationary</a></code></p></div>
+    <div class="dont-index"><p><code><a href="prox_grad.html">prox_grad()</a></code> for the non-smooth case where a proximal operator is
+available, <code><a href="nelder_mead.html">nelder_mead()</a></code> and <code><a href="compass.html">compass()</a></code> for the derivative-free
+methods, <code><a href="crit_stationary.html">crit_stationary()</a></code> for the rule this one reads.</p></div>
     </div>
 
     <div class="section level2">
@@ -261,22 +255,49 @@ nondifferentiable minimization. <em>Mathematical Programming</em> <strong>46</st
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># the median, as the minimizer of a sum of absolute deviations: the objective</span></span></span>
-<span class="r-in"><span><span class="co"># has a kink at every observation, and one of them is the answer</span></span></span>
+<span class="r-in"><span><span class="co"># The median, as the minimizer of a sum of absolute deviations: the</span></span></span>
+<span class="r-in"><span><span class="co"># objective has a kink at every observation, and one of them is the answer.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">p</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bundle</span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">g</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bundle <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">par</span>, median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bundle     median </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.07456498 0.07456498 </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">par</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>     <span class="co"># 8e-16</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.19269e-15</span>
+<span class="r-in"><span><span class="va">r</span><span class="op">@</span><span class="va">message</span>                  <span class="co"># how many trials were accepted</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "8 serious, 14 null"</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># a kink running diagonally, where a coordinate-wise search stalls</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bundle</span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">p</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>         <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span>, gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>                         <span class="fl">0.2</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 8.207375e-09</span>
+<span class="r-in"><span><span class="co"># The aggregate subgradient does go to zero at the kink, where every single</span></span></span>
+<span class="r-in"><span><span class="co"># subgradient the objective offers there has norm 1.</span></span></span>
+<span class="r-in"><span><span class="va">r</span><span class="op">@</span><span class="va">gradient</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.490339e-07</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">g</span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">par</span> <span class="op">-</span> <span class="fl">1e-9</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A descent method lands on the same point and cannot certify it.</span></span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">g</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">d</span><span class="op">@</span><span class="va">par</span>, converged <span class="op">=</span> <span class="va">d</span><span class="op">@</span><span class="va">converged</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        par  converged </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.07456498 0.00000000 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A kink running diagonally. The bundle method and the simplex both find it;</span></span></span>
+<span class="r-in"><span><span class="co"># a coordinatewise search cannot, its axes never crossing the kink.</span></span></span>
+<span class="r-in"><span><span class="va">ff</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">p</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gg</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">p</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>bundle      <span class="op">=</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bundle</span><span class="op">(</span><span class="op">)</span>, <span class="va">ff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gg</span><span class="op">)</span><span class="op">@</span><span class="va">value</span>,</span></span>
+<span class="r-in"><span>  nelder_mead <span class="op">=</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="nelder_mead.html">nelder_mead</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">ff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span>,</span></span>
+<span class="r-in"><span>  compass     <span class="op">=</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="compass.html">compass</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">ff</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       bundle  nelder_mead      compass </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8.207375e-09 9.439361e-17 2.114785e-03 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A gradient rule is refused, this method offering no gradient.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bundle</span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">g</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : The stopping rule needs gradient, which proximal bundle does not provide.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Choose a criterion this optimizer can evaluate, or a method that provides it.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

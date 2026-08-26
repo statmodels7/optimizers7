@@ -1,6 +1,11 @@
 # Recycle a Length-One Vector, and Reject Any Other Mismatch
 
-Recycle a Length-One Vector, and Reject Any Other Mismatch
+Returns `v` at length `n`: a single value is repeated, a value already
+of length `n` is passed through as a double, and anything else raises an
+error naming the argument and both lengths. R's own recycling is
+deliberately not used, since it is silent whenever the shorter length
+divides the longer, and a partial range is far likelier to be a mistake
+than a request.
 
 ## Usage
 

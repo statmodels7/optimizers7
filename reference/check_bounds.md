@@ -23,9 +23,9 @@ check_bounds(lower, upper, par)
 
 A list with one `c(lower, upper)` pair per parameter, or an empty list
 when no bound is finite. Call it at the top of a user-defined
-[`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
+[`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 method, then hand each pair to
-[`bounded_transform`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md);
+[`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md);
 an empty list means there is no box and the whole reparametrization
 should be skipped.
 
@@ -52,8 +52,8 @@ coordinate, costs one check.
 
 ## See also
 
-[`bounded_transform`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md),
-[`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
+[`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md),
+[`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 
 ## Examples
 

@@ -13,7 +13,7 @@ matrix, which suits problems too large for a Hessian."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,13 +71,13 @@ matrix, which suits problems too large for a Hessian.</p>
 
 
 <dl><dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
-<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any</a></code>.</p></dd>
+<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any()</a></code>.</p></dd>
 
 
 <dt id="arg-beta">beta<a class="anchor" aria-label="anchor" href="#arg-beta"></a></dt>
-<dd><p>Which formula for the bend: <code>"pr"</code> (Polak–Ribière, the
-default), <code>"fr"</code> (Fletcher–Reeves), <code>"hs"</code> (Hestenes–Stiefel) or
-<code>"dy"</code> (Dai–Yuan). See Details.</p></dd>
+<dd><p>Which formula for the bend: <code>"pr"</code> (Polak-Ribière, the
+default), <code>"fr"</code> (Fletcher-Reeves), <code>"hs"</code> (Hestenes-Stiefel) or
+<code>"dy"</code> (Dai-Yuan). See Details.</p></dd>
 
 
 <dt id="arg-restart-every">restart_every<a class="anchor" aria-label="anchor" href="#arg-restart-every"></a></dt>
@@ -120,49 +120,60 @@ no evaluation budget, so the run stops on the criterion or on
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code>Cg</code>, inheriting from
-<code><a href="optimizer.html">optimizer</a></code>.</p>
+    <p>An S7 object of class <a href="Cg-class.html">Cg</a>, inheriting from <code><a href="optimizer.html">optimizer()</a></code>, to be
+handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The direction is
 $$d_k = -g_k + \beta_k d_{k-1},$$
-and the methods differ only in the choice of \(\beta\). On a quadratic with an
-exact line search the directions come out conjugate with respect to the
-Hessian, so the method terminates in \(p\) steps exactly — <em>without
-ever forming that Hessian</em>, which is the point. The storage is two vectors
-against <code><a href="bfgs.html">bfgs</a></code>'s \(p \times p\) matrix.</p>
-<div class="section">
-<h3 id="choice-of-beta">Choice of beta<a class="anchor" aria-label="anchor" href="#choice-of-beta"></a></h3>
-<p>All four agree on a quadratic with an exact line search and differ everywhere
-else. <code>"fr"</code> has the cleanest convergence theory and the well-known
-practical fault of stalling for many iterations after a poor step.
-<code>"pr"</code> recovers from a poor step immediately, because a small
-\(y = g_k - g_{k-1}\) sends \(\beta\) towards zero and the method back to
-steepest descent; its known theoretical non-convergence is repaired by
-clamping \(\beta\) at zero, which restarts the method and is recorded as a
-restart in the trace. <code>"hs"</code> and <code>"dy"</code> are the other two standard
-choices.</p>
-</div>
-
-<div class="section">
-<h3 id="line-search">Line search<a class="anchor" aria-label="anchor" href="#line-search"></a></h3>
-<p>The theory behind every one of these formulas assumes a step satisfying the
-<strong>strong</strong> Wolfe conditions, and uses it to prove that the direction
-produced is a descent direction at all. Backtracking gives no such guarantee,
-so <code><a href="wolfe.html">wolfe</a></code> is the default and departing from it is departing
-from the theory.</p>
-<p>The constant matters as much as the search. <code><a href="wolfe.html">wolfe</a></code> defaults to
-\(c_2 = 0.9\), which is right for <code><a href="bfgs.html">bfgs</a></code>, where the curvature
-approximation repairs a loose step. Conjugate gradients has nothing to repair
-with: the accumulated conjugacy is only as good as the line search that
-produced it, and a loose one degrades it directly. Measured on Rosenbrock,
-\(c_2 = 0.9\) needs 120 iterations against 35 at \(c_2 = 0.1\), which is
-why the default here is the tighter one.</p>
-<p>As a safeguard against the cases the theory misses, a direction that comes
-out non-descent is replaced by \(-g\) and the substitution is reported.</p>
-</div>
-
+and the methods differ only in the choice of \(\beta\). The storage is
+two vectors against <code><a href="bfgs.html">bfgs()</a></code>'s \(p \times p\) matrix.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="what-conjugacy-buys-and-what-it-needs">What conjugacy buys, and what it needs<a class="anchor" aria-label="anchor" href="#what-conjugacy-buys-and-what-it-needs"></a></h2>
+    <p>On a quadratic <strong>with an exact line search</strong> the directions come out
+conjugate with respect to the Hessian, and the method then terminates in
+\(p\) steps without ever forming that Hessian. The line search here is
+inexact, so that guarantee does not transfer: measured on dense quadratics
+at <code>crit_grad(1e-12)</code>, the run takes 16, 34 and 70 iterations at
+\(p = 3, 8, 20\). The saving is still real, since each iteration costs
+two vectors.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="choice-of-beta">Choice of beta<a class="anchor" aria-label="anchor" href="#choice-of-beta"></a></h2>
+    <p>All four agree on a quadratic under an exact line search and differ
+everywhere else. <code>"fr"</code> has the cleanest convergence theory and the
+well-known practical fault of stalling for many iterations after a poor
+step. <code>"pr"</code> recovers from a poor step immediately, a small
+\(y = g_k - g_{k-1}\) sending \(\beta\) towards zero and the method
+back to steepest descent; its known theoretical non-convergence is
+repaired by clamping \(\beta\) at zero, which restarts the method and
+appears in the trace as <code>cg restart</code>. <code>"hs"</code> and <code>"dy"</code> are the other two
+standard choices.</p>
+<p>Measured on Rosenbrock from the customary start, iterations and objective
+evaluations: <code>pr</code> 25 and 249 with twelve clamps, <code>fr</code> 59 and 743, <code>hs</code> 17
+and 166, <code>dy</code> 50 and 667. <code>pr</code> is the default as the safest of the four on
+a general objective, and <code>hs</code> was the fastest here; on another problem the
+order will differ.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="line-search">Line search<a class="anchor" aria-label="anchor" href="#line-search"></a></h2>
+    <p>The theory behind every one of these formulas assumes a step satisfying
+the <strong>strong</strong> Wolfe conditions, and uses it to prove that the direction
+produced is a descent direction at all. Backtracking gives no such
+guarantee, so <code><a href="wolfe.html">wolfe()</a></code> is the default and departing from it departs from
+the theory.</p>
+<p>The constant matters too. <code><a href="wolfe.html">wolfe()</a></code> defaults to \(c_2 = 0.9\), which is
+right for <code><a href="bfgs.html">bfgs()</a></code>, where the curvature approximation repairs a loose
+step. Conjugate gradients has nothing to repair with: the accumulated
+conjugacy is only as good as the line search that produced it. The default
+here is therefore <code>wolfe(c2 = 0.1)</code>, and the cost of loosening it is
+modest on Rosenbrock, 28 iterations against 25, with the value reached
+<code>3.3e-08</code> against <code>7.4e-10</code>.</p>
+<p>A direction that comes out non-descent is replaced by \(-g\) and the
+substitution is reported in the trace, as a safeguard against the cases
+the theory misses.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -178,7 +189,9 @@ strong global convergence property. <em>SIAM Journal on Optimization</em>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="gd.html">gd</a></code>, <code><a href="lbfgs.html">lbfgs</a></code>, <code><a href="bb.html">bb</a></code></p></div>
+    <div class="dont-index"><p><code><a href="gd.html">gd()</a></code> for the direction this one bends, <code><a href="lbfgs.html">lbfgs()</a></code> for a method
+with the same storage order and more curvature, <code><a href="bb.html">bb()</a></code> for the scalar
+estimate.</p></div>
     </div>
 
     <div class="section level2">
@@ -199,6 +212,23 @@ strong global convergence property. <em>SIAM Journal on Optimization</em>
 <span class="r-in"><span>                    <span class="fl">200</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">cg</span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9999728 0.9999455</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The four formulas on the same problem. They agree on a quadratic under an</span></span></span>
+<span class="r-in"><span><span class="co"># exact line search and differ here, and which is best is a property of the</span></span></span>
+<span class="r-in"><span><span class="co"># problem.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pr"</span>, <span class="st">"fr"</span>, <span class="st">"hs"</span>, <span class="st">"dy"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">cg</span><span class="op">(</span>beta <span class="op">=</span> <span class="va">b</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">iterations</span>,</span></span>
+<span class="r-in"><span>       <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pr fr hs dy </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 59 17 50 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Polak-Ribiere clamps beta at zero when a step goes badly, which restarts</span></span></span>
+<span class="r-in"><span><span class="co"># the method; the trace counts those.</span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">cg</span><span class="op">(</span>keep_trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">trace</span><span class="op">$</span><span class="va">safeguard</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    cg restart step adjusted </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            12            13 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

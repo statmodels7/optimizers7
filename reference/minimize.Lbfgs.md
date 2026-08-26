@@ -11,9 +11,9 @@ Minimize by Limited-Memory BFGS
 - fn, par, gr, he, lower, upper, ...:
 
   As in
-  [`minimize`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
+  [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 
 ## Value
 
 An
-[`optimizer_result`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).

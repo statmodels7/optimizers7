@@ -9,7 +9,7 @@ or a function of no arguments returning one."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,15 +63,15 @@ or a function of no arguments returning one.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The function form is for an objective whose resolution MOVES. It is asked
+    <p>The function form is for an objective whose resolution moves. It is asked
 once per invocation of the search rather than per trial, so it costs one
-call an iteration, and it is what lets a caller whose objective settles as
-it goes report the resolution of the current point instead of the reading
+call an iteration. A caller whose objective settles as the run goes can
+then report the resolution of the current point instead of the reading
 from the worst-located point of the run.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="armijo.html">armijo</a></code></p></div>
+    <div class="dont-index"><p><code><a href="armijo.html">armijo()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

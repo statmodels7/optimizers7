@@ -9,7 +9,7 @@ by this optimizer, and checks the starting value."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ by this optimizer, and checks the starting value.</p>
 
 
 <dl><dt id="arg-optimizer">optimizer<a class="anchor" aria-label="anchor" href="#arg-optimizer"></a></dt>
-<dd><p>The <code><a href="optimizer.html">optimizer</a></code>.</p></dd>
+<dd><p>The <code><a href="optimizer.html">optimizer()</a></code>.</p></dd>
 
 
 <dt id="arg-fn-gr-he">fn, gr, he<a class="anchor" aria-label="anchor" href="#arg-fn-gr-he"></a></dt>
@@ -67,17 +67,15 @@ by this optimizer, and checks the starting value.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The objective handle from <code><a href="as_objective.html">as_objective</a></code>.</p>
+    <p>The objective handle from <code><a href="as_objective.html">as_objective()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The criterion check is the interesting one. A rule needing a gradient handed
-to a method that computes none would sit there testing <code>NULL</code> at every
-iteration and never fire, so the run would end on the iteration budget and
-report failure for a reason nowhere near the truth. Rejecting it here, by
-name, is the same discipline as <code>check_link()</code> in <span class="pkg">linkfunctions7</span>
-reporting a numerical derivative order as numerical rather than as passed: a
-check that cannot be evaluated must say so rather than pass or fail silently.</p>
+    <p>The criterion check is the one worth explaining. A rule needing a gradient
+handed to a method that computes none would sit there testing <code>NULL</code> at
+every iteration and never fire, so the run would end on its iteration
+budget and report failure for a reason nowhere near the truth. Refusing it
+here, by name, turns that into an error a caller can act on.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

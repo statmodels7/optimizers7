@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
 
 
 <dl><dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
-<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any</a></code>.</p></dd>
+<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any()</a></code>.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
@@ -73,7 +73,7 @@ Defaults to <code>1</code>.</p></dd>
 
 <dt id="arg-line-search">line_search<a class="anchor" aria-label="anchor" href="#arg-line-search"></a></dt>
 <dd><p>How far to go along the direction; see
-<code><a href="armijo.html">armijo</a></code> and <code><a href="wolfe.html">wolfe</a></code>. Defaults to Armijo
+<code><a href="armijo.html">armijo()</a></code> and <code><a href="wolfe.html">wolfe()</a></code>. Defaults to Armijo
 backtracking, which suffices for a method carrying no curvature
 approximation to protect.</p></dd>
 
@@ -102,18 +102,20 @@ no evaluation budget, so the run stops on the criterion or on
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code>GradientDescent</code>, inheriting from
-<code><a href="optimizer.html">optimizer</a></code>.</p>
+    <p>An S7 object of class <a href="GradientDescent-class.html">GradientDescent</a>, inheriting from
+<code><a href="optimizer.html">optimizer()</a></code>, to be handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The direction \(-g\) minimizes \(g^\top d\) over directions of a given
 Euclidean length. Under an exact line search consecutive directions are
 orthogonal, so on an ill-conditioned objective the iterates zigzag and
-converge slowly; <code><a href="cg.html">cg</a></code> corrects this by combining each direction
-with the previous one at no extra cost per iteration. Gradient descent is
-mainly useful as a baseline: on smooth problems <code><a href="bfgs.html">bfgs</a></code> converges
-in far fewer iterations.</p>
+converge slowly. <code><a href="cg.html">cg()</a></code> repairs that by combining each direction with the
+previous one at no extra cost per iteration.</p>
+<p>Gradient descent is a baseline. On Rosenbrock from the customary start it
+exhausts its budget of 500 iterations at a value of <code>1.9e-03</code> after 4905
+objective evaluations, where <code><a href="cg.html">cg()</a></code> reaches <code>7.4e-10</code> in 25 iterations,
+<code><a href="bb.html">bb()</a></code> <code>5.2e-09</code> in 58 and <code><a href="bfgs.html">bfgs()</a></code> <code>3.2e-13</code> in 35.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -125,7 +127,8 @@ Nocedal, J. and Wright, S. J. (2006). <em>Numerical Optimization</em>,
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="cg.html">cg</a></code>, <code><a href="bb.html">bb</a></code>, <code><a href="bfgs.html">bfgs</a></code></p></div>
+    <div class="dont-index"><p><code><a href="cg.html">cg()</a></code> for the same storage and a better direction, <code><a href="bb.html">bb()</a></code> for a
+scalar curvature estimate, <code><a href="bfgs.html">bfgs()</a></code> for a matrix one.</p></div>
     </div>
 
     <div class="section level2">
@@ -141,14 +144,23 @@ Nocedal, J. and Wright, S. J. (2006). <em>Numerical Optimization</em>,
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># It solves an easy problem readily.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">gd</span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>         gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer_result&gt; gradient descent</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 1   evaluations: f 3, g 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># And is the wrong tool for a curved valley: the budget runs out first.</span></span></span>
+<span class="r-in"><span><span class="va">ros</span> <span class="op">&lt;-</span> <span class="fu"><a href="test_problems.html">test_problems</a></span><span class="op">(</span><span class="st">"rosenbrock"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">gd</span><span class="op">(</span><span class="op">)</span>, <span class="va">ros</span><span class="op">$</span><span class="va">fn</span>, <span class="va">ros</span><span class="op">$</span><span class="va">par</span>, gr <span class="op">=</span> <span class="va">ros</span><span class="op">$</span><span class="va">gr</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>converged <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">converged</span>, iterations <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">iterations</span>,</span></span>
+<span class="r-in"><span>  evaluations <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">counts</span><span class="op">[[</span><span class="st">"f"</span><span class="op">]</span><span class="op">]</span>, value <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">value</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    converged   iterations  evaluations        value </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.000000e+00 5.000000e+02 4.905000e+03 1.915719e-03 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

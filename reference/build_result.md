@@ -1,7 +1,9 @@
 # Assemble the Result of a Run
 
-Turns what the C++ loop returned into an
-[`optimizer_result`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
+Turns the list the compiled loop returned into an
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md):
+fills in the point and the value, the counts and the trace, decides the
+verdict, and composes the message from whatever needs reporting.
 
 ## Usage
 
@@ -36,11 +38,11 @@ build_result(out, optimizer, spec, elapsed, seed = NULL)
 ## Value
 
 An
-[`optimizer_result`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md).
 
 ## Details
 
-The one judgement here is the meaning of `converged`: it is taken
+The one judgment here is the meaning of `converged`: it is taken
 straight from whether the stopping rule fired, and never inferred from
 the run having ended. An optimizer that exhausted its iterations has not
 converged, and saying otherwise turns a failure into a wrong answer that

@@ -1,7 +1,8 @@
 # Validate the Settings Every Optimizer Shares
 
-The checks each constructor would otherwise repeat, in one place and in
-one wording.
+Checks the seven arguments common to every constructor, so that all
+fifteen reject the same nonsense in the same words. Called at the top of
+each constructor, before any algorithm-specific validation.
 
 ## Usage
 
@@ -25,4 +26,21 @@ check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
 
 ## Value
 
-Invisibly `TRUE`; raises an error otherwise.
+Invisibly `TRUE`. Raises an error naming the offending argument
+otherwise.
+
+## Details
+
+The rules, and they differ from one another:
+
+- `criterion` must inherit from
+  [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md).
+
+- `maxit` must be a single number at least 1 **and finite**.
+
+- `max_eval` must be a single number at least 1; `Inf` passes.
+
+- `refresh` must be a single number at least 0.
+
+- `verbose` and `keep_trace` must each be `TRUE` or `FALSE`, `NA`
+  refused.

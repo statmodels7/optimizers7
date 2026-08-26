@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,28 +54,49 @@
 
 
 <dl><dt id="arg-tol">tol<a class="anchor" aria-label="anchor" href="#arg-tol"></a></dt>
-<dd><p>Numeric tolerance. Defaults to <code>1e-12</code>.</p></dd>
+<dd><p>Numeric tolerance, a single positive number. Defaults to
+<code>1e-12</code>, tighter than <code><a href="crit_abs_obj.html">crit_abs_obj()</a></code>'s because the quantity compared
+is a ratio.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code><a href="criterion.html">criterion</a></code> object.</p>
+    <p>An S7 object of class <a href="CritRelObj-class.html">CritRelObj</a>, inheriting from
+<code><a href="criterion.html">criterion()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The <code>+ tol</code> in the denominator is a floor, and it is load-bearing: an
-objective whose optimum is at zero would otherwise be compared against a
-vanishing scale.</p>
+objective whose optimum sits at zero would otherwise be compared against a
+vanishing scale, and the rule would either never fire or fire at once.</p>
+<p>It was in the gradient methods' default rule until version 0.6.0 and is
+not any more, because it never fired there: measured over the package's
+own <code><a href="test_problems.html">test_problems()</a></code>, six methods on eight problems, the default with it
+and the default without it agree on every flag, every evaluation count and
+every reported point. It remains useful where an objective's scale is not
+known in advance, which is exactly where <code><a href="crit_abs_obj.html">crit_abs_obj()</a></code> is hard to set.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="crit_abs_obj.html">crit_abs_obj</a></code></p></div>
+    <div class="dont-index"><p><code><a href="crit_abs_obj.html">crit_abs_obj()</a></code> for the version in the objective's own units,
+<code><a href="crit_any.html">crit_any()</a></code> for the default rule it left.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">crit_rel_obj</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;criterion&gt; |df| &lt; 1e-12 (relative)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The same absolute change, at two objective scales.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>small <span class="op">=</span> <span class="fu"><a href="crit_met.html">crit_met</a></span><span class="op">(</span><span class="fu">crit_rel_obj</span><span class="op">(</span><span class="fl">1e-6</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f_new <span class="op">=</span> <span class="fl">1</span>, f_old <span class="op">=</span> <span class="fl">1</span> <span class="op">+</span> <span class="fl">1e-7</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  large <span class="op">=</span> <span class="fu"><a href="crit_met.html">crit_met</a></span><span class="op">(</span><span class="fu">crit_rel_obj</span><span class="op">(</span><span class="fl">1e-6</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f_new <span class="op">=</span> <span class="fl">1e6</span>, f_old <span class="op">=</span> <span class="fl">1e6</span> <span class="op">+</span> <span class="fl">1e-7</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> small large </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  TRUE  TRUE </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># And the floor, which keeps an optimum at zero usable.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="crit_met.html">crit_met</a></span><span class="op">(</span><span class="fu">crit_rel_obj</span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>f_new <span class="op">=</span> <span class="fl">1e-30</span>, f_old <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

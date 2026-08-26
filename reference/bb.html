@@ -11,7 +11,7 @@ inverse curvature computed from the previous secant pair."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,7 +71,7 @@ inverse curvature computed from the previous secant pair.</p>
 
 
 <dl><dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
-<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any</a></code>.</p></dd>
+<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any()</a></code>.</p></dd>
 
 
 <dt id="arg-variant">variant<a class="anchor" aria-label="anchor" href="#arg-variant"></a></dt>
@@ -93,7 +93,7 @@ and <code>1e10</code>.</p></dd>
 <dd><p>The relative curvature threshold: a secant pair is rejected
 when \(s^\top y \le c \lVert s \rVert \lVert y \rVert\)
 for \(c\) equal to <code>curv_tol</code>. Defaults to <code>1e-10</code>, which is
-the same relative test <code><a href="bfgs.html">bfgs</a></code> applies to the same quantity.</p></dd>
+the same relative test <code><a href="bfgs.html">bfgs()</a></code> applies to the same quantity.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
@@ -103,7 +103,7 @@ the same relative test <code><a href="bfgs.html">bfgs</a></code> applies to the 
 
 <dt id="arg-line-search">line_search<a class="anchor" aria-label="anchor" href="#arg-line-search"></a></dt>
 <dd><p>The acceptance test for a trial step. Defaults to
-<code><a href="nonmonotone.html">nonmonotone</a></code>; see Details.</p></dd>
+<code><a href="nonmonotone.html">nonmonotone()</a></code>; see Details.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
@@ -130,8 +130,8 @@ no evaluation budget, so the run stops on the criterion or on
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code>Bb</code>, inheriting from
-<code><a href="optimizer.html">optimizer</a></code>.</p>
+    <p>An S7 object of class <a href="Bb-class.html">Bb</a>, inheriting from <code><a href="optimizer.html">optimizer()</a></code>, to be
+handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -144,44 +144,47 @@ direction just traveled, so this is a quasi-Newton method that has discarded
 everything except one scalar. On a quadratic, where the curvature is
 constant, that scalar is exactly right.</p>
 <p>On a quadratic, where the curvature is constant, the estimate is exact and
-the method converges in two iterations; on a general smooth objective it
-typically needs more iterations than <code><a href="bfgs.html">bfgs</a></code> while storing a
-single scalar instead of a matrix.</p>
-<div class="section">
-<h3 id="variants">Variants<a class="anchor" aria-label="anchor" href="#variants"></a></h3>
-<p><code>"bb1"</code> and <code>"bb2"</code> are the two quotients above, and
-<code>"alternate"</code>, the default, switches between them at each iteration:
-they estimate the same curvature from opposite ends, and alternating them is
-more robust than either alone.</p>
-</div>
-
-<div class="section">
-<h3 id="line-search">Line search<a class="anchor" aria-label="anchor" href="#line-search"></a></h3>
-<p>The Barzilai-Borwein step is offered to the line search first and unaltered,
-and backtracking occurs only when it fails the acceptance test. Because the
-method makes progress through steps that may increase the objective
-temporarily, the default acceptance test is <code><a href="nonmonotone.html">nonmonotone</a></code>, which
-requires improvement over the maximum of the last <code>memory</code> values
-rather than over the current one; a plain Armijo condition rejects exactly
-the steps the method relies on and slows it considerably.
-<code><a href="nonmonotone.html">nonmonotone</a></code> with <code>memory = 0</code> coincides with
-<code><a href="armijo.html">armijo</a></code>.</p>
-</div>
-
-<div class="section">
-<h3 id="rejected-secant-pairs">Rejected secant pairs<a class="anchor" aria-label="anchor" href="#rejected-secant-pairs"></a></h3>
-<p>A pair is used only if it reports positive curvature by a relative margin,
+the method converges in <strong>two</strong> iterations. On a general smooth objective
+it needs more iterations than <code><a href="bfgs.html">bfgs()</a></code> while storing a single scalar
+instead of a matrix: on Rosenbrock 58 iterations against 35, but 67
+objective evaluations against 49.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="variants">Variants<a class="anchor" aria-label="anchor" href="#variants"></a></h2>
+    <p><code>"bb1"</code> and <code>"bb2"</code> are the two quotients above, and <code>"alternate"</code>, the
+default, switches between them at each iteration. They estimate the same
+curvature from opposite ends, and alternating is the more robust choice
+across problems, though not always the fastest on any one: measured on
+Rosenbrock, <code>bb1</code> takes 56 iterations and 97 evaluations, <code>bb2</code> 51 and 56,
+<code>alternate</code> 58 and 67.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="line-search">Line search<a class="anchor" aria-label="anchor" href="#line-search"></a></h2>
+    <p>The Barzilai-Borwein step is offered to the line search first and
+unaltered, and backtracking occurs only when it fails the acceptance test.
+The method makes progress through steps that may increase the objective
+temporarily, so the default acceptance test is <code><a href="nonmonotone.html">nonmonotone()</a></code>, which asks
+for improvement over the maximum of the last <code>memory</code> values instead of
+over the current one. A plain Armijo condition rejects exactly the steps
+the method relies on: measured on Rosenbrock, 72 iterations and 154
+evaluations against 58 and 67.</p>
+<p><code>nonmonotone(memory = 0)</code> is <code><a href="armijo.html">armijo()</a></code> value for value, and the two give
+the identical run here, 72 iterations and 154 evaluations. That identity is
+what makes the comparison a comparison of the memory alone.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="rejected-secant-pairs">Rejected secant pairs<a class="anchor" aria-label="anchor" href="#rejected-secant-pairs"></a></h2>
+    <p>A pair is used only if it reports positive curvature by a relative margin,
 \(s^\top y &gt; c \lVert s \rVert \lVert y \rVert\) with
-\(c\) the <code>curv_tol</code> argument – the same test <code><a href="bfgs.html">bfgs</a></code>
-applies. When a pair is rejected, the step length is reset to
-\(1/\lVert g \rVert_\infty\), giving a trial displacement of
-order one in the parameters. This reset depends on the current gradient
-rather than on the step length being replaced or on a fixed constant, so it
-can neither freeze the iteration at a too-short step nor produce a step the
-backtracking cannot rescale. Steps outside <code>[alpha_min, alpha_max]</code> are
-clamped, and both the reset and the clamp are recorded in the trace.</p>
-</div>
-
+\(c\) the <code>curv_tol</code> argument, the same test <code><a href="bfgs.html">bfgs()</a></code> applies. When a
+pair is rejected the step length is reset to
+\(1/\lVert g \rVert_\infty\), a trial displacement of order one
+in the parameters. The reset reads the current gradient and not the step
+length being replaced or a fixed constant, so it can neither freeze the
+iteration at a too-short step nor produce one the backtracking cannot
+rescale. Steps outside <code>[alpha_min, alpha_max]</code> are clamped, and both the
+reset and the clamp appear in the trace, as <code>bb curvature reset</code> and
+<code>step shortened</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -190,7 +193,9 @@ clamped, and both the reset and the clamp are recorded in the trace.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="gd.html">gd</a></code>, <code><a href="cg.html">cg</a></code>, <code><a href="lbfgs.html">lbfgs</a></code></p></div>
+    <div class="dont-index"><p><code><a href="gd.html">gd()</a></code> for the same direction with a line-searched step,
+<code><a href="nonmonotone.html">nonmonotone()</a></code> for the acceptance test this method needs, <code><a href="lbfgs.html">lbfgs()</a></code>
+for the next amount of curvature to carry.</p></div>
     </div>
 
     <div class="section level2">
@@ -207,10 +212,28 @@ clamped, and both the reset and the clamp are recorded in the trace.</p>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bb</span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9999277 0.9998551</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># two iterations on a quadratic: one secant pair determines the curvature</span></span></span>
+<span class="r-in"><span><span class="co"># Two iterations on a quadratic: one secant pair determines the curvature,</span></span></span>
+<span class="r-in"><span><span class="co"># and on a quadratic that curvature is exactly right.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bb</span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>         gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">iterations</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The nonmonotone rule is what the method needs. With memory = 0 it is</span></span></span>
+<span class="r-in"><span><span class="co"># armijo() value for value, and both give the identical, slower run.</span></span></span>
+<span class="r-in"><span><span class="va">evals</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">ls</span><span class="op">)</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bb</span><span class="op">(</span>line_search <span class="op">=</span> <span class="va">ls</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                               gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">counts</span><span class="op">[[</span><span class="st">"f"</span><span class="op">]</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>nonmonotone <span class="op">=</span> <span class="fu">evals</span><span class="op">(</span><span class="fu"><a href="nonmonotone.html">nonmonotone</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  memory_zero <span class="op">=</span> <span class="fu">evals</span><span class="op">(</span><span class="fu"><a href="nonmonotone.html">nonmonotone</a></span><span class="op">(</span>memory <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  armijo      <span class="op">=</span> <span class="fu">evals</span><span class="op">(</span><span class="fu"><a href="armijo.html">armijo</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> nonmonotone memory_zero      armijo </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          67         154         154 </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Which variant is fastest is a property of the problem.</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bb1"</span>, <span class="st">"bb2"</span>, <span class="st">"alternate"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>       <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bb</span><span class="op">(</span>variant <span class="op">=</span> <span class="va">v</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">iterations</span>,</span></span>
+<span class="r-in"><span>       <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       bb1       bb2 alternate </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        56        51        58 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

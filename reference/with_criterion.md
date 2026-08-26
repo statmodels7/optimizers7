@@ -1,7 +1,8 @@
 # Rebuild an Optimizer With a Different Stopping Rule
 
-Replaces the criterion, and for a wrapper replaces the one that will
-actually be consulted.
+Returns a copy of the optimizer with its criterion replaced, keeping its
+class and every other setting. For a wrapper it replaces the rule that
+is actually consulted, which is not always the one on the outside.
 
 ## Usage
 
@@ -14,21 +15,34 @@ with_criterion(optimizer, criterion)
 - optimizer:
 
   The
-  [`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+  [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
+  to copy.
 
 - criterion:
 
-  The new rule.
+  The new rule, a
+  [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
+  object.
 
 ## Value
 
-An optimizer of the same class.
+An optimizer of the same class as `optimizer`.
 
 ## Details
 
-The distinction matters.
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-carries a criterion only so that printing it tells the truth; the rule
-that is evaluated belongs to the optimizer inside. Setting the outer one
-and expecting a different run is the sort of thing that makes a check
-pass while testing nothing.
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+carries a criterion so that printing it tells the truth; the rule the
+run evaluates belongs to the optimizer inside. Setting the outer one
+alone changes the printing and nothing else, which is exactly the sort
+of thing that makes a check pass while testing nothing:
+
+    ms <- multistart(bfgs(), n = 3)
+    with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
+    # "|df| < 1e-04"  (the inner rule changed too)
+
+    S7::set_props(ms, criterion = crit_abs_obj(1e-4))@optimizer@criterion@label
+    # "gradient (max-norm) < 1e-06 or ..."  (unchanged)
+
+[`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
+has a method of its own for the same reason, its reported rule being the
+last stage's.

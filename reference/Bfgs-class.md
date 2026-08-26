@@ -1,8 +1,11 @@
 # S7 Class for BFGS
 
-The class
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-instantiates.
+An optimizer holding the initial step length, the line search, and the
+two settings that govern what happens when a secant pair carries no
+usable curvature. Built by
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
+The inverse-Hessian approximation itself is not a property: it is built
+inside the run and discarded with it.
 
 ## Usage
 
@@ -26,8 +29,10 @@ Bfgs(
 
 - step, line_search:
 
-  As in
-  [`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
+  The initial step length and the
+  [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
+  object, as in
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
 
 - curv_tol:
 
@@ -35,13 +40,23 @@ Bfgs(
 
 - max_skip:
 
-  Consecutive skips before the approximation is reset.
+  Consecutive skips before the approximation is reset to the identity.
 
 ## Value
 
-An S7 object inheriting from
-[`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+An S7 object of class `Bfgs` inheriting from
+[`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
+with the four properties above beside the seven shared ones.
+
+## Details
+
+Beyond the seven properties every optimizer has, a `Bfgs` carries four:
+`step` and `line_search`, shared with the other line-search methods, and
+`curv_tol` and `max_skip`, which are its own.
 
 ## See also
 
-[`bfgs`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+for the constructor,
+[Lbfgs](https://statmodels7.github.io/optimizers7/reference/Lbfgs-class.md)
+for the limited-memory version.

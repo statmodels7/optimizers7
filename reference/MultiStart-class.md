@@ -1,8 +1,12 @@
 # S7 Class for Multi-Start
 
-The class
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-instantiates.
+An optimizer wrapping another and running it from several starting
+points. Built by
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md).
+Its seven shared properties describe the wrapper and not the inner run:
+`criterion`, `max_eval` and the rest are copied from the optimizer
+inside so that printing tells the truth, while `maxit` counts
+**starts**.
 
 ## Usage
 
@@ -28,7 +32,9 @@ MultiStart(
 
 - optimizer:
 
-  The inner optimizer, run from each starting point.
+  The inner
+  [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
+  run from each starting point.
 
 - n:
 
@@ -36,7 +42,7 @@ MultiStart(
 
 - starts:
 
-  An optional matrix of starting points.
+  An optional matrix of starting points, one per row.
 
 - spread:
 
@@ -52,9 +58,27 @@ MultiStart(
 
 ## Value
 
-An S7 object inheriting from
-[`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+An S7 object of class `MultiStart` inheriting from
+[`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
+with the six properties above beside the seven shared ones.
+
+## Details
+
+Beyond the seven shared properties a `MultiStart` carries six of its
+own: `optimizer` is the one being wrapped, `n`, `starts` and `spread`
+say where the runs begin, `ncores` how they are spread over processes,
+and `distinct_tol` how close two answers must be to count as one.
+
+Because the rule that is evaluated belongs to the inner optimizer,
+[`with_criterion()`](https://statmodels7.github.io/optimizers7/reference/with_criterion.md)
+has a method for this class that sets both; setting the outer property
+alone changes the printing and nothing else.
 
 ## See also
 
-[`multistart`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+for the constructor,
+[`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
+for the other wrapper,
+[`with_criterion()`](https://statmodels7.github.io/optimizers7/reference/with_criterion.md)
+for why setting the outer rule is not enough.

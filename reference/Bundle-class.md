@@ -1,8 +1,10 @@
 # S7 Class for the Proximal Bundle Method
 
-The class
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
-instantiates.
+An optimizer holding the proximity weight and its bounds, the acceptance
+fraction that separates a serious step from a null one, the size of the
+bundle of linearizations, and the effort spent on the subproblem. Built
+by
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md).
 
 ## Usage
 
@@ -29,11 +31,11 @@ Bundle(
 
 - t0:
 
-  Initial proximity weight.
+  Initial proximity weight, as a step length on the parameter scale.
 
 - t_min, t_max:
 
-  Bounds on it.
+  Bounds on the proximity weight.
 
 - m_serious:
 
@@ -49,9 +51,20 @@ Bundle(
 
 ## Value
 
-An S7 object inheriting from
-[`optimizer`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
+An S7 object of class `Bundle` inheriting from
+[`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
+with the seven properties above beside the seven shared ones.
+
+## Details
+
+Beyond the seven properties every optimizer has, a `Bundle` carries
+seven of its own, in three groups: the proximity weight (`t0`, `t_min`,
+`t_max`), the acceptance test (`m_serious`), and the model and its
+subproblem (`bundle_size`, `qp_iters`, `qp_tol`).
 
 ## See also
 
-[`bundle`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
+for the constructor,
+[`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
+for the rule it reads.

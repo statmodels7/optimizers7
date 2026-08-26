@@ -1,6 +1,7 @@
 # Validate an Initial Step Length
 
-Validate an Initial Step Length
+Checks that `step` is a single positive number, so that all six methods
+taking one reject the same nonsense in the same words.
 
 ## Usage
 
@@ -16,4 +17,4 @@ check_step(step)
 
 ## Value
 
-Invisibly `TRUE`; raises an error otherwise.
+Invisibly `TRUE`. Raises an error naming `step` otherwise.

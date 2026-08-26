@@ -17,7 +17,7 @@ Teboulle, whose objective gap falls as \(O(1/k^2)\) against the
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@ Teboulle, whose objective gap falls as \(O(1/k^2)\) against the
 <dd><p>The proximal operator of the non-smooth part, a function of
 the point and the step length, <code>prox(v, step)</code>, returning the
 minimizer of \(\lVert b - v \rVert^2/(2\,\mathrm{step}) + g(b)\).
-<code>penalty_prox</code> supplies one for every penalty
+<code>penalties7::penalty_prox()</code> supplies one for every penalty
 that has it.</p></dd>
 
 
@@ -109,17 +109,20 @@ to <code>0.5</code>.</p></dd>
 
 
 <dt id="arg-restart">restart<a class="anchor" aria-label="anchor" href="#arg-restart"></a></dt>
-<dd><p>Reset the momentum when the objective increases?
-Defaults to <code>TRUE</code>, and is ignored when <code>accelerate</code> is
-<code>FALSE</code>.</p></dd>
+<dd><p>Reset the momentum when the objective increases by more
+than the objective's own rounding? Defaults to <code>TRUE</code>, and is ignored
+when <code>accelerate</code> is <code>FALSE</code>. See the measured cost at a tight
+tolerance above.</p></dd>
 
 
 <dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
-<dd><p>The stopping rule; see <code><a href="crit_any.html">crit_any</a></code>.</p></dd>
+<dd><p>The stopping rule, a <code><a href="criterion.html">criterion()</a></code> object. Defaults to
+<code><a href="crit_grad.html">crit_grad()</a></code>, which here reads the proximal gradient mapping.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
-<dd><p>Maximum iterations. Defaults to 1000.</p></dd>
+<dd><p>Maximum iterations, a finite number at least 1. Defaults to
+1000.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
@@ -140,8 +143,10 @@ Defaults to <code>TRUE</code>, and is ignored when <code>accelerate</code> is
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An S7 object of class <code><a href="ProxGrad-class.html">ProxGrad</a></code>, to be handed to
-<code><a href="minimize.html">minimize</a></code>.</p>
+    <p>An S7 object of class <a href="ProxGrad-class.html">ProxGrad</a>, inheriting from <code><a href="optimizer.html">optimizer()</a></code>,
+to be handed to <code><a href="minimize.html">minimize()</a></code>. Box bounds are refused: pass the
+constraint through <code>prox</code> instead, composing the projection onto the box
+into it.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -154,29 +159,64 @@ one. The step length is found by backtracking: \(t\) is halved until
 the quadratic model built at \(y_k\) dominates \(f\) at the new
 point, which is the condition the convergence proof uses and which
 needs no knowledge of the Lipschitz constant.</p>
-<div class="section">
-<h3 id="what-the-stopping-rule-reads">What the stopping rule reads<a class="anchor" aria-label="anchor" href="#what-the-stopping-rule-reads"></a></h3>
-<p>The gradient of the total objective does not vanish at the solution –
-that is what non-differentiable means – so this method reports the
-<strong>proximal gradient mapping</strong>
+    </div>
+    <div class="section level2">
+    <h2 id="what-the-stopping-rule-reads">What the stopping rule reads<a class="anchor" aria-label="anchor" href="#what-the-stopping-rule-reads"></a></h2>
+    <p>The gradient of \(f + g\) does not vanish at the solution, \(g\) being
+non-differentiable there, so this method reports the <strong>proximal gradient
+mapping</strong>
 $$G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}$$
-as its gradient, read at the iterate. It vanishes exactly at a
-stationary point of \(f + g\) and reduces to \(\nabla f\) when
-\(g\) is absent, so <code><a href="crit_grad.html">crit_grad</a></code> keeps its meaning and
-its default tolerance. The accelerated variant pays one extra gradient
-per iteration for it, the extrapolated point at which it takes its step
-not being the point it reports.</p>
-</div>
-
-<div class="section">
-<h3 id="restarting">Restarting<a class="anchor" aria-label="anchor" href="#restarting"></a></h3>
-<p>Momentum makes the objective non-monotone, and an increase far from the
+as its gradient, read at the iterate. It vanishes exactly at a stationary
+point of \(f + g\) and reduces to \(\nabla f\) when \(g\) is absent,
+so <code><a href="crit_grad.html">crit_grad()</a></code> keeps its meaning and its default tolerance. Measured on
+the lasso of the examples below, the mapping agrees with the KKT
+violation: at the reported point the active coordinates satisfy
+\(\lvert \nabla f + \lambda \operatorname{sign}(\beta) \rvert \le\)
+<code>4.5e-07</code> and the inactive ones have \(\lvert \nabla f \rvert \le
+0.129\) against a \(\lambda\) of 0.4.</p>
+<p>Acceleration pays 2.1 gradient evaluations per iteration against the plain
+method's 1.0, the extrapolated point at which it takes its step not being
+the point it reports.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="acceleration-and-where-it-earns-its-keep">Acceleration, and where it earns its keep<a class="anchor" aria-label="anchor" href="#acceleration-and-where-it-earns-its-keep"></a></h2>
+    <p>On an ill-conditioned problem the difference is the one the theory
+predicts. Measured on a smooth quadratic in eight unknowns at
+<code>crit_grad(1e-8)</code>, plain against accelerated: 64 iterations against 31 at
+a condition number near 3, 1154 against 100 at 55, and 9321 against 268 at
+480.</p>
+<p>On a well-conditioned problem asked for a tight tolerance the plain
+iteration is still the better one. The lasso below converges in 12
+iterations at <code>crit_grad(1e-9)</code> with <code>accelerate = FALSE</code>, in 89 with
+<code>restart = FALSE</code>, and in 782 with the defaults, all three reaching the
+same support, the same objective to the last bit and the same
+coefficients to <code>8e-09</code>. What costs the iterations is the restart, not the
+momentum: near the solution the objective moves at the rounding level, and
+each spurious reset discards the momentum built since the last one. At the default <code>crit_grad(1e-6)</code> none of this appears, both settings
+taking about ten iterations.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="restarting">Restarting<a class="anchor" aria-label="anchor" href="#restarting"></a></h2>
+    <p>Momentum makes the objective non-monotone, and an increase far from the
 solution is a symptom of momentum built in the wrong direction. With
-<code>restart = TRUE</code> an increase resets the extrapolation to the
-current point, which is the adaptive restart of O'Donoghue and Candes
-and costs one comparison per iteration.</p>
-</div>
-
+<code>restart = TRUE</code> an increase resets the extrapolation to the current
+point. This is the adaptive restart of O'Donoghue and Candes and costs one
+comparison per iteration. It is worth a great deal where the problem is
+badly conditioned: on a smooth quadratic in eight unknowns at
+<code>crit_grad(1e-8)</code>, with the restart against without, 150 iterations
+against 858 at a condition number of 55, 573 against 5418 at 480, and
+1042 against 15104 at 2400.</p>
+<p>An increase is measured against the objective's own rounding, not against
+zero. The objective is a sum, so its error grows with the number
+of terms, and a test reading a bare <code>&gt;</code> fires on that error once the
+iteration is near enough to the solution: the lasso below took 21646
+iterations at <code>crit_grad(1e-9)</code> before the allowance and takes 782 after
+it, at the same answer. The allowance is eight units in the last place of
+the current objective, measured to give the same run anywhere between one
+and thirty-two while 256 begins costing iterations on the ill-conditioned
+quadratic, where it suppresses restarts that are real. What it costs
+there is about a tenth: 149, 571 and 934 iterations at the three
+condition numbers before, against the 150, 573 and 1042 above.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -189,27 +229,47 @@ gradient schemes. <em>Foundations of Computational Mathematics</em>, 15(3),
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="bundle.html">bundle</a></code> for a non-smooth method that needs no
-proximal operator, <code><a href="gd.html">gd</a></code> for the smooth case.</p></div>
+    <div class="dont-index"><p><code><a href="bundle.html">bundle()</a></code> for a non-smooth method that needs no
+proximal operator, <code><a href="gd.html">gd()</a></code> for the smooth case.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># a lasso-penalized least squares problem, solved through the operator</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A lasso-penalized least squares problem, solved through the operator.</span></span></span>
+<span class="r-in"><span><span class="co"># Three of the eight coefficients are non-zero in the truth.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span> <span class="op">*</span> <span class="fl">8</span><span class="op">)</span>, <span class="fl">200</span>, <span class="fl">8</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">b0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="op">-</span><span class="fl">1.5</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0.8</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b0</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lambda</span> <span class="op">&lt;-</span> <span class="fl">0.4</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">f</span>  <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">gf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span> <span class="op">-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu">prox_grad</span><span class="op">(</span>prox <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">v</span>, <span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmax</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="op">-</span> <span class="va">t</span> <span class="op">*</span> <span class="va">lambda</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>            g <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="va">lambda</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span> <span class="op">-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">b</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">f</span>, gr <span class="op">=</span> <span class="va">gf</span>, par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">fit</span><span class="op">@</span><span class="va">par</span>, <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.541 -1.091  0.000  0.000  0.420  0.000  0.000  0.000</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">fit</span><span class="op">@</span><span class="va">par</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span>          <span class="co"># the operator sets coefficients exactly to zero</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The KKT conditions confirm the answer, and share no arithmetic with the</span></span></span>
+<span class="r-in"><span><span class="co"># iteration: stationary where a coefficient survives, and inside the</span></span></span>
+<span class="r-in"><span><span class="co"># interval the kink opens where one does not.</span></span></span>
+<span class="r-in"><span><span class="va">gr_at</span> <span class="op">&lt;-</span> <span class="fu">gf</span><span class="op">(</span><span class="va">fit</span><span class="op">@</span><span class="va">par</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">active</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">@</span><span class="va">par</span> <span class="op">!=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gr_at</span><span class="op">[</span><span class="va">active</span><span class="op">]</span> <span class="op">+</span> <span class="va">lambda</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">fit</span><span class="op">@</span><span class="va">par</span><span class="op">[</span><span class="va">active</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.452503e-07</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">gr_at</span><span class="op">[</span><span class="op">!</span><span class="va">active</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="va">lambda</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Box bounds are refused, and the message says where the constraint goes.</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">prox_grad</span><span class="op">(</span>prox <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">v</span>, <span class="va">t</span><span class="op">)</span> <span class="va">v</span>, g <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>             <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">8</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gf</span>, lower <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : prox_grad() takes its constraint through the proximal operator, not through box bounds:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   compose the projection onto the box into 'prox'.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
