@@ -171,7 +171,7 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' \eqn{c_1 \alpha_0 \lvert g^\top d\rvert}, which is four orders smaller and
 #' would fire where the method still had real progress to make.
 #'
-#' # A resolution that moves
+#' ## A resolution that moves
 #'
 #' Where the objective settles as the run goes, a fit warm-started from the
 #' previous evaluation locating its own answer better each time, the

@@ -73,7 +73,8 @@ point nowhere near stationary was promoted to a converged run.
 
 The quantity is the predicted decrease and not the Armijo demand
 \eqn{c_1 \alpha_0 \lvert g^\top d\rvert}, which is four orders smaller and
-would fire where the method still had real progress to make.A resolution that moves
+would fire where the method still had real progress to make.
+\subsection{A resolution that moves}{
 
 Where the objective settles as the run goes, a fit warm-started from the
 previous evaluation locating its own answer better each time, the
@@ -83,6 +84,7 @@ asked again at every iteration, once per invocation of the search rather
 than once per trial, so it costs one call an iteration. What the function
 returns is the resolution in force for the step about to be taken; a value
 that is not finite and positive is read as \code{0}, which asks nothing.
+}
 }
 
 \examples{
