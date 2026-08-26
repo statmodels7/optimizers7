@@ -115,10 +115,9 @@ iteration is still the better one. The lasso below converges in 12
 iterations at \code{crit_grad(1e-9)} with \code{accelerate = FALSE}, in 89 with
 \code{restart = FALSE}, and in 782 with the defaults, all three reaching the
 same support, the same objective to the last bit and the same
-coefficients to \code{8e-09}. What costs the iterations is the restart rather
-than the momentum: near the solution the objective moves at the rounding
-level, and each spurious reset discards the momentum built since the last
-one. At the default \code{crit_grad(1e-6)} none of this appears, both settings
+coefficients to \code{8e-09}. What costs the iterations is the restart, not the
+momentum: near the solution the objective moves at the rounding level, and
+each spurious reset discards the momentum built since the last one. At the default \code{crit_grad(1e-6)} none of this appears, both settings
 taking about ten iterations.
 }
 
@@ -133,8 +132,8 @@ badly conditioned: on a smooth quadratic in eight unknowns at
 against 858 at a condition number of 55, 573 against 5418 at 480, and
 1042 against 15104 at 2400.
 
-An increase is measured against the objective's own rounding and not
-against zero. The objective is a sum, so its error grows with the number
+An increase is measured against the objective's own rounding, not against
+zero. The objective is a sum, so its error grows with the number
 of terms, and a test reading a bare \code{>} fires on that error once the
 iteration is near enough to the solution: the lasso below took 21646
 iterations at \code{crit_grad(1e-9)} before the allowance and takes 782 after
