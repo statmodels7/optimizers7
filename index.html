@@ -94,11 +94,11 @@
 <span></span>
 <span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;optimizer_result&gt; BFGS</span></span>
-<span><span class="co">#&gt;   value      : 7.53493e-17</span></span>
+<span><span class="co">#&gt;   value      : 3.21085e-13</span></span>
 <span><span class="co">#&gt;   par        : 1 1</span></span>
-<span><span class="co">#&gt;   iterations : 32   evaluations: f 64, g 44</span></span>
-<span><span class="co">#&gt;   elapsed    : 0 us</span></span>
-<span><span class="co">#&gt;   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-12 (relative))</span></span></code></pre></div>
+<span><span class="co">#&gt;   iterations : 35   evaluations: f 49, g 39</span></span>
+<span><span class="co">#&gt;   elapsed    : 10 ms</span></span>
+<span><span class="co">#&gt;   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span></span></code></pre></div>
 <p>Swapping the algorithm changes one word, because every optimizer carries the same settings:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/lbfgs.html">lbfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span>
@@ -263,13 +263,13 @@
 <span><span class="co">#&gt;   All checks passed.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   battery (gap from the known minimum; information, not a verdict)</span></span>
-<span><span class="co">#&gt;     sphere       gap  0.00e+00  conv        3 evals  </span></span>
-<span><span class="co">#&gt;     rosenbrock   gap  7.53e-17  conv       64 evals  </span></span>
-<span><span class="co">#&gt;     booth        gap  4.80e-18  conv       15 evals  </span></span>
-<span><span class="co">#&gt;     beale        gap  4.11e-14  conv       20 evals  </span></span>
-<span><span class="co">#&gt;     powell       gap  2.86e-13  conv       60 evals  </span></span>
-<span><span class="co">#&gt;     himmelblau   gap  5.54e-15  conv       18 evals  multimodal</span></span>
-<span><span class="co">#&gt;     rastrigin    gap  7.96e+00  conv       15 evals  multimodal</span></span>
+<span><span class="co">#&gt;     sphere       gap  4.62e-33  conv        3 evals  </span></span>
+<span><span class="co">#&gt;     rosenbrock   gap  3.21e-13  conv       49 evals  </span></span>
+<span><span class="co">#&gt;     booth        gap  1.73e-17  conv        8 evals  </span></span>
+<span><span class="co">#&gt;     beale        gap  3.18e-15  conv       17 evals  </span></span>
+<span><span class="co">#&gt;     powell       gap  4.28e-11  conv       39 evals  </span></span>
+<span><span class="co">#&gt;     himmelblau   gap  6.27e-14  conv       17 evals  multimodal</span></span>
+<span><span class="co">#&gt;     rastrigin    gap  0.00e+00  conv       11 evals  multimodal</span></span>
 <span><span class="co">#&gt;     abs_sum      gap  1.26e-02  -          84 evals  non-smooth</span></span></code></pre></div>
 </div>
 <div class="section level2">

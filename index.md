@@ -52,11 +52,11 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 
 minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #> <optimizer_result> BFGS
-#>   value      : 7.53493e-17
+#>   value      : 3.21085e-13
 #>   par        : 1 1
-#>   iterations : 32   evaluations: f 64, g 44
-#>   elapsed    : 0 us
-#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-12 (relative))
+#>   iterations : 35   evaluations: f 49, g 39
+#>   elapsed    : 10 ms
+#>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```
 
 Swapping the algorithm changes one word, because every optimizer carries
@@ -238,13 +238,13 @@ check_optimizer(bfgs())
 #>   All checks passed.
 #> 
 #>   battery (gap from the known minimum; information, not a verdict)
-#>     sphere       gap  0.00e+00  conv        3 evals  
-#>     rosenbrock   gap  7.53e-17  conv       64 evals  
-#>     booth        gap  4.80e-18  conv       15 evals  
-#>     beale        gap  4.11e-14  conv       20 evals  
-#>     powell       gap  2.86e-13  conv       60 evals  
-#>     himmelblau   gap  5.54e-15  conv       18 evals  multimodal
-#>     rastrigin    gap  7.96e+00  conv       15 evals  multimodal
+#>     sphere       gap  4.62e-33  conv        3 evals  
+#>     rosenbrock   gap  3.21e-13  conv       49 evals  
+#>     booth        gap  1.73e-17  conv        8 evals  
+#>     beale        gap  3.18e-15  conv       17 evals  
+#>     powell       gap  4.28e-11  conv       39 evals  
+#>     himmelblau   gap  6.27e-14  conv       17 evals  multimodal
+#>     rastrigin    gap  0.00e+00  conv       11 evals  multimodal
 #>     abs_sum      gap  1.26e-02  -          84 evals  non-smooth
 ```
 

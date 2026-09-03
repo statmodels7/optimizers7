@@ -211,7 +211,7 @@ summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 2 ms
+#>   elapsed    : 3 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   safeguards :
 #>     step shortened: 4
