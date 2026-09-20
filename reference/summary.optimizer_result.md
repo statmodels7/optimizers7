@@ -56,7 +56,7 @@ summary(minimize(newton(keep_trace = TRUE),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2   evaluations: f 47, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 #>   safeguards : none fired

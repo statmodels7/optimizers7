@@ -60,7 +60,7 @@ print(minimize(gd(maxit = 5), rosen, c(-1.2, 1)))
 #>   value      : 4.10215
 #>   par        : -1.0203  1.0553
 #>   iterations : 5   evaluations: f 77, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```
