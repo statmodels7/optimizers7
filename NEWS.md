@@ -1,3 +1,34 @@
+# optimizers7 0.9.0
+
+* `newton()` takes `max_length`, the largest component that a step may
+  have. If a direction is longer than this in the infinity norm, it is
+  scaled down to this length before the line search reads it, and the trace
+  records the step as `newton step capped`. The default is `Inf`, which
+  leaves every step as it is, so a run that does not set the argument is
+  the run of the previous release.
+
+  The bound is the `maxstep` of the line-search Newton method of Dennis and
+  Schnabel (1983) and the `maxNstep` of the smoothing-parameter iteration of
+  mgcv. It matters where the objective flattens towards an asymptote. There
+  the curvature is small and the Newton step is long, so the step can carry
+  the iterate past the minimum into the flat region. The line search accepts
+  such a step because the objective did decrease, and in the flat region the
+  gradient is close to zero, so the run can stop there. Measured on the REML
+  criterion of statmodels7 for a ridge penalty on the fifteen predictors of
+  `MASS::UScrime`, standardized by the term, the first step from
+  lambda = 1 had a length of 23.5 on the log scale and reached
+  lambda = 1.6e10. The criterion is flat there at -65.40, while its maximum,
+  -53.30, lies near lambda = 91.5. With `max_length = 5` the same search
+  reaches the maximum.
+
+  Near a minimum the Newton steps are short and the bound does not bind, so
+  the quadratic convergence of the method is kept. The tests pin both sides.
+  On Rosenbrock from the customary start, a bound of 10 leaves the run
+  identical to the unbounded one, to the evaluation counts. On
+  sqrt(1 + x^2), whose Newton step from 2 is -10, a bound of 1 takes every
+  step at full length and needs fewer evaluations than the free method,
+  which has to backtrack its first step.
+
 # optimizers7 0.8.0
 
 * `prox_grad()`'s adaptive restart measures an increase in the objective

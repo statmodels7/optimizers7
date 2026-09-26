@@ -17,18 +17,19 @@ NULL
 #' [minimize()].
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `Newton` carries four:
+#' Beyond the seven properties every optimizer has, a `Newton` carries five:
 #' `step` and `line_search`, shared with the other line-search methods, and
-#' `hessian_mod` and `floor`, which are its own.
+#' `hessian_mod`, `floor` and `max_length`, which are its own.
 #'
 #' @param hessian_mod How an indefinite Hessian is repaired, `"eigen"` or
 #'   `"ridge"`.
 #' @param floor The smallest eigenvalue the repaired Hessian may have.
+#' @param max_length The largest component that a step may have.
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [newton()].
 #'
 #' @return An S7 object of class `Newton` inheriting from [optimizer()], with
-#'   the four properties above beside the seven shared ones.
+#'   the five properties above beside the seven shared ones.
 #'
 #' @seealso [newton()] for the constructor, [bfgs()] for the method that
 #'   needs no Hessian.
@@ -38,7 +39,8 @@ NULL
 Newton <- S7::new_class("Newton", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     hessian_mod = S7::class_character,
-                    floor = S7::class_numeric))
+                    floor = S7::class_numeric,
+                    max_length = S7::class_numeric))
 
 
 #' @title Newton's Method with a Modified Hessian
@@ -68,6 +70,11 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' @param maxit,max_eval,verbose,refresh,keep_trace As in [optimizer()].
 #'   `maxit` defaults to 200 here where [optimizer()] uses 500, a Newton run
 #'   that has not arrived in 200 iterations being in trouble of another kind.
+#' @param max_length The largest component that a step may have, a
+#'   single positive number. If a direction is longer than this in the
+#'   infinity norm, it is scaled down to this length before the line
+#'   search sees it. Defaults to `Inf`,
+#'   which leaves every step as it is. See below.
 #'
 #' @details
 #' # Why the Hessian has to be repaired
@@ -96,6 +103,28 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' Which repair fired is recorded in the trace, under the names
 #' `hessian modified` and `hessian modified (capped)`, so a run that spent
 #' its time repairing can be told from one that spent it converging.
+#'
+#' # A long Newton step can leave the region its model describes
+#'
+#' The Newton step minimizes the local quadratic model of the objective, and
+#' its length is set by the curvature at the current point. Where the
+#' objective flattens towards an asymptote the curvature is small, the step
+#' is long, and it can carry the iterate past the minimum into the flat
+#' region. The line search accepts such a step whenever it lowers the
+#' objective, and in the flat region the gradient is close to zero, so the
+#' run can stop there. Measured on the REML criterion of statmodels7 for a
+#' ridge penalty on the fifteen predictors of `MASS::UScrime`, standardized
+#' by the term (`standardize = TRUE`), the first step from
+#' \eqn{\lambda = 1} had a length of 23.5 on the log scale and reached
+#' \eqn{\lambda = 1.6\times10^{10}}, where the criterion is flat at -65.40,
+#' while its maximum, -53.30, lies near \eqn{\lambda = 91.5}.
+#'
+#' `max_length` bounds the step, which is the `maxstep` of the line-search
+#' Newton method of Dennis and Schnabel (1983) and the `maxNstep` of the
+#' smoothing-parameter iteration of mgcv. The bound only ever shortens a
+#' step, and near a minimum the Newton steps are short, so the quadratic
+#' convergence of the method is kept. A step shortened by it is recorded in
+#' the trace as `newton step capped`.
 #'
 #' # A repaired step is capped and an unrepaired one is not
 #'
@@ -163,6 +192,10 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   [armijo()] for the line search, [summary.optimizer_result()] for the
 #'   safeguard counts.
 #' @references
+#' Dennis, J. E. and Schnabel, R. B. (1983). *Numerical Methods for
+#' Unconstrained Optimization and Nonlinear Equations*. Prentice-Hall,
+#' Englewood Cliffs, NJ.
+#'
 #' Gill, P. E., Murray, W. and Wright, M. H. (1981).
 #' *Practical Optimization*. Academic Press, London.
 #'
@@ -174,7 +207,8 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
                    hessian_mod = c("eigen", "ridge"), floor = 1e-8,
                    step = 1, line_search = armijo(),
                    maxit = 200, max_eval = Inf,
-                   verbose = FALSE, refresh = 10, keep_trace = FALSE) {
+                   verbose = FALSE, refresh = 10, keep_trace = FALSE,
+                   max_length = Inf) {
   hessian_mod <- match.arg(hessian_mod)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -182,10 +216,15 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
   if (length(floor) != 1L || !is.numeric(floor) || is.na(floor) || floor <= 0) {
     stop("'floor' must be a single positive number.", call. = FALSE)
   }
+  if (length(max_length) != 1L || !is.numeric(max_length) ||
+      is.na(max_length) || max_length <= 0) {
+    stop("'max_length' must be a single positive number (Inf for no bound).",
+         call. = FALSE)
+  }
   Newton(name = "Newton", criterion = criterion, maxit = maxit,
          max_eval = max_eval, verbose = verbose, refresh = refresh,
          keep_trace = keep_trace, step = step, line_search = line_search,
-         hessian_mod = hessian_mod, floor = floor)
+         hessian_mod = hessian_mod, floor = floor, max_length = max_length)
 }
 
 
@@ -540,7 +579,8 @@ S7::method(minimize, Newton) <-
     }
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "newton", hessian_mod = optimizer@hessian_mod,
-                     floor = optimizer@floor))
+                     floor = optimizer@floor,
+                     max_length = optimizer@max_length))
   }
 
 #' @title Minimize by BFGS

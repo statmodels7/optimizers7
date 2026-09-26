@@ -14,7 +14,8 @@ newton(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  max_length = Inf
 )
 }
 \arguments{
@@ -41,6 +42,12 @@ curvature is read from the Hessian.}
 \item{maxit, max_eval, verbose, refresh, keep_trace}{As in \code{\link[=optimizer]{optimizer()}}.
 \code{maxit} defaults to 200 here where \code{\link[=optimizer]{optimizer()}} uses 500, a Newton run
 that has not arrived in 200 iterations being in trouble of another kind.}
+
+\item{max_length}{The largest component that a step may have, a
+single positive number. If a direction is longer than this in the
+infinity norm, it is scaled down to this length before the line
+search sees it. Defaults to \code{Inf},
+which leaves every step as it is. See below.}
 }
 \value{
 An S7 object of class \link{Newton}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
@@ -78,6 +85,28 @@ large \eqn{\tau}. Cheaper, and blunter.}
 Which repair fired is recorded in the trace, under the names
 \verb{hessian modified} and \verb{hessian modified (capped)}, so a run that spent
 its time repairing can be told from one that spent it converging.
+}
+
+\section{A long Newton step can leave the region its model describes}{
+The Newton step minimizes the local quadratic model of the objective, and
+its length is set by the curvature at the current point. Where the
+objective flattens towards an asymptote the curvature is small, the step
+is long, and it can carry the iterate past the minimum into the flat
+region. The line search accepts such a step whenever it lowers the
+objective, and in the flat region the gradient is close to zero, so the
+run can stop there. Measured on the REML criterion of statmodels7 for a
+ridge penalty on the fifteen predictors of \code{MASS::UScrime}, standardized
+by the term (\code{standardize = TRUE}), the first step from
+\eqn{\lambda = 1} had a length of 23.5 on the log scale and reached
+\eqn{\lambda = 1.6\times10^{10}}, where the criterion is flat at -65.40,
+while its maximum, -53.30, lies near \eqn{\lambda = 91.5}.
+
+\code{max_length} bounds the step, which is the \code{maxstep} of the line-search
+Newton method of Dennis and Schnabel (1983) and the \code{maxNstep} of the
+smoothing-parameter iteration of mgcv. The bound only ever shortens a
+step, and near a minimum the Newton steps are short, so the quadratic
+convergence of the method is kept. A step shortened by it is recorded in
+the trace as \verb{newton step capped}.
 }
 
 \section{A repaired step is capped and an unrepaired one is not}{
@@ -141,6 +170,10 @@ summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
 
 }
 \references{
+Dennis, J. E. and Schnabel, R. B. (1983). \emph{Numerical Methods for
+Unconstrained Optimization and Nonlinear Equations}. Prentice-Hall,
+Englewood Cliffs, NJ.
+
 Gill, P. E., Murray, W. and Wright, M. H. (1981).
 \emph{Practical Optimization}. Academic Press, London.
 

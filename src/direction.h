@@ -317,8 +317,9 @@ private:
 
 class NewtonDirection : public Direction {
 public:
-  NewtonDirection(std::string mod, double floor_value)
-    : mod_(mod), floor_(floor_value) {}
+  NewtonDirection(std::string mod, double floor_value,
+                  double max_length = arma::datum::inf)
+    : mod_(mod), floor_(floor_value), max_length_(max_length) {}
 
   bool needs_hessian() const { return true; }
 
@@ -341,8 +342,11 @@ public:
       if (arma::solve(d, H, -g, arma::solve_opts::likely_sympd + arma::solve_opts::no_approx)) {
         // THE GENUINE NEWTON STEP, returned as it is. Its length is the
         // objective's own curvature and capping it would throw away the
-        // quadratic convergence the method exists for.
-        if (arma::dot(g, d) < 0.0) return d;
+        // quadratic convergence the method exists for -- except past
+        // max_length, which the caller sets where the quadratic model is
+        // known not to hold that far: see bounded(). Near a minimum the
+        // steps are short and the bound does not bind.
+        if (arma::dot(g, d) < 0.0) return bounded(d, guard);
       }
       // Positive definite and yet not a descent direction means the solve lost
       // accuracy; falling back is cheaper than pretending.
@@ -362,10 +366,27 @@ public:
     // the length of this one is the floor's and not the curvature's: capped
     const arma::vec dc = capped_newton(d);
     if (arma::norm(d, "inf") > 1.0) guard = "hessian modified (capped)";
-    return dc;
+    return bounded(dc, guard);
   }
 
 private:
+  // A step whose largest component exceeds max_length is scaled down to it,
+  // the maxstep of Dennis and Schnabel. Where the objective flattens towards
+  // an asymptote the curvature is small and the Newton step long enough to
+  // carry the iterate past the minimum into the flat region, which the line
+  // search accepts because the objective did go down there, and where the
+  // gradient is close to zero: measured on a REML criterion, a first step of
+  // 23.5 on the log scale from lambda = 1 to 1.6e10, whose criterion is
+  // flat at -65.40 against a maximum of -53.30 near lambda = 91.5. With the
+  // default of Inf nothing is touched.
+  arma::vec bounded(const arma::vec& d, std::string& guard) const {
+    if (!std::isfinite(max_length_)) return d;
+    const double dmax = arma::norm(d, "inf");
+    if (!std::isfinite(dmax) || dmax <= max_length_) return d;
+    if (guard.empty() || guard == "none") guard = "newton step capped";
+    return d * (max_length_ / dmax);
+  }
+
   arma::mat eigen_floor(const arma::mat& H) const {
     arma::vec val;
     arma::mat vec;
@@ -389,6 +410,7 @@ private:
 
   std::string mod_;
   double floor_;
+  double max_length_;
 };
 
 
@@ -554,7 +576,8 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                Rcpp::as<double>(method["curv_tol"]));
   } else if (type == "newton") {
     return new NewtonDirection(Rcpp::as<std::string>(method["hessian_mod"]),
-                               Rcpp::as<double>(method["floor"]));
+                               Rcpp::as<double>(method["floor"]),
+                               Rcpp::as<double>(method["max_length"]));
   } else if (type == "bfgs") {
     return new BfgsDirection(p, Rcpp::as<double>(method["curv_tol"]),
                              Rcpp::as<int>(method["max_skip"]));

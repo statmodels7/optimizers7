@@ -289,3 +289,47 @@ test_that("the first quasi-Newton step is of order one in the parameters", {
   expect_lt(max(abs(r2@par)), 1e-6)
   expect_identical(r2@iterations, 2L)
 })
+
+
+test_that("a Newton step longer than max_length is shortened to it", {
+  # sqrt(1 + x^2) is convex and its curvature falls as |x| grows, so the
+  # Newton step from x = 2 is -x (1 + x^2) = -10 and overshoots the minimum
+  # at zero by eight. That is the shape of a criterion flattening towards an
+  # asymptote, where a long step lands in the flat region.
+  f  <- function(p) sqrt(1 + p^2)
+  gr <- function(p) p / sqrt(1 + p^2)
+  he <- function(p) matrix((1 + p^2)^(-3 / 2), 1, 1)
+  expect_equal(-gr(2) / he(2)[1, 1], -10)
+
+  free <- minimize(newton(keep_trace = TRUE), f, 2, gr = gr, he = he)
+  capped <- minimize(newton(max_length = 1, keep_trace = TRUE), f, 2,
+                     gr = gr, he = he)
+  for (r in list(free, capped)) {
+    expect_true(r@converged)
+    expect_equal(r@par, 0, tolerance = 1e-6)
+  }
+  # the bounded run takes the steps -1 and -1 at full length and says so,
+  # where the free one has to backtrack its first step to a quarter
+  expect_true(all(capped@trace$safeguard == "newton step capped"))
+  expect_true(all(capped@trace$step == 1))
+  expect_false("newton step capped" %in% free@trace$safeguard)
+  expect_lt(capped@counts[["f"]], free@counts[["f"]])
+
+  # A BOUND THAT DOES NOT BIND CHANGES NOTHING. Rosenbrock's Newton steps from
+  # the customary start are all shorter than 10, and the run is the one
+  # newton() gives without the argument, to the iteration and the evaluation.
+  a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  b <- minimize(newton(max_length = 10), rosen, c(-1.2, 1), gr = rosen_gr,
+                he = rosen_he)
+  expect_identical(b@par, a@par)
+  expect_identical(b@counts, a@counts)
+})
+
+
+test_that("max_length is validated", {
+  expect_error(newton(max_length = 0), "positive")
+  expect_error(newton(max_length = -1), "positive")
+  expect_error(newton(max_length = NA_real_), "positive")
+  expect_error(newton(max_length = c(1, 2)), "positive")
+  expect_identical(newton()@max_length, Inf)
+})
