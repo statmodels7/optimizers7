@@ -15,7 +15,8 @@ newton(
   verbose = FALSE,
   refresh = 10,
   keep_trace = FALSE,
-  max_length = Inf
+  max_length = Inf,
+  typical = NULL
 )
 }
 \arguments{
@@ -48,6 +49,14 @@ single positive number. If a direction is longer than this in the
 infinity norm, it is scaled down to this length before the line
 search sees it. Defaults to \code{Inf},
 which leaves every step as it is. See below.}
+
+\item{typical}{\code{NULL} (the default), or the typical size of each
+parameter: one positive number, or one per parameter. Every length the
+method reads is then read in these units, the largest
+\eqn{\lvert d_i\rvert / t_i} in place of the largest
+\eqn{\lvert d_i\rvert}: the bound \code{max_length}, and the scaling of a
+direction whose length no curvature sets. \code{NULL} reads them in the
+parameters' own units.}
 }
 \value{
 An S7 object of class \link{Newton}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
@@ -107,6 +116,19 @@ smoothing-parameter iteration of mgcv. The bound only ever shortens a
 step, and near a minimum the Newton steps are short, so the quadratic
 convergence of the method is kept. A step shortened by it is recorded in
 the trace as \verb{newton step capped}.
+}
+
+\section{Parameters in different units}{
+A length in the parameters' own units means different things for
+parameters that carry different units: a displacement of 5, or of one, is a
+long step for a log-scale parameter and a short one for a variance near
+236. Measured on a restricted likelihood in such a variance, started at
+651 where the criterion is not concave, the repaired direction scaled to
+length one moved the variance by one unit per iteration, for 180
+iterations. \code{typical} gives the typical size \eqn{t_i} of each parameter,
+which is the scaled norm of Dennis and Schnabel (1983): every length is
+then the largest \eqn{\lvert d_i\rvert / t_i}, the bound \code{max_length}
+and the scaling of a repaired direction or of a gradient fallback alike.
 }
 
 \section{A repaired step is capped and an unrepaired one is not}{

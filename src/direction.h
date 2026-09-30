@@ -318,8 +318,10 @@ private:
 class NewtonDirection : public Direction {
 public:
   NewtonDirection(std::string mod, double floor_value,
-                  double max_length = arma::datum::inf)
-    : mod_(mod), floor_(floor_value), max_length_(max_length) {}
+                  double max_length = arma::datum::inf,
+                  arma::vec typical = arma::vec())
+    : mod_(mod), floor_(floor_value), max_length_(max_length),
+      typ_(typical) {}
 
   bool needs_hessian() const { return true; }
 
@@ -332,7 +334,7 @@ public:
     // which newton() had never been given.
     if (!H.is_finite()) {
       guard = "hessian non-finite";
-      return first_descent(g);
+      return first(g);
     }
     H = 0.5 * (H + H.t());
 
@@ -351,7 +353,7 @@ public:
       // Positive definite and yet not a descent direction means the solve lost
       // accuracy; falling back is cheaper than pretending.
       guard = "hessian solve failed";
-      return first_descent(g);
+      return first(g);
     }
 
     guard = "hessian modified";
@@ -361,11 +363,11 @@ public:
     if (!arma::solve(d, Hm, -g, arma::solve_opts::likely_sympd + arma::solve_opts::no_approx) ||
         !d.is_finite() || arma::dot(g, d) >= 0.0) {
       guard = "hessian solve failed";
-      return first_descent(g);
+      return first(g);
     }
     // the length of this one is the floor's and not the curvature's: capped
-    const arma::vec dc = capped_newton(d);
-    if (arma::norm(d, "inf") > 1.0) guard = "hessian modified (capped)";
+    const arma::vec dc = capped(d);
+    if (scaled_max(d) > 1.0) guard = "hessian modified (capped)";
     return bounded(dc, guard);
   }
 
@@ -379,12 +381,39 @@ private:
   // 23.5 on the log scale from lambda = 1 to 1.6e10, whose criterion is
   // flat at -65.40 against a maximum of -53.30 near lambda = 91.5. With the
   // default of Inf nothing is touched.
+  //
+  // Every length here is read in units of `typical`, the typical size of each
+  // parameter of Dennis and Schnabel's scaled norm: the largest |d_i| / t_i.
+  // With no typical sizes it is the infinity norm and the functions are the
+  // ones every other direction uses, so an unscaled run is unchanged.
   arma::vec bounded(const arma::vec& d, std::string& guard) const {
     if (!std::isfinite(max_length_)) return d;
-    const double dmax = arma::norm(d, "inf");
+    const double dmax = scaled_max(d);
     if (!std::isfinite(dmax) || dmax <= max_length_) return d;
     if (guard.empty() || guard == "none") guard = "newton step capped";
     return d * (max_length_ / dmax);
+  }
+
+  double scaled_max(const arma::vec& d) const {
+    if (typ_.n_elem == 0) return arma::norm(d, "inf");
+    return arma::max(arma::abs(d) / typ_);
+  }
+
+  // first_descent() and capped_newton() with the order-one length read in
+  // typical units: a direction whose scale no curvature sets is scaled to a
+  // displacement of one typical size.
+  arma::vec first(const arma::vec& g) const {
+    if (typ_.n_elem == 0) return first_descent(g);
+    const double gmax = scaled_max(g);
+    if (!std::isfinite(gmax) || gmax <= 1.0) return -g;
+    return -g / gmax;
+  }
+
+  arma::vec capped(const arma::vec& d) const {
+    if (typ_.n_elem == 0) return capped_newton(d);
+    const double dmax = scaled_max(d);
+    if (!std::isfinite(dmax) || dmax <= 1.0) return d;
+    return d / dmax;
   }
 
   arma::mat eigen_floor(const arma::mat& H) const {
@@ -411,6 +440,7 @@ private:
   std::string mod_;
   double floor_;
   double max_length_;
+  arma::vec typ_;
 };
 
 
@@ -577,7 +607,8 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
   } else if (type == "newton") {
     return new NewtonDirection(Rcpp::as<std::string>(method["hessian_mod"]),
                                Rcpp::as<double>(method["floor"]),
-                               Rcpp::as<double>(method["max_length"]));
+                               Rcpp::as<double>(method["max_length"]),
+                               Rcpp::as<arma::vec>(method["typical"]));
   } else if (type == "bfgs") {
     return new BfgsDirection(p, Rcpp::as<double>(method["curv_tol"]),
                              Rcpp::as<int>(method["max_skip"]));

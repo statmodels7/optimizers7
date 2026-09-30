@@ -17,7 +17,8 @@ Newton(
   line_search = NULL,
   hessian_mod = character(0),
   floor = integer(0),
-  max_length = integer(0)
+  max_length = integer(0),
+  typical = NULL
 )
 }
 \arguments{
@@ -30,10 +31,13 @@ object, as in \code{\link[=newton]{newton()}}.}
 \item{floor}{The smallest eigenvalue the repaired Hessian may have.}
 
 \item{max_length}{The largest component that a step may have.}
+
+\item{typical}{\code{NULL}, or the typical size of each parameter, in whose
+units the step lengths are read.}
 }
 \value{
 An S7 object of class \code{Newton} inheriting from \code{\link[=optimizer]{optimizer()}}, with
-the five properties above beside the seven shared ones.
+the six properties above beside the seven shared ones.
 }
 \description{
 An optimizer holding the initial step length, the line search, and the two
@@ -44,7 +48,7 @@ settings that decide how an indefinite Hessian is repaired. Built by
 \details{
 Beyond the seven properties every optimizer has, a \code{Newton} carries five:
 \code{step} and \code{line_search}, shared with the other line-search methods, and
-\code{hessian_mod}, \code{floor} and \code{max_length}, which are its own.
+\code{hessian_mod}, \code{floor}, \code{max_length} and \code{typical}, which are its own.
 }
 \seealso{
 \code{\link[=newton]{newton()}} for the constructor, \code{\link[=bfgs]{bfgs()}} for the method that

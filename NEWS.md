@@ -1,3 +1,15 @@
+# optimizers7 0.10.0
+
+* `newton()` takes `typical`, the typical size of each parameter (the scaled
+  norm of Dennis and Schnabel). Every length the method reads is then read in
+  these units, the largest |d_i| / t_i in place of the largest |d_i|: the
+  bound `max_length`, the length-one scaling of a direction whose Hessian had
+  to be repaired, and the scaling of a gradient fallback. `NULL`, the default,
+  reads them in the parameters' own units, and a run that does not set it is
+  unchanged, pinned on Rosenbrock to the evaluation counts. Measured on a
+  restricted likelihood in a variance near 236, started at 651 where it is not
+  concave, the repaired steps moved the variance by one unit per iteration.
+
 # optimizers7 0.9.0
 
 * `newton()` takes `max_length`, the largest component that a step may

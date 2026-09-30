@@ -19,17 +19,19 @@ NULL
 #' @details
 #' Beyond the seven properties every optimizer has, a `Newton` carries five:
 #' `step` and `line_search`, shared with the other line-search methods, and
-#' `hessian_mod`, `floor` and `max_length`, which are its own.
+#' `hessian_mod`, `floor`, `max_length` and `typical`, which are its own.
 #'
 #' @param hessian_mod How an indefinite Hessian is repaired, `"eigen"` or
 #'   `"ridge"`.
 #' @param floor The smallest eigenvalue the repaired Hessian may have.
 #' @param max_length The largest component that a step may have.
+#' @param typical `NULL`, or the typical size of each parameter, in whose
+#'   units the step lengths are read.
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [newton()].
 #'
 #' @return An S7 object of class `Newton` inheriting from [optimizer()], with
-#'   the five properties above beside the seven shared ones.
+#'   the six properties above beside the seven shared ones.
 #'
 #' @seealso [newton()] for the constructor, [bfgs()] for the method that
 #'   needs no Hessian.
@@ -40,7 +42,8 @@ Newton <- S7::new_class("Newton", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     hessian_mod = S7::class_character,
                     floor = S7::class_numeric,
-                    max_length = S7::class_numeric))
+                    max_length = S7::class_numeric,
+                    typical = S7::class_any))
 
 
 #' @title Newton's Method with a Modified Hessian
@@ -75,6 +78,13 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   infinity norm, it is scaled down to this length before the line
 #'   search sees it. Defaults to `Inf`,
 #'   which leaves every step as it is. See below.
+#' @param typical `NULL` (the default), or the typical size of each
+#'   parameter: one positive number, or one per parameter. Every length the
+#'   method reads is then read in these units, the largest
+#'   \eqn{\lvert d_i\rvert / t_i} in place of the largest
+#'   \eqn{\lvert d_i\rvert}: the bound `max_length`, and the scaling of a
+#'   direction whose length no curvature sets. `NULL` reads them in the
+#'   parameters' own units.
 #'
 #' @details
 #' # Why the Hessian has to be repaired
@@ -125,6 +135,19 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' step, and near a minimum the Newton steps are short, so the quadratic
 #' convergence of the method is kept. A step shortened by it is recorded in
 #' the trace as `newton step capped`.
+#'
+#' # Parameters in different units
+#'
+#' A length in the parameters' own units means different things for
+#' parameters that carry different units: a displacement of 5, or of one, is a
+#' long step for a log-scale parameter and a short one for a variance near
+#' 236. Measured on a restricted likelihood in such a variance, started at
+#' 651 where the criterion is not concave, the repaired direction scaled to
+#' length one moved the variance by one unit per iteration, for 180
+#' iterations. `typical` gives the typical size \eqn{t_i} of each parameter,
+#' which is the scaled norm of Dennis and Schnabel (1983): every length is
+#' then the largest \eqn{\lvert d_i\rvert / t_i}, the bound `max_length`
+#' and the scaling of a repaired direction or of a gradient fallback alike.
 #'
 #' # A repaired step is capped and an unrepaired one is not
 #'
@@ -208,7 +231,7 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
                    step = 1, line_search = armijo(),
                    maxit = 200, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE,
-                   max_length = Inf) {
+                   max_length = Inf, typical = NULL) {
   hessian_mod <- match.arg(hessian_mod)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -221,10 +244,17 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
     stop("'max_length' must be a single positive number (Inf for no bound).",
          call. = FALSE)
   }
+  if (!is.null(typical) &&
+      (!length(typical) || !is.numeric(typical) || anyNA(typical) ||
+       any(!is.finite(typical)) || any(typical <= 0))) {
+    stop(paste0("'typical' must be NULL, or positive finite numbers: one, ",
+                "or one per parameter."), call. = FALSE)
+  }
   Newton(name = "Newton", criterion = criterion, maxit = maxit,
          max_eval = max_eval, verbose = verbose, refresh = refresh,
          keep_trace = keep_trace, step = step, line_search = line_search,
-         hessian_mod = hessian_mod, floor = floor, max_length = max_length)
+         hessian_mod = hessian_mod, floor = floor, max_length = max_length,
+         typical = typical)
 }
 
 
@@ -577,10 +607,20 @@ S7::method(minimize, Newton) <-
                 call. = FALSE)
       }
     }
+    typ <- optimizer@typical
+    if (!is.null(typ)) {
+      if (length(typ) == 1L) typ <- rep(typ, length(par))
+      if (length(typ) != length(par)) {
+        stop(sprintf(paste0("'typical' has %d sizes and 'par' has %d ",
+                            "values; give one size, or one per parameter."),
+                     length(typ), length(par)), call. = FALSE)
+      }
+    }
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "newton", hessian_mod = optimizer@hessian_mod,
                      floor = optimizer@floor,
-                     max_length = optimizer@max_length))
+                     max_length = optimizer@max_length,
+                     typical = if (is.null(typ)) numeric(0) else typ))
   }
 
 #' @title Minimize by BFGS

@@ -333,3 +333,55 @@ test_that("max_length is validated", {
   expect_error(newton(max_length = c(1, 2)), "positive")
   expect_identical(newton()@max_length, Inf)
 })
+
+
+test_that("typical sizes read every length in the parameters' own units", {
+  expect_null(newton()@typical)
+  expect_error(newton(typical = 0), "positive")
+  expect_error(newton(typical = c(1, NA)), "positive")
+  expect_error(newton(typical = Inf), "positive")
+  expect_error(minimize(newton(typical = c(1, 2, 3)), rosen, c(-1.2, 1),
+                        gr = rosen_gr, he = rosen_he), "one per parameter")
+  # two separate quadratics whose minima lie 1000 and 2 away: the Newton step
+  # is (1000, -2). A bound of 5 in the parameters' own units shrinks the step
+  # by 200; with typical sizes (1000, 1) the same bound leaves it whole, and
+  # with (100, 1) it is halved, the first component reaching 5 typical sizes.
+  f  <- function(p) (p[1] - 1000)^2 + (p[2] + 2)^2
+  gr <- function(p) 2 * c(p[1] - 1000, p[2] + 2)
+  he <- function(p) diag(2, 2)
+  one  <- minimize(newton(max_length = 5, keep_trace = TRUE, maxit = 1),
+                   f, c(0, 0), gr = gr, he = he)
+  wide <- minimize(newton(max_length = 5, typical = c(1000, 1),
+                          keep_trace = TRUE, maxit = 1),
+                   f, c(0, 0), gr = gr, he = he)
+  half <- minimize(newton(max_length = 5, typical = c(100, 1),
+                          keep_trace = TRUE, maxit = 1),
+                   f, c(0, 0), gr = gr, he = he)
+  expect_equal(one@par, c(5, -0.01))
+  expect_equal(wide@par, c(1000, -2))
+  expect_equal(half@par, c(500, -1))
+  expect_false("newton step capped" %in% wide@trace$safeguard)
+  expect_true("newton step capped" %in% half@trace$safeguard)
+
+  # A REPAIRED direction is scaled to one typical size, not to one unit.
+  # -100 cos(p / 100) is concave at p = 250, so the eigen floor fires and the
+  # direction is scaled to length one: one unit, or one typical size.
+  g2  <- function(p) -cos(p[1] / 100) * 100
+  gr2 <- function(p) sin(p[1] / 100)
+  he2 <- function(p) matrix(cos(p[1] / 100) / 100, 1, 1)
+  # at p = 250 the curvature cos(2.5)/100 is negative and the gradient
+  # sin(2.5) positive, so the step is a repaired one pointing down
+  a <- minimize(newton(maxit = 1, keep_trace = TRUE), g2, 250, gr = gr2,
+                he = he2)
+  b <- minimize(newton(maxit = 1, keep_trace = TRUE, typical = 100), g2, 250,
+                gr = gr2, he = he2)
+  expect_equal(250 - a@par, 1)
+  expect_equal(250 - b@par, 100)
+
+  # AND NOTHING MOVES WITHOUT THEM, to the iteration and the evaluation
+  r1 <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  r2 <- minimize(newton(typical = 1), rosen, c(-1.2, 1), gr = rosen_gr,
+                 he = rosen_he)
+  expect_identical(r2@par, r1@par)
+  expect_identical(r2@counts, r1@counts)
+})
