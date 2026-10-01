@@ -127,7 +127,7 @@ minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 3, g 2
-#>   elapsed    : 1e+03 us
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # And is the wrong tool for a curved valley: the budget runs out first.

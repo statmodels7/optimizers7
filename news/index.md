@@ -1,5 +1,71 @@
 # Changelog
 
+## optimizers7 0.11.0
+
+- [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),
+  Newton’s method with Chebyshev’s third-order correction. Where the
+  Hessian is positive definite the Newton step is corrected by the third
+  derivative of the objective contracted twice with it,
+  `d = dN - H^-1 T[dN, dN] / 2`, read from `t3(x, d)` passed to
+  [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
+  or from one second difference of the gradient along `dN` without it. A
+  correction longer than `ratio` times the Newton step, or one that is
+  not a descent direction, is refused and the Newton step kept;
+  everything else is
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)’s.
+  On Rosenbrock the method takes 18, 4 and 5 iterations against
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)’s
+  21, 14 and 8 from three starts. A `t3` together with `lower` or
+  `upper` is rejected, the run then being on the unconstrained scale.
+
+## optimizers7 0.10.0
+
+- [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+  takes `typical`, the typical size of each parameter (the scaled norm
+  of Dennis and Schnabel). Every length the method reads is then read in
+  these units, the largest \|d_i\| / t_i in place of the largest
+  \|d_i\|: the bound `max_length`, the length-one scaling of a direction
+  whose Hessian had to be repaired, and the scaling of a gradient
+  fallback. `NULL`, the default, reads them in the parameters’ own
+  units, and a run that does not set it is unchanged, pinned on
+  Rosenbrock to the evaluation counts. Measured on a restricted
+  likelihood in a variance near 236, started at 651 where it is not
+  concave, the repaired steps moved the variance by one unit per
+  iteration.
+
+## optimizers7 0.9.0
+
+- [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+  takes `max_length`, the largest component that a step may have. If a
+  direction is longer than this in the infinity norm, it is scaled down
+  to this length before the line search reads it, and the trace records
+  the step as `newton step capped`. The default is `Inf`, which leaves
+  every step as it is, so a run that does not set the argument is the
+  run of the previous release.
+
+  The bound is the `maxstep` of the line-search Newton method of Dennis
+  and Schnabel (1983) and the `maxNstep` of the smoothing-parameter
+  iteration of mgcv. It matters where the objective flattens towards an
+  asymptote. There the curvature is small and the Newton step is long,
+  so the step can carry the iterate past the minimum into the flat
+  region. The line search accepts such a step because the objective did
+  decrease, and in the flat region the gradient is close to zero, so the
+  run can stop there. Measured on the REML criterion of statmodels7 for
+  a ridge penalty on the fifteen predictors of
+  [`MASS::UScrime`](https://rdrr.io/pkg/MASS/man/UScrime.html),
+  standardized by the term, the first step from lambda = 1 had a length
+  of 23.5 on the log scale and reached lambda = 1.6e10. The criterion is
+  flat there at -65.40, while its maximum, -53.30, lies near lambda =
+  91.5. With `max_length = 5` the same search reaches the maximum.
+
+  Near a minimum the Newton steps are short and the bound does not bind,
+  so the quadratic convergence of the method is kept. The tests pin both
+  sides. On Rosenbrock from the customary start, a bound of 10 leaves
+  the run identical to the unbounded one, to the evaluation counts. On
+  sqrt(1 + x^2), whose Newton step from 2 is -10, a bound of 1 takes
+  every step at full length and needs fewer evaluations than the free
+  method, which has to backtrack its first step.
+
 ## optimizers7 0.8.0
 
 - [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)’s

@@ -14,6 +14,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Bundle-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Cg-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Chain-class.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/Chebyshev-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Compass-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/CritAbsObj-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/CritAbsPar-class.html</loc></url>
@@ -50,6 +51,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/capture_seed.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/cg.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/chain.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/chebyshev.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_bounds.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_count.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_criterion.html</loc></url>
@@ -97,6 +99,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Bundle.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Cg.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Chain.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Chebyshev.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Compass.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.GradientDescent.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Lbfgs.html</loc></url>

@@ -241,14 +241,14 @@ c(bundle = r@par, median = median(y))
 #>     bundle     median 
 #> 0.07456498 0.07456498 
 abs(r@par - median(y))     # 8e-16
-#> [1] 2.19269e-15
+#> [1] 1.179612e-15
 r@message                  # how many trials were accepted
 #> [1] "8 serious, 14 null"
 
 # The aggregate subgradient does go to zero at the kink, where every single
 # subgradient the objective offers there has norm 1.
 r@gradient
-#> [1] 1.490339e-07
+#> [1] 4.835899e-08
 abs(g(r@par - 1e-9))
 #> [1] 1
 

@@ -126,7 +126,8 @@ shared <- c("name", "criterion", "maxit", "max_eval", "verbose",
             "refresh", "keep_trace")
 stopifnot(all(shared %in% names(S7::props(nelder_mead()))))
 setdiff(names(S7::props(newton())), shared)
-#> [1] "step"        "line_search" "hessian_mod" "floor"      
+#> [1] "step"        "line_search" "hessian_mod" "floor"       "max_length" 
+#> [6] "typical"    
 setdiff(names(S7::props(adam())), shared)
 #> [1] "alpha"   "beta1"   "beta2"   "eps"     "decay"   "amsgrad"
 

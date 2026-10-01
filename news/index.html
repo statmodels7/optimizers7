@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,24 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.11.0" id="optimizers7-0110">optimizers7 0.11.0<a class="anchor" aria-label="anchor" href="#optimizers7-0110"></a></h2>
+<ul><li>
+<code><a href="../reference/chebyshev.html">chebyshev()</a></code>, Newton’s method with Chebyshev’s third-order correction. Where the Hessian is positive definite the Newton step is corrected by the third derivative of the objective contracted twice with it, <code>d = dN - H^-1 T[dN, dN] / 2</code>, read from <code>t3(x, d)</code> passed to <code><a href="../reference/minimize.html">minimize()</a></code>, or from one second difference of the gradient along <code>dN</code> without it. A correction longer than <code>ratio</code> times the Newton step, or one that is not a descent direction, is refused and the Newton step kept; everything else is <code><a href="../reference/newton.html">newton()</a></code>’s. On Rosenbrock the method takes 18, 4 and 5 iterations against <code><a href="../reference/newton.html">newton()</a></code>’s 21, 14 and 8 from three starts. A <code>t3</code> together with <code>lower</code> or <code>upper</code> is rejected, the run then being on the unconstrained scale.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.10.0" id="optimizers7-0100">optimizers7 0.10.0<a class="anchor" aria-label="anchor" href="#optimizers7-0100"></a></h2>
+<ul><li>
+<code><a href="../reference/newton.html">newton()</a></code> takes <code>typical</code>, the typical size of each parameter (the scaled norm of Dennis and Schnabel). Every length the method reads is then read in these units, the largest |d_i| / t_i in place of the largest |d_i|: the bound <code>max_length</code>, the length-one scaling of a direction whose Hessian had to be repaired, and the scaling of a gradient fallback. <code>NULL</code>, the default, reads them in the parameters’ own units, and a run that does not set it is unchanged, pinned on Rosenbrock to the evaluation counts. Measured on a restricted likelihood in a variance near 236, started at 651 where it is not concave, the repaired steps moved the variance by one unit per iteration.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.9.0" id="optimizers7-090">optimizers7 0.9.0<a class="anchor" aria-label="anchor" href="#optimizers7-090"></a></h2>
+<ul><li>
+<p><code><a href="../reference/newton.html">newton()</a></code> takes <code>max_length</code>, the largest component that a step may have. If a direction is longer than this in the infinity norm, it is scaled down to this length before the line search reads it, and the trace records the step as <code>newton step capped</code>. The default is <code>Inf</code>, which leaves every step as it is, so a run that does not set the argument is the run of the previous release.</p>
+<p>The bound is the <code>maxstep</code> of the line-search Newton method of Dennis and Schnabel (1983) and the <code>maxNstep</code> of the smoothing-parameter iteration of mgcv. It matters where the objective flattens towards an asymptote. There the curvature is small and the Newton step is long, so the step can carry the iterate past the minimum into the flat region. The line search accepts such a step because the objective did decrease, and in the flat region the gradient is close to zero, so the run can stop there. Measured on the REML criterion of statmodels7 for a ridge penalty on the fifteen predictors of <code><a href="https://rdrr.io/pkg/MASS/man/UScrime.html" class="external-link">MASS::UScrime</a></code>, standardized by the term, the first step from lambda = 1 had a length of 23.5 on the log scale and reached lambda = 1.6e10. The criterion is flat there at -65.40, while its maximum, -53.30, lies near lambda = 91.5. With <code>max_length = 5</code> the same search reaches the maximum.</p>
+<p>Near a minimum the Newton steps are short and the bound does not bind, so the quadratic convergence of the method is kept. The tests pin both sides. On Rosenbrock from the customary start, a bound of 10 leaves the run identical to the unbounded one, to the evaluation counts. On sqrt(1 + x^2), whose Newton step from 2 is -10, a bound of 1 takes every step at full length and needs fewer evaluations than the free method, which has to backtrack its first step.</p>
+</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.0" id="optimizers7-080">optimizers7 0.8.0<a class="anchor" aria-label="anchor" href="#optimizers7-080"></a></h2>
 <ul><li>

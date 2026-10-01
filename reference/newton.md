@@ -19,7 +19,9 @@ newton(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  max_length = Inf,
+  typical = NULL
 )
 ```
 
@@ -71,6 +73,22 @@ newton(
   uses 500, a Newton run that has not arrived in 200 iterations being in
   trouble of another kind.
 
+- max_length:
+
+  The largest component that a step may have, a single positive number.
+  If a direction is longer than this in the infinity norm, it is scaled
+  down to this length before the line search sees it. Defaults to `Inf`,
+  which leaves every step as it is. See below.
+
+- typical:
+
+  `NULL` (the default), or the typical size of each parameter: one
+  positive number, or one per parameter. Every length the method reads
+  is then read in these units, the largest \\\lvert d_i\rvert / t_i\\ in
+  place of the largest \\\lvert d_i\rvert\\: the bound `max_length`, and
+  the scaling of a direction whose length no curvature sets. `NULL`
+  reads them in the parameters' own units.
+
 ## Value
 
 An S7 object of class
@@ -109,6 +127,43 @@ When it fails:
 Which repair fired is recorded in the trace, under the names
 `hessian modified` and `hessian modified (capped)`, so a run that spent
 its time repairing can be told from one that spent it converging.
+
+## A long Newton step can leave the region its model describes
+
+The Newton step minimizes the local quadratic model of the objective,
+and its length is set by the curvature at the current point. Where the
+objective flattens towards an asymptote the curvature is small, the step
+is long, and it can carry the iterate past the minimum into the flat
+region. The line search accepts such a step whenever it lowers the
+objective, and in the flat region the gradient is close to zero, so the
+run can stop there. Measured on the REML criterion of statmodels7 for a
+ridge penalty on the fifteen predictors of
+[`MASS::UScrime`](https://rdrr.io/pkg/MASS/man/UScrime.html),
+standardized by the term (`standardize = TRUE`), the first step from
+\\\lambda = 1\\ had a length of 23.5 on the log scale and reached
+\\\lambda = 1.6\times10^{10}\\, where the criterion is flat at -65.40,
+while its maximum, -53.30, lies near \\\lambda = 91.5\\.
+
+`max_length` bounds the step, which is the `maxstep` of the line-search
+Newton method of Dennis and Schnabel (1983) and the `maxNstep` of the
+smoothing-parameter iteration of mgcv. The bound only ever shortens a
+step, and near a minimum the Newton steps are short, so the quadratic
+convergence of the method is kept. A step shortened by it is recorded in
+the trace as `newton step capped`.
+
+## Parameters in different units
+
+A length in the parameters' own units means different things for
+parameters that carry different units: a displacement of 5, or of one,
+is a long step for a log-scale parameter and a short one for a variance
+near 236. Measured on a restricted likelihood in such a variance,
+started at 651 where the criterion is not concave, the repaired
+direction scaled to length one moved the variance by one unit per
+iteration, for 180 iterations. `typical` gives the typical size \\t_i\\
+of each parameter, which is the scaled norm of Dennis and Schnabel
+(1983): every length is then the largest \\\lvert d_i\rvert / t_i\\, the
+bound `max_length` and the scaling of a repaired direction or of a
+gradient fallback alike.
 
 ## A repaired step is capped and an unrepaired one is not
 
@@ -153,6 +208,10 @@ which needs no Hessian at all.
 
 ## References
 
+Dennis, J. E. and Schnabel, R. B. (1983). *Numerical Methods for
+Unconstrained Optimization and Nonlinear Equations*. Prentice-Hall,
+Englewood Cliffs, NJ.
+
 Gill, P. E., Murray, W. and Wright, M. H. (1981). *Practical
 Optimization*. Academic Press, London.
 
@@ -185,7 +244,7 @@ minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 2 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # A saddle, where the unrepaired step points the wrong way. The Hessian at

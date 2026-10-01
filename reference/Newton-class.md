@@ -20,7 +20,9 @@ Newton(
   step = integer(0),
   line_search = NULL,
   hessian_mod = character(0),
-  floor = integer(0)
+  floor = integer(0),
+  max_length = integer(0),
+  typical = NULL
 )
 ```
 
@@ -41,17 +43,27 @@ Newton(
 
   The smallest eigenvalue the repaired Hessian may have.
 
+- max_length:
+
+  The largest component that a step may have.
+
+- typical:
+
+  `NULL`, or the typical size of each parameter, in whose units the step
+  lengths are read.
+
 ## Value
 
 An S7 object of class `Newton` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the four properties above beside the seven shared ones.
+with the six properties above beside the seven shared ones.
 
 ## Details
 
 Beyond the seven properties every optimizer has, a `Newton` carries
-four: `step` and `line_search`, shared with the other line-search
-methods, and `hessian_mod` and `floor`, which are its own.
+five: `step` and `line_search`, shared with the other line-search
+methods, and `hessian_mod`, `floor`, `max_length` and `typical`, which
+are its own.
 
 ## See also
 

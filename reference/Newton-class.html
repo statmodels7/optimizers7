@@ -13,7 +13,7 @@ minimize()."><meta property="og:image" content="https://statmodels7.github.io/op
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,9 @@ settings that decide how an indefinite Hessian is repaired. Built by
 <span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hessian_mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  floor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span>  floor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  max_length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  typical <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -84,17 +86,26 @@ object, as in <code><a href="newton.html">newton()</a></code>.</p></dd>
 <dt id="arg-floor">floor<a class="anchor" aria-label="anchor" href="#arg-floor"></a></dt>
 <dd><p>The smallest eigenvalue the repaired Hessian may have.</p></dd>
 
+
+<dt id="arg-max-length">max_length<a class="anchor" aria-label="anchor" href="#arg-max-length"></a></dt>
+<dd><p>The largest component that a step may have.</p></dd>
+
+
+<dt id="arg-typical">typical<a class="anchor" aria-label="anchor" href="#arg-typical"></a></dt>
+<dd><p><code>NULL</code>, or the typical size of each parameter, in whose
+units the step lengths are read.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An S7 object of class <code>Newton</code> inheriting from <code><a href="optimizer.html">optimizer()</a></code>, with
-the four properties above beside the seven shared ones.</p>
+the six properties above beside the seven shared ones.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Beyond the seven properties every optimizer has, a <code>Newton</code> carries four:
+    <p>Beyond the seven properties every optimizer has, a <code>Newton</code> carries five:
 <code>step</code> and <code>line_search</code>, shared with the other line-search methods, and
-<code>hessian_mod</code> and <code>floor</code>, which are its own.</p>
+<code>hessian_mod</code>, <code>floor</code>, <code>max_length</code> and <code>typical</code>, which are its own.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

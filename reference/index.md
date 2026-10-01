@@ -19,6 +19,8 @@ the objective is smooth, and misled when it is not.
 
 - [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
   : Newton's Method with a Modified Hessian
+- [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+  : Chebyshev's Third-Order Method
 - [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
   : BFGS
 - [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)

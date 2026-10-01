@@ -128,7 +128,7 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 1.94698e-14
 #>   par        : 1 1
 #>   iterations : 36   evaluations: f 49, g 40
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # The two-loop recursion is not an approximation to the full update: on the
@@ -161,5 +161,5 @@ two_loop <- function(g, S, Y, gamma) {       # the recursion
   r
 }
 max(abs(H %*% g - two_loop(g, S, Y, gamma)))
-#> [1] 1.665335e-16
+#> [1] 1.804112e-16
 ```

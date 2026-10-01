@@ -41,10 +41,10 @@ g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 # Newton on the curved valley shortens a few steps on the way in.
 summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 #> <optimizer_result> Newton
-#>   value      : 3.74523e-21
+#>   value      : 3.74527e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 106
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   safeguards :
 #>     step shortened: 4
@@ -56,7 +56,7 @@ summary(minimize(newton(keep_trace = TRUE),
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2   evaluations: f 47, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 #>   safeguards : none fired

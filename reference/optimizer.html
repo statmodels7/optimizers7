@@ -15,7 +15,7 @@ around, so nothing about a run is hidden inside the call that started it."><meta
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -159,7 +159,8 @@ may be <code>Inf</code>, which is its default.</p>
 <span class="r-in"><span>            <span class="st">"refresh"</span>, <span class="st">"keep_trace"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="va">shared</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/props.html" class="external-link">props</a></span><span class="op">(</span><span class="fu"><a href="nelder_mead.html">nelder_mead</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/props.html" class="external-link">props</a></span><span class="op">(</span><span class="fu"><a href="newton.html">newton</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="va">shared</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "step"        "line_search" "hessian_mod" "floor"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "step"        "line_search" "hessian_mod" "floor"       "max_length" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "typical"    </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/props.html" class="external-link">props</a></span><span class="op">(</span><span class="fu"><a href="adam.html">adam</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="va">shared</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "alpha"   "beta1"   "beta2"   "eps"     "decay"   "amsgrad"</span>
 <span class="r-in"><span></span></span>

@@ -15,7 +15,7 @@ vanish at a kink."><meta property="og:image" content="https://statmodels7.github
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -267,14 +267,14 @@ methods, <code><a href="crit_stationary.html">crit_stationary()</a></code> for t
 <span class="r-out co"><span class="r-pr">#&gt;</span>     bundle     median </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.07456498 0.07456498 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">par</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>     <span class="co"># 8e-16</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.19269e-15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.179612e-15</span>
 <span class="r-in"><span><span class="va">r</span><span class="op">@</span><span class="va">message</span>                  <span class="co"># how many trials were accepted</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "8 serious, 14 null"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The aggregate subgradient does go to zero at the kink, where every single</span></span></span>
 <span class="r-in"><span><span class="co"># subgradient the objective offers there has norm 1.</span></span></span>
 <span class="r-in"><span><span class="va">r</span><span class="op">@</span><span class="va">gradient</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.490339e-07</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.835899e-08</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">g</span><span class="op">(</span><span class="va">r</span><span class="op">@</span><span class="va">par</span> <span class="op">-</span> <span class="fl">1e-9</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
 <span class="r-in"><span></span></span>
