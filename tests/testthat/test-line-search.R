@@ -207,9 +207,9 @@ test_that("a resolution stops a search that cannot verify a smaller decrease", {
   # the same argument. Below that spread its values carry no information, and
   # the Armijo demand c1 * s * |g'd| shrinks with the step, so every remaining
   # backtrack compares numbers the objective cannot tell apart.
-  mk <- function(jitter) {
+  mk <- function(jitter, k0 = 0L) {
     A <- diag(c(1, 12))
-    k <- 0L
+    k <- k0
     list(
       fn = function(z) {
         k <<- k + 1L
@@ -218,25 +218,35 @@ test_that("a resolution stops a search that cannot verify a smaller decrease", {
       },
       gr = function(z) drop(A %*% z))
   }
+  run <- function(ls, k0) {
+    o <- mk(1e-3, k0)
+    suppressWarnings(minimize(if (is.null(ls)) lbfgs() else
+      lbfgs(line_search = ls), o$fn, c(3, -2), gr = o$gr))
+  }
 
-  # with no resolution declared the run reports failure at a point it is not
-  # leaving, which is the behaviour this exists to correct
-  o <- mk(1e-3)
-  bare <- suppressWarnings(minimize(lbfgs(), o$fn, c(3, -2), gr = o$gr))
-  expect_false(bare@converged)
+  # OVER THE PHASES OF THE JITTER, not at one of them. Whether the run with no
+  # resolution happens to stop on its own rule is decided by where the
+  # sequence of values is when it gets there: measured over twenty-one
+  # starting phases it converged at 13, and a change elsewhere that costs a
+  # few more evaluations (the gradient check repeating its difference) moved
+  # the phase this test used to fix from a failure to a success. With the
+  # resolution declared every phase converges, which is what it buys.
+  bare <- lapply(0:20, function(k0) run(NULL, k0))
+  told <- lapply(0:20, function(k0) run(wolfe(resolution = 1e-3), k0))
+  bare_ok <- vapply(bare, function(r) r@converged, logical(1))
+  expect_true(all(vapply(told, function(r) r@converged, logical(1))))
+  expect_true(all(vapply(told, function(r) grepl("resolution", r@criterion_met),
+                         logical(1))))
+  expect_lt(sum(bare_ok), 21L)
 
-  o <- mk(1e-3)
-  told <- suppressWarnings(
-    minimize(lbfgs(line_search = wolfe(resolution = 1e-3)), o$fn, c(3, -2),
-             gr = o$gr))
-  expect_true(told@converged)
-  expect_match(told@criterion_met, "resolution")
-  # the same ANSWER, reached for less. Both runs end where the objective stops
-  # carrying information, so they agree to the size of the jitter and not to
-  # machine precision, which is the whole point of declaring one
-  expect_equal(told@value, bare@value, tolerance = 1e-3)
-  expect_true(max(abs(told@par)) < 1e-2)
-  expect_lt(told@counts[["f"]], bare@counts[["f"]])
+  # and at a phase where the bare run fails, the same ANSWER is reached for
+  # less. Both runs end where the objective stops carrying information, so
+  # they agree to the size of the jitter and not to machine precision, which
+  # is the whole point of declaring one
+  i <- which(!bare_ok)[1L]
+  expect_equal(told[[i]]@value, bare[[i]]@value, tolerance = 1e-3)
+  expect_true(max(abs(told[[i]]@par)) < 1e-2)
+  expect_lt(told[[i]]@counts[["f"]], bare[[i]]@counts[["f"]])
 })
 
 
@@ -348,11 +358,18 @@ test_that("a resolution that moves is asked again at every iteration", {
 
   # what is not finite and positive asks nothing, which is how a caller with
   # no reading yet says so without a branch of its own
+  # it is the run with no resolution at all, step for step; whether that run
+  # converges depends on the phase of the jitter and is not asserted here
   o <- mk()
   none <- suppressWarnings(
     minimize(lbfgs(line_search = wolfe(resolution = function() NA_real_)),
              o$fn, c(3, -2), gr = o$gr))
-  expect_false(none@converged)
+  o <- mk()
+  zero <- suppressWarnings(
+    minimize(lbfgs(line_search = wolfe()), o$fn, c(3, -2), gr = o$gr))
+  expect_identical(none@par, zero@par)
+  expect_identical(none@counts, zero@counts)
+  expect_identical(none@converged, zero@converged)
 
   # a function that takes arguments is refused at construction, where the
   # caller can see it, rather than at the first iteration

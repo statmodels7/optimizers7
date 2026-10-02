@@ -330,6 +330,20 @@ test_that("a gradient that does not belong to the objective draws a warning", {
     "does not appear to be the gradient"
   )
 
+  # A LARGE COORDINATE SETS THE STEP FOR EVERY OTHER ONE. The step is about
+  # 6e-3 here, the gradient is exact and nearly zero in a direction with a
+  # third derivative of 60, so one difference reads its truncation error
+  # (3.9e-4 against an exact 3.0e-5) and only a smaller step agrees.
+  cub <- function(p) 1e-8 * (p[1] - 1000)^2 + 10 * p[2]^3 + 100 * p[2]^4
+  cub_gr <- function(p) c(2e-8 * (p[1] - 1000), 30 * p[2]^2 + 400 * p[2]^3)
+  expect_no_warning(minimize(bfgs(maxit = 2), cub, c(1000, 1e-3), gr = cub_gr))
+  # the repetition does not excuse a wrong gradient at the same point
+  expect_warning(
+    minimize(bfgs(maxit = 2), cub, c(1000, 1e-3),
+             gr = function(p) -cub_gr(p)),
+    "does not appear to be the gradient"
+  )
+
   # multistart warns once, not once per start
   w <- 0
   withCallingHandlers(

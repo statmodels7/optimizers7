@@ -1,3 +1,13 @@
+# optimizers7 0.12.1
+
+* The check that a supplied gradient belongs to the objective repeats its
+  directional difference at steps ten and a hundred times smaller before it
+  warns, and warns only if the disagreement persists. The step is scaled by
+  the length of the starting vector, so a large coordinate made it too long
+  for a strongly curved direction: every `gas()` fit in statmodels7 warned
+  (a difference of -0.00106 against an exact 0.00074 on the Nile flows),
+  with a gradient that agrees with `numDeriv` to seven digits.
+
 # optimizers7 0.12.0
 
 * `brent()`, Brent's method for a function of one variable: the minimum is

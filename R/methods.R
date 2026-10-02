@@ -204,7 +204,8 @@ budget_int <- function(x) {
 #' failure at the first iteration.
 #'
 #' @details
-#' The check costs one call to `gr` and two to `fn`, runs once per
+#' The check costs one call to `gr` and two to `fn` (six where the first
+#' difference disagrees), runs once per
 #' [minimize()] call, and is skipped whenever it cannot be decisive: a
 #' non-function objective, a non-finite gradient at `par`, an objective that
 #' is not finite at the probe points, and a gradient too small to be
@@ -215,7 +216,12 @@ budget_int <- function(x) {
 #' The tolerance is deliberately loose, a relative disagreement above one
 #' half, so that finite-difference error or a subgradient of a non-smooth
 #' objective does not trip it. It exists to catch the wrong function, not the
-#' eighth digit.
+#' eighth digit. A disagreement at the first step is checked again at steps
+#' ten and a hundred times smaller, and the warning is given only if it
+#' persists: the step is scaled by the length of `par`, so a large coordinate
+#' can make it too long for a strongly curved direction, and the truncation
+#' error of the difference shrinks with the step where a wrong gradient does
+#' not. A check that has to repeat costs four more calls to `fn`.
 #'
 #' Setting `options(optimizers7.check_gradient = FALSE)` disables it, and
 #' [multistart()] disables it for its inner runs after the first.
@@ -256,10 +262,32 @@ check_gradient_consistency <- function(fn, gr, par) {
   # can resolve is set by the size of the objective, not by 1.
   scale_f <- max(abs(fp), abs(fm), 1)
   if (nrm < 1e-6 * scale_f) return(invisible(TRUE))
-  num <- (fp - fm) / (2 * h)
   ana <- nrm                      # g'd with d = g/||g||
-  rel <- abs(num - ana) / max(abs(num), abs(ana))
-  if (rel > 0.5 && abs(num - ana) > 1e-6 * max(1, ana)) {
+  off <- function(num) {
+    abs(num - ana) / max(abs(num), abs(ana)) > 0.5 &&
+      abs(num - ana) > 1e-6 * max(1, ana)
+  }
+  num <- (fp - fm) / (2 * h)
+  # ONE STEP IS NOT A VERDICT. The step is scaled by the length of the whole
+  # vector, so a coordinate in the hundreds sets it for every other one, and
+  # near a stationary point a curved direction then reads its truncation
+  # error as the slope: a score-driven filter on the Nile flows (an intercept
+  # of 919 beside a log-loading) gave -0.00106 at h = 5.6e-3 against an exact
+  # 0.00074, and agreed to four digits at h / 10. A wrong gradient disagrees
+  # at every step, so the difference is repeated at two smaller steps before
+  # anything is said.
+  for (k in c(10, 100)) {
+    if (!off(num)) break
+    hk <- h / k
+    fp <- tryCatch(fn(par + hk * d), error = function(e) NA_real_)
+    fm <- tryCatch(fn(par - hk * d), error = function(e) NA_real_)
+    if (length(fp) != 1L || length(fm) != 1L ||
+        !is.finite(fp) || !is.finite(fm)) {
+      break
+    }
+    num <- (fp - fm) / (2 * hk)
+  }
+  if (off(num)) {
     warning("'gr' does not appear to be the gradient of 'fn': along the ",
             "gradient direction at 'par',\n  'fn' changes at rate ",
             format(num, digits = 3), " where 'gr' predicts ",

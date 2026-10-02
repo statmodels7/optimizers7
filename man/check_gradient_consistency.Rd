@@ -26,7 +26,8 @@ grossly. Without this check the symptom downstream is a mute line-search
 failure at the first iteration.
 }
 \details{
-The check costs one call to \code{gr} and two to \code{fn}, runs once per
+The check costs one call to \code{gr} and two to \code{fn} (six where the first
+difference disagrees), runs once per
 \code{\link[=minimize]{minimize()}} call, and is skipped whenever it cannot be decisive: a
 non-function objective, a non-finite gradient at \code{par}, an objective that
 is not finite at the probe points, and a gradient too small to be
@@ -37,7 +38,12 @@ supplies, and firing there would penalize the best possible start.
 The tolerance is deliberately loose, a relative disagreement above one
 half, so that finite-difference error or a subgradient of a non-smooth
 objective does not trip it. It exists to catch the wrong function, not the
-eighth digit.
+eighth digit. A disagreement at the first step is checked again at steps
+ten and a hundred times smaller, and the warning is given only if it
+persists: the step is scaled by the length of \code{par}, so a large coordinate
+can make it too long for a strongly curved direction, and the truncation
+error of the difference shrinks with the step where a wrong gradient does
+not. A check that has to repeat costs four more calls to \code{fn}.
 
 Setting \code{options(optimizers7.check_gradient = FALSE)} disables it, and
 \code{\link[=multistart]{multistart()}} disables it for its inner runs after the first.
