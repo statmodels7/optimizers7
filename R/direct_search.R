@@ -407,10 +407,11 @@ compass <- function(criterion = crit_stationary(),
 #' @details
 #' The measure differs by method and [crit_stationary()] reads whichever is
 #' offered: for [nelder_mead()] the **diameter of the simplex**, so the
-#' tolerance is on the parameter scale, and for [compass()] the **poll size**
-#' \eqn{\Delta}, the quantity Torczon's theorem is stated in.
+#' tolerance is on the parameter scale, for [compass()] the **poll size**
+#' \eqn{\Delta}, the quantity Torczon's theorem is stated in, and for
+#' [brent()] the half-width of the bracket.
 #'
-#' @param optimizer A `NelderMead` or `Compass` object.
+#' @param optimizer A `NelderMead`, `Compass` or `Brent` object.
 #'
 #' @return The character vector `"stationarity"`.
 #'

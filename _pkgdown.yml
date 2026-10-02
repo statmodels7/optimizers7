@@ -69,6 +69,13 @@ reference:
   - nelder_mead
   - compass
 
+- title: One parameter
+  desc: >
+    A function of one variable, minimized without derivatives by bracketing
+    the minimum and reducing the bracket.
+  contents:
+  - brent
+
 - title: Searching before descending
   desc: >
     A global search for the problems where the answer depends on which basin

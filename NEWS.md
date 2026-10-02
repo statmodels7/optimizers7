@@ -1,3 +1,15 @@
+# optimizers7 0.12.0
+
+* `brent()`, Brent's method for a function of one variable: the minimum is
+  bracketed by golden expansion from the starting value and the bracket is
+  reduced by parabolic interpolation, with a golden-section step wherever
+  the parabola is not trusted. The stationarity measure is the half-width of
+  the bracket, so `crit_stationary()` reads a tolerance on the parameter's
+  scale. Bounds are removed by reparametrization, as for every other method.
+  On \eqn{(x - 2)^2 + e^{-x}} from 0 it takes fewer evaluations than
+  `nelder_mead()`, and it rejects a starting value of more than one
+  coordinate.
+
 # optimizers7 0.11.0
 
 * `chebyshev()`, Newton's method with Chebyshev's third-order correction.
