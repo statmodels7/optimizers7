@@ -13,7 +13,7 @@ Description: Optimization algorithms as objects, built on the S7 object
     and a chain of stages. Box constraints are removed by reparametrization,
     so every method accepts them without knowing they exist, and every method
     reports which of its safeguards fired.
-License: MIT + file LICENSE
+License: GPL (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 URL: https://statmodels7.github.io/optimizers7/,
