@@ -115,7 +115,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
   provides <- optimizer_provides(optimizer)
 
   run <- function(o, p, ...) {
-    tryCatch(minimize(o, p$fn, p$par, gr = p$gr, ...),
+    tryCatch(minimize(o, p$fn, p$par, gr = p$gr, he = p$he, ...),
              error = function(e) e)
   }
   failed <- function(r) inherits(r, "error")
@@ -189,7 +189,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
   # [7] A box whose ceiling binds, so the transform is pushed hard. Vacuous
   # for a method that declares it takes its constraint another way.
   far <- list(fn = function(p) sum((p - 50)^2), gr = function(p) 2 * (p - 50),
-              par = c(0, 0, 0))
+              he = function(p) diag(2, length(p)), par = c(0, 0, 0))
   ok[7] <- if (!optimizer_bounded(optimizer)) TRUE else {
     bnd <- run(optimizer, far, lower = -5, upper = 5)
     !failed(bnd) && all(bnd@par > -5) && all(bnd@par < 5)
@@ -217,7 +217,8 @@ check_optimizer <- function(optimizer, problems = test_problems(),
     assign(".Random.seed", base@seed, envir = globalenv())
   }
   mx <- tryCatch(maximize(optimizer, function(p) -sph$fn(p), sph$par,
-                          gr = function(p) -sph$gr(p)),
+                          gr = function(p) -sph$gr(p),
+                          he = function(p) -sph$he(p)),
                  error = function(e) e)
   ok[9] <- !failed(mx) &&
     isTRUE(all.equal(mx@par, base@par, tolerance = 1e-5)) &&
@@ -268,7 +269,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
 #' @keywords internal
 run_battery <- function(optimizer, problems) {
   rows <- lapply(problems, function(p) {
-    r <- tryCatch(minimize(optimizer, p$fn, p$par, gr = p$gr),
+    r <- tryCatch(minimize(optimizer, p$fn, p$par, gr = p$gr, he = p$he),
                   error = function(e) e)
     if (inherits(r, "error")) {
       data.frame(problem = p$name, value = NA_real_, gap = NA_real_,

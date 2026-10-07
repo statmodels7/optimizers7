@@ -34,6 +34,43 @@ test_that("every analytic gradient matches the function it belongs to", {
 })
 
 
+test_that("every analytic Hessian matches the gradient it belongs to", {
+  # Differenced from the analytic gradient, at the same point off the solution;
+  # at abs_sum the gradient is piecewise constant and the zero matrix is exact
+  # away from the kinks.
+  for (p in test_problems()) {
+    x <- p$par + 0.37
+    h <- 1e-6
+    fd <- vapply(seq_along(x), function(j) {
+      xp <- x; xm <- x; xp[j] <- x[j] + h; xm[j] <- x[j] - h
+      (p$gr(xp) - p$gr(xm)) / (2 * h)
+    }, numeric(length(x)))
+    H <- p$he(x)
+    expect_equal(dim(H), c(length(x), length(x)), label = p$name)
+    expect_equal(H, t(H), label = paste(p$name, "symmetry"))
+    expect_equal(H, fd, tolerance = 1e-6, label = p$name)
+  }
+})
+
+
+test_that("a method that requires a Hessian is checked like the others", {
+  NeedsHessian <- S7::new_class("NeedsHessian", parent = optimizer)
+  S7::method(minimize, NeedsHessian) <-
+    function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
+      if (is.null(he)) stop("this method needs a Hessian", call. = FALSE)
+      minimize(newton(criterion = optimizer@criterion, maxit = optimizer@maxit,
+                      keep_trace = optimizer@keep_trace),
+               fn, par, gr = gr, he = he, lower = lower, upper = upper)
+    }
+  o <- NeedsHessian(name = "needs a Hessian", criterion = crit_grad(1e-8),
+                    maxit = 200, max_eval = 10000, verbose = FALSE,
+                    refresh = 10, keep_trace = FALSE)
+  res <- check_optimizer(o, verbose = FALSE)
+  expect_true(all(res$checks))
+  expect_false(any(grepl("needs a Hessian", res$battery$note)))
+})
+
+
 test_that("test_problems() selects and refuses by name", {
   expect_named(test_problems("beale"), "beale")
   expect_length(test_problems(c("sphere", "booth")), 2L)

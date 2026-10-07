@@ -6,10 +6,12 @@ NULL
 #' @description
 #' Returns the eight functions optimization papers are argued over: a
 #' quadratic, a curved valley, a few awkward polynomials, two with many
-#' minima, and one with a kink. Each carries its analytic gradient, a
-#' customary starting point, its known minimizer and two flags describing
-#' the difficulty it poses. They are exported for testing any optimizer, not
-#' only this package's; [check_optimizer()] runs the whole battery.
+#' minima, and one with a kink. Each carries its analytic gradient and
+#' Hessian, a customary starting point, its known minimizer and two flags
+#' describing the difficulty it poses. They are exported for testing any
+#' optimizer, not only this package's; [check_optimizer()] runs the whole
+#' battery and passes the Hessian to every method, so a method that requires
+#' one is checked like the others.
 #'
 #' @details
 #' # The eight
@@ -83,13 +85,15 @@ NULL
 #'   `test_problems(c("beale", "sphere"))` comes back beale first. A name
 #'   that is not one of the eight raises an error listing the eight.
 #'
-#' @return A named list, one element per problem, each itself a list of eight
+#' @return A named list, one element per problem, each itself a list of nine
 #'   components:
 #'   \describe{
 #'     \item{`name`}{character, the same as the element's name.}
 #'     \item{`fn`}{the objective, a function of a numeric vector of length
 #'       `p` returning one number.}
 #'     \item{`gr`}{its analytic gradient, returning a vector of length `p`.}
+#'     \item{`he`}{its analytic Hessian, returning a `p x p` matrix. For
+#'       `abs_sum` it is the zero matrix, the Hessian wherever it exists.}
 #'     \item{`par`}{numeric of length `p`, the customary starting point.}
 #'     \item{`solution`}{numeric of length `p`, the minimizer. For
 #'       `himmelblau` this is the one of the four nearest the start.}
@@ -141,6 +145,7 @@ test_problems <- function(which = NULL) {
       name = "sphere",
       fn = function(p) sum(p^2),
       gr = function(p) 2 * p,
+      he = function(p) diag(2, length(p)),
       par = c(1.3, -0.7, 0.8),
       solution = c(0, 0, 0), value = 0,
       multimodal = FALSE, smooth = TRUE),
@@ -150,6 +155,8 @@ test_problems <- function(which = NULL) {
       fn = function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2,
       gr = function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                          200 * (p[2] - p[1]^2)),
+      he = function(p) matrix(c(1200 * p[1]^2 - 400 * p[2] + 2, -400 * p[1],
+                                -400 * p[1], 200), 2, 2),
       par = c(-1.2, 1),
       solution = c(1, 1), value = 0,
       multimodal = FALSE, smooth = TRUE),
@@ -161,6 +168,7 @@ test_problems <- function(which = NULL) {
         a <- p[1] + 2 * p[2] - 7; b <- 2 * p[1] + p[2] - 5
         c(2 * a + 4 * b, 4 * a + 2 * b)
       },
+      he = function(p) matrix(c(10, 8, 8, 10), 2, 2),
       par = c(0, 0),
       solution = c(1, 3), value = 0,
       multimodal = FALSE, smooth = TRUE),
@@ -177,6 +185,18 @@ test_problems <- function(which = NULL) {
         t3 <- 2.625 - x + x * y^3
         c(2 * t1 * (y - 1) + 2 * t2 * (y^2 - 1) + 2 * t3 * (y^3 - 1),
           2 * t1 * x + 4 * t2 * x * y + 6 * t3 * x * y^2)
+      },
+      he = function(p) {
+        x <- p[1]; y <- p[2]
+        H <- matrix(0, 2, 2)
+        for (i in 1:3) {
+          ti <- c(1.5, 2.25, 2.625)[i] - x + x * y^i
+          gi <- c(y^i - 1, i * x * y^(i - 1))
+          hi <- matrix(c(0, i * y^(i - 1), i * y^(i - 1),
+                         i * (i - 1) * x * y^(i - 2)), 2, 2)
+          H <- H + 2 * (tcrossprod(gi) + ti * hi)
+        }
+        H
       },
       par = c(1, 1),
       solution = c(3, 0.5), value = 0,
@@ -196,6 +216,12 @@ test_problems <- function(which = NULL) {
           10 * b - 8 * cc^3,
           -10 * b - 40 * d^3)
       },
+      he = function(p) {
+        cc <- p[2] - 2 * p[3]; d <- p[1] - p[4]
+        2 * tcrossprod(c(1, 10, 0, 0)) + 10 * tcrossprod(c(0, 0, 1, -1)) +
+          12 * cc^2 * tcrossprod(c(0, 1, -2, 0)) +
+          120 * d^2 * tcrossprod(c(1, 0, 0, -1))
+      },
       par = c(3, -1, 0, 1),
       solution = c(0, 0, 0, 0), value = 0,
       multimodal = FALSE, smooth = TRUE),
@@ -207,6 +233,11 @@ test_problems <- function(which = NULL) {
         a <- p[1]^2 + p[2] - 11; b <- p[1] + p[2]^2 - 7
         c(4 * p[1] * a + 2 * b, 2 * a + 4 * p[2] * b)
       },
+      he = function(p) {
+        a <- p[1]^2 + p[2] - 11; b <- p[1] + p[2]^2 - 7
+        2 * (tcrossprod(c(2 * p[1], 1)) + a * diag(c(2, 0)) +
+               tcrossprod(c(1, 2 * p[2])) + b * diag(c(0, 2)))
+      },
       par = c(0, 0),
       # Four minima, all with value zero; (3, 2) is the one nearest the start.
       solution = c(3, 2), value = 0,
@@ -216,6 +247,7 @@ test_problems <- function(which = NULL) {
       name = "rastrigin",
       fn = function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p)),
       gr = function(p) 2 * p + 20 * pi * sin(2 * pi * p),
+      he = function(p) diag(2 + 40 * pi^2 * cos(2 * pi * p), length(p)),
       par = c(0.4, -0.4),
       solution = c(0, 0), value = 0,
       multimodal = TRUE, smooth = TRUE),
@@ -224,6 +256,8 @@ test_problems <- function(which = NULL) {
       name = "abs_sum",
       fn = function(p) sum(abs(p - c(1, -2, 0.5))),
       gr = function(p) sign(p - c(1, -2, 0.5)),
+      # zero wherever it exists, which is everywhere off the kinks
+      he = function(p) matrix(0, length(p), length(p)),
       par = c(0, 0, 0),
       solution = c(1, -2, 0.5), value = 0,
       multimodal = FALSE, smooth = FALSE)

@@ -1,3 +1,10 @@
+# optimizers7 0.13.0
+
+* Every problem of `test_problems()` carries its analytic Hessian as `he`,
+  and `check_optimizer()` passes it to the method under test. A method that
+  requires a Hessian could not be checked before, since the battery supplied
+  only the objective and the gradient.
+
 # optimizers7 0.12.1
 
 * The check that a supplied gradient belongs to the objective repeats its

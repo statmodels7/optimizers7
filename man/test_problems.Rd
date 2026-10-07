@@ -14,13 +14,15 @@ vector returns just those, in the order given, so
 that is not one of the eight raises an error listing the eight.}
 }
 \value{
-A named list, one element per problem, each itself a list of eight
+A named list, one element per problem, each itself a list of nine
 components:
 \describe{
 \item{\code{name}}{character, the same as the element's name.}
 \item{\code{fn}}{the objective, a function of a numeric vector of length
 \code{p} returning one number.}
 \item{\code{gr}}{its analytic gradient, returning a vector of length \code{p}.}
+\item{\code{he}}{its analytic Hessian, returning a \verb{p x p} matrix. For
+\code{abs_sum} it is the zero matrix, the Hessian wherever it exists.}
 \item{\code{par}}{numeric of length \code{p}, the customary starting point.}
 \item{\code{solution}}{numeric of length \code{p}, the minimizer. For
 \code{himmelblau} this is the one of the four nearest the start.}
@@ -33,10 +35,12 @@ components:
 \description{
 Returns the eight functions optimization papers are argued over: a
 quadratic, a curved valley, a few awkward polynomials, two with many
-minima, and one with a kink. Each carries its analytic gradient, a
-customary starting point, its known minimizer and two flags describing
-the difficulty it poses. They are exported for testing any optimizer, not
-only this package's; \code{\link[=check_optimizer]{check_optimizer()}} runs the whole battery.
+minima, and one with a kink. Each carries its analytic gradient and
+Hessian, a customary starting point, its known minimizer and two flags
+describing the difficulty it poses. They are exported for testing any
+optimizer, not only this package's; \code{\link[=check_optimizer]{check_optimizer()}} runs the whole
+battery and passes the Hessian to every method, so a method that requires
+one is checked like the others.
 }
 \section{The eight}{
 \tabular{llll}{
