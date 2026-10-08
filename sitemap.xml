@@ -1,7 +1,5 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://statmodels7.github.io/optimizers7/404.html</loc></url>
-<url><loc>https://statmodels7.github.io/optimizers7/LICENSE-text.html</loc></url>
-<url><loc>https://statmodels7.github.io/optimizers7/LICENSE.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/articles/extending-optimizers7.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/articles/index.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/authors.html</loc></url>
@@ -11,6 +9,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/ArmijoSearch-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Bb-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Bfgs-class.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/Brent-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Bundle-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Cg-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Chain-class.html</loc></url>
@@ -43,6 +42,8 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bfgs.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bounded_forward.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bounded_transform.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/brent.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/brent_run.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/budget_int.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/build_chain_result.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/build_multistart_result.html</loc></url>
@@ -96,6 +97,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Adam.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Bb.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Bfgs.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Brent.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Bundle.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Cg.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Chain.html</loc></url>

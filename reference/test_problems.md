@@ -2,12 +2,13 @@
 
 Returns the eight functions optimization papers are argued over: a
 quadratic, a curved valley, a few awkward polynomials, two with many
-minima, and one with a kink. Each carries its analytic gradient, a
-customary starting point, its known minimizer and two flags describing
-the difficulty it poses. They are exported for testing any optimizer,
-not only this package's;
+minima, and one with a kink. Each carries its analytic gradient and
+Hessian, a customary starting point, its known minimizer and two flags
+describing the difficulty it poses. They are exported for testing any
+optimizer, not only this package's;
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-runs the whole battery.
+runs the whole battery and passes the Hessian to every method, so a
+method that requires one is checked like the others.
 
 ## Usage
 
@@ -27,7 +28,7 @@ test_problems(which = NULL)
 
 ## Value
 
-A named list, one element per problem, each itself a list of eight
+A named list, one element per problem, each itself a list of nine
 components:
 
 - `name`:
@@ -42,6 +43,11 @@ components:
 - `gr`:
 
   its analytic gradient, returning a vector of length `p`.
+
+- `he`:
+
+  its analytic Hessian, returning a `p x p` matrix. For `abs_sum` it is
+  the zero matrix, the Hessian wherever it exists.
 
 - `par`:
 

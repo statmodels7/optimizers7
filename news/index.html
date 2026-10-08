@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,19 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.13.0" id="optimizers7-0130">optimizers7 0.13.0<a class="anchor" aria-label="anchor" href="#optimizers7-0130"></a></h2>
+<ul><li>Every problem of <code><a href="../reference/test_problems.html">test_problems()</a></code> carries its analytic Hessian as <code>he</code>, and <code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> passes it to the method under test. A method that requires a Hessian could not be checked before, since the battery supplied only the objective and the gradient.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.12.1" id="optimizers7-0121">optimizers7 0.12.1<a class="anchor" aria-label="anchor" href="#optimizers7-0121"></a></h2>
+<ul><li>The check that a supplied gradient belongs to the objective repeats its directional difference at steps ten and a hundred times smaller before it warns, and warns only if the disagreement persists. The step is scaled by the length of the starting vector, so a large coordinate made it too long for a strongly curved direction: every <code>gas()</code> fit in statmodels7 warned (a difference of -0.00106 against an exact 0.00074 on the Nile flows), with a gradient that agrees with <code>numDeriv</code> to seven digits.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.12.0" id="optimizers7-0120">optimizers7 0.12.0<a class="anchor" aria-label="anchor" href="#optimizers7-0120"></a></h2>
+<ul><li>
+<code><a href="../reference/brent.html">brent()</a></code>, Brent’s method for a function of one variable: the minimum is bracketed by golden expansion from the starting value and the bracket is reduced by parabolic interpolation, with a golden-section step wherever the parabola is not trusted. The stationarity measure is the half-width of the bracket, so <code><a href="../reference/crit_stationary.html">crit_stationary()</a></code> reads a tolerance on the parameter’s scale. Bounds are removed by reparametrization, as for every other method. On  from 0 it takes fewer evaluations than <code><a href="../reference/nelder_mead.html">nelder_mead()</a></code>, and it rejects a starting value of more than one coordinate.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.11.0" id="optimizers7-0110">optimizers7 0.11.0<a class="anchor" aria-label="anchor" href="#optimizers7-0110"></a></h2>
 <ul><li>

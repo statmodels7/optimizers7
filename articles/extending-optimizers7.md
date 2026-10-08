@@ -133,9 +133,9 @@ batch_gr <- function(par) { i <- sample.int(2000, m); -sum(y[i] - par) }
 minimize(adam(alpha = 0.05, decay = 0.005, maxit = 3000),
          batch, par = 0, gr = batch_gr)@par
 #> Warning: 'gr' does not appear to be the gradient of 'fn': along the gradient direction at 'par',
-#>   'fn' changes at rate -3316475 where 'gr' predicts 291. Check that the two
+#>   'fn' changes at rate -2.4e+08 where 'gr' predicts 291. Check that the two
 #>   compute the same model. options(optimizers7.check_gradient = FALSE) turns this check off.
-#> [1] 2.986939
+#> [1] 2.987537
 mean(y)
 #> [1] 2.986045
 ```
@@ -418,10 +418,11 @@ not only to this package:
 
 p <- test_problems("beale")[[1]]
 str(p, max.level = 1)
-#> List of 8
+#> List of 9
 #>  $ name      : chr "beale"
 #>  $ fn        :function (p)  
 #>  $ gr        :function (p)  
+#>  $ he        :function (p)  
 #>  $ par       : num [1:2] 1 1
 #>  $ solution  : num [1:2] 3 0.5
 #>  $ value     : num 0

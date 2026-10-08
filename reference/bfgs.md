@@ -137,7 +137,7 @@ minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 3.22826e-13
 #>   par        : 1 1
 #>   iterations : 35   evaluations: f 49, g 39
-#>   elapsed    : 2 ms
+#>   elapsed    : 3 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # Armijo instead of Wolfe: the update is skipped once here, which the trace

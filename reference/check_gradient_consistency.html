@@ -19,7 +19,7 @@ failure at the first iteration."><meta property="og:image" content="https://stat
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,8 @@ failure at the first iteration.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The check costs one call to <code>gr</code> and two to <code>fn</code>, runs once per
+    <p>The check costs one call to <code>gr</code> and two to <code>fn</code> (six where the first
+difference disagrees), runs once per
 <code><a href="minimize.html">minimize()</a></code> call, and is skipped whenever it cannot be decisive: a
 non-function objective, a non-finite gradient at <code>par</code>, an objective that
 is not finite at the probe points, and a gradient too small to be
@@ -96,7 +97,12 @@ supplies, and firing there would penalize the best possible start.</p>
 <p>The tolerance is deliberately loose, a relative disagreement above one
 half, so that finite-difference error or a subgradient of a non-smooth
 objective does not trip it. It exists to catch the wrong function, not the
-eighth digit.</p>
+eighth digit. A disagreement at the first step is checked again at steps
+ten and a hundred times smaller, and the warning is given only if it
+persists: the step is scaled by the length of <code>par</code>, so a large coordinate
+can make it too long for a strongly curved direction, and the truncation
+error of the difference shrinks with the step where a wrong gradient does
+not. A check that has to repeat costs four more calls to <code>fn</code>.</p>
 <p>Setting <code>options(optimizers7.check_gradient = FALSE)</code> disables it, and
 <code><a href="multistart.html">multistart()</a></code> disables it for its inner runs after the first.</p>
     </div>

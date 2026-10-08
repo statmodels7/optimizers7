@@ -9,7 +9,7 @@ never firing.
 
 - optimizer:
 
-  A `NelderMead` or `Compass` object.
+  A `NelderMead`, `Compass` or `Brent` object.
 
 ## Value
 
@@ -22,10 +22,12 @@ The measure differs by method and
 reads whichever is offered: for
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
 the **diameter of the simplex**, so the tolerance is on the parameter
-scale, and for
+scale, for
 [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
 the **poll size** \\\Delta\\, the quantity Torczon's theorem is stated
-in.
+in, and for
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+the half-width of the bracket.
 
 ## Examples
 

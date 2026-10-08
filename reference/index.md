@@ -55,6 +55,14 @@ because the subgradient it evaluates never becomes small.
 - [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
   : Pattern Search, With Coordinate or Random Polling
 
+## One parameter
+
+A function of one variable, minimized without derivatives by bracketing
+the minimum and reducing the bracket.
+
+- [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+  : Brent's Method in One Dimension
+
 ## Searching before descending
 
 A global search for the problems where the answer depends on which basin

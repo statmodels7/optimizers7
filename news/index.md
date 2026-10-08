@@ -1,5 +1,41 @@
 # Changelog
 
+## optimizers7 0.13.0
+
+- Every problem of
+  [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
+  carries its analytic Hessian as `he`, and
+  [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
+  passes it to the method under test. A method that requires a Hessian
+  could not be checked before, since the battery supplied only the
+  objective and the gradient.
+
+## optimizers7 0.12.1
+
+- The check that a supplied gradient belongs to the objective repeats
+  its directional difference at steps ten and a hundred times smaller
+  before it warns, and warns only if the disagreement persists. The step
+  is scaled by the length of the starting vector, so a large coordinate
+  made it too long for a strongly curved direction: every `gas()` fit in
+  statmodels7 warned (a difference of -0.00106 against an exact 0.00074
+  on the Nile flows), with a gradient that agrees with `numDeriv` to
+  seven digits.
+
+## optimizers7 0.12.0
+
+- [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
+  Brent’s method for a function of one variable: the minimum is
+  bracketed by golden expansion from the starting value and the bracket
+  is reduced by parabolic interpolation, with a golden-section step
+  wherever the parabola is not trusted. The stationarity measure is the
+  half-width of the bracket, so
+  [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
+  reads a tolerance on the parameter’s scale. Bounds are removed by
+  reparametrization, as for every other method. On from 0 it takes fewer
+  evaluations than
+  [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
+  and it rejects a starting value of more than one coordinate.
+
 ## optimizers7 0.11.0
 
 - [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),

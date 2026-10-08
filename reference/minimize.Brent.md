@@ -1,0 +1,28 @@
+# Minimize by Brent's Method
+
+Runs
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+on a function of one variable: bracket the minimum by golden expansion,
+then reduce the bracket by parabolic and golden-section steps until the
+stopping rule fires.
+
+## Arguments
+
+- optimizer:
+
+  A `Brent` object.
+
+- fn, par, gr, he, lower, upper, ...:
+
+  As in
+  [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
+  `gr` and `he` are accepted and ignored, the method using no
+  derivative. Bounds are taken and removed by reparametrization.
+
+## Value
+
+An
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
+whose `gradient` is `NULL` and whose trace carries a `stationarity`
+column holding the half-width of the bracket. The `safeguard` column
+names the step taken at each iteration: `parabolic` or `golden`.
