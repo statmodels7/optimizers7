@@ -24,20 +24,21 @@ sa(
 }
 \arguments{
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
-\code{crit_stationary(1e-8)}, read on Corana's measure above. A rule reading
-a gradient is refused when the run starts, this method computing none.}
+\code{crit_stationary(1e-8)}, read on Corana's measure above. A rule that
+reads a gradient is rejected when the run starts, because this method
+computes none.}
 
 \item{visiting}{\code{"uniform"} (default) or \code{"cauchy"}. Partial matching
-applies, and any other string is refused by name.}
+applies, and any other string is rejected by \code{\link[=match.arg]{match.arg()}}.}
 
 \item{t0}{The initial temperature, a single positive number, or \code{NULL}
-(the default) to calibrate it from the objective at a cost of 20
-evaluations.}
+(the default) to calibrate it from the objective at a cost of
+\code{max(10, 10 * length(par))} evaluations.}
 
-\item{cooling}{The factor the temperature is multiplied by at each level, a
-single number \strong{strictly} inside \eqn{(0, 1)}. Defaults to \code{0.85}. \code{1}
-would never cool and \code{0} would freeze at once, so both endpoints are
-refused.}
+\item{cooling}{The factor by which the temperature is multiplied at each
+level, a single number \strong{strictly} inside \eqn{(0, 1)}. Defaults to
+\code{0.85}. The value \code{1} would never cool and \code{0} would freeze at once, so
+both endpoints are rejected.}
 
 \item{cycles}{How many step-adjustment cycles per temperature level, a
 positive whole number. Defaults to \code{3}.}
@@ -45,31 +46,29 @@ positive whole number. Defaults to \code{3}.}
 \item{steps}{How many sweeps of every coordinate per cycle, a positive
 whole number. Defaults to \code{10}. One temperature level therefore costs
 \code{cycles * steps * length(par)} evaluations, and a whole run costs that
-times \code{maxit}, plus one for the starting value and 20 more if the
-temperature is calibrated.}
+times \code{maxit}, plus one for the starting value and
+\code{max(10, 10 * length(par))} more if the temperature is calibrated.}
 
-\item{step}{The initial step, relative to the starting value. Defaults to
-\code{1}. It is only a starting point: the adaptation moves each coordinate's
-step from here within the first few cycles.}
+\item{step}{The initial step: the step of coordinate \eqn{j} is \code{step}
+times the larger of 1 and the absolute value of that coordinate of the
+starting value. Defaults to \code{1}. The adaptation changes the step of each
+coordinate within the first few cycles.}
 
-\item{target_accept}{The acceptance rate the adaptation aims at, held
-inside a band of 0.1 either side. A single number strictly inside
-\eqn{(0.1, 0.9)}; anything outside is refused, an extreme target being
-unreachable by any step. Defaults to \code{0.5}.}
+\item{target_accept}{The acceptance rate at which the adaptation aims,
+held inside a band of 0.1 on either side. A single number strictly
+inside \eqn{(0.1, 0.9)}; a value outside is rejected, because the band
+around it would reach 0 or 1. Defaults to \code{0.5}.}
 
-\item{adjust}{How hard the step is moved towards that rate, a single
-positive number. Defaults to \code{2}, which is Corana's own constant.}
+\item{adjust}{How strongly the step is moved towards that rate, a single
+positive number. Defaults to \code{2}, which is Corana's constant.}
 
-\item{n_eps}{How many temperature levels the stationarity measure looks
-back over, a positive whole number. Defaults to \code{4}.}
+\item{n_eps}{How many temperature levels the stationarity measure covers,
+a positive whole number. Defaults to \code{4}.}
 
-\item{maxit}{Maximum temperature levels. Defaults to 100. This is the
-budget that decides how tightly the run finishes, the step adaptation
-shrinking the proposal as the acceptance rate falls with the
-temperature. Measured on \eqn{\sum(x - (1, 2))^2} from the origin at one
-seed, the distance to the answer goes \code{2.7e-02}, \code{1.8e-02}, \code{3.0e-03},
-\code{2.3e-05} at 15, 30, 60 and 100 levels, for 921, 1821, 3621 and 6021
-evaluations.}
+\item{maxit}{Maximum temperature levels. Defaults to 100. The number of
+levels sets how close to the minimizer the run finishes, because the
+step adaptation shrinks the proposal as the acceptance rate falls with
+the temperature.}
 
 \item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}.}
 
@@ -85,104 +84,104 @@ An S7 object of class \link{Sa}, inheriting from \code{\link[=optimizer]{optimiz
 handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-A global search that accepts uphill moves with a probability falling as the
-run cools, with one step length per coordinate adjusted in flight to hold
-that coordinate's acceptance rate near a target.
+A global search that accepts uphill moves with a probability that falls as
+the run cools, with one step length per coordinate, adjusted during the
+run to hold the acceptance rate of that coordinate near a target.
 }
 \details{
-The method exists here for the problems the local ones cannot start on: a
-multimodal objective where the answer depends on which basin the run began
-in. It is not a competitor to \code{\link[=bfgs]{bfgs()}} or \code{\link[=newton]{newton()}} on a
-smooth problem, where it will be beaten by orders of magnitude, and the
-intended use is to hand its result to one of them; see \code{\link[=chain]{chain()}}.
+The method is intended for problems on which a local method depends on its
+start: a multimodal objective, on which the answer depends on the basin in
+which the run begins. On a smooth problem \code{\link[=bfgs]{bfgs()}} and \code{\link[=newton]{newton()}} need far
+fewer evaluations, and the intended use is to pass the result of this
+method to one of them; see \code{\link[=chain]{chain()}}.
 }
 \section{The adaptive step}{
 The parameters are moved one coordinate at a time, and after every \code{steps}
-sweeps each coordinate's step is multiplied or divided according to how
-often its moves were accepted, so that the rate is held inside a band
+sweeps the step of each coordinate is multiplied or divided according to
+how often its moves were accepted, so that the rate is held inside a band
 around \code{target_accept} (Corana et al. 1987). The adaptation makes the
 method usable on a statistical objective, whose unconstrained coordinates
-sit on scales orders of magnitude apart: one step length is wrong for all
-of them. A coordinate accepting almost everything is being
-proposed too timidly to explore, and one accepting almost nothing is being
-thrown too far to land.
+lie on scales orders of magnitude apart, so that no single step length
+suits all of them. A coordinate whose moves are almost all accepted has a
+step that is too short to explore, and a coordinate whose moves are almost
+all rejected has a step that is too long.
 }
 
 \section{The proposal}{
-\code{"uniform"} draws the move uniformly on the coordinate's current step,
-which together with the adaptation above is Corana's algorithm.
-\code{"cauchy"} draws it from a Cauchy, whose heavy tail lets a run leave a
-basin in one move instead of walking out of it. That is fast simulated
-annealing (Szu and Hartley 1987), the \eqn{q = 2} member of the Tsallis
-family.
+\code{"uniform"} draws the move uniformly on the current step of the
+coordinate, which together with the adaptation above is Corana's
+algorithm. \code{"cauchy"} draws it from a Cauchy distribution, whose heavy tail
+lets a run leave a basin in one move. This is the visiting distribution of
+fast simulated annealing (Szu and Hartley 1987), the \eqn{q = 2} member of
+the Tsallis family; the temperature still cools geometrically, as for the
+uniform proposal.
 
-The difference is large on a surface with many basins. Over thirty seeds
-on Rastrigin in two dimensions from \eqn{(4.4, -3.6)}, with 40 temperature
-levels: the Cauchy proposal has a median value of \code{0.0051} and gets below
-\code{0.01} on 19 of 30 runs, the uniform one a median of \code{0.94} and 1 of 30.
-The default is nevertheless \code{"uniform"}, that being Corana's algorithm as
-published and the better-behaved proposal where the objective is defined
-on a bounded region.
+On a surface with many basins the Cauchy proposal reaches low values more
+often than the uniform one; the examples compare the two on the Rastrigin
+function. The default is nevertheless \code{"uniform"}, which is Corana's
+algorithm as published and the better-behaved proposal where the
+objective is defined on a bounded region.
 
 The general Tsallis visiting distribution at arbitrary \eqn{q} is not
-offered. Its generator would have to be transcribed and could not be
-checked against anything already here.
+implemented; only the uniform and the Cauchy proposals are.
 }
 
 \section{The temperature}{
-With \code{t0 = NULL} the initial temperature is calibrated from the
-objective's own variation, by sampling proposals around the starting value
-and setting \eqn{T_0} so that an average uphill move is accepted about
-four times in five. That costs 20 evaluations, once, before the run
-begins.
+With \code{t0 = NULL} the initial temperature is calibrated from the variation
+of the objective: the method samples \code{max(10, 10 * p)} proposals
+around the starting value, where \eqn{p} is the number of parameters,
+averages the absolute change of the objective over them, and sets
+\eqn{T_0} so that a change of that average size is accepted with
+probability 0.8. The calibration costs those evaluations once, before the
+run begins.
 
-A fixed number cannot serve, because the Metropolis probability
-\eqn{\exp(-\Delta f / T)} compares the temperature against the objective's
-own scale. At \eqn{T = 1} a step costing \eqn{10^{-6}} is accepted with
-probability 1 and the run is a random walk; one costing \eqn{10^{6}} is
-accepted with probability 0 and the method has become a local search.
-Measured over eight seeds on \eqn{10^{-6}\sum(x - (1,2))^2}, the
-calibrated run ends a median \code{0.0044} from the answer and \code{t0 = 1} a
-median \code{0.375}.
+A fixed temperature does not suit every objective, because the Metropolis
+probability \eqn{\exp(-\Delta f / T)} compares the temperature with the
+scale of the objective. At \eqn{T = 1} a step that raises the objective by
+\eqn{10^{-6}} is accepted with probability close to 1 and the run is a
+random walk; one that raises it by \eqn{10^{6}} is accepted with
+probability close to 0, and the method is a local search. For an
+objective of small scale, such as \eqn{10^{-6}\sum(x - (1,2))^2}, a
+calibrated temperature therefore gets closer to the minimizer than
+\code{t0 = 1}.
 
-The other side of that is worth knowing too: on a \strong{convex} objective too
-cold a temperature costs nothing, there being one basin to find. On
-\eqn{10^{6}\sum(x - (1,2))^2} the fixed \code{t0 = 1} reaches \code{4.6e-07} where
-the calibration reaches \code{0.0013}. The calibration is insurance against a
-multimodal surface, and on a problem that has no second basin it is a
-small tax.
+On a convex objective a low temperature is not a handicap, since there is
+a single basin, and the calibration can leave the run further from the
+minimizer than a fixed \code{t0 = 1} within the same budget.
 }
 
-\section{What the run returns, and what convergence means here}{
-The result is the best point \strong{seen}, not the last one. An annealing run
-wanders by construction, so its final iterate is a draw. The \code{value}
-column of the trace is correspondingly the best so far, and is monotone
-non-increasing.
+\section{The value returned and the meaning of convergence}{
+The result is the best point \strong{seen}, not the last one, since the last
+point of an annealing run is a random draw from the walk. The \code{value}
+column of the trace is correspondingly the best value so far, and is
+monotone non-increasing.
 
-Whether the run converged is a separate question, never answered by the
-schedule having finished. The stationarity measure reported is Corana's
-own termination rule, by how much the best value has moved over the last
-\code{n_eps} temperature levels, so \code{\link[=crit_stationary]{crit_stationary()}} is that rule and no
-second convention invented beside it. A run that merely exhausts \code{maxit}
-reports \code{converged = FALSE}, which for a global search is the ordinary
-outcome.
+The end of the schedule does not mean convergence. The stationarity
+measure is Corana's termination rule. At the end of each temperature level
+it is the largest absolute difference between the value at which the walk
+stopped and each of two references: the best value found so far, and the
+values at which the walk stopped at the last \code{n_eps} levels. It is
+infinite until \code{n_eps + 1} levels have run, and \code{\link[=crit_stationary]{crit_stationary()}} reads
+it. A run that exhausts \code{maxit} reports \code{converged = FALSE}, which for a
+global search is the ordinary outcome.
 
-The run is stochastic, so \code{set.seed()} governs it, and the state it began
-from is recorded in the result's \code{seed} for repeating it.
+The run is stochastic, so \code{set.seed()} governs it, and the state from
+which it began is recorded in the \code{seed} of the result, so that it can be
+repeated.
 }
 
 \examples{
 sa()
 
-# Rastrigin has 121 local minima. A local method stops in the basin it
-# started in; this one leaves it.
+# Rastrigin has many local minima (121 in the box [-5.12, 5.12]^2). A
+# local method stops in the basin in which it started; this one leaves it.
 rastrigin <- function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p))
 set.seed(1)
 minimize(sa(), rastrigin, c(4.4, -3.6))@value    # 0.914
 minimize(bfgs(), rastrigin, c(4.4, -3.6))@value  # 7.96
 
 # The heavy-tailed proposal leaves a basin in one move, and on this surface
-# that is worth two orders of magnitude.
+# that gives a value about two orders of magnitude lower.
 set.seed(2)
 minimize(sa(visiting = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
 set.seed(2)
@@ -202,7 +201,8 @@ assign(".Random.seed", a@seed, globalenv())
 b <- minimize(sa(maxit = 20), rastrigin, c(4.4, -3.6))
 identical(a@par, b@par)
 
-# A gradient rule is refused when the run starts, this method computing none.
+# A gradient rule is rejected when the run starts, since this method
+# computes no gradient.
 try(minimize(sa(criterion = crit_grad()), rastrigin, c(4.4, -3.6)))
 
 }
@@ -221,5 +221,6 @@ Letters A} \strong{122}, 157--162.
 \seealso{
 \code{\link[=chain]{chain()}} for handing the answer to a local method,
 \code{\link[=multistart]{multistart()}} for the other way of covering several basins,
-\code{\link[=crit_stationary]{crit_stationary()}} for the rule this method's measure feeds.
+\code{\link[=crit_stationary]{crit_stationary()}} for the rule that reads the measure of this
+method.
 }

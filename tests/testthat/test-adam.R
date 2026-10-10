@@ -211,3 +211,17 @@ test_that("crit_never never fires", {
   expect_false(crit_met(crit_never(), st))
   expect_identical(crit_needs(crit_never()), character())
 })
+
+test_that("the rule is asked about the last point of a budget too", {
+  # the run converges at iteration 148; a budget of exactly 148 iterations
+  # returns the same point, and the verdict on it is the same
+  q <- function(p) sum((p - c(1, 2))^2)
+  g <- function(p) 2 * (p - c(1, 2))
+  a <- minimize(adam(alpha = 0.1, criterion = crit_grad(1e-3), maxit = 1000),
+                q, c(0, 0), gr = g)
+  b <- minimize(adam(alpha = 0.1, criterion = crit_grad(1e-3),
+                     maxit = a@iterations), q, c(0, 0), gr = g)
+  expect_true(b@converged)
+  expect_identical(b@iterations, a@iterations)
+  expect_identical(b@par, a@par)
+})

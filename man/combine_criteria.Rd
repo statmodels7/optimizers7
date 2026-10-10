@@ -17,8 +17,8 @@ An S7 object of class \link{CritCombine}, inheriting from
 }
 \description{
 Validates the arguments and builds the combined criterion, so that
-\code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} reject the same nonsense in the same words:
-an empty call and an argument that is not a criterion.
+\code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} reject the same invalid input with the same
+messages: an empty call and an argument that is not a criterion.
 }
 \details{
 The label is the sub-labels joined by \code{or} or \code{and} according to

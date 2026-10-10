@@ -17,19 +17,20 @@ An S7 object of class \code{CritStationary} inheriting from
 \code{\link[=criterion]{criterion()}}, carrying \code{label} and \code{tol}.
 }
 \description{
-The rule \code{\link[=crit_stationary]{crit_stationary()}} builds, and the two methods it implements. It
-reads \code{state$stationarity}, the non-negative measure a derivative-free
-method reports in place of a gradient, and fires when it falls below
-\code{tol}. It declares \code{"stationarity"} through \code{\link[=crit_needs]{crit_needs()}}, so a method
-that reports none refuses it when the run starts.
+The class of the rule built by \code{\link[=crit_stationary]{crit_stationary()}}, and its two methods.
+The rule reads \code{state$stationarity}, the non-negative measure that a
+method without a gradient test reports instead, and fires when it falls
+below \code{tol}. It declares \code{"stationarity"} through \code{\link[=crit_needs]{crit_needs()}}, so a
+method that reports no such measure rejects it when the run starts.
 }
 \details{
 \code{crit_met()} returns \code{FALSE} when the measure is \code{NULL}, empty or not
-finite. What the measure \emph{is} differs by method, so the tolerance means
-something different for each: the simplex diameter for \code{\link[=nelder_mead]{nelder_mead()}},
-the poll size for \code{\link[=compass]{compass()}}, Corana's termination measure for \code{\link[=sa]{sa()}},
-and the optimality estimate \eqn{\lVert p\rVert^{2} + \alpha} for
-\code{\link[=bundle]{bundle()}}. \code{\link[=crit_stationary]{crit_stationary()}} carries the comparison across all four.
+finite. The measure differs by method, so the tolerance has a different
+meaning for each: the largest distance from the best vertex to another
+vertex of the simplex for \code{\link[=nelder_mead]{nelder_mead()}}, the poll size for \code{\link[=compass]{compass()}},
+the half-width of the bracket for \code{\link[=brent]{brent()}}, Corana's termination measure
+for \code{\link[=sa]{sa()}}, and the optimality estimate \eqn{\lVert p\rVert^{2} + \alpha}
+for \code{\link[=bundle]{bundle()}}.
 }
 \examples{
 crit_needs(crit_stationary())
@@ -38,7 +39,7 @@ crit_met(crit_stationary(), list(stationarity = NULL))
 
 }
 \seealso{
-\code{\link[=crit_stationary]{crit_stationary()}} for the constructor and what each method
-reports, \code{\link[=crit_grad]{crit_grad()}} for the gradient-based rule.
+\code{\link[=crit_stationary]{crit_stationary()}} for the constructor and the measure of each
+method, \code{\link[=crit_grad]{crit_grad()}} for the gradient-based rule.
 }
 \keyword{internal}

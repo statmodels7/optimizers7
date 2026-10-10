@@ -16,16 +16,17 @@ An S7 object of class \code{CritAbsPar} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The rule \code{\link[=crit_abs_par]{crit_abs_par()}} builds. It fires when the largest coordinate
-change \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert} falls below \code{tol},
-so the tolerance is in the parameters' own units. It declares nothing
-through \code{\link[=crit_needs]{crit_needs()}}.
+The class of the rule built by \code{\link[=crit_abs_par]{crit_abs_par()}}. The rule fires when the
+largest change of a coordinate,
+\eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert}, falls below \code{tol}, so the
+tolerance is in the units of the parameters. It declares nothing through
+\code{\link[=crit_needs]{crit_needs()}}.
 }
 \details{
-\code{crit_met()} returns \code{FALSE} when \code{x_old} is \code{NULL}, as at the first
-iteration. With box constraints the comparison is on the \strong{unconstrained}
-scale, that being where the optimizer moves, so the same tolerance means
-different things about a variance near zero and one near a thousand.
+\code{crit_met()} returns \code{FALSE} when \code{x_old} is \code{NULL}. With box constraints
+the comparison is on the \strong{unconstrained} scale, on which the optimizer
+moves, so the same tolerance has different meanings for a variance near
+zero and for one near a thousand.
 }
 \examples{
 crit_met(crit_abs_par(1e-6),
@@ -35,6 +36,6 @@ crit_met(crit_abs_par(), list(x_new = c(1, 2), x_old = NULL))
 }
 \seealso{
 \code{\link[=crit_abs_par]{crit_abs_par()}} for the constructor, \code{\link[=crit_rel_par]{crit_rel_par()}} for the
-version scaled by each coordinate.
+version relative to each coordinate.
 }
 \keyword{internal}

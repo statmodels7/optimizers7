@@ -19,14 +19,14 @@ An optimizer of the same class as \code{optimizer}.
 }
 \description{
 Returns a copy of the optimizer with \code{maxit} replaced, keeping its class
-and every other setting. \code{\link[=check_optimizer]{check_optimizer()}} needs it for check 3, which
-starves an optimizer of iterations to see whether it still claims
-convergence, and it cannot name the class it was handed.
+and every other setting. \code{\link[=check_optimizer]{check_optimizer()}} uses it for check 3, which
+gives an optimizer a single iteration and tests that it does not report
+convergence, and which receives an optimizer of any class.
 }
 \details{
 The default method sets the property with \code{S7::set_props()}, which is
-right for any optimizer whose own budget is the one the run obeys. A
-wrapper needs a method of its own so that the change reaches the optimizer
-inside; \code{\link[=multistart]{multistart()}} has one.
+correct for an optimizer whose own budget governs the run. A wrapper needs
+a method of its own so that the change reaches the optimizer inside;
+\code{\link[=multistart]{multistart()}} and \code{\link[=chain]{chain()}} have one.
 }
 \keyword{internal}

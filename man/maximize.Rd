@@ -21,9 +21,9 @@ settings.}
 
 \item{fn}{The objective, a \strong{plain function} of the parameter vector
 returning a single number, to be maximized. Unlike \code{\link[=minimize]{minimize()}}, an
-object of another class is refused rather than passed to
-\code{\link[=as_objective]{as_objective()}}; negate such an objective yourself and call
-\code{\link[=minimize]{minimize()}}.}
+object of another class is rejected and not passed to
+\code{\link[=as_objective]{as_objective()}}; such an objective has to be negated by the caller and
+passed to \code{\link[=minimize]{minimize()}}.}
 
 \item{par}{A numeric vector of starting values, or a starter object such
 as \code{\link[=start_zeros]{start_zeros()}}. With bounds it must lie strictly inside them.}
@@ -33,13 +33,15 @@ vector, or \code{NULL} for a central difference. It is negated here, so a
 caller supplies the gradient of the function being maximized.}
 
 \item{he}{The Hessian of \code{fn} as written, or \code{NULL}. Negated here too, and
-read only by \code{\link[=newton]{newton()}}.}
+read only by \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}.}
 
 \item{lower, upper}{Box constraints, numeric of length 1 or of length \code{p},
 defaulting to \code{-Inf} and \code{Inf}. Passed through to \code{\link[=minimize]{minimize()}}
 unchanged; the sign convention does not touch them.}
 
-\item{...}{Passed to \code{\link[=minimize]{minimize()}}, and from there to the method.}
+\item{...}{Passed to \code{\link[=minimize]{minimize()}}, and from there to the method. A \code{t3}
+argument for \code{\link[=chebyshev]{chebyshev()}} is the contraction of the third derivative of
+\code{fn} as written, and is negated here like \code{gr} and \code{he}.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} with the same twelve properties
@@ -49,28 +51,27 @@ referring to \code{fn} as written.
 \description{
 Runs \code{\link[=minimize]{minimize()}} on the negated objective and hands back a result whose
 value, gradient and traced objective are those of the objective as
-written. Every algorithm in the package minimizes; this is the wrapper for
-the other direction, so that a log-likelihood need not be negated by hand
-and the answer negated back.
+written. Every algorithm in the package minimizes; this wrapper maximizes,
+so that a log-likelihood need not be negated by hand and the answer
+negated back.
 }
 \details{
 \deqn{\arg\max_{x} f(x) = \arg\min_{x} \{-f(x)\},
   \qquad \max_{x} f(x) = -\min_{x}\{-f(x)\},}
 
 so \code{par} is exactly what \code{\link[=minimize]{minimize()}} returned, while \code{value}, \code{gradient}
-and the \code{value} column of \code{trace} have their sign restored. Everything
-else on the result belongs to the run and passes through untouched:
-\code{counts}, \code{iterations}, \code{converged}, \code{criterion_met} and the optimizer.
+and the \code{value} column of \code{trace} have their sign restored. The other
+properties of the result pass through unchanged: \code{counts}, \code{iterations},
+\code{converged}, \code{criterion_met} and the optimizer.
 
-A consequence worth knowing: \code{criterion_met} names a rule that was
-evaluated on the \strong{negated} objective. For a rule reading a gradient norm
-or an absolute change that makes no difference, both being invariant under
-the sign. For a rule reading the objective's own scale, such as
-\code{\link[=crit_rel_obj]{crit_rel_obj()}}, it makes none either, the relative change being a ratio.
+The rule named in \code{criterion_met} was evaluated on the \strong{negated}
+objective. Each shipped rule gives the same verdict on \eqn{f} and on
+\eqn{-f}, since each reads a gradient norm, an absolute change or a
+relative change.
 
 \code{fn} here must be a plain function. An objective of some other class,
-reached through a method of \code{\link[=as_objective]{as_objective()}}, is refused by name: this
-wrapper negates by composing a closure, and it has no way to negate an
+reached through a method of \code{\link[=as_objective]{as_objective()}}, is rejected with an error:
+this wrapper negates by composing a closure, and it cannot negate an
 object whose evaluation it does not perform.
 }
 \examples{
@@ -84,7 +85,7 @@ c(fit@par, mean(y))
 # The reported value is the log-likelihood itself, not its negative.
 all.equal(fit@value, ll(fit@par))
 
-# An objective that is not a plain function is refused by name.
+# An objective that is not a plain function is rejected.
 try(maximize(bfgs(), 1:3, c(0, 0)))
 
 }

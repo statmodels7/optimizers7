@@ -14,7 +14,7 @@ Invisibly \code{TRUE}. Raises an error naming \code{line_search} otherwise.
 }
 \description{
 Checks that the value inherits from the abstract \code{\link[=line_search]{line_search()}} class.
-The message names \code{\link[=armijo]{armijo()}} as an example, the commonest mistake being to
-pass the string \code{"armijo"} instead of the object.
+The message names \code{\link[=armijo]{armijo()}} as an example, since passing the string
+\code{"armijo"} instead of the object is a common mistake.
 }
 \keyword{internal}

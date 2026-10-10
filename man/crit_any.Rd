@@ -13,43 +13,31 @@ crit_any(...)
 A \code{\link[=criterion]{criterion()}} object, so combinations nest.
 }
 \description{
-Combines criteria disjunctively. This is the usual arrangement: a run should
-end as soon as any reasonable rule is satisfied.
+Combines criteria disjunctively: the run ends as soon as any of the rules
+is satisfied.
 }
 \details{
-\strong{The default rule of the gradient methods.} \code{\link[=gd]{gd()}},
-\code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}}, \code{\link[=newton]{newton()}},
-\code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} default to
+\strong{The default rule of the gradient methods.} \code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}},
+\code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}} and \code{\link[=chebyshev]{chebyshev()}} default to
 \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}: the point is
 stationary, or the objective has stopped moving, or the parameters have.
-Since a disjunction can only get weaker as terms are added, a run that ends
-under this rule would have ended under a gradient rule alone at best later
-and never earlier.
+A disjunction can only become weaker as terms are added, so a run that
+ends under this rule would have ended under the gradient rule alone at
+the same iteration or later, never earlier.
 
-What that buys and what it costs was measured over the package's own
-\code{\link[=test_problems]{test_problems()}}, six methods on eight problems. Against the
-gradient rule alone it converges on 44 of the 48 runs against 41, and costs
-19370 objective evaluations against 22299. The three it gains are
-\code{cg} and \code{bb} on the non-smooth \code{abs_sum} and \code{gd} on
-Beale, and none is lost.
+On the package's \code{\link[=test_problems]{test_problems()}}, with the six methods other than
+\code{\link[=chebyshev]{chebyshev()}}, this rule converges on every run on which the gradient rule
+alone converges, and on three more (\code{cg} and \code{bb} on \code{abs_sum}, \code{gd} on
+\code{beale}), and it needs fewer evaluations of the objective and the gradient
+in total. The cost is that a run stops sooner, at a point further from the
+solution, usually by a margin far below the statistical precision of an
+estimate. On a non-smooth problem a smooth method can stall far from the
+solution, and a rule that reads a stall reports it as convergence (\code{cg} on
+\code{abs_sum} is such a case). A caller who needs a stationary point uses
+\code{criterion = crit_grad()}.
 
-The cost is that a run stops sooner, so the point it reports is further from
-the solution. Measured, 10 of the 48 end at a gradient more than a hundred
-times larger, and the worst are runs that were reaching absurd precision
-anyway: \code{bfgs} on Rosenbrock ends at 8.1e-06 against 4.4e-10, with the
-objective 3.2e-13 above its minimum against 1.2e-21. On one run the
-difference is substantive, \code{cg} on \code{abs_sum}, where the
-objective ends 4.5e-02 above the minimum against 1.9e-03 and
-the flag reads \code{TRUE} where it used to read \code{FALSE}. That is a
-smooth method on a non-smooth problem, where the objective stalls far from
-the solution and a rule that reads a stall cannot tell the two apart. A
-caller who needs stationarity asks for it: \code{criterion = crit_grad()}.
-
-\code{\link[=crit_rel_obj]{crit_rel_obj()}} was in that default until 0.6.0 and is not any
-more, because it never fired: measured over the same 48 runs, the rule with
-it and the rule without it agree on every count, every evaluation and every
-reported point. It remains available and useful where an objective's scale
-is not known in advance.
+\code{\link[=crit_rel_obj]{crit_rel_obj()}} was part of this default until 0.6.0. It was removed
+because on the same problems it never fired before the other terms.
 }
 \examples{
 crit_any(crit_grad(1e-8), crit_rel_obj(1e-12))

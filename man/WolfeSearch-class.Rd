@@ -20,8 +20,8 @@ WolfeSearch(
 
 \item{max_step}{The most trial steps allowed in each phase. A \strong{count}.}
 
-\item{resolution}{What the objective can tell apart, a number or a
-function of no arguments.}
+\item{resolution}{The smallest difference in the objective that the
+objective can resolve, a number or a function of no arguments.}
 }
 \value{
 An S7 object of class \code{WolfeSearch} inheriting from
@@ -30,14 +30,14 @@ An S7 object of class \code{WolfeSearch} inheriting from
 \description{
 A line search that brackets a step satisfying both Wolfe conditions and
 then bisects inside the bracket. Built by \code{\link[=wolfe]{wolfe()}}. It evaluates the
-\strong{gradient} at trial points as well as the objective. That is what the
-curvature condition costs, and what a quasi-Newton method needs.
+\strong{gradient} at trial points as well as the objective, which is the cost
+of the curvature condition that a quasi-Newton method needs.
 }
 \details{
-Beyond the \code{label} every line search carries, a \code{WolfeSearch} holds \code{c1},
-\code{c2}, \code{max_step} and \code{resolution}. It has no \code{shrink}, taking no
+Beyond the \code{label} of every line search, a \code{WolfeSearch} holds \code{c1},
+\code{c2}, \code{max_step} and \code{resolution}. It has no \code{shrink}, since it takes no
 backtracking steps of a fixed ratio; \code{\link[=line_search_spec]{line_search_spec()}} fills that field
-with a value the compiled side ignores.
+with a value that the compiled code ignores.
 }
 \seealso{
 \code{\link[=wolfe]{wolfe()}} for the constructor, \link{ArmijoSearch} and

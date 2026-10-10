@@ -13,20 +13,19 @@
 }
 \description{
 Shows an optimizer in four lines: its name, the label of its stopping
-rule, its two budgets, and its algorithm-specific settings. Everything the
-run will obey is on the object, so printing it is how a caller checks what
-a fit was configured to do.
+rule, its two budgets, and the settings specific to the algorithm.
+\code{verbose}, \code{refresh} and \code{keep_trace} are not printed.
 }
 \details{
-The settings line describes each value by what it is. A number prints as
-itself; an object carrying a \code{label}, such as a \code{\link[=criterion]{criterion()}}, prints its
-label; an object carrying a \code{name}, such as a \code{\link[=line_search]{line_search()}} or a nested
-optimizer, prints its name; anything else prints as its class in angle
-brackets. A setting of a kind the package does not yet have therefore
-prints something sensible instead of stopping the method.
+The settings line describes each value according to its type. A number
+prints as itself; an object with a \code{label}, such as a \code{\link[=criterion]{criterion()}} or a
+\code{\link[=line_search]{line_search()}}, prints its label; an object with a \code{name}, such as a
+nested optimizer, prints its name; any other value prints as its class in
+angle brackets. A setting of a new kind therefore prints a readable value
+and does not stop the method.
 }
 \examples{
-# The line search is an object and shows its own name.
+# The line search is an object and shows its own label.
 bfgs()
 
 # A derivative-free method has a different rule and different settings.

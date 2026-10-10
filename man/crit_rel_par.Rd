@@ -19,8 +19,8 @@ The rule
 \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert / (\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}.
 }
 \details{
-The \code{+ tol} in each denominator is a floor, as in \code{\link[=crit_rel_obj]{crit_rel_obj()}}: a
-coordinate sitting at zero would otherwise be divided by nothing. The same
+The term \code{+ tol} in each denominator is a floor, as in \code{\link[=crit_rel_obj]{crit_rel_obj()}},
+which keeps the denominator positive at a coordinate of zero. The same
 number therefore serves as the floor and as the threshold.
 }
 \examples{
@@ -34,5 +34,5 @@ c(large = crit_met(crit_rel_par(1e-6), list(x_new = 1000,
 
 }
 \seealso{
-\code{\link[=crit_abs_par]{crit_abs_par()}} for the version in the parameters' own units.
+\code{\link[=crit_abs_par]{crit_abs_par()}} for the version in the units of the parameters.
 }

@@ -11,10 +11,9 @@ NULL
 #' expand. Built by [brent()].
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `Brent` carries two of
-#' its own: `step`, the length of the first trial step on the parameter's
-#' scale, and `max_expand`, the number of golden expansions the bracketing
-#' phase may take before it stops.
+#' Beyond the seven properties of every optimizer, a `Brent` carries two of
+#' its own: `step`, the length of the first trial step, and `max_expand`, the
+#' number of golden expansions that the bracketing phase may take.
 #'
 #' @param step The length of the first trial step.
 #' @param max_expand The number of expansions allowed while bracketing.
@@ -42,14 +41,16 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' and golden-section steps.
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
-#'   `crit_stationary(1e-5)`, read on the half-width of the bracket, so the
-#'   tolerance is on the parameter's scale. A gradient rule is refused when
-#'   the run starts.
+#'   `crit_stationary(1e-5)`, which reads the half-width of the bracket, so
+#'   the tolerance is on the scale of the parameter, or on the unconstrained
+#'   scale when `lower` or `upper` is given. A rule that needs a gradient is
+#'   rejected when the run starts.
 #' @param step The length of the first trial step of the bracketing phase, a
 #'   single positive number, default `1`.
 #' @param max_expand How many golden expansions the bracketing phase may
-#'   take, a single positive number, default `50`. A run that has not
-#'   bracketed the minimum by then continues from the best point it has.
+#'   take, a single number of at least 1, default `50`. If no minimum has
+#'   been bracketed by then, the run stops at the lowest point evaluated and
+#'   reports `converged = FALSE`.
 #' @param maxit Maximum iterations of the reduction phase. Defaults to 100.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`.
 #' @param verbose Report progress? Defaults to `FALSE`.
@@ -60,9 +61,13 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' The bracketing phase evaluates the starting value \eqn{x_0} and
 #' \eqn{x_0 + h}, turns round if the second is the higher, and steps on in
 #' the descending direction, each step \eqn{1.618} times the last, until the
-#' value rises. The three points then satisfy \eqn{f(b) < f(a)} and
-#' \eqn{f(b) < f(c)} with \eqn{b} between \eqn{a} and \eqn{c}, so a minimum
-#' lies inside \eqn{(a, c)}.
+#' value no longer falls. The three points then satisfy
+#' \eqn{f(b) \le f(a)} and \eqn{f(b) \le f(c)} with \eqn{b} between \eqn{a}
+#' and \eqn{c}, so a minimum lies in \eqn{[a, c]}. If the value is still
+#' falling when `max_expand` expansions have been taken, or when the
+#' evaluation budget runs out, no minimum has been bracketed: the run stops
+#' at the lowest point evaluated, reports `converged = FALSE` and records the
+#' reason in `message`.
 #'
 #' The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 #' iteration the parabola through the three best points is tried first; its
@@ -73,9 +78,19 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' of evaluations when the function is not well modeled by a parabola. The
 #' stationarity measure is the half-width of the bracket.
 #'
+#' The rule receives `iter`, `f_new`, `f_old`, `x_new`, `x_old` and
+#' `stationarity`; `f_old` and `x_old` are those of the previous iteration
+#' and are `NULL` at the first. Besides the rule, the reduction stops on
+#' Brent's own test, when the bracket has shrunk to about
+#' \eqn{\sqrt{\varepsilon}\,\lvert x \rvert + 10^{-12}} around the best point
+#' \eqn{x}, below which no further point can be distinguished from \eqn{x}.
+#' That stop reports `converged = TRUE` with `criterion_met` equal to
+#' `bracket at machine resolution`, so a rule with a smaller tolerance than
+#' this resolution, or [crit_never()], ends there.
+#'
 #' The method is for one parameter only; a starting value of any other
-#' length is rejected. Bounds are removed by the same reparametrization the
-#' other methods use (see [bounded_transform()]).
+#' length is rejected. Bounds are removed by the same reparametrization as in
+#' the other methods (see [bounded_transform()]).
 #'
 #' @return An S7 object of class [Brent], inheriting from [optimizer()], to
 #'   be handed to [minimize()].
@@ -96,7 +111,7 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' minimize(nelder_mead(), f, par = 0)@counts[["f"]]
 #'
 #' @seealso [nelder_mead()] for the derivative-free method in several
-#'   dimensions, [crit_stationary()] for the rule this method reads.
+#'   dimensions, [crit_stationary()] for the default rule of this method.
 #' @export
 brent <- function(criterion = crit_stationary(1e-5), step = 1,
                   max_expand = 50, maxit = 100, max_eval = Inf,
@@ -131,7 +146,8 @@ S7::method(optimizer_provides, Brent) <- function(optimizer) "stationarity"
 #' @description
 #' Runs [brent()] on a function of one variable: bracket the minimum by
 #' golden expansion, then reduce the bracket by parabolic and golden-section
-#' steps until the stopping rule fires.
+#' steps until the stopping rule fires or the bracket reaches the resolution
+#' of the iterate.
 #'
 #' @param optimizer A `Brent` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
@@ -139,9 +155,9 @@ S7::method(optimizer_provides, Brent) <- function(optimizer) "stationarity"
 #'   and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose `gradient` is `NULL` and whose trace
-#'   carries a `stationarity` column holding the half-width of the bracket.
-#'   The `safeguard` column names the step taken at each iteration:
-#'   `parabolic` or `golden`.
+#'   has the columns `iteration`, `value`, `stationarity` (the half-width of
+#'   the bracket) and `safeguard`, which names the step taken at each
+#'   iteration: `parabolic` or `golden`.
 #'
 #' @keywords internal
 S7::method(minimize, Brent) <-
@@ -208,6 +224,22 @@ brent_run <- function(optimizer, spec, par, bounds) {
     fc <- f(cc)
     expansions <- expansions + 1L
   }
+  # the loop also ends on max_expand or on the budget while the value is still
+  # falling; (a, cc) then contains no minimum, and the run stops at the lowest
+  # point it has seen instead of reducing a bracket that is not one
+  if (fc < fb) {
+    out_budget <- out_of_budget()
+    return(list(
+      par = to_par(cc), value = fc, gradient = NULL,
+      n_value = n_value, n_grad = 0L, n_hess = 0L,
+      iterations = 0L, converged = FALSE,
+      stopped_by = if (out_budget) "max_eval" else "failed",
+      message = if (out_budget)
+        "the evaluation budget ran out before a minimum was bracketed" else
+        paste0("no minimum was bracketed in max_expand = ",
+               optimizer@max_expand, " expansions"),
+      trace = NULL))
+  }
 
   # REDUCTION, after Brent (1973): x is the best point, w the second best,
   # v the previous value of w; (lo, hi) is the bracket
@@ -220,16 +252,26 @@ brent_run <- function(optimizer, spec, par, bounds) {
   stopped_by <- "maxit"
   it <- 0L
   f_prev <- NA_real_
+  x_prev <- NULL
   for (it in seq_len(as.integer(optimizer@maxit))) {
     mid <- (lo + hi) / 2
     tol1 <- sqrt(.Machine$double.eps) * abs(x) + 1e-12
     tol2 <- 2 * tol1
     half <- (hi - lo) / 2
-    state <- list(x_new = x, f_new = fx, f_old = f_prev, stationarity = half)
-    if (isTRUE(crit_met(optimizer@criterion, state)) ||
-        abs(x - mid) <= tol2 - half) {
+    state <- list(iter = it, f_new = fx,
+                  f_old = if (is.finite(f_prev)) f_prev else NULL,
+                  x_new = x, x_old = x_prev, gradient = NULL,
+                  stationarity = half)
+    if (isTRUE(crit_met(optimizer@criterion, state))) {
       converged <- TRUE
       stopped_by <- "criterion"
+      break
+    }
+    # Brent's own test: the bracket has shrunk to the resolution of x, where no
+    # further step can be distinguished from x, whatever the rule asks for
+    if (abs(x - mid) <= tol2 - half) {
+      converged <- TRUE
+      stopped_by <- "bracket"
       break
     }
     if (out_of_budget()) {
@@ -261,6 +303,7 @@ brent_run <- function(optimizer, spec, par, bounds) {
     u <- if (abs(d) >= tol1) x + d else x + (if (d >= 0) tol1 else -tol1)
     fu <- f(u)
     f_prev <- fx
+    x_prev <- x
     if (fu <= fx) {
       if (u >= x) lo <- x else hi <- x
       v <- w; fv <- fw

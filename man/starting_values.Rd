@@ -20,11 +20,11 @@ Turns a starter into an actual numeric vector of length \code{npar}, on the
 \strong{unconstrained} scale.
 }
 \details{
-The unconstrained scale is the one the optimizer works on when there are
-bounds, and that is where a starter is entitled to be simple: zero means
-the middle of an interval, one for a variance, one half for a probability,
-and no value can fall outside a bound. \code{\link[=minimize]{minimize()}} maps the result back
-through \code{\link[=bounded_transform]{bounded_transform()}} before any method sees it.
+The unconstrained scale is the scale on which the optimizer works when
+there are bounds, and on that scale a starter can be simple: zero maps to
+the middle of an interval, one for a variance, one half for a
+probability, and every value maps inside the bounds. \code{\link[=minimize]{minimize()}} maps the
+result back through \code{\link[=bounded_transform]{bounded_transform()}} before any method receives it.
 
 \code{npar} is passed by \code{\link[=minimize]{minimize()}}, which has already settled it from the
 starter's own \code{npar}, from the length of the bounds, or by probing the
@@ -34,10 +34,10 @@ the argument, not \code{starter@npar}.
 The two shipped starters are \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A
 starter of a third kind is a subclass of the abstract \link{starter} class with
 a method for this generic and nothing else, and \code{\link[=minimize]{minimize()}} then accepts
-it as \code{par} like either shipped one. The parent matters: \code{minimize()}
-accepts as \code{par} a numeric vector or an object inheriting from \link{starter},
-so a class carrying a method for this generic but parented elsewhere is
-refused with \verb{'par' must be a numeric vector of starting values}.
+it as \code{par} like either shipped one. The parent class matters:
+\code{minimize()} accepts as \code{par} a numeric vector or an object that inherits
+from \link{starter}, so a class that has a method for this generic but does
+not inherit from \link{starter} is rejected with the error \verb{'par' must be a numeric vector of starting values}.
 }
 \examples{
 starting_values(start_zeros(), 3)
@@ -45,8 +45,8 @@ starting_values(start_zeros(), 3)
 set.seed(1)
 starting_values(start_runif(-2, 2), 3)
 
-# Resolving by hand gives exactly the vector minimize() would have used,
-# so passing a starter and passing its values are the same run.
+# Resolving by hand gives the vector that minimize() would have used, so
+# passing a starter and passing its values give the same run.
 f <- function(p) sum((p - 1:3)^2)
 set.seed(1); a <- minimize(bfgs(), f, start_runif(-2, 2, npar = 3))
 set.seed(1); b <- minimize(bfgs(), f, starting_values(start_runif(-2, 2), 3))

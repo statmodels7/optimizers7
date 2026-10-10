@@ -7,13 +7,15 @@
 \item{optimizer}{An \code{Sa} object.}
 
 \item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{he} are
-accepted and ignored, the method using no derivative; refusing them
-would force calling code to branch on the algorithm. Bounds are taken
-and removed by reparametrization like any other method's.}
+accepted and ignored, since the method uses no derivative; rejecting
+them would force calling code to branch on the algorithm. Bounds are
+taken and removed by reparametrization, as in the other methods except
+\code{\link[=prox_grad]{prox_grad()}}.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} holding the best point seen, with \code{seed}
-filled in and \code{converged} \code{TRUE} only when Corana's rule fired.
+filled in and \code{converged} \code{TRUE} only when the stopping rule fired (by
+default, Corana's rule through \code{\link[=crit_stationary]{crit_stationary()}}).
 }
 \description{
 Runs \code{\link[=sa]{sa()}} on the objective: a Metropolis walk over one coordinate at a

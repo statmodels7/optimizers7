@@ -15,19 +15,20 @@ An S7 object of class \link{CritCombine}, inheriting from
 \code{\link[=criterion]{criterion()}}, so combinations nest.
 }
 \description{
-Combines criteria conjunctively, for a run that should not stop until
-several independent things agree. A conjunction can only get \strong{stronger}
-as terms are added, so a run ending under one would have ended under any
-of its terms alone at the same time or earlier.
+Combines criteria conjunctively, for a run that should stop only when
+several rules hold at once. A conjunction can only become \strong{stronger} as
+terms are added, so a run that ends under it would have ended under any
+one of its terms alone at the same iteration or earlier.
 }
 \details{
-This is the rarer of the two combinators and is worth reaching for when
-one rule alone is known to fire early: \code{crit_all(crit_grad(), crit_abs_par())} asks for a stationary point at which the iterate has also
-settled, which a run circling a flat optimum will not satisfy.
+It is useful when one rule alone is known to fire early:
+\code{crit_all(crit_grad(), crit_abs_par())} requires a stationary point at
+which the iterate has also stopped moving, a condition that a run circling
+a flat optimum does not satisfy.
 
-Every rule it holds is evaluated at every iteration, so a conjunction
-containing a rule an optimizer cannot evaluate is refused exactly as the
-bare rule would be.
+The needs of a conjunction are the union of the needs of its rules, so an
+optimizer rejects a conjunction that contains a rule that it cannot
+evaluate, as it rejects that rule alone.
 }
 \examples{
 crit_all(crit_grad(1e-6), crit_abs_par(1e-10))

@@ -265,7 +265,7 @@ test_that("the constructors refuse nonsense", {
 
   expect_error(bb(variant = "bb3"), "should be one of")
   expect_error(bb(alpha_min = 10, alpha_max = 1), "strictly below")
-  expect_error(bb(alpha0 = 0), "'tol'")
+  expect_error(bb(alpha0 = 0), "'alpha0'")
 })
 
 

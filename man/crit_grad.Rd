@@ -8,47 +8,40 @@ crit_grad(tol = 1e-06, norm = c("max", "2"))
 }
 \arguments{
 \item{tol}{Numeric tolerance, a single positive number. Defaults to
-\code{1e-6}; see below for why that rather than something smaller.}
+\code{1e-6}; see Details for the reason.}
 
-\item{norm}{\code{"max"} (default) or \code{"2"}. Partial matching applies and any
-other string is refused, naming both.}
+\item{norm}{\code{"max"} (default) or \code{"2"}. Partial matching applies, and any
+other string is rejected by \code{\link[=match.arg]{match.arg()}}.}
 }
 \value{
 An S7 object of class \link{CritGrad}, inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
 Builds the rule \eqn{\lVert \nabla f \rVert < \texttt{tol}}, the test for
-a stationary point and the one a maximum likelihood fit should ask for.
-Usable only by a method that computes a gradient; a derivative-free
-optimizer refuses it when the run starts instead of accepting a rule that
-can never fire.
+a stationary point and the rule for a maximum likelihood fit. Only a
+method that computes a gradient can use it; a derivative-free optimizer
+rejects it when the run starts.
 }
 \details{
-The max-norm is the default because it does not grow with the dimension the
-way the 2-norm does: the same tolerance then means the same thing for a
-two-parameter problem and a two-hundred-parameter one, whereas \code{1e-6} in
-the 2-norm is a far stricter demand in high dimension. Both are available, so
-the choice is only a default.
+The max-norm is the default because it does not grow with the dimension,
+as the 2-norm does: the same tolerance then has the same meaning for a
+problem with two parameters and for one with two hundred, whereas \code{1e-6}
+in the 2-norm is a much stricter condition in high dimension.
 
-How small a gradient a run can actually reach is set by the objective, not
+The smallest gradient that a run can reach is set by the objective and not
 by the method. A line search accepts a step only when the objective
 decreases by a definite amount, and near a minimum that decrease is about
-\eqn{\lVert \nabla f \rVert^{2} / (2\lambda)} for a curvature \eqn{\lambda}.
-Once it drops below the rounding of the objective itself, about
-\eqn{\varepsilon \lvert f \rvert}, no step in any direction can be verified
-and the search stops, so the smallest attainable gradient is around
+\eqn{\lVert \nabla f \rVert^{2} / (2\lambda)} for a curvature
+\eqn{\lambda}. Once it falls below the rounding error of the objective,
+about \eqn{\varepsilon \lvert f \rvert}, no step can be verified and the
+search stops, so the smallest attainable gradient is about
 \eqn{\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}} and grows with the
-value at the solution. On conjugate gradients applied to Rosenbrock, adding
-a constant to the objective (which moves neither the minimizer nor the
-gradient) takes the attainable gradient from \code{1.9e-9} at
-\eqn{f^{*} = 0} to \code{4.4e-8} at \eqn{f^{*} = 1} and \code{6.5e-5} at
-\eqn{f^{*} = 10^{6}}. The default suits an objective of order one at its
-solution, as a log-likelihood per observation is; an objective
-that lands in the millions needs a correspondingly looser tolerance, and one
-that lands at zero can be asked for much more.
-
-Only usable by a method that computes a gradient; a derivative-free optimizer
-rejects it rather than accepting a rule that can never fire.
+value at the solution. Adding a constant to the objective moves neither
+the minimizer nor the gradient, but it changes this bound (the last
+example below). The default suits an objective of order one at its
+solution, such as a log-likelihood divided by the number of observations;
+an objective whose minimum is of the order of millions needs a larger
+tolerance, and one whose minimum is zero admits a much smaller one.
 }
 \examples{
 crit_grad()
@@ -75,8 +68,7 @@ c(converged = s@converged, gradient = max(abs(g(s@par))))
 
 }
 \seealso{
-\code{\link[=crit_stationary]{crit_stationary()}} for what a derivative-free method reads,
-\code{\link[=crit_any]{crit_any()}} for the disjunction the gradient methods default to,
-\code{\link[=test_problems]{test_problems()}} for the battery the attainable-gradient figures come
-from.
+\code{\link[=crit_stationary]{crit_stationary()}} for the rule of a derivative-free method,
+\code{\link[=crit_any]{crit_any()}} for the disjunction that the gradient methods use by
+default, \code{\link[=test_problems]{test_problems()}} for the problems of the examples.
 }

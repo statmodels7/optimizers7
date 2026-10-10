@@ -12,14 +12,15 @@ and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is \code{NULL} and whose trace
-carries a \code{stationarity} column holding the poll size. With
-\code{directions = "mads"} the \code{seed} is recorded, the poll drawing from \R's
-generator; with \code{"coordinate"} it is \code{NULL} and the run repeats without
-one.
+has a \code{stationarity} column holding the poll size. With
+\code{directions = "mads"} the \code{seed} is recorded, since the poll draws from
+the generator of \R; with \code{"coordinate"} it is \code{NULL} and the run
+repeats without a seed.
 }
 \description{
 Runs \code{\link[=compass]{compass()}} on the objective: poll the directions around the current
 point at the current radius, move to an improvement if one is found and
-expand, and shrink the radius when the poll fails everywhere.
+expand the radius, and shrink the radius when the poll fails in every
+direction.
 }
 \keyword{internal}

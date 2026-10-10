@@ -17,18 +17,17 @@ resolve_start(par, fn, gr, lower, upper)
 A numeric vector on the parameter scale.
 }
 \description{
-The whole of what \code{\link[=minimize]{minimize()}} does with a starter, in one place:
-settle the number of parameters, draw the values on the unconstrained scale,
-and map them back through the box.
+Everything that \code{\link[=minimize]{minimize()}} does with a starter, in one place: it
+settles the number of parameters, draws the values on the unconstrained
+scale, and maps them back through the box.
 }
 \details{
-The number of parameters is looked for in three places, in order of how much
-the caller was willing to say. \code{npar} on the starter itself is taken as
-given. Failing that, a \code{lower} or \code{upper} of length greater than one
-answers the question, since bounds are one per parameter. Failing both,
-\code{\link[=infer_npar]{infer_npar()}} probes the objective.
+The number of parameters is looked for in three places, in order. The
+\code{npar} of the starter is taken as given. Otherwise a \code{lower} or \code{upper} of
+length greater than one determines it, since bounds are one per
+parameter. Otherwise \code{\link[=infer_npar]{infer_npar()}} probes the objective.
 
-A numeric \code{par} passes through untouched, so this costs nothing at all
-for the ordinary call.
+A numeric \code{par} passes through unchanged, so the ordinary call pays
+nothing for this.
 }
 \keyword{internal}

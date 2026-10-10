@@ -17,7 +17,7 @@ minimize(
 }
 \arguments{
 \item{optimizer}{An \code{\link[=optimizer]{optimizer()}} object carrying the algorithm and its
-settings. The only argument dispatch reads.}
+settings. Dispatch reads this argument only.}
 
 \item{fn}{The objective: a function of the parameter vector returning a
 single number, to be minimized. An object of another class works
@@ -31,17 +31,19 @@ default, has it differenced from \code{fn}. Ignored when \code{fn} is an objecti
 carrying its own gradient.}
 
 \item{he}{The Hessian, a function of the parameter vector. \code{NULL} is the
-default and only \code{\link[=newton]{newton()}} reads one; every other method accepts it and
-ignores it, so calling code need not branch on the algorithm.}
+default. \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read it; every other method
+accepts it and does not use it, so calling code need not branch on the
+algorithm.}
 
 \item{lower, upper}{Box constraints, numeric of length 1 (applying to every
-parameter) or of length \code{p} (one each). Any other length is an error
-naming both. The defaults \code{-Inf} and \code{Inf} are no constraint, and a
+parameter) or of length \code{p} (one each). Any other length is an error.
+The defaults \code{-Inf} and \code{Inf} are no constraint, and a
 coordinate whose pair is infinite on both sides is left untransformed.
 \code{lower} must be strictly below \code{upper} in every coordinate.}
 
-\item{...}{Passed to the method dispatched on. No shipped method reads
-anything from it.}
+\item{...}{Passed to the method dispatched on. Among the shipped
+methods, only the method for \code{\link[=chebyshev]{chebyshev()}} reads from it, its argument
+\code{t3}.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} object: \code{par}, \code{value}, \code{gradient},
@@ -49,12 +51,14 @@ An \code{\link[=optimizer_result]{optimizer_result()}} object: \code{par}, \code
 \code{trace}, \code{optimizer}, \code{elapsed} and \code{seed}.
 }
 \description{
-Runs an optimizer on an objective and returns the point it reached, the
-value there, and the rule that stopped it. This is the one entry point:
-every algorithm in the package is a method of this generic, so changing
-method means changing the first argument and nothing else. Box constraints
-are accepted by every method. Everything here minimizes; \code{\link[=maximize]{maximize()}}
-negates the objective and restores the sign of the answer.
+Runs an optimizer on an objective and returns the point that it reached,
+the value there, and the rule that stopped it. This is the single entry
+point: every algorithm in the package is a method of this generic, so a
+change of method is a change of the first argument. Box constraints are
+accepted by every method except \code{\link[=prox_grad]{prox_grad()}}, which takes its constraint
+through the proximal operator, and \code{\link[=chebyshev]{chebyshev()}} when it is given \code{t3}.
+Every method minimizes; \code{\link[=maximize]{maximize()}} negates the objective and restores
+the sign of the answer.
 }
 \details{
 The problem solved is
@@ -64,9 +68,14 @@ The problem solved is
 
 with \eqn{f} the objective, \eqn{l} and \eqn{u} the bounds, and the
 inequalities read coordinatewise. Every method reports the point where it
-stopped together with the rule that stopped it. Convergence is what a
-stopping rule confirmed and is never inferred from the run having ended,
-so a run that exhausts its budget comes back with \code{converged = FALSE}.
+stopped together with the rule that stopped it. \code{converged} is \code{TRUE}
+when the stopping rule is satisfied; it is also \code{TRUE} when a line search
+with a declared resolution establishes that no step decreases the
+objective by more than that resolution, and when \code{\link[=brent]{brent()}} reduces its
+bracket to the resolution of the iterate, and the result then reports
+that stop with its own label in \code{criterion_met}. It is never inferred from
+the run having ended, so a run that exhausts its budget comes back with
+\code{converged = FALSE}.
 
 Dispatch is on \code{optimizer} alone, so each algorithm is written once. The
 objective is normalized separately, by \code{\link[=as_objective]{as_objective()}}, which dispatches
@@ -75,59 +84,63 @@ there and every algorithm accepts it.
 }
 \section{Derivatives, supplied and differenced}{
 A gradient that is not supplied is computed by central finite differences,
-at a cost of \eqn{2p} evaluations of the objective each time. The result's
-\code{message} records that, so a run is never silently less exact than it
-looks.
+at a cost of \eqn{2p} evaluations of the objective each time, and the
+\code{message} of the result records that the gradient was obtained by finite
+differences.
 
-A gradient that \emph{is} supplied is checked once, before the run: one central
-difference along the gradient direction at \code{par}, two evaluations. A gross
-disagreement draws a warning naming both rates, as in
+A gradient that \emph{is} supplied is checked before the run, with one central
+difference along the gradient direction at \code{par}, which costs two
+evaluations. If the difference disagrees with the gradient, it is repeated
+at steps ten and a hundred times smaller, and a disagreement that persists
+gives a warning that names both rates, as in
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{'gr' does not appear to be the gradient of 'fn': along the gradient
 direction at 'par', 'fn' changes at rate 4.47 where 'gr' predicts 22.4.
 }\if{html}{\out{</div>}}
 
-and the run proceeds. A \code{gr} computed from a different model than \code{fn} is
-otherwise very hard to see: it surfaces as a mute line-search failure at
-the first iteration. Set \code{options(optimizers7.check_gradient = FALSE)} to
-turn the check off.
+and the run proceeds. Without the check, a \code{gr} computed from a different
+model than \code{fn} appears only as a line-search failure at the first
+iteration, with no indication of its cause. Set
+\code{options(optimizers7.check_gradient = FALSE)} to turn the check off.
 }
 
 \section{Starters}{
 \code{par} may be a \strong{starter} object instead of a vector: \code{\link[=start_zeros]{start_zeros()}} for
 all zeros, \code{\link[=start_runif]{start_runif()}} for a uniform draw from a chosen range. Both
 work on the unconstrained scale and are mapped back through the bounds, so
-one constant means something sensible for every kind of parameter (zero
-becomes one for a variance, one half for a probability) and no draw can
-land outside its box.
+one constant gives a sensible value for every kind of parameter (zero
+becomes one for a variance, one half for a probability) and every draw
+lies inside its box.
 
-A starter has to be told how many parameters there are, in one of three
-ways. Say so with \code{start_zeros(npar = 3)}. Failing that, a \code{lower} or
-\code{upper} of more than one element answers the question, bounds being one
-per parameter. Failing that, the objective is probed by \code{\link[=infer_npar]{infer_npar()}},
-which tries lengths 1 to 50 until one is accepted, once, before the run
-begins.
+The number of parameters is obtained in one of three ways. It can be given
+with \code{start_zeros(npar = 3)}. Otherwise a \code{lower} or \code{upper} of more than
+one element gives it, since bounds are one per parameter. Otherwise the
+objective is probed by \code{\link[=infer_npar]{infer_npar()}}, which tries the lengths 1 to 50
+once, before the run begins, and succeeds when exactly one of them is
+accepted.
 
-That last route settles any objective with a fixed width built into it,
-which is most real ones: \code{X \%*\% beta} with a parameter of the wrong length
-is an error. It cannot settle a vectorized toy, since \R recycles a shorter
-vector silently whenever its length divides, so \code{sum((p - c(1, 2, 3))^2)}
-is a perfectly finite function of one parameter as well as of three. It
-then rejects, naming the lengths it found, and asks for \code{npar}.
+The probe works for an objective with a fixed width built into it, such
+as \code{X \%*\% beta}, which raises an error for a parameter of the wrong
+length. It does not work for a vectorized expression, since \R recycles a
+shorter vector silently whenever its length divides, so
+\code{sum((p - c(1, 2, 3))^2)} is a finite function of one parameter as well as
+of three. The probe then signals an error that names the lengths found,
+and \code{npar} has to be given.
 }
 
-\section{Bounds are removed, not enforced}{
+\section{Bounds by reparametrization}{
 Each bounded coordinate is reparametrized onto the whole real line, by a
 shifted log for a one-sided bound and a scaled logit for a two-sided one,
-and the optimizer runs unconstrained in the new variable. Every point it
-proposes is admissible by construction, so there is no rejection step and
-no boundary for a line search to trip over, and any method takes bounds
-without knowing they exist. \code{\link[=bounded_transform]{bounded_transform()}} is the map.
+and the optimizer runs unconstrained in the new variable. Every point that
+it proposes is admissible by construction, so there is no rejection step
+and no boundary for a line search to cross, and a method needs no code of
+its own for the bounds. \code{\link[=bounded_transform]{bounded_transform()}} is the map.
 
 \code{lower} and \code{upper} are two vectors, as in \code{\link[stats:optim]{stats::optim()}} and
-\code{\link[stats:nlminb]{stats::nlminb()}}, so \code{lower = 0} says that every parameter is positive
-without writing out one pair per coefficient. A length that is neither 1
-nor \code{p} is refused, and so is a \code{lower} at or above its \code{upper}. The
+\code{\link[stats:nlminb]{stats::nlminb()}}, so \code{lower = 0} applies the lower bound zero to every
+parameter without one value per coefficient. A length that is neither 1
+nor \code{p} is rejected, and so is a \code{lower} that is at or above its \code{upper}.
+The
 \strong{starting value must lie strictly inside its bounds}: \code{par = 0} with
 \code{lower = 0} is an error, the transformed coordinate being infinite there.
 }
@@ -141,24 +154,24 @@ approached and takes the transformed gradient with it. The run therefore
 reports \code{converged = TRUE} at a point near the bound, and how near is set
 by the tolerance rather than by the budget.
 
-Measured on \eqn{\sum (x - (1, 2))^2} with \code{upper = c(5, 1)}, whose
-second coordinate wants to sit at its ceiling: the gap to the bound is
-\code{3.6e-07} at \code{crit_grad(1e-6)}, \code{1.1e-11} at \code{1e-10} and \code{2.7e-15} at
-\code{1e-14}, and raising \code{maxit} from 50 to 5000 changes nothing, all three
-runs stopping after 22 iterations.
+The bounds examples below show this on \eqn{\sum (x - (1, 2))^2} with
+\code{upper = c(5, 1)}, whose minimum over the box lies on the upper bound of
+the second coordinate: a smaller tolerance of the rule gives a point
+closer to the bound, after more iterations.
 
-For the statistical use this exists to serve, a positive variance or a
-probability inside the unit interval, the optimum is interior and none of
-this arises. For a genuine box-constrained problem whose constraints are
-active at the solution, an active-set method is the right tool.
+For the parameters for which the bounds are intended, such as a positive
+variance or a probability inside the unit interval, the optimum is
+usually interior and this does not arise. For a box-constrained problem
+whose constraints are active at the solution, an active-set method is
+more suitable.
 }
 
 \examples{
 q <- function(p) sum((p - c(1, 2))^2)
 qg <- function(p) 2 * (p - c(1, 2))
 
-# With the gradient supplied, and without, so it is differenced. The two
-# reach the same point; only the evaluation counts differ.
+# With the gradient supplied, and without it, so that it is differenced.
+# The two runs reach the same point and differ in the evaluation counts.
 a <- minimize(bfgs(), q, par = c(0, 0), gr = qg)
 b <- minimize(bfgs(), q, c(0, 0))
 all.equal(a@par, b@par, tolerance = 1e-6)
@@ -168,21 +181,20 @@ rbind(supplied = unlist(a@counts), differenced = unlist(b@counts))
 minimize(bfgs(), q, c(0.5, 0.5), lower = 0)@par
 
 # Or one per parameter. The unconstrained minimum is at (1, 2), so the
-# second coordinate is pushed against its ceiling of 1 and stops just
-# short of it, by an amount the tolerance sets.
+# second coordinate approaches its upper bound of 1 and stops just short of
+# it, at a distance set by the tolerance.
 minimize(bfgs(), q, c(0.5, 0.5), lower = c(0, 0), upper = c(5, 1))@par
 minimize(bfgs(criterion = crit_grad(1e-12)), q, c(0.5, 0.5),
          lower = c(0, 0), upper = c(5, 1))@par
 
-# No starting value at all: the bounds say there are two parameters.
+# No starting value: the bounds give the number of parameters.
 minimize(bfgs(), q, start_zeros(), lower = c(0, 0), upper = c(5, 10))@par
 
-# A start sitting on its own bound is refused: the transform is infinite
-# there.
+# A start on its own bound is rejected: the transform is infinite there.
 try(minimize(bfgs(), q, c(0, 0), lower = 0))
 
-# A gradient belonging to a different model draws a warning naming both
-# rates, before the run, and the run then proceeds.
+# A gradient that belongs to a different model gives a warning, before the
+# run, that names both rates, and the run then proceeds.
 wrong <- minimize(gd(maxit = 2), q, c(0, 0), gr = function(p) 5 * qg(p))
 wrong@converged
 

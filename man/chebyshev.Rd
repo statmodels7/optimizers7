@@ -23,12 +23,12 @@ chebyshev(
 \arguments{
 \item{criterion, hessian_mod, floor, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical}{As in \code{\link[=newton]{newton()}}.}
 
-\item{ratio}{The largest relative change of the Newton step the
+\item{ratio}{The largest relative change of the Newton step that the
 correction may make, \eqn{\lVert d - d_N\rVert \le
   \texttt{ratio}\,\lVert d_N\rVert}. A larger correction, or one that is
-not a descent direction, means the cubic model does not describe the
-objective over the length of the step, and the Newton step is used
-instead. Defaults to \code{0.5}.}
+not a descent direction, indicates that the cubic model does not
+describe the objective over the length of the step, and the Newton step
+is used instead. Defaults to \code{0.5}.}
 }
 \value{
 An S7 object of class \link{Chebyshev}, inheriting from \code{\link[=newton]{newton()}}'s
@@ -43,55 +43,47 @@ where \eqn{T[u, v]_i = \sum_{jk} \partial^3 f/\partial x_i\partial x_j
 \partial x_k\, u_j v_k}. Near a minimum the iteration converges cubically
 where Newton's converges quadratically. Everything else (the repair of an
 indefinite Hessian, the bound on the length of a step, the line search,
-the stopping rule) is \code{\link[=newton]{newton()}}'s.
+the stopping rule) is as in \code{\link[=newton]{newton()}}.
 }
 \section{The third derivative}{
-\code{\link[=minimize]{minimize()}} passes the method a function \code{t3(x, d)} returning the vector
-\eqn{T[d, d]}, the third derivative contracted twice with \eqn{d}. The
-tensor itself is never needed: for a sum over observations
-\eqn{f = \sum_i \phi_i(x_i^\top\beta)} it is
-\eqn{T[d, d] = X^\top(\phi'''\,(Xd)^2)}, which costs as much as a gradient.
-Without \code{t3} the contraction is one second difference of the gradient
-along \eqn{d}, at two gradient evaluations an iteration.
+The caller supplies to \code{\link[=minimize]{minimize()}} a function \code{t3(x, d)} that returns
+the vector \eqn{T[d, d]}, the third derivative contracted twice with
+\eqn{d}, and \code{\link[=minimize]{minimize()}} passes it to the method. The tensor itself is
+never needed: for a sum over observations
+\eqn{f = \sum_i \phi_i(x_i^\top\beta)} the contraction is
+\eqn{T[d, d] = X^\top(\phi'''\,(Xd)^2)}, which costs as much as a
+gradient. Without \code{t3} the contraction is one second difference of the
+gradient along \eqn{d}, at two gradient evaluations in each iteration at
+which the correction is attempted.
 }
 
 \section{Where the correction is applied}{
-Only at an iterate where \eqn{H} is positive definite and its Newton step
-is a descent direction; where the Hessian has to be repaired the step is
-the repaired Newton step, as in \code{\link[=newton]{newton()}}. The correction then costs one
-further solve with the same matrix. A refused correction is recorded in
-the trace as \verb{cubic correction refused}.
+The correction is attempted only at an iterate where \eqn{H} is positive
+definite and its Newton step is a descent direction; where the Hessian has
+to be repaired, the step is the repaired Newton step, as in \code{\link[=newton]{newton()}}.
+The correction costs one further solve with the same matrix. A correction
+that is not used is recorded in the trace as \verb{cubic correction refused}.
 
-Measured on the inner problems of statmodels7 (seven models, 14 to 113
-coefficients) started from the mode at neighbouring hyperparameters, the
-method reaches the mode in one iteration fewer than \code{\link[=newton]{newton()}} on six of
-seven, at the same point. Far from the mode the correction is refused in
-most iterations, and the method behaves as \code{\link[=newton]{newton()}}.
-
-Inside whole statmodels7 fits the gain disappears. Over the 32 models of
-its reference battery on which every inner method reaches the same point,
-the median number of inner iterations is 1.00 times \code{\link[=newton]{newton()}}'s and the
-median time 1.01 times: an inner fit restarted from the previous mode is
-usually at its mode after one or two Newton steps, so a faster local rate
-has nothing left to shorten. It reduces the iterations where an inner fit
-starts far from its mode (761 against 534 on a lasso beside a random
-effect) and is no use as a replacement for that package's own scoring
-iteration.
+Near the mode the correction is usually accepted, and the method needs
+fewer iterations than \code{\link[=newton]{newton()}}. Far from the mode the correction is
+usually rejected, and the method then behaves as \code{\link[=newton]{newton()}}. When the
+starting point is already within one or two Newton steps of the mode, as
+for an inner fit restarted from the previous mode, a faster local rate has
+little to shorten, and the method gives no gain over \code{\link[=newton]{newton()}}.
 }
 
-\section{Why not Halley}{
+\section{Halley's method}{
 Halley's method solves with \eqn{H + \tfrac12 T[d_N]} in place of
-\eqn{H}, which needs the contraction as a matrix and a second
-factorization, of a matrix that need not be positive definite. On the
-same models it took the same number of iterations as Chebyshev's and more
-time.
+\eqn{H}. This needs the contraction as a matrix and a second
+factorization, of a matrix that need not be positive definite, and the
+package does not provide it.
 }
 
 \section{Box constraints}{
 With \code{lower} or \code{upper} the method runs on the unconstrained scale, as
-every method here does. A \code{t3} written for the original parameters is
-then the wrong derivative, so it is rejected together with bounds; the
-second difference of the gradient serves there.
+every method that accepts bounds does. A \code{t3} written for the original
+parameters is then the wrong derivative, so \code{t3} together with bounds is
+rejected; without \code{t3} the second difference of the gradient is used.
 }
 
 \examples{
@@ -125,5 +117,5 @@ Chebyshev-Halley type methods in Banach spaces. \emph{Bulletin of the
 Australian Mathematical Society} \strong{55}, 113--130.
 }
 \seealso{
-\code{\link[=newton]{newton()}}, whose settings it shares.
+\code{\link[=newton]{newton()}}, whose settings this method shares.
 }

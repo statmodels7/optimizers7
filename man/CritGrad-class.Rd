@@ -19,17 +19,17 @@ An S7 object of class \code{CritGrad} inheriting from \code{\link[=criterion]{cr
 carrying \code{label}, \code{tol} and \code{norm}.
 }
 \description{
-The rule \code{\link[=crit_grad]{crit_grad()}} builds, and the two methods it implements. It
-reads \code{state$gradient}, takes its max-norm or its 2-norm, and fires when
-that falls below \code{tol}. It declares \code{"gradient"} through \code{\link[=crit_needs]{crit_needs()}},
-so a derivative-free optimizer refuses it when the run starts.
+The class of the rule built by \code{\link[=crit_grad]{crit_grad()}}, and its two methods. The
+rule reads \code{state$gradient}, takes its max-norm or its 2-norm, and fires
+when that norm falls below \code{tol}. It declares \code{"gradient"} through
+\code{\link[=crit_needs]{crit_needs()}}, so a derivative-free optimizer rejects it when the run
+starts.
 }
 \details{
-\code{crit_met()} returns \code{FALSE} when the gradient is \code{NULL}, empty or carries
-an \code{NA}, so a state that has not yet filled it in never accidentally
-satisfies the rule. Which norm is used is the \code{norm} property: on a
-gradient of \eqn{(3, 4)}, \code{crit_grad(4.5, "max")} fires and
-\code{crit_grad(4.5, "2")} does not.
+\code{crit_met()} returns \code{FALSE} when the gradient is \code{NULL}, empty or
+contains an \code{NA}, so a state without a gradient never satisfies the rule.
+The \code{norm} property selects the norm: on a gradient of \eqn{(3, 4)},
+\code{crit_grad(4.5, "max")} fires and \code{crit_grad(4.5, "2")} does not.
 }
 \examples{
 st <- list(iter = 1, f_new = 1, f_old = 2, x_new = 1, x_old = 0,

@@ -45,16 +45,18 @@ double simplex_conditioning(const arma::mat& V) {
   return std::abs(arma::det(E));
 }
 
-// An axis-aligned simplex of a given edge length, used both to start and to
-// restart. Restarting with the edge length already reached keeps the scale the
-// run has earned instead of throwing it away.
-arma::mat build_simplex(const arma::vec& x0, double edge) {
+// An axis-aligned simplex, used both to start and to restart. At the start the
+// edge is relative: `edge` times the size of each coordinate, at least one. At
+// a restart the edge is the diameter already reached, which is a length in the
+// parameters' own units and is used as it is, so that the scale the run has
+// reached is kept and not multiplied by the coordinates once more.
+arma::mat build_simplex(const arma::vec& x0, double edge, bool relative) {
   const arma::uword p = x0.n_elem;
   arma::mat V(p, p + 1);
   V.col(0) = x0;
   for (arma::uword j = 0; j < p; ++j) {
     V.col(j + 1) = x0;
-    V(j, j + 1) += edge * std::max(1.0, std::abs(x0[j]));
+    V(j, j + 1) += relative ? edge * std::max(1.0, std::abs(x0[j])) : edge;
   }
   return V;
 }
@@ -111,7 +113,7 @@ Rcpp::List nelder_mead_run(Rcpp::List spec,
     arma::mat S = Rcpp::as<arma::mat>(start_simplex);
     V = S.t();
   } else {
-    V = build_simplex(par, step);
+    V = build_simplex(par, step, true);
   }
 
   arma::vec fv(p + 1);
@@ -163,7 +165,7 @@ Rcpp::List nelder_mead_run(Rcpp::List spec,
     if (restarts < max_restarts && diameter > 0.0 &&
         simplex_conditioning(V) < degenerate_tol) {
       const arma::vec best = V.col(0);
-      V = build_simplex(best, diameter);
+      V = build_simplex(best, diameter, false);
       for (arma::uword j = 0; j <= p; ++j) fv[j] = safe_value(*obj, V.col(j));
       ord = arma::sort_index(fv);
       V = V.cols(ord);

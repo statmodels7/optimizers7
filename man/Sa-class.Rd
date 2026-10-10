@@ -38,11 +38,12 @@ objective.}
 
 \item{step}{The initial step, relative to the starting value.}
 
-\item{target_accept}{The acceptance rate the step adaptation aims at.}
+\item{target_accept}{The acceptance rate at which the step adaptation
+aims.}
 
-\item{adjust}{How hard the step is adjusted towards that rate.}
+\item{adjust}{How strongly the step is adjusted towards that rate.}
 
-\item{n_eps}{How many temperature levels the stopping rule looks back over.}
+\item{n_eps}{How many temperature levels the stationarity measure covers.}
 }
 \value{
 An S7 object of class \code{Sa} inheriting from \code{\link[=optimizer]{optimizer()}}, with the
@@ -52,12 +53,11 @@ nine properties above beside the seven shared ones.
 An optimizer holding the annealing schedule and the step adaptation: which
 proposal the walk draws from, the temperature and how it cools, how much
 work is done at each level, and the acceptance rate the per-coordinate
-steps are tuned to. Built by \code{\link[=sa]{sa()}}. It is the package's only global
-search and the only method whose result depends on the state of the random
-number generator.
+steps are tuned to. Built by \code{\link[=sa]{sa()}}. Its result depends on the state of
+the random number generator, which the result records in \code{seed}.
 }
 \details{
-Beyond the seven properties every optimizer has, an \code{Sa} carries nine of
+Beyond the seven properties of every optimizer, an \code{Sa} carries nine of
 its own. They fall into three groups: the proposal (\code{visiting}, \code{step}),
 the schedule (\code{t0}, \code{cooling}, \code{cycles}, \code{steps}), and the adaptation and
 its stopping rule (\code{target_accept}, \code{adjust}, \code{n_eps}).

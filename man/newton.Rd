@@ -22,41 +22,44 @@ newton(
 \arguments{
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
 \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}; see
-\code{\link[=crit_any]{crit_any()}} for what that disjunction buys and costs.}
+\code{\link[=crit_any]{crit_any()}} for the effect of that disjunction.}
 
 \item{hessian_mod}{How to repair an indefinite Hessian: \code{"eigen"}
-(default) or \code{"ridge"}. Partial matching applies and any other string is
-refused, naming both.}
+(default) or \code{"ridge"}. Partial matching applies, and any other string
+is rejected by \code{\link[=match.arg]{match.arg()}}.}
 
-\item{floor}{The smallest eigenvalue the repaired Hessian is allowed, a
-single positive number. Defaults to \code{1e-8}, relative to the largest
-eigenvalue.}
+\item{floor}{The lower bound of the repair, a single positive number.
+Defaults to \code{1e-8}. With \code{"eigen"}, eigenvalues below
+\eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
+are raised to that value, so the bound is relative to the largest
+eigenvalue when that eigenvalue exceeds one in absolute value; with
+\code{"ridge"}, \code{floor} is the smallest shift \eqn{\tau} tried.}
 
 \item{step}{Initial step length offered to the line search, a single
-positive number. Defaults to \code{1}, which is the natural Newton step and
-is accepted unchanged near the solution.}
+positive number. Defaults to \code{1}, which is the Newton step itself and is
+accepted unchanged near the solution.}
 
-\item{line_search}{A \code{\link[=line_search]{line_search()}} object. Defaults to \code{\link[=armijo]{armijo()}}, the
-curvature condition \code{\link[=bfgs]{bfgs()}} needs being unnecessary here because the
+\item{line_search}{A \code{\link[=line_search]{line_search()}} object. Defaults to \code{\link[=armijo]{armijo()}}. The
+curvature condition that \code{\link[=bfgs]{bfgs()}} needs is unnecessary here, because the
 curvature is read from the Hessian.}
 
 \item{maxit, max_eval, verbose, refresh, keep_trace}{As in \code{\link[=optimizer]{optimizer()}}.
-\code{maxit} defaults to 200 here where \code{\link[=optimizer]{optimizer()}} uses 500, a Newton run
-that has not arrived in 200 iterations being in trouble of another kind.}
+\code{maxit} defaults to 200 here and to 500 in \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}}: a
+Newton run that has not converged in 200 iterations usually has a
+problem that more iterations do not solve.}
 
-\item{max_length}{The largest component that a step may have, a
-single positive number. If a direction is longer than this in the
-infinity norm, it is scaled down to this length before the line
-search sees it. Defaults to \code{Inf},
+\item{max_length}{The largest component that a step may have, a single
+positive number. A direction longer than this in the infinity norm is
+scaled down to this length before the line search. Defaults to \code{Inf},
 which leaves every step as it is. See below.}
 
 \item{typical}{\code{NULL} (the default), or the typical size of each
-parameter: one positive number, or one per parameter. Every length the
-method reads is then read in these units, the largest
+parameter: one positive number, or one per parameter. Every length used
+by the method is then measured in these units, as the largest
 \eqn{\lvert d_i\rvert / t_i} in place of the largest
 \eqn{\lvert d_i\rvert}: the bound \code{max_length}, and the scaling of a
-direction whose length no curvature sets. \code{NULL} reads them in the
-parameters' own units.}
+direction whose length is not set by the curvature. With \code{NULL} the
+lengths are measured in the units of the parameters.}
 }
 \value{
 An S7 object of class \link{Newton}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
@@ -64,104 +67,97 @@ be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Solves \eqn{H d = -g} for the direction, repairing \eqn{H} when it is not
-positive definite, and then line searches along it. Converges
-quadratically near a minimum: on Rosenbrock from the customary start it
-reaches a value of \code{3.7e-21} in 21 iterations, 29 objective evaluations
-and 21 Hessians.
+positive definite, and then performs a line search along it. The method
+converges quadratically near a minimum.
 }
 \section{Why the Hessian has to be repaired}{
-\eqn{H^{-1}g} is a descent direction only when \eqn{H} is positive
-definite. Where the objective curves downwards the unmodified step points
-towards a saddle or a maximum, and no line search can rescue it: every
-step along an ascent direction increases the objective. That is the
-ordinary situation far from the solution, not an edge case.
+\eqn{-H^{-1}g} is guaranteed to be a descent direction only when \eqn{H}
+is positive definite. Where the objective curves downwards the unmodified
+step can point towards a saddle or a maximum, and a line search along an
+ascent direction cannot decrease the objective. Indefinite Hessians are
+common far from the solution.
 
-Both repairs begin with an attempted Cholesky factorization, which when it
-succeeds is at once the test for positive definiteness and the solve.
+Both repairs begin with an attempted Cholesky factorization, which, when
+it succeeds, is both the test for positive definiteness and the solve.
 When it fails:
 
 \describe{
 \item{\code{"eigen"}}{decompose \eqn{H} and raise every eigenvalue below
-\code{floor} to it. The direction is then the Newton one in the subspace
-where the curvature is trustworthy, and gradient-like in the rest. Costs a
-symmetric eigendecomposition and gives the best-conditioned repair.}
-\item{\code{"ridge"}}{add \eqn{\tau I} with \eqn{\tau} doubling until the
-factorization succeeds. This is Levenberg's idea: it interpolates between
-the Newton step at \eqn{\tau = 0} and a scaled steepest-descent step for
-large \eqn{\tau}. Cheaper, and blunter.}
+\eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
+to that value. The direction is then the Newton direction in the
+subspace where the curvature is positive, and close to the gradient
+direction in the rest. The repair costs a symmetric eigendecomposition
+and gives the best-conditioned matrix. If the eigendecomposition
+fails, the ridge repair is used.}
+\item{\code{"ridge"}}{add \eqn{\tau I}, with \eqn{\tau} doubled until the
+factorization succeeds. This is Levenberg's idea: it interpolates
+between the Newton step at \eqn{\tau = 0} and a scaled steepest-descent
+step for large \eqn{\tau}. It costs less than the eigendecomposition and
+shifts every eigenvalue, not only the small ones.}
 }
 
-Which repair fired is recorded in the trace, under the names
-\verb{hessian modified} and \verb{hessian modified (capped)}, so a run that spent
-its time repairing can be told from one that spent it converging.
+A repair of the Hessian is recorded in the trace as \verb{hessian modified},
+or \verb{hessian modified (capped)} when the repaired step is also scaled down
+(see below). The label does not record which of the two repairs was used.
 }
 
-\section{A long Newton step can leave the region its model describes}{
+\section{Bounding the length of a step}{
 The Newton step minimizes the local quadratic model of the objective, and
 its length is set by the curvature at the current point. Where the
-objective flattens towards an asymptote the curvature is small, the step
-is long, and it can carry the iterate past the minimum into the flat
+objective flattens towards an asymptote the curvature is small and the
+step is long, and it can carry the iterate past the minimum into the flat
 region. The line search accepts such a step whenever it lowers the
 objective, and in the flat region the gradient is close to zero, so the
-run can stop there. Measured on the REML criterion of statmodels7 for a
-ridge penalty on the fifteen predictors of \code{MASS::UScrime}, standardized
-by the term (\code{standardize = TRUE}), the first step from
-\eqn{\lambda = 1} had a length of 23.5 on the log scale and reached
-\eqn{\lambda = 1.6\times10^{10}}, where the criterion is flat at -65.40,
-while its maximum, -53.30, lies near \eqn{\lambda = 91.5}.
+run can stop there. Such steps occur, for example, when a smoothing
+parameter is optimized on the logarithmic scale.
 
-\code{max_length} bounds the step, which is the \code{maxstep} of the line-search
+\code{max_length} bounds the step; it is the \code{maxstep} of the line-search
 Newton method of Dennis and Schnabel (1983) and the \code{maxNstep} of the
-smoothing-parameter iteration of mgcv. The bound only ever shortens a
-step, and near a minimum the Newton steps are short, so the quadratic
-convergence of the method is kept. A step shortened by it is recorded in
-the trace as \verb{newton step capped}.
+smoothing-parameter iteration of mgcv. The bound only shortens a step, and
+near a minimum the Newton steps are short, so the quadratic convergence of
+the method is kept. A step shortened by the bound is recorded in the trace
+as \verb{newton step capped}, except at an iteration at which the Hessian was
+repaired, which keeps the label of the repair.
 }
 
 \section{Parameters in different units}{
-A length in the parameters' own units means different things for
-parameters that carry different units: a displacement of 5, or of one, is a
-long step for a log-scale parameter and a short one for a variance near
-236. Measured on a restricted likelihood in such a variance, started at
-651 where the criterion is not concave, the repaired direction scaled to
-length one moved the variance by one unit per iteration, for 180
-iterations. \code{typical} gives the typical size \eqn{t_i} of each parameter,
-which is the scaled norm of Dennis and Schnabel (1983): every length is
-then the largest \eqn{\lvert d_i\rvert / t_i}, the bound \code{max_length}
-and the scaling of a repaired direction or of a gradient fallback alike.
+A length in the units of the parameters has different meanings for
+parameters on different scales: a displacement of one is a long step for
+a parameter on the log scale and a short one for a variance of several
+hundred. \code{typical} gives the typical size \eqn{t_i} of each parameter, as
+in the scaled norm of Dennis and Schnabel (1983): every length is then the
+largest \eqn{\lvert d_i\rvert / t_i}, for the bound \code{max_length} and for
+the scaling of a repaired direction or of a gradient fallback.
 }
 
-\section{A repaired step is capped and an unrepaired one is not}{
-Where the factorization succeeds, \eqn{H^{-1}g} is the Newton step and
-\code{step = 1} is its own unit, so it is taken as it stands. Where it fails,
-the component of the direction in the floored subspace is
-\eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is set by \code{floor} and by no
-curvature of the objective. The direction is therefore scaled to
-\eqn{\min(1, 1/\lVert d\rVert_\infty)}, a displacement of order one in the
-parameters. That is the rule \code{\link[=bb]{bb()}} applies when its secant pair reports
-no curvature and the one \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} apply to their first
-direction, and it can only ever shorten a step, so a run whose repaired
-steps were already of order one is untouched. The same scaling reaches the
-gradient the method falls back on when a solve fails.
+\section{The length of a repaired step}{
+Where the factorization succeeds, \eqn{-H^{-1}g} is the Newton step and
+\code{step = 1} is its natural unit, so the step is taken as it stands, subject
+only to \code{max_length}. Where it fails, the component of the direction in
+the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is
+set by \code{floor} and not by the curvature of the objective. The direction is
+therefore multiplied by \eqn{\min(1, 1/\lVert d\rVert_\infty)}, which
+gives a displacement of order one in the parameters. \code{\link[=bfgs]{bfgs()}} and
+\code{\link[=lbfgs]{lbfgs()}} apply the same rule to their first direction. The factor never
+exceeds one, so a run whose repaired steps were already of order one is
+unchanged. The same scaling applies to the gradient direction that the
+method uses when a solve fails.
 
-Without the cap the length of a repaired step is unbounded and the line
-search is the only thing bounding it, at one objective evaluation per
-backtrack. Measured on a marginal criterion whose outer Hessian is
-indefinite at ordinary points, a gradient of 29 along a direction floored
-at \eqn{10^{-8}\lambda_{\max}} gave a step of \eqn{4\times 10^{4}} on a
-log scale, and each of the 23 backtracks that followed was a whole
-penalized refit that could not be evaluated.
+Without this factor the length of a repaired step is bounded only by the
+line search, at one objective evaluation per backtrack. Each backtrack can
+be expensive, for example a complete penalized refit when the objective is
+a marginal criterion.
 }
 
-\section{On the Hessian itself}{
+\section{The Hessian by differences}{
 When \code{he} is not supplied to \code{\link[=minimize]{minimize()}} the Hessian is obtained by
 differencing the gradient. With an analytic gradient that is one numerical
-differentiation and is acceptable. When the gradient is \emph{also} differenced
-it is two composed, the one place in the package where that happens, and
-the cost shows: one Newton iteration on a quadratic in 20 unknowns takes
-1682 objective evaluations without a gradient and 42 gradient evaluations
-with one. An objective with neither derivative is better served by
-\code{\link[=bfgs]{bfgs()}}, which needs no Hessian at all.
+differentiation. When the gradient is \emph{also} differenced, the Hessian is a
+difference of differences, which happens only in \code{\link[=newton]{newton()}} and
+\code{\link[=chebyshev]{chebyshev()}}: one Newton iteration then costs about \eqn{4p^2}
+evaluations of the objective, against about \eqn{2p} evaluations of the
+gradient with an analytic gradient. For an objective without either
+derivative, \code{\link[=bfgs]{bfgs()}}, which needs no Hessian, is usually cheaper.
 }
 
 \examples{
@@ -175,8 +171,8 @@ rosen_he <- function(p) matrix(
 minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 
 # A saddle, where the unrepaired step points the wrong way. The Hessian at
-# the start has eigenvalues 2 and -1.99, and both repairs reach the minimum
-# in five iterations, reporting the repair in the trace.
+# the start has eigenvalues 2 and -1.99; the repair is recorded in the
+# trace.
 sad <- function(p) p[1]^2 - p[2]^2 + 0.1 * p[2]^4
 sg  <- function(p) c(2 * p[1], -2 * p[2] + 0.4 * p[2]^3)
 sh  <- function(p) matrix(c(2, 0, 0, -2 + 1.2 * p[2]^2), 2, 2)
@@ -186,7 +182,7 @@ r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, he = sh)
 c(value = r@value, iterations = r@iterations)
 unique(r@trace$safeguard)
 
-# summary() counts the repairs, which is how a struggling run is read.
+# summary() counts the safeguards that fired during the run.
 summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
                  gr = rosen_gr, he = rosen_he))
 

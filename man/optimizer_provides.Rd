@@ -15,26 +15,30 @@ A character vector of \code{state} component names. The two the shipped
 criteria read are \code{"gradient"} and \code{"stationarity"}.
 }
 \description{
-The names of the \code{state} components an optimizer is able to fill in, so
-that \code{\link[=check_criterion]{check_criterion()}} can reject a rule it could never satisfy.
+Returns the names of the \code{state} components that an optimizer supplies,
+so that \code{\link[=check_criterion]{check_criterion()}} can reject a rule that the optimizer cannot
+evaluate.
 }
 \details{
-The gradient-based methods provide \code{"gradient"}. The derivative-free ones
-provide \code{"stationarity"} instead, no single derivative they could report
-going to zero at a solution: \code{\link[=nelder_mead]{nelder_mead()}} offers the simplex diameter,
-\code{\link[=compass]{compass()}} the poll size, \code{\link[=sa]{sa()}} Corana's termination measure and
-\code{\link[=bundle]{bundle()}} its optimality estimate.
+The gradient-based methods provide \code{"gradient"}. \code{\link[=nelder_mead]{nelder_mead()}},
+\code{\link[=compass]{compass()}}, \code{\link[=brent]{brent()}}, \code{\link[=sa]{sa()}} and \code{\link[=bundle]{bundle()}} provide \code{"stationarity"}
+instead: \code{\link[=nelder_mead]{nelder_mead()}} offers the largest distance from the best vertex
+to another vertex of the simplex, \code{\link[=compass]{compass()}} the poll size, \code{\link[=brent]{brent()}} the
+half-width of its bracket, \code{\link[=sa]{sa()}} Corana's termination measure and
+\code{\link[=bundle]{bundle()}} its optimality estimate. \code{\link[=bundle]{bundle()}} evaluates subgradients but
+does not provide \code{"gradient"}, since a subgradient does not vanish at a
+kink.
 
-Every optimizer evaluates the objective, so there is no token for that and
-a rule reading the objective is never rejected. \code{\link[=prox_grad]{prox_grad()}} answers
-\code{"gradient"} and means the proximal gradient mapping, which vanishes at a
-stationary point of the whole objective.
+Every optimizer evaluates the objective, so there is no name for it, and a
+rule that reads the objective is accepted by every method. \code{\link[=prox_grad]{prox_grad()}}
+returns \code{"gradient"}, and its gradient is the proximal gradient mapping,
+which vanishes at a stationary point of the whole objective.
 
-The \strong{default method} answers \code{"gradient"}, so an optimizer written
-outside the package claims one unless it says otherwise. Say otherwise if
-it is untrue: the rejection machinery relies on this declaration being
-accurate, and a method that claims a gradient it does not compute will
-accept a rule that can never fire.
+The \strong{default method} returns \code{"gradient"}, so an optimizer written
+outside the package declares a gradient unless it has a method of its
+own. The rejection relies on this declaration being accurate: a method
+that declares a gradient that it does not compute accepts a rule that can
+never fire.
 }
 \examples{
 # The two answers, across the shipped methods.
@@ -43,7 +47,7 @@ vapply(list(bfgs(), newton(), cg(), bb(), gd(), adam()),
 vapply(list(nelder_mead(), compass(), sa(), bundle()),
        optimizer_provides, "")
 
-# A wrapper answers for whichever run reports the result.
+# A wrapper returns the answer of the run that reports the result.
 optimizer_provides(chain(sa(), bfgs()))
 optimizer_provides(multistart(nelder_mead()))
 

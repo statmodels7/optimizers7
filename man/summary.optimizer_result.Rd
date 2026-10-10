@@ -12,28 +12,28 @@
 \code{object}, invisibly. Called for the printed summary.
 }
 \description{
-Everything \code{\link[=print.optimizer_result]{print.optimizer_result()}} shows, followed by a count of each
-safeguard the run applied to its own steps. This is the view that answers
-\emph{why} a run behaved as it did: a Newton run that shortened four steps was
-repairing an indefinite Hessian, and a Barzilai-Borwein run resetting its
-curvature had secant pairs carrying none.
+Prints what \code{\link[=print.optimizer_result]{print.optimizer_result()}} shows, followed by a count of each
+safeguard that the run applied to its own steps. The counts show how the
+run proceeded: a Newton run that reports \verb{step shortened} had steps
+shortened by the line search, one that reports \verb{hessian modified} was
+repairing an indefinite Hessian, and a Barzilai-Borwein run that reports
+\verb{bb curvature reset} had secant pairs without usable curvature.
 }
 \details{
 The safeguard table needs a trace, so the optimizer must have been built
-with \code{keep_trace = TRUE}. Without one the method prints what
-\code{\link[=print.optimizer_result]{print.optimizer_result()}} prints and stops there. With a trace in which
-nothing fired it says \verb{safeguards : none fired}, so the absence is
-reported explicitly.
+with \code{keep_trace = TRUE}. Without a trace the method prints what
+\code{\link[=print.optimizer_result]{print.optimizer_result()}} prints. With a trace in which no safeguard
+fired, the output reads \verb{safeguards : none fired}.
 }
 \examples{
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
 
-# Newton on the curved valley shortens a few steps on the way in.
+# Newton on the curved valley: the line search shortens a few steps.
 summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 
-# A quadratic gives it no trouble at all.
+# On a quadratic no safeguard fires.
 summary(minimize(newton(keep_trace = TRUE),
                  function(p) sum((p - 1:2)^2), c(0, 0)))
 

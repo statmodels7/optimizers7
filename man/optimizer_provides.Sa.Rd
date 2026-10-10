@@ -10,20 +10,22 @@
 The character vector \code{"stationarity"}.
 }
 \description{
-Reports \code{"stationarity"} and nothing else. The method draws proposals and
-compares values; it computes no derivative, so a rule reading a gradient
-is refused when the run starts instead of sitting there testing \code{NULL} and
-never firing.
+Reports \code{"stationarity"} only. The method draws proposals and compares
+values; it computes no derivative, so a rule that reads a gradient is
+rejected when the run starts. Without this check the rule would test
+\code{NULL} at every iteration and never fire.
 }
 \details{
-The measure offered is Corana's termination rule: by how much the best
-value has moved over the last \code{n_eps} temperature levels. It is read by
-\code{\link[=crit_stationary]{crit_stationary()}}, which is this method's default rule.
+The measure is Corana's termination rule: at the end of each temperature
+level, the largest absolute difference between the value at which the
+walk stopped and both the best value found and the values at which it
+stopped at the last \code{n_eps} levels. It is read by \code{\link[=crit_stationary]{crit_stationary()}},
+which is the default rule of this method.
 }
 \examples{
 optimizer_provides(sa())
 
-# So a gradient rule is refused, with both names in the message.
+# A gradient rule is therefore rejected, and the message names both.
 rastrigin <- function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p))
 try(minimize(sa(criterion = crit_grad()), rastrigin, c(1, 1)))
 

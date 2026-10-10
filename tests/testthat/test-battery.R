@@ -50,6 +50,15 @@ test_that("every analytic Hessian matches the gradient it belongs to", {
     expect_equal(H, t(H), label = paste(p$name, "symmetry"))
     expect_equal(H, fd, tolerance = 1e-6, label = p$name)
   }
+  # beale's Hessian at y = 0, where y^(i - 2) is infinite for i = 1
+  b <- test_problems("beale")[[1]]
+  H0 <- b$he(c(3, 0))
+  expect_true(all(is.finite(H0)))
+  fd0 <- vapply(1:2, function(j) {
+    e <- c(0, 0); e[j] <- 1e-6
+    (b$gr(c(3, 0) + e) - b$gr(c(3, 0) - e)) / 2e-6
+  }, numeric(2))
+  expect_equal(H0, fd0, tolerance = 1e-6)
 })
 
 

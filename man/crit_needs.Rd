@@ -14,21 +14,20 @@ crit_needs(criterion)
 A character vector of \code{state} component names, possibly empty.
 }
 \description{
-The names of the \code{state} components a criterion requires, so that an
-algorithm can reject a rule it cannot evaluate instead of accepting one that
-never fires.
+Returns the names of the \code{state} components that a criterion requires, so
+that an algorithm can reject a rule that it cannot evaluate.
 }
 \details{
-A derivative-free method has no gradient, so \code{\link[=crit_grad]{crit_grad()}} handed to one
-would sit there testing \code{NULL} at every iteration and quietly never stop
-the run. \code{\link[=check_criterion]{check_criterion()}} compares what this reports against what
-\code{\link[=optimizer_provides]{optimizer_provides()}} reports and refuses the pair when the run starts,
-naming both.
+A derivative-free method computes no gradient, so \code{\link[=crit_grad]{crit_grad()}} given to
+such a method would test \code{NULL} at every iteration and never stop the run.
+\code{\link[=check_criterion]{check_criterion()}} compares the value of this generic with the value of
+\code{\link[=optimizer_provides]{optimizer_provides()}} and, when the run starts, signals an error that
+names the missing component and the method.
 
-The base method returns \code{character()}, so a rule reading only the
-objective needs no method here: every optimizer evaluates the objective
-and no rule reading it is ever refused. The two names the shipped rules
-declare are \code{"gradient"} and \code{"stationarity"}.
+The base method returns \code{character()}, so a rule that reads only the
+objective needs no method here: every optimizer evaluates the objective,
+and such a rule is accepted by every method. The shipped rules declare
+two names, \code{"gradient"} and \code{"stationarity"}.
 }
 \examples{
 # A rule reading only the objective declares nothing; a gradient rule
@@ -36,8 +35,8 @@ declare are \code{"gradient"} and \code{"stationarity"}.
 crit_needs(crit_abs_obj())
 crit_needs(crit_grad())
 
-# A combination declares the union, so a method missing any one of them
-# is refused.
+# A combination declares the union, so a method that lacks any one of
+# them rejects it.
 crit_needs(crit_any(crit_grad(), crit_stationary()))
 
 }

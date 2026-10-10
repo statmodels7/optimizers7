@@ -18,9 +18,10 @@ gradient differenced from \code{fn} as above. Anything that is neither a
 function nor \code{NULL} is an error.}
 
 \item{he}{The Hessian, a function of the parameter vector returning a
-\verb{p x p} symmetric matrix. \code{NULL} is the default. Only \code{\link[=newton]{newton()}}
-reads one; every other method accepts it and ignores it, so calling
-code can pass whatever it has without branching on the method.}
+\verb{p x p} symmetric matrix. \code{NULL} is the default. \code{\link[=newton]{newton()}} and
+\code{\link[=chebyshev]{chebyshev()}} read it; every other method accepts it and does not use
+it, so calling code can pass whatever it has without branching on the
+method.}
 
 \item{...}{Passed to the method dispatched on. The shipped method for an
 ordinary function reads nothing from it.}
@@ -39,18 +40,19 @@ compiled side:
 }
 \description{
 Packs a function to be minimized, together with whichever of its gradient
-and Hessian the caller has, into the one handle every algorithm in the
-package is written against. The result is a named list carrying the pieces
-and two flags saying which derivatives were supplied. \code{as_objective()} is
-a generic dispatching on \code{fn}, so a caller holding some other kind of
-objective registers one method and every algorithm accepts it.
+and Hessian the caller has, into the handle on which every algorithm in
+the package operates. The result is a named list that contains the pieces
+and two flags recording which derivatives were supplied. \code{as_objective()}
+is a generic that dispatches on \code{fn}, so a caller with another kind of
+objective registers one method and every algorithm accepts that objective.
 }
 \section{Two generics, each dispatching once}{
 \code{\link[=minimize]{minimize()}} dispatches on the optimizer, so an algorithm is written once
-whatever shape the objective arrived in. \code{as_objective()} dispatches on
-the objective, so the shapes are told apart once whatever algorithm is
-running. Dispatching \code{\link[=minimize]{minimize()}} on both would need one method per
-algorithm per shape.
+for every kind of objective. \code{as_objective()} dispatches on the objective,
+so each kind of objective is converted once for every algorithm.
+Dispatching \code{\link[=minimize]{minimize()}} on both would need one method for each pair of an
+algorithm and a kind of objective. The package ships one method, for an
+ordinary R function.
 }
 
 \section{What happens when no gradient is supplied}{
@@ -59,41 +61,39 @@ The compiled loop differences the objective, once per coordinate,
       h = \varepsilon^{1/3} \max(1, \lvert x_j \rvert),}
 with \eqn{\varepsilon} the machine epsilon, so \eqn{h} is about
 \code{6.06e-06} for a coordinate of size one. One gradient then costs
-\eqn{2p} evaluations of the objective. The accuracy is what a central
-difference gives: on the Rosenbrock function at \eqn{(0.5, 0.5)} the
-differenced gradient is right to a relative \code{1.4e-10}.
+\eqn{2p} evaluations of the objective, and its relative error is of the
+order of \eqn{\varepsilon^{2/3}}.
 
-A run that differences its gradient says so in the result's \code{message}
-field, so a fit is never quietly less exact than it looks.
+A run that differences its gradient records this in the \code{message} field
+of the result.
 }
 
-\section{The Hessian is the one place two differences compose}{
-Only \code{\link[=newton]{newton()}} asks for a Hessian, and when none is supplied it is
-obtained by differencing the gradient once. With an analytic gradient
-that is a single differentiation and costs \eqn{2p} gradient evaluations.
-With no gradient either, the gradient is itself a difference and the
-Hessian is a difference of differences, which costs about \eqn{4p^2}
-evaluations and loses accuracy accordingly: one Newton iteration on a
-quadratic in 20 unknowns takes 1682 evaluations of the objective without
-a gradient and 42 of the gradient with one. The Hessian is symmetrized
-before it is returned, the two triangles differing by the differencing
-error alone.
+\section{A Hessian by differencing the gradient}{
+\code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read a Hessian, and when none is supplied it
+is obtained by differencing the gradient once. With an analytic gradient
+this is a single differentiation and costs \eqn{2p} gradient evaluations.
+Without a gradient, the gradient is itself a difference and the Hessian is
+a difference of differences, which costs about \eqn{4p^2} evaluations of
+the objective and is less accurate. The Hessian is symmetrized before it
+is returned, since its two triangles differ by the error of the
+differences.
 }
 
-\section{A point the objective refuses}{
-An objective that returns \code{NA}, \code{NaN} or an infinity at some point
-declares that point unusable. The algorithms treat that as an ordinary
-event, back away and continue, so a line search may probe outside the
-region where the objective is defined without the run failing.
+\section{Points where the objective is not finite}{
+If the objective returns \code{NA}, \code{NaN} or an infinity at a point other than
+the starting value, the algorithms treat that point as unusable, reject
+the trial step and continue, so a line search can try points outside the
+region where the objective is defined. A value that is not finite at the
+starting value is an error.
 }
 
 \examples{
-# The flags record what was supplied, and they are what the loop branches on.
+# The flags record what was supplied, and the compiled loop branches on them.
 str(as_objective(function(p) sum(p^2)))
 str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 
-# What the difference costs, on Rosenbrock from the origin. Both runs take
-# 21 iterations and land in the same place; only the bill differs.
+# The cost of the difference, on Rosenbrock from the origin. Both runs take
+# 21 iterations and reach the same point; the evaluation counts differ.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
@@ -104,15 +104,15 @@ unlist(a@counts)          # 126 objective evaluations, no gradients
 unlist(b@counts)          # 30 objective evaluations and 24 gradients
 max(abs(a@par - b@par))   # the two answers agree to 1.5e-08
 
-# The run that differenced says so.
+# The message of the run that differenced records it.
 a@message
 
-# A class with no method is refused by name.
+# A class with no method is rejected, and the error names the class.
 try(as_objective(1:3))
 
 }
 \seealso{
-\code{\link[=minimize]{minimize()}} for the run itself, \code{\link[=newton]{newton()}} for the one method
-that reads a Hessian, \code{\link[=optimizer_provides]{optimizer_provides()}} for what a method offers a
-stopping rule in return.
+\code{\link[=minimize]{minimize()}} for the run itself, \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}
+for the methods that read a Hessian, \code{\link[=optimizer_provides]{optimizer_provides()}} for the
+quantities that a method supplies to a stopping rule.
 }

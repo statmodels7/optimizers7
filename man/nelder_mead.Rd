@@ -20,12 +20,14 @@ nelder_mead(
 }
 \arguments{
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
-\code{crit_stationary(1e-8)}, read on the diameter of the simplex, so the
-tolerance is on the parameter scale. A gradient rule is refused when the
-run starts.}
+\code{crit_stationary(1e-8)}, read on the size of the simplex (the largest
+distance from the best vertex to another vertex), so the tolerance is on
+the parameter scale. A gradient rule is rejected when the run starts.}
 
-\item{step}{Size of the initial simplex, relative to each coordinate of
-the starting value. A single positive number, default \code{0.1}.}
+\item{step}{Size of the initial simplex: the vertex that moves coordinate
+\eqn{j} is displaced by \code{step} times the larger of 1 and the absolute
+value of that coordinate of the starting value. A single positive
+number, default \code{0.1}.}
 
 \item{adaptive}{Use Gao and Han's dimension-dependent coefficients?
 \code{TRUE} or \code{FALSE}, default \code{TRUE}; see below. At \eqn{p = 2} the two
@@ -35,12 +37,12 @@ settings are identical.}
 single non-negative number, default \code{3}; \code{0} turns the safeguard off.}
 
 \item{degenerate_tol}{Rebuild the simplex when its conditioning falls
-below this, a single positive number, default \code{1e-6}. A non-positive
-value is refused, with a message naming \code{tol} rather than the argument.}
+below this, a single positive number, default \code{1e-6}. A value that is
+not positive is rejected.}
 
 \item{simplex}{An optional starting simplex: a matrix with \eqn{p+1} rows,
 one vertex per row. Defaults to \code{NULL}, meaning build one from \code{par} and
-\code{step}. Anything that is not a matrix or \code{NULL} is refused.}
+\code{step}. A value that is not a matrix or \code{NULL} is rejected.}
 
 \item{maxit}{Maximum iterations. Defaults to 2000.}
 
@@ -68,29 +70,29 @@ Reflect the worst vertex through the centroid of the rest; if that is the
 best point yet, try going further; if it is no better than the second
 worst, pull back; and if even that fails, shrink everything towards the
 best vertex. No model of the function is built and no derivative is
-assumed to exist, which is why the method survives a kink. It is also why
-it is slow: an ordering of \eqn{p+1} values is very little information
-about a surface, and on the quadratic below it costs 133 evaluations where
-\code{\link[=bfgs]{bfgs()}} costs 3.
+assumed to exist, so the method works at a kink. It is slow because the
+ordering of \eqn{p+1} values carries little information about the
+surface; the first example compares its evaluation count with that of
+\code{\link[=bfgs]{bfgs()}}.
 }
 \section{Degenerate simplices}{
 Nelder-Mead can converge to a point that is not a minimizer. McKinnon
 (1998) exhibited a strictly convex function with continuous derivatives on
-which it performs inside contractions for ever: the simplex flattens onto
-a line through a point where the gradient is not zero, every vertex
-agrees, and every ordinary stopping rule reports success. The \emph{values}
-offer no defense, behaving exactly as convergence would; what has gone
-wrong is the \emph{shape}.
+which it performs inside contractions indefinitely: the simplex flattens
+onto a line through a point where the gradient is not zero, the vertices
+approach a common value, and every ordinary stopping rule reports success.
+The function values behave as they would at convergence, and only the
+shape of the simplex shows the failure.
 
-So the shape is watched. The conditioning measured is
+The method therefore monitors the shape. The conditioning measured is
 \eqn{\lvert \det E \rvert} divided by the product of the edge lengths,
 where \eqn{E} holds the edges from the best vertex. It is 1 for a
 right-angled simplex, 0 for one that has collapsed into a lower dimension,
 and unchanged by rescaling, so one threshold serves at every size. When it
-falls below \code{degenerate_tol} the simplex is rebuilt right-angled at the
-current best vertex, at the diameter it had reached, so the scale the run
-has earned is kept. Each rebuild is counted, appears in the trace as
-\code{restart} and is reported in the result's \code{message}.
+falls below \code{degenerate_tol} the simplex is rebuilt with right angles at
+the current best vertex, with edges equal to the size that the simplex had
+reached. Each rebuild is counted, appears in the trace as \code{restart} and is
+reported in the \code{message} of the result.
 
 The safeguard is not free: a restart costs \eqn{p+1} evaluations and can
 delay a genuine convergence. \code{max_restarts = 0} turns it off.
@@ -103,38 +105,39 @@ parameters. In higher dimension a fixed expansion of 2 makes the simplex
 overshoot along whichever direction it happened to try. Gao and Han (2012)
 replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
 \eqn{p = 2} are \emph{exactly} the classical values, so \code{TRUE} is the default
-at no cost to the small problems anyone would recognize. At \eqn{p = 10}
-they are \eqn{1, 1.2, 0.7, 0.9}, and on a quadratic in ten unknowns the
-adaptive run takes 959 iterations against 1230.
+without changing the method on problems with two parameters. At
+\eqn{p = 10} they are \eqn{1, 1.2, 0.7, 0.9}, and on a quadratic in ten
+unknowns the adaptive run needs fewer iterations than the classical one
+(see the examples).
 }
 
-\section{When to reach for it}{
-Rarely, and knowingly. On a smooth objective every gradient-based method
-here beats it by orders of magnitude. Its place is an objective that is
-genuinely non-smooth or noisy and whose subgradients are unavailable.
-Where subgradients \emph{are} available, \code{\link[=bundle]{bundle()}} uses them and this method
-uses nothing.
+\section{Where the method applies}{
+On a smooth objective the gradient-based methods that use curvature, such
+as \code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}}, need far fewer evaluations. The
+method is intended for an objective that is non-smooth or noisy and whose
+subgradients are unavailable. Where subgradients \emph{are} available,
+\code{\link[=bundle]{bundle()}} uses them.
 }
 
 \examples{
 nelder_mead()
 
-# A smooth problem, to show that it works and what it costs. BFGS reaches
-# the same point in 3 evaluations.
+# A smooth problem, to show the cost: BFGS reaches the same point in far
+# fewer evaluations.
 q <- function(p) sum((p - c(1, 2))^2)
 minimize(nelder_mead(), q, c(0, 0))@counts[["f"]]
 minimize(bfgs(), q, c(0, 0), gr = function(p) 2 * (p - c(1, 2)))@counts[["f"]]
 
-# What it is for: a sum of absolute deviations, whose minimizer is the
-# median and whose derivative does not exist there.
+# A sum of absolute deviations, whose minimizer is the median and whose
+# derivative does not exist there.
 set.seed(1)
 y <- rcauchy(101)
 r <- minimize(nelder_mead(), function(p) sum(abs(y - p)), par = 0)
 c(nelder_mead = r@par, median = median(y))
 abs(r@par - median(y))
 
-# The adaptive coefficients are the classical ones at p = 2 and differ
-# above it, where they save iterations.
+# The adaptive coefficients equal the classical ones at p = 2 and differ
+# above it; here they save iterations.
 f10 <- function(x) sum((x - 1:10)^2)
 c(adaptive = minimize(nelder_mead(maxit = 20000), f10, numeric(10))@iterations,
   classical = minimize(nelder_mead(adaptive = FALSE, maxit = 20000),
@@ -158,5 +161,5 @@ with adaptive parameters. \emph{Computational Optimization and Applications}
 \seealso{
 \code{\link[=compass]{compass()}} for the derivative-free method with a convergence
 theorem, \code{\link[=bundle]{bundle()}} when subgradients are available,
-\code{\link[=crit_stationary]{crit_stationary()}} for the rule this method reads.
+\code{\link[=crit_stationary]{crit_stationary()}} for the default rule of this method.
 }

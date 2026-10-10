@@ -23,10 +23,10 @@ class and every other setting. For a wrapper it replaces the rule that is
 actually consulted, which is not always the one on the outside.
 }
 \details{
-\code{\link[=multistart]{multistart()}} carries a criterion so that printing it tells the truth;
-the rule the run evaluates belongs to the optimizer inside. Setting the
-outer one alone changes the printing and nothing else, which is exactly
-the sort of thing that makes a check pass while testing nothing:
+\code{\link[=multistart]{multistart()}} carries a criterion property that is used for printing;
+the rule that the run evaluates belongs to the optimizer inside. Setting
+the outer one alone changes only the printing, and a check that relied on
+it would test the default rule:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{ms <- multistart(bfgs(), n = 3)
 with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
@@ -36,7 +36,7 @@ S7::set_props(ms, criterion = crit_abs_obj(1e-4))@optimizer@criterion@label
 # "gradient (max-norm) < 1e-06 or ..."  (unchanged)
 }\if{html}{\out{</div>}}
 
-\code{\link[=chain]{chain()}} has a method of its own for the same reason, its reported rule
-being the last stage's.
+\code{\link[=chain]{chain()}} has a method of its own for the same reason, since its rule is
+the rule of the last stage.
 }
 \keyword{internal}

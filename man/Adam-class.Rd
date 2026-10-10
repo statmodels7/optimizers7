@@ -40,14 +40,16 @@ the six properties above beside the seven shared ones.
 }
 \description{
 An optimizer holding the learning rate, the two moment decay rates and the
-three safeguards of the Adam iteration. Built by \code{\link[=adam]{adam()}}. It is the one
+three safeguards of the Adam iteration. Built by \code{\link[=adam]{adam()}}. It is the only
 shipped method whose default stopping rule is \code{\link[=crit_never]{crit_never()}}, so a run
-ends on its iteration budget and reports \code{converged = FALSE}.
+with the defaults ends on its iteration budget and reports
+\code{converged = FALSE}.
 }
 \details{
-Beyond the seven properties every optimizer has, an \code{Adam} carries six of
-its own: \code{alpha}, \code{beta1} and \code{beta2} for the iteration as Kingma and Ba
-published it, and \code{eps}, \code{decay} and \code{amsgrad} for the three repairs.
+Beyond the seven properties of every optimizer, an \code{Adam} carries six of
+its own: \code{alpha}, \code{beta1}, \code{beta2} and \code{eps} for the iteration as Kingma
+and Ba published it, and \code{decay} and \code{amsgrad} for the two additions to
+it.
 }
 \seealso{
 \code{\link[=adam]{adam()}} for the constructor, \code{\link[=crit_never]{crit_never()}} for its default

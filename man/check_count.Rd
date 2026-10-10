@@ -15,13 +15,14 @@ check_count(v, nm)
 Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
-Checks that the value is a single positive integer. Used for \code{max_step},
-which counts trials, and for \code{\link[=lbfgs]{lbfgs()}}'s \code{memory}, which counts secant
-pairs. A fractional value is a mistake in both places and is refused: the
-kernel receives the count through \code{as.integer()}, so \code{memory = 2.5} would
-otherwise run silently at a memory of 2.
+Checks that the value is a single positive whole number no larger than
+\code{.Machine$integer.max}. Used for \code{max_step}, which counts trial points,
+and for the \code{memory} of \code{\link[=lbfgs]{lbfgs()}}, which counts secant pairs. The count is
+passed to the compiled code as an integer, so a fractional value is
+rejected (\code{memory = 2.5} would otherwise run at a memory of 2), and so is
+an infinite one, which \code{as.integer()} would turn into \code{NA}.
 }
 \seealso{
-\code{\link[=check_whole]{check_whole()}} for a count whose zero is meaningful.
+\code{\link[=check_whole]{check_whole()}} for a count that may be zero.
 }
 \keyword{internal}

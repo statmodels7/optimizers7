@@ -16,32 +16,32 @@ optimizer(
 }
 \arguments{
 \item{name}{A short character name, shown when the object is printed and
-carried into the result. Set by each constructor; a caller has no reason
-to supply it.}
+carried into the result. Set by each constructor; a caller does not
+supply it.}
 
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Anything else
 raises an error naming \code{\link[=crit_grad]{crit_grad()}} as an example. An algorithm also
 rejects a rule it cannot evaluate, through \code{\link[=check_criterion]{check_criterion()}}.}
 
 \item{maxit}{Maximum iterations, a single number at least 1 and \strong{finite}.
-\code{Inf} is refused: a run with no last resort can hang on an objective
-that never satisfies its rule.}
+\code{Inf} is rejected, because a run without a last resort can run forever
+on an objective that never satisfies its rule.}
 
 \item{max_eval}{Maximum evaluations of the objective, a single number at
 least 1. \code{Inf} is the default and is allowed, so the budget is off
-unless it is asked for. A run stopped here reports \code{converged = FALSE},
-the budget having ended it rather than the rule.}
+unless a finite value is given. A run stopped here reports
+\code{converged = FALSE}, because the budget ended it and not the rule.}
 
-\item{verbose}{\code{TRUE} or \code{FALSE}; whether to report progress as the run
-goes. \code{NA} is refused.}
+\item{verbose}{\code{TRUE} or \code{FALSE}; whether to report progress during the
+run. \code{NA} is rejected.}
 
 \item{refresh}{Report every \code{refresh} iterations when \code{verbose} is \code{TRUE}.
 A single non-negative number; \code{0} is allowed and reports only the final
 summary.}
 
 \item{keep_trace}{\code{TRUE} or \code{FALSE}; whether to store the iteration path in
-the result's \code{trace} field. Off by default, the path costing one row per
-iteration.}
+the \code{trace} field of the result. Off by default, since the path costs
+one row per iteration.}
 }
 \value{
 An S7 object of class \code{optimizer}, with properties \code{name}
@@ -52,28 +52,29 @@ of one of its subclasses.
 }
 \description{
 The abstract parent of every algorithm in the package. An optimizer object
-carries the algorithm and every setting the algorithm obeys: its stopping
-rule, its two budgets, what it reports as it goes and what it keeps. It is
-built once and can be reused, printed, stored beside a result and passed
-around, so nothing about a run is hidden inside the call that started it.
+carries the algorithm and every setting that the algorithm uses: its
+stopping rule, its two budgets, what it reports during the run and what it
+keeps. It is built once and can be reused, printed, stored beside a result
+and passed around, so that all the settings of a run are stored in the
+object and not in the call that started it.
 }
-\section{The seven properties every algorithm has}{
-Each algorithm is a subclass adding the settings that are its own:
-\code{\link[=newton]{newton()}} a Hessian repair, \code{\link[=bfgs]{bfgs()}} a curvature tolerance, \code{\link[=adam]{adam()}} its
-three decay rates. The seven below are common to all of them, so a caller
-can replace one optimizer with another and leave every other line alone.
-\code{print()} shows the shared settings first and the algorithm's own on a
-\code{settings} line.
+\section{The seven properties of every algorithm}{
+Each algorithm is a subclass that adds its own settings: a Hessian repair
+for \code{\link[=newton]{newton()}}, a curvature tolerance for \code{\link[=bfgs]{bfgs()}}, the two moment decay
+rates for \code{\link[=adam]{adam()}}. The seven properties below are common to all of them,
+so a caller can replace one optimizer with another and leave the rest of
+the call unchanged. \code{print()} shows the stopping rule and the two budgets,
+and then the settings of the algorithm on a \code{settings} line; \code{verbose},
+\code{refresh} and \code{keep_trace} are not shown.
 }
 
-\section{The two budgets are different budgets}{
-\code{maxit} bounds progress and \code{max_eval} bounds work, and they diverge
-whenever a line search is expensive: one iteration may spend many
-evaluations, and a search that backtracks thirty times is invisible to
-\code{maxit}. On Rosenbrock from the customary start, \code{\link[=bfgs]{bfgs()}} with no cap
-takes 35 iterations and 210 evaluations; capped at \code{max_eval = 40} it
-stops after 7 iterations and 42 evaluations, reporting \code{converged = FALSE}
-and \verb{evaluation budget exhausted}.
+\section{The iteration and evaluation budgets}{
+\code{maxit} bounds the iterations and \code{max_eval} bounds the evaluations of the
+objective, and the two differ whenever a line search is expensive: one
+iteration may spend many evaluations, and the number of backtracks does
+not count towards \code{maxit}. A run stopped by \code{max_eval} reports
+\code{converged = FALSE}, with \code{criterion_met} equal to
+\verb{evaluation budget reached} (see the examples).
 
 \code{maxit} must be finite, because it is the stop of last resort; \code{max_eval}
 may be \code{Inf}, which is its default.
@@ -83,14 +84,16 @@ may be \code{Inf}, which is its default.
 # Abstract, so it cannot be built: use one of the constructors.
 try(optimizer(name = "mine"))
 
-# The same seven properties on every algorithm, plus each one's own.
+# The same seven properties on every algorithm, and the properties of
+# each one.
 shared <- c("name", "criterion", "maxit", "max_eval", "verbose",
             "refresh", "keep_trace")
 stopifnot(all(shared \%in\% names(S7::props(nelder_mead()))))
 setdiff(names(S7::props(newton())), shared)
 setdiff(names(S7::props(adam())), shared)
 
-# Printing shows the rule and the budgets before anything algorithm-specific.
+# Printing shows the rule and the budgets before the settings of the
+# algorithm.
 bfgs()
 
 # The two budgets bound different things.
@@ -104,5 +107,5 @@ b@message
 }
 \seealso{
 \code{\link[=minimize]{minimize()}} for the run, \code{\link[=criterion]{criterion()}} for the stopping rule,
-\code{\link[=check_optimizer]{check_optimizer()}} for what a subclass of your own has to promise.
+\code{\link[=check_optimizer]{check_optimizer()}} for the checks that a new subclass has to pass.
 }

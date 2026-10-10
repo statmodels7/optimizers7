@@ -11,10 +11,10 @@ template:
 home:
   title: Optimization algorithms as reusable objects
   description: >
-    Optimizers written once, as objects any package can use: the algorithm and
-    its safeguards in one object, the stopping rule in another you can replace
-    or write yourself, and the objective in whichever of three shapes you
-    already have it.
+    Optimizers written once, as objects that any package can use: the
+    algorithm and its safeguards in one object, the stopping rule in a second
+    object that the user can replace or write, and the objective as an
+    ordinary function or as an object with a registered method.
 
 navbar:
   structure:
@@ -31,8 +31,8 @@ navbar:
 reference:
 - title: Running an optimization
   desc: >
-    One generic for every algorithm. Which of the three shapes the objective
-    arrived in is settled separately, so an algorithm is written once.
+    One generic for every algorithm. The kind of objective is handled
+    separately, by `as_objective()`, so an algorithm is written once.
   contents:
   - minimize
   - maximize
@@ -40,8 +40,8 @@ reference:
 
 - title: Smooth problems
   desc: >
-    Methods that build a model of the surface from derivatives. Fast when the
-    objective is smooth, and misled when it is not.
+    Methods that use derivatives of the objective. They are fast when the
+    objective is smooth, and they cannot certify a solution at a kink.
   contents:
   - newton
   - chebyshev
@@ -54,15 +54,19 @@ reference:
 - title: Noisy and large problems
   desc: >
     Adam, which tolerates a gradient that points downhill only on average. It
-    draws no minibatches of its own: an objective that resamples is a closure,
-    written by the caller, who knows what an observation is.
+    draws no minibatches of its own: an objective that resamples is a closure
+    written by the caller, who defines what an observation is.
   contents:
   - adam
 
 - title: Problems with a kink
   desc: >
-    Where a descent method arrives at the answer and cannot certify it, because
-    the subgradient it evaluates never becomes small.
+    Methods for objectives with kinks, at which a descent method reaches the
+    solution without being able to certify it, because the subgradient that
+    it evaluates does not become small. `bundle()` tests whether zero lies in
+    the convex hull of its subgradients, `prox_grad()` handles the kink
+    through a proximal operator, and `nelder_mead()` and `compass()` use no
+    derivative.
   contents:
   - bundle
   - prox_grad
@@ -78,27 +82,27 @@ reference:
 
 - title: Searching before descending
   desc: >
-    A global search for the problems where the answer depends on which basin
-    the run began in. It is meant to hand its result to a local method rather
-    than to finish the job itself.
+    A global search for problems on which the answer depends on the basin in
+    which the run begins. Its result is meant to be passed to a local method,
+    which finds the minimum.
   contents:
   - sa
 
 - title: Wrapping an optimizer
   desc: >
-    Both are themselves optimizers, so they compose with everything above and
-    with each other. Multi-start reports what a single run cannot, the number
-    of distinct optima; a chain runs its stages in order, each starting where
-    the previous finished.
+    Both are themselves optimizers, so they combine with every method above
+    and with each other. A multi-start reports the number of distinct optimal
+    values reached from its starts; a chain runs its stages in order, each
+    starting where the previous one finished.
   contents:
   - multistart
   - chain
 
 - title: Stopping rules
   desc: >
-    A criterion is an object implementing one generic, so a user-defined rule
-    is treated like a shipped one. An optimizer rejects a rule it cannot
-    evaluate rather than accepting one that never fires.
+    A criterion is an object that implements one generic, so a user-defined
+    rule is treated like a shipped one. An optimizer rejects a rule that it
+    cannot evaluate instead of accepting one that never fires.
   contents:
   - criterion
   - crit_met
@@ -116,9 +120,9 @@ reference:
 - title: Line searches
   desc: >
     How far to go along a direction, once the direction is chosen. The
-    non-monotone rule is not an exotic option: a method whose step length is
-    itself the method, as Barzilai-Borwein's is, needs a search that does not
-    reshape it.
+    nonmonotone search is the default of the Barzilai-Borwein method, whose
+    step length is the method itself and which relies on steps that increase
+    the objective.
   contents:
   - line_search
   - armijo
@@ -127,9 +131,10 @@ reference:
 
 - title: Starting values
   desc: >
-    A starter stands in for the vector of starting values, and is resolved on
-    the unconstrained scale, so a single constant means something sensible for
-    every kind of parameter and no draw can land outside its bounds.
+    A starter takes the place of the vector of starting values and is
+    resolved on the unconstrained scale, so a single constant gives a
+    sensible value for every kind of parameter and every draw lies inside its
+    bounds.
   contents:
   - starter-class
   - start_zeros
@@ -140,16 +145,17 @@ reference:
 - title: The objective
   desc: >
     A function of the parameter vector. The generic is the extension point: a
-    caller with its own kind of objective registers one method and every
-    algorithm accepts it.
+    caller with another kind of objective registers one method and every
+    algorithm accepts that objective.
   contents:
   - as_objective
 
-- title: Writing an optimizer of your own
+- title: Writing a new optimizer
   desc: >
-    What a `minimize()` method of your own has to promise, and the pieces that
-    let it. `check_optimizer()` tests the contract; the battery under it reports
-    the power; they are separate because they are different questions.
+    The requirements on a new `minimize()` method, and the functions that help
+    to meet them. `check_optimizer()` runs twelve checks on what an optimizer
+    reports, and reports separately the gaps that it reaches on the test
+    problems, since performance and correctness are different questions.
   contents:
   - optimizer
   - check_criterion

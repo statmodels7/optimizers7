@@ -19,15 +19,15 @@ run_descent(optimizer, fn, par, gr, he, lower, upper, method)
 An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-The body of every method that has a direction: prepares the objective, hands
-the compiled loop the optimizer's settings and the description of its
-direction, and assembles the result.
+The body of every method that has a direction: it prepares the objective,
+passes the settings of the optimizer and the description of its direction
+to the compiled loop, and assembles the result.
 }
 \details{
-Newton, BFGS, L-BFGS and gradient descent differ only in the \code{method}
-list, which names the direction and carries its parameters. The line
-search, the stopping rule, the budgets, the trace and the reporting are
-the same code for all of them, so adding a fifth method is a \code{Direction}
-in C++ and a constructor in R.
+\code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}}, \code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}} and \code{\link[=chebyshev]{chebyshev()}}
+differ only in the \code{method} list, which names the direction and carries
+its parameters. The line search, the stopping rule, the budgets, the trace
+and the reporting are the same code for all of them, so another method of
+this kind needs a \code{Direction} in C++ and a constructor in R.
 }
 \keyword{internal}

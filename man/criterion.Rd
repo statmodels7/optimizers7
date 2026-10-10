@@ -18,39 +18,36 @@ subclass written by the caller.
 \description{
 The abstract parent of every stopping rule. An optimizer carries one, and
 a caller may replace it, combine several, or write a new kind: a class
-inheriting from this one with a method for \code{\link[=crit_met]{crit_met()}} is a stopping rule
-and every algorithm in the package will consult it.
+that inherits from this one and has a method for \code{\link[=crit_met]{crit_met()}} is a
+stopping rule, and every algorithm in the package consults it.
 }
 \details{
-The alternative would be an argument taking a string and a \code{switch} inside
-every algorithm, which fixes the set of rules at the moment the package is
-written and lets nothing outside add to it. Here a rule is an object
-implementing one generic, so a rule of your own is treated exactly as a
-shipped one. This is the package's most open extension point: the
-algorithms need a branch in compiled code and the line searches do too,
-but a criterion needs neither.
+A rule is an object that implements one generic, so a rule written by the
+caller is treated in the same way as a shipped one. A new rule needs no
+compiled code, whereas a new algorithm or a new kind of line search needs
+a branch in the compiled loop.
 }
 \section{The two generics}{
 \code{\link[=crit_met]{crit_met()}} answers whether the run should stop, given the state of the
-iteration just completed. \code{\link[=crit_needs]{crit_needs()}} names the \code{state} components the
-rule reads, so that an optimizer unable to fill one in can refuse the rule
-when the run starts instead of accepting one that never fires. The base
-method for \code{crit_needs()} returns \code{character()}, so a rule reading only
-the objective needs no method at all.
+iteration just completed. \code{\link[=crit_needs]{crit_needs()}} names the \code{state} components that
+the rule reads, so that an optimizer unable to supply one of them rejects
+the rule when the run starts. The base method for \code{crit_needs()} returns
+\code{character()}, so a rule that reads only the objective needs no method.
 }
 
 \section{Combining}{
 \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} combine rules and are themselves criteria,
-so combinations nest and their labels nest with them. The gradient methods
-default to a disjunction of three.
+so combinations nest and their labels nest with them. \code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}},
+\code{\link[=bb]{bb()}}, \code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}} and \code{\link[=chebyshev]{chebyshev()}} default to a
+disjunction of three rules.
 }
 
 \examples{
 # The class is abstract, so it cannot be instantiated directly...
 try(criterion(label = "mine"))
 
-# ...but anything inheriting from it is a criterion, including a rule the
-# package never anticipated.
+# ...but a class that inherits from it is a criterion, including a rule
+# written by the caller.
 Tiny <- S7::new_class("Tiny", parent = criterion,
                       properties = list(tol = S7::class_numeric))
 S7::method(crit_met, Tiny) <- function(criterion, state)

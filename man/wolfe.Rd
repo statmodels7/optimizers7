@@ -11,66 +11,72 @@ wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
 Defaults to \code{1e-4}.}
 
 \item{c2}{Curvature constant, with \eqn{c_1 < c_2 < 1}. Defaults to \code{0.9},
-the usual choice for a quasi-Newton method; \code{\link[=cg]{cg()}} defaults to \code{0.1},
-wanting a more exact line search. A \code{c2} at or below \code{c1} is refused,
-the two conditions being unsatisfiable together then.}
+the usual choice for a quasi-Newton method; \code{\link[=cg]{cg()}} uses \code{0.1}, a more
+exact line search. A \code{c2} at or below \code{c1} is rejected, because a step
+that satisfies both conditions is guaranteed to exist only when
+\eqn{c_1 < c_2 < 1}.}
 
 \item{max_step}{Maximum trial steps in \strong{each} of the bracketing and zoom
 phases, a positive whole number. Defaults to 30.}
 
-\item{resolution}{The smallest difference in the objective that means
-anything, in the objective's own units, or a function of no arguments
-returning it where it moves as the run goes. Defaults to \code{0}, which
-does not ask the question; see \code{\link[=armijo]{armijo()}} for what it is for and
-why the question is put at the full step, before the search begins.}
+\item{resolution}{The smallest difference in the objective that the
+objective can resolve, in the units of the objective, or a function of
+no arguments that returns it when it changes during the run. Defaults to
+\code{0}, which disables the test; see \code{\link[=armijo]{armijo()}} for the purpose of the test
+and for the reason why it is applied at the full step, before the search
+begins.}
 }
 \value{
 An S7 object of class \link{WolfeSearch}, inheriting from
 \code{\link[=line_search]{line_search()}}, to be passed as an optimizer's \code{line_search}.
 }
 \description{
-Finds a step satisfying both Wolfe conditions, sufficient decrease and
-curvature together:
+Searches for a step that satisfies both Wolfe conditions, sufficient
+decrease and curvature:
 \deqn{f(x + \alpha d) \leq f(x) + c_1 \alpha\, g^\top d, \qquad
       \lvert g(x + \alpha d)^\top d \rvert \leq c_2 \lvert g^\top d \rvert .}
-Evaluates the gradient at trial points as well as the objective, which is
-what the second condition costs and what \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} need.
+It evaluates the gradient at trial points as well as the objective, which
+is the cost of the second condition, the one that \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}}
+need.
 }
-\section{What the curvature condition is for}{
-\code{\link[=armijo]{armijo()}} cannot provide it, and a quasi-Newton method needs it to work
-at all. BFGS builds its approximation from the secant pair \eqn{(s, y)}
-with \eqn{s = \alpha d} and \eqn{y = g_{new} - g_{old}}, and a step so
-short that the gradient has barely moved gives a pair carrying no
-curvature: the update is then either skipped or it corrupts the matrix.
-Requiring the gradient along the direction to have shrunk by a factor
-\eqn{c_2} is exactly the guarantee that this does not happen.
-
-In practice the guarantee is worth less than it sounds, and the honest
-measurement belongs here: over the eight problems of \code{\link[=test_problems]{test_problems()}},
-BFGS under Armijo skips an update on three of them, once each. See
-\code{\link[=bfgs]{bfgs()}} for the numbers.
+\section{The curvature condition}{
+\code{\link[=armijo]{armijo()}} does not enforce it, and a quasi-Newton method relies on it.
+BFGS builds its approximation from the secant pair \eqn{(s, y)} with
+\eqn{s = \alpha d} and \eqn{y = g_{new} - g_{old}}, and a step so short
+that the gradient has barely changed gives a pair with no usable
+curvature: the update is then skipped, or it degrades the approximation.
+Requiring the directional derivative to have shrunk by the factor
+\eqn{c_2} rules this out. On the problems of \code{\link[=test_problems]{test_problems()}}, BFGS
+under \code{\link[=armijo]{armijo()}} skips an update on a few problems only; see \code{\link[=bfgs]{bfgs()}}.
 }
 
 \section{The implementation}{
-Bracketing and zoom, with \strong{bisection} inside the zoom instead of
-polynomial interpolation. That costs a few more evaluations and cannot be
-defeated by an awkwardly shaped interval.
+The search brackets a step, doubling the trial step until the bracket is
+found, and then bisects inside the bracket instead of interpolating a
+polynomial. Bisection costs a few more evaluations and does not depend on
+the shape of the function inside the bracket. Each phase is limited to
+\code{max_step} trials, and a search that exhausts them returns without a
+step. When the bracket collapses before the curvature condition holds,
+the end of the bracket that satisfies sufficient decrease is returned and
+the trace records \verb{curvature condition not met}.
 
-Gradient evaluations at trial points are the price, so this is the dearer
-choice per iteration and usually the cheaper one per problem.
+The gradient evaluations at the trial points make this search more costly
+per iteration than \code{\link[=armijo]{armijo()}}; the total cost of a run depends on the
+problem.
 }
 
 \examples{
 wolfe()
 wolfe(c2 = 0.1)
 
-# Even gradient descent gets to the answer with it, given the budget.
+# Gradient descent with this search comes close to the minimum (1, 1) in
+# 2000 iterations.
 minimize(gd(line_search = wolfe(), maxit = 2000),
          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2,
          c(-1.2, 1))@par
 
-# The tighter constant matters to conjugate gradients, which has no
-# curvature approximation to repair a loose step with.
+# The smaller constant matters for conjugate gradients, which has no
+# curvature approximation to compensate for an inexact step.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
@@ -79,7 +85,7 @@ c(tight = minimize(cg(line_search = wolfe(c2 = 0.1)), f, c(-1.2, 1),
   loose = minimize(cg(line_search = wolfe(c2 = 0.9)), f, c(-1.2, 1),
                    gr = g)@iterations)
 
-# The two conditions have to be satisfiable together.
+# c2 must exceed c1.
 try(wolfe(c1 = 0.5, c2 = 0.4))
 
 }

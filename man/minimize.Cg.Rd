@@ -11,12 +11,14 @@ and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose trace, when kept, reports
-\verb{cg restart} at each iteration where the bend was clamped to zero or the
-direction was replaced by the gradient.
+\verb{cg restart} at each iteration where \eqn{\beta} was set to zero, because
+the Polak-Ribière value was negative or because \code{restart_every}
+iterations had passed, and \verb{cg not descent} at each iteration where the
+direction was replaced by the negative gradient.
 }
 \description{
-Runs \code{\link[=cg]{cg()}} on the objective: bend each direction with the previous one by
-the chosen \eqn{\beta}, and let the line search choose how far along it to
-go. Shares the descent loop with \code{\link[=gd]{gd()}} and \code{\link[=bb]{bb()}}.
+Runs \code{\link[=cg]{cg()}} on the objective: each direction is combined with the
+previous one through the chosen \eqn{\beta}, and the line search chooses
+the step length. It shares the descent loop with \code{\link[=gd]{gd()}} and \code{\link[=bb]{bb()}}.
 }
 \keyword{internal}

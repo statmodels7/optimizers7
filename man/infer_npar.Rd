@@ -23,40 +23,39 @@ the two lengths it found when more than one is accepted, and an error
 when none is.
 }
 \description{
-Works out the length of the parameter vector by trying lengths and seeing
-which the objective accepts. Called by \code{\link[=minimize]{minimize()}} when a starter
-was given without \code{npar} and the bounds do not say.
+Determines the length of the parameter vector by trying lengths and
+recording which ones the objective accepts. Called by \code{\link[=minimize]{minimize()}} when a
+starter was given without \code{npar} and the bounds do not determine it.
 }
 \details{
 A length is accepted when \code{fn} returns a single finite number for it and
 raises neither an error nor a warning, and, if \code{gr} was supplied, when
 the gradient comes back with the same length as its argument.
 
-What decides it is whether the objective genuinely rejects the wrong
-length, and the objective a modeling package hands over usually does:
-\code{X \%*\% beta} with a parameter of the wrong length is an error rather
-than a number, so a regression of any kind is settled at once. A gradient
-helps when it spells its components out, since such a gradient returns a fixed
-number of them whatever it is handed.
+The probe works when the objective rejects a wrong length, as the
+objective of a modeling package usually does: \code{X \%*\% beta} with a
+parameter of the wrong length is an error and not a number, so a
+regression model is settled at once. A gradient helps when it writes its
+components out, since such a gradient returns a fixed number of them,
+whatever its argument.
 
-A vectorized objective written in terms of the parameter alone is another
-matter: both plausible
-guesses about \R are wrong. Recycling warns only when the shorter length is
-not a \emph{divisor} of the longer, so \code{sum((p - c(1, 2, 3))^2)} accepts
-a length-one vector in silence and returns a perfectly finite 14; and its
-gradient \code{2 * (p - c(1, 2, 3))} returns six components for a length-six
-argument, so the gradient rule passes it too. Rosenbrock's
-\code{100 (p_2 - p_1^2)^2 + (1 - p_1)^2} accepts every length from two upwards
-for the same kind of reason. None of this is a defect and none of it can be
-guessed at.
+A vectorized objective written in terms of the parameter alone behaves
+differently. Recycling warns only when the shorter length is not a
+\emph{divisor} of the longer, so \code{sum((p - c(1, 2, 3))^2)} accepts a vector of
+length one without a warning and returns the finite value 14; and its
+gradient \code{2 * (p - c(1, 2, 3))} returns six components for an argument of
+length six, so the gradient test accepts that length too. The Rosenbrock
+function \code{100 (p_2 - p_1^2)^2 + (1 - p_1)^2}, written with \code{p[1]} and
+\code{p[2]}, accepts every length from two upwards for a related reason. The
+length cannot be determined from such an objective.
 
-The probe therefore settles the objectives that have a
-fixed width built into them and rejects the ones that do not, naming the two
-lengths it found. When it rejects, \code{npar} or a vector of bounds is one
-word.
+The probe therefore settles the objectives that have a fixed width built
+into them and rejects the others, with an error that names two lengths
+that were accepted. The caller then gives the count through \code{npar} or
+through a vector of bounds.
 
-The search stops as soon as a \emph{second} length is accepted: the answer is
-then already known to be ambiguous and there is no reason to keep probing.
+The search stops as soon as a \emph{second} length is accepted, since the
+answer is then known to be ambiguous.
 The cost is therefore two evaluations when the objective accepts any
 length, and \code{npar_max} when it accepts exactly one. Either way it happens
 once, before the run.
@@ -68,12 +67,12 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 infer_npar(f, gr, function(k) numeric(k))
 
-# Without one, the same objective is happy with any length from two
-# upwards, and the refusal names the two lengths that decided it.
+# Without one, the same objective accepts any length from two upwards,
+# and the error names the two lengths that were accepted first.
 try(infer_npar(f, NULL, function(k) numeric(k)))
 
-# An objective with a width built in is settled without a gradient, and
-# this is the ordinary case for a model.
+# An objective with a fixed width is settled without a gradient, which is
+# the ordinary case for a model.
 set.seed(1)
 X <- matrix(rnorm(40 * 3), 40, 3)
 y <- as.numeric(X \%*\% c(1, -2, 0.5) + rnorm(40))
@@ -82,5 +81,5 @@ infer_npar(function(b) sum((y - X \%*\% b)^2), NULL, function(k) numeric(k))
 }
 \seealso{
 \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}, the starters that make this
-question arise, and \code{\link[=minimize]{minimize()}}, which asks it.
+determination necessary, and \code{\link[=minimize]{minimize()}}, which calls it.
 }

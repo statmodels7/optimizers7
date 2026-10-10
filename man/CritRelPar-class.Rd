@@ -17,18 +17,18 @@ An S7 object of class \code{CritRelPar} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The rule \code{\link[=crit_rel_par]{crit_rel_par()}} builds. It fires when every coordinate's change,
-divided by that coordinate's own size, falls below \code{tol}, so a parameter
-of order \eqn{10^{3}} and one of order \eqn{10^{-3}} are held to the same
-number of digits. It declares nothing through \code{\link[=crit_needs]{crit_needs()}}.
+The class of the rule built by \code{\link[=crit_rel_par]{crit_rel_par()}}. The rule fires when the
+change of every coordinate, divided by the size of that coordinate, falls
+below \code{tol}, so a parameter of order \eqn{10^{3}} and one of order
+\eqn{10^{-3}} are held to the same number of digits. It declares nothing
+through \code{\link[=crit_needs]{crit_needs()}}.
 }
 \details{
 The test is
 \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert /
-(\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}, with the same
-floor \link{CritRelObj} uses and for the same reason: a coordinate sitting at
-zero would otherwise be divided by nothing. \code{crit_met()} returns \code{FALSE}
-when \code{x_old} is \code{NULL}.
+(\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}, with the floor of
+\link{CritRelObj}, which keeps the denominator positive at a coordinate of
+zero. \code{crit_met()} returns \code{FALSE} when \code{x_old} is \code{NULL}.
 }
 \examples{
 # The same relative change at two very different scales.
@@ -38,6 +38,6 @@ crit_met(crit_rel_par(1e-6), list(x_new = 1e-3, x_old = 1e-3 + 1e-10))
 }
 \seealso{
 \code{\link[=crit_rel_par]{crit_rel_par()}} for the constructor, \code{\link[=crit_abs_par]{crit_abs_par()}} for the
-version in the parameters' own units.
+version in the units of the parameters.
 }
 \keyword{internal}

@@ -32,10 +32,9 @@ first step of the bracketing phase and how many times that phase may
 expand. Built by \code{\link[=brent]{brent()}}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Brent} carries two of
-its own: \code{step}, the length of the first trial step on the parameter's
-scale, and \code{max_expand}, the number of golden expansions the bracketing
-phase may take before it stops.
+Beyond the seven properties of every optimizer, a \code{Brent} carries two of
+its own: \code{step}, the length of the first trial step, and \code{max_expand}, the
+number of golden expansions that the bracketing phase may take.
 }
 \seealso{
 \code{\link[=brent]{brent()}} for the constructor.

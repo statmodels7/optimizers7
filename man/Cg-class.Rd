@@ -34,18 +34,19 @@ An S7 object of class \code{Cg} inheriting from \code{\link[=optimizer]{optimize
 four properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding which of the four \eqn{\beta} formulas bends the
-direction, how often the method is restarted at steepest descent, and the
-usual step length and line search. Built by \code{\link[=cg]{cg()}}.
+An optimizer holding which of the four \eqn{\beta} formulas combines the
+gradient with the previous direction, how often the method is restarted
+at steepest descent, and the step length and the line search. Built by
+\code{\link[=cg]{cg()}}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Cg} carries four:
+Beyond the seven properties of every optimizer, a \code{Cg} carries four:
 \code{step} and \code{line_search}, shared with the other line-search methods, and
 \code{beta} and \code{restart_every}, which are its own. The previous direction is
-not a property; it lives in the run.
+not a property; it exists only inside the run.
 }
 \seealso{
-\code{\link[=cg]{cg()}} for the constructor, \link{GradientDescent} for the method it
-improves on.
+\code{\link[=cg]{cg()}} for the constructor, \link{GradientDescent} for steepest
+descent.
 }
 \keyword{internal}

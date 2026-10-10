@@ -18,72 +18,72 @@ nonmonotone(
 \item{shrink}{Factor applied to the step on each backtrack. Defaults to
 \code{0.5}.}
 
-\item{memory}{How many earlier values to look back over. Defaults to
-\code{10}; \code{0} makes this ordinary \code{\link[=armijo]{armijo()}}.}
+\item{memory}{The number of earlier values, besides the current one, over
+which the reference is taken. Defaults to \code{10}; \code{0} makes the search
+identical to \code{\link[=armijo]{armijo()}}.}
 
-\item{max_step}{Most backtracks before the search gives up. Defaults to
-\code{30}.}
+\item{max_step}{Maximum number of trial points, the full step included,
+before the search gives up. Defaults to \code{30}.}
 
-\item{resolution}{The smallest difference in the objective that means
-anything, in the objective's own units, or a function of no arguments
-returning it where it moves as the run goes. Defaults to \code{0}, which
-does not ask the question; see \code{\link[=armijo]{armijo()}} for what it is for and
-why the question is put at the full step, before the search begins.}
+\item{resolution}{The smallest difference in the objective that the
+objective can resolve, in the units of the objective, or a function of
+no arguments that returns it when it changes during the run. Defaults to
+\code{0}, which disables the test; see \code{\link[=armijo]{armijo()}} for the purpose of the test
+and for the reason why it is applied at the full step, before the search
+begins.}
 }
 \value{
 A \code{\link[=line_search]{line_search()}} object.
 }
 \description{
-Armijo backtracking that compares against the worst of the last few
-objective values rather than against the current one, so a step is allowed to
-make things worse now in order to be better placed later.
+Armijo backtracking that compares the trial value with the largest of the
+last few objective values and not with the current one, so a step may
+increase the objective.
 }
 \details{
-The condition is Grippo, Lampariello and Lucidi's:
-\deqn{f(x_k + s d_k) \le \max_{0 \le j \le m} f(x_{k-j}) + c_1 s\, g_k^\top d_k,}
-which is Armijo's with the reference replaced by the largest of the last
-\eqn{m+1} values. Every step it accepts improves on the worst of recent
-memory; none is required to improve on the present.
+The condition is that of Grippo, Lampariello and Lucidi:
+\deqn{f(x_k + \alpha d_k) \le \max_{0 \le j \le m} f(x_{k-j}) +
+  c_1 \alpha\, g_k^\top d_k,}
+which is Armijo's condition with the reference replaced by the largest of
+the last \eqn{m+1} values. An accepted step improves on the largest of the
+recent values, but it need not improve on the current one.
 }
 \section{Purpose}{
-Some methods are efficient \emph{because} of steps that make the objective
-worse. \code{\link[=bb]{bb()}} is the clear case: its step length is a curvature estimate
-taken from the last secant pair, and following that estimate faithfully
-means occasionally going somewhere higher in order to be aligned with the
-curvature when it matters. An Armijo condition forbids exactly those steps
-and backtracks until it finds a shorter one, which is safe and is also most
-of what the method was for.
+Some methods are efficient \emph{because} of steps that increase the
+objective. \code{\link[=bb]{bb()}} is the main case: its step length is a curvature
+estimate taken from the last secant pair, and following that estimate
+sometimes leads to a higher value. An Armijo condition rejects every step
+that increases the objective and backtracks until it finds a shorter one,
+which removes the steps on which the method relies. On the Rosenbrock
+function \code{\link[=bb]{bb()}} needs fewer than half as many evaluations of the objective
+under \code{nonmonotone()} as under \code{\link[=armijo]{armijo()}} (see the examples).
 
-Measured on Rosenbrock, \code{\link[=bb]{bb()}} takes 58 iterations and 67 objective
-evaluations under \code{nonmonotone()} and 72 iterations and 154 evaluations
-under \code{\link[=armijo]{armijo()}}.
-
-The cost is that the guarantee weakens. A monotone method cannot cycle,
-the objective being a decreasing sequence bounded below; a nonmonotone one
-needs the finite memory to play that role, and the convergence result is
-correspondingly more delicate. Use it where a method asks for it.
+The cost is a weaker guarantee. A monotone method cannot cycle, since the
+objective is a decreasing sequence bounded below; a nonmonotone method
+relies on the finite memory for that, and its convergence result is more
+delicate. The search is intended for methods such as \code{\link[=bb]{bb()}}, whose steps
+are not required to decrease the objective.
 }
 
 \section{memory = 0}{
 At \code{memory = 0} the reference is the current value and the condition is
-Armijo's exactly. Measured, \code{nonmonotone(memory = 0)} and \code{\link[=armijo]{armijo()}} give
-the identical run, 72 iterations and 154 evaluations on the same problem,
-so a comparison between the two settings is a comparison of the memory
-alone.
+exactly Armijo's, so \code{nonmonotone(memory = 0)} and \code{\link[=armijo]{armijo()}} produce the
+same run, and a comparison between the two settings isolates the effect
+of the memory.
 }
 
-\section{No nonmonotone Wolfe}{
-The curvature condition is a statement about the gradient at the trial
-point and says nothing about which value the decrease is measured against,
-so a nonmonotone Wolfe search would be a fourth object rather than an
-option on this one. There is not one here.
+\section{No nonmonotone Wolfe search}{
+The curvature condition concerns the gradient at the trial point and does
+not involve the value against which the decrease is measured. A
+nonmonotone Wolfe search would therefore be a fourth object and not an
+option of this one, and the package does not provide one.
 }
 
 \examples{
 nonmonotone()
 nonmonotone(memory = 5)
 
-# What it buys the method it was added for.
+# The effect on bb(), the method that uses it by default.
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
@@ -91,8 +91,8 @@ evals <- function(ls) minimize(bb(line_search = ls), f, c(-1.2, 1),
                                gr = gr)@counts[["f"]]
 c(nonmonotone = evals(nonmonotone()), armijo = evals(armijo()))
 
-# And that memory = 0 is armijo(), which is what makes the comparison one
-# of the memory alone.
+# With memory = 0 the search is armijo(), so the comparison above
+# isolates the memory.
 identical(evals(nonmonotone(memory = 0)), evals(armijo()))
 
 }
@@ -107,5 +107,5 @@ Optimization} \strong{7}, 26--33.
 }
 \seealso{
 \code{\link[=armijo]{armijo()}} for the monotone version, \code{\link[=bb]{bb()}} for the method that
-needs this one, \code{\link[=line_search]{line_search()}} for the shared contract.
+uses this one by default, \code{\link[=line_search]{line_search()}} for the parent class.
 }

@@ -9,15 +9,15 @@ NULL
 #' Prepare an Objective for an Algorithm
 #'
 #' @description
-#' Normalizes the objective, checks the stopping rule can actually be evaluated
-#' by this optimizer, and checks the starting value.
+#' Normalizes the objective, checks that this optimizer can evaluate the
+#' stopping rule, and checks the starting value.
 #'
 #' @details
-#' The criterion check is the one worth explaining. A rule needing a gradient
-#' handed to a method that computes none would sit there testing `NULL` at
-#' every iteration and never fire, so the run would end on its iteration
-#' budget and report failure for a reason nowhere near the truth. Refusing it
-#' here, by name, turns that into an error a caller can act on.
+#' A rule that needs a gradient, used with a method that computes none,
+#' would test `NULL` at every iteration and never fire, so the run would end
+#' on its iteration budget and report a failure unrelated to the state of the
+#' run. The check rejects such a rule when the run starts, with an error that
+#' names the missing quantity and the method.
 #'
 #' @param optimizer The [optimizer()].
 #' @param fn,gr,he The objective and its optional derivatives, as supplied.
@@ -40,21 +40,22 @@ prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
 #' @title Reject a Stopping Rule an Optimizer Cannot Evaluate
 #'
 #' @description
-#' Compares what the optimizer's criterion reads against what the optimizer can
-#' supply, and stops if the rule asks for something absent.
+#' Compares the quantities that the criterion of the optimizer reads with the
+#' quantities that the optimizer supplies, and signals an error if the rule
+#' needs a quantity that the optimizer does not supply.
 #'
 #' @param optimizer An [optimizer()].
 #'
 #' @details
-#' Call this at the top of a user-defined [minimize()] method. A rule
-#' needing a gradient, handed to a method that computes none, would sit testing
-#' `NULL` at every iteration and never fire; the run would then end on its
-#' iteration budget and report a reason nowhere near the truth. Rejecting it here,
-#' by name, is what [check_optimizer()] tests for.
+#' Call this at the top of a user-defined [minimize()] method. A rule that
+#' needs a gradient, used with a method that computes none, would test `NULL`
+#' at every iteration and never fire; the run would then end on its iteration
+#' budget and report a failure unrelated to the state of the run.
+#' [check_optimizer()] tests that a method rejects such a rule.
 #'
-#' What an optimizer can supply is declared by
-#' [optimizer_provides()], whose default claims a gradient. Override
-#' that when the method computes none.
+#' The quantities that an optimizer supplies are declared by
+#' [optimizer_provides()], whose default method returns `"gradient"`.
+#' Override it when the method computes no gradient.
 #'
 #' @return Invisibly `TRUE`; raises an error otherwise.
 #'
@@ -83,26 +84,30 @@ check_criterion <- function(optimizer) {
 #' @title What an Optimizer Can Offer a Stopping Rule
 #'
 #' @description
-#' The names of the `state` components an optimizer is able to fill in, so
-#' that [check_criterion()] can reject a rule it could never satisfy.
+#' Returns the names of the `state` components that an optimizer supplies,
+#' so that [check_criterion()] can reject a rule that the optimizer cannot
+#' evaluate.
 #'
 #' @details
-#' The gradient-based methods provide `"gradient"`. The derivative-free ones
-#' provide `"stationarity"` instead, no single derivative they could report
-#' going to zero at a solution: [nelder_mead()] offers the simplex diameter,
-#' [compass()] the poll size, [sa()] Corana's termination measure and
-#' [bundle()] its optimality estimate.
+#' The gradient-based methods provide `"gradient"`. [nelder_mead()],
+#' [compass()], [brent()], [sa()] and [bundle()] provide `"stationarity"`
+#' instead: [nelder_mead()] offers the largest distance from the best vertex
+#' to another vertex of the simplex, [compass()] the poll size, [brent()] the
+#' half-width of its bracket, [sa()] Corana's termination measure and
+#' [bundle()] its optimality estimate. [bundle()] evaluates subgradients but
+#' does not provide `"gradient"`, since a subgradient does not vanish at a
+#' kink.
 #'
-#' Every optimizer evaluates the objective, so there is no token for that and
-#' a rule reading the objective is never rejected. [prox_grad()] answers
-#' `"gradient"` and means the proximal gradient mapping, which vanishes at a
-#' stationary point of the whole objective.
+#' Every optimizer evaluates the objective, so there is no name for it, and a
+#' rule that reads the objective is accepted by every method. [prox_grad()]
+#' returns `"gradient"`, and its gradient is the proximal gradient mapping,
+#' which vanishes at a stationary point of the whole objective.
 #'
-#' The **default method** answers `"gradient"`, so an optimizer written
-#' outside the package claims one unless it says otherwise. Say otherwise if
-#' it is untrue: the rejection machinery relies on this declaration being
-#' accurate, and a method that claims a gradient it does not compute will
-#' accept a rule that can never fire.
+#' The **default method** returns `"gradient"`, so an optimizer written
+#' outside the package declares a gradient unless it has a method of its
+#' own. The rejection relies on this declaration being accurate: a method
+#' that declares a gradient that it does not compute accepts a rule that can
+#' never fire.
 #'
 #' @param optimizer An [optimizer()].
 #'
@@ -116,7 +121,7 @@ check_criterion <- function(optimizer) {
 #' vapply(list(nelder_mead(), compass(), sa(), bundle()),
 #'        optimizer_provides, "")
 #'
-#' # A wrapper answers for whichever run reports the result.
+#' # A wrapper returns the answer of the run that reports the result.
 #' optimizer_provides(chain(sa(), bfgs()))
 #' optimizer_provides(multistart(nelder_mead()))
 #'
@@ -136,21 +141,21 @@ S7::method(optimizer_provides, optimizer) <- function(optimizer) "gradient"
 #' @description
 #' `TRUE` when the optimizer honors the `lower` and `upper` arguments of
 #' [minimize()], so that [check_optimizer()] tests them, and `FALSE` for a
-#' method that takes its constraint another way.
+#' method that takes its constraint in another way.
 #'
 #' @details
-#' Every method here removes bounds by reparametrization and answers `TRUE`,
-#' which is the default. [prox_grad()] is the one exception: a constraint
-#' reaches it inside the proximal operator, where it composes with the term
-#' already there, so bounds beside the objective would be a second and
-#' conflicting route to the same thing.
+#' Every method in the package except [prox_grad()] removes bounds by
+#' reparametrization and returns `TRUE`, which is the default. [prox_grad()]
+#' receives a constraint inside the proximal operator, where it combines
+#' with the non-smooth term, so bounds beside the objective would be a
+#' second, conflicting way of imposing the same constraint.
 #'
-#' A wrapper answers for what it contains. [chain()] is bounded only when
-#' **every** stage is, the bounds being passed to all of them.
+#' A wrapper returns the answer of what it contains. [chain()] is bounded
+#' only when **every** stage is, since the bounds are passed to all of them,
+#' and [multistart()] returns the answer of its inner optimizer.
 #'
-#' The declaration is read by [check_optimizer()] before its seventh check,
-#' so a method answering `FALSE` is not failed for refusing a box it never
-#' promised.
+#' [check_optimizer()] reads the declaration before its seventh check, so a
+#' method that returns `FALSE` is not failed for rejecting bounds.
 #'
 #' @param optimizer An [optimizer()].
 #'
@@ -196,35 +201,37 @@ budget_int <- function(x) {
 #'
 #' @description
 #' Compares the directional derivative of `fn` along the gradient direction
-#' at `par`, obtained from one central difference, with the rate the supplied
-#' `gr` predicts. A gradient computed from a different model than the
-#' objective, such as one holding a predictor fixed where the objective
-#' varies it or reading a stale copy of the data, makes the two disagree
-#' grossly. Without this check the symptom downstream is a mute line-search
-#' failure at the first iteration.
+#' at `par`, obtained from one central difference, with the rate predicted
+#' by the supplied `gr`. A gradient computed from a different model than the
+#' objective, such as one that holds a predictor fixed where the objective
+#' varies it or that reads an outdated copy of the data, makes the two
+#' disagree by a large factor. Without this check the effect is a
+#' line-search failure at the first iteration, with no indication of its
+#' cause.
 #'
 #' @details
-#' The check costs one call to `gr` and two to `fn` (six where the first
-#' difference disagrees), runs once per
-#' [minimize()] call, and is skipped whenever it cannot be decisive: a
-#' non-function objective, a non-finite gradient at `par`, an objective that
-#' is not finite at the probe points, and a gradient too small to be
-#' distinguished from the truncation error of the difference it is compared
-#' with. That last case is the one a caller who starts at the optimum
-#' supplies, and firing there would penalize the best possible start.
+#' The check costs one call to `gr` and two to `fn`, runs once per call of
+#' [minimize()], and is skipped when it cannot decide: for an objective that
+#' is not a function, a gradient that is not finite at `par`, an objective
+#' that is not finite at the probe points, and a gradient too small to be
+#' distinguished from the truncation error of the difference. The last case
+#' arises when a caller starts at the optimum, where a warning would be
+#' wrong.
 #'
-#' The tolerance is deliberately loose, a relative disagreement above one
-#' half, so that finite-difference error or a subgradient of a non-smooth
-#' objective does not trip it. It exists to catch the wrong function, not the
-#' eighth digit. A disagreement at the first step is checked again at steps
-#' ten and a hundred times smaller, and the warning is given only if it
-#' persists: the step is scaled by the length of `par`, so a large coordinate
-#' can make it too long for a strongly curved direction, and the truncation
-#' error of the difference shrinks with the step where a wrong gradient does
-#' not. A check that has to repeat costs four more calls to `fn`.
+#' The tolerance is loose, a relative disagreement above one half, so that
+#' the error of the difference or a subgradient of a non-smooth objective
+#' does not trigger it. It is meant to detect a wrong function, not an error
+#' in the eighth digit. A disagreement at the first step is checked again at
+#' a step ten times smaller and, if it persists, at a step a hundred times
+#' smaller, and the warning is given only if it persists at both: the step
+#' is scaled by the length of `par`, so a large coordinate can make it too
+#' long for a strongly curved direction, and the truncation error of the
+#' difference shrinks with the step, whereas the disagreement of a wrong
+#' gradient does not. Each repetition costs two more calls to `fn`.
 #'
-#' Setting `options(optimizers7.check_gradient = FALSE)` disables it, and
-#' [multistart()] disables it for its inner runs after the first.
+#' Setting `options(optimizers7.check_gradient = FALSE)` disables it.
+#' [multistart()] disables it for all its inner runs, since the generic has
+#' already checked the gradient at the starting value of the caller.
 #'
 #' @param fn The objective.
 #' @param gr The supplied gradient.
@@ -302,16 +309,18 @@ check_gradient_consistency <- function(fn, gr, par) {
 #' Assemble the Result of a Run
 #'
 #' @description
-#' Turns the list the compiled loop returned into an [optimizer_result()]:
-#' fills in the point and the value, the counts and the trace, decides the
-#' verdict, and composes the message from whatever needs reporting.
+#' Converts the list returned by the compiled loop into an
+#' [optimizer_result()]: it fills in the point and the value, the counts and
+#' the trace, sets the verdict, and composes the message.
 #'
 #' @details
-#' The one judgment here is the meaning of `converged`: it is taken
-#' straight from whether the stopping rule fired, and never inferred from the
-#' run having ended. An optimizer that exhausted its iterations has not
-#' converged, and saying otherwise turns a failure into a wrong answer that
-#' looks right.
+#' `converged` is the flag returned by the loop, and it is never inferred
+#' from the run having ended. The loop sets it when the stopping rule fires,
+#' when a line search with a declared resolution establishes that no step
+#' decreases the objective by more than that resolution, and, for [brent()],
+#' when the bracket reaches the resolution of the iterate. `criterion_met`
+#' is the label of the rule in the first case and a label of its own in the
+#' others; a run that exhausted a budget reports the budget.
 #'
 #' @param out The list from the C++ driver.
 #' @param optimizer The optimizer that ran.
@@ -346,6 +355,7 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
     max_eval   = "evaluation budget reached",
     failed     = "stopped without converging",
     resolution = "no decrease above the objective's resolution",
+    bracket    = "bracket at machine resolution",
     out$stopped_by
   )
 
@@ -372,16 +382,16 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
 #' Run the Shared Descent Loop
 #'
 #' @description
-#' The body of every method that has a direction: prepares the objective, hands
-#' the compiled loop the optimizer's settings and the description of its
-#' direction, and assembles the result.
+#' The body of every method that has a direction: it prepares the objective,
+#' passes the settings of the optimizer and the description of its direction
+#' to the compiled loop, and assembles the result.
 #'
 #' @details
-#' Newton, BFGS, L-BFGS and gradient descent differ only in the `method`
-#' list, which names the direction and carries its parameters. The line
-#' search, the stopping rule, the budgets, the trace and the reporting are
-#' the same code for all of them, so adding a fifth method is a `Direction`
-#' in C++ and a constructor in R.
+#' [newton()], [bfgs()], [lbfgs()], [gd()], [cg()], [bb()] and [chebyshev()]
+#' differ only in the `method` list, which names the direction and carries
+#' its parameters. The line search, the stopping rule, the budgets, the trace
+#' and the reporting are the same code for all of them, so another method of
+#' this kind needs a `Direction` in C++ and a constructor in R.
 #'
 #' @param optimizer The [optimizer()].
 #' @param fn,par,gr,he The problem, as the user supplied it.
@@ -418,8 +428,8 @@ run_descent <- function(optimizer, fn, par, gr, he, lower, upper, method) {
 #' Validate an Initial Step Length
 #'
 #' @description
-#' Checks that `step` is a single positive number, so that all six methods
-#' taking one reject the same nonsense in the same words.
+#' Checks that `step` is a single positive number, so that every
+#' constructor that takes one rejects invalid values with the same message.
 #'
 #' @param step The value supplied.
 #'
@@ -437,8 +447,8 @@ check_step <- function(step) {
 #'
 #' @description
 #' Checks that the value inherits from the abstract [line_search()] class.
-#' The message names [armijo()] as an example, the commonest mistake being to
-#' pass the string `"armijo"` instead of the object.
+#' The message names [armijo()] as an example, since passing the string
+#' `"armijo"` instead of the object is a common mistake.
 #'
 #' @param x The value supplied.
 #'
@@ -461,22 +471,21 @@ check_line_search <- function(x) {
 #' them, and returns them in the shape the compiled loop reads.
 #'
 #' @details
-#' The interface is two numeric vectors rather than a list of pairs, which is
-#' what `stats::optim` and `stats::nlminb` take and what makes
-#' `lower = 0` say "every parameter is positive" in four characters instead
-#' of a list of identical pairs one per coefficient. The list of pairs is an
-#' internal shape, produced here, because that is what the per-coordinate
-#' transform on the C++ side wants.
+#' The interface is two numeric vectors and not a list of pairs, as in
+#' `stats::optim` and `stats::nlminb`, so that `lower = 0` makes every
+#' parameter positive without one pair per coefficient. The list of pairs is
+#' an internal shape, produced here, because the transform of each coordinate
+#' in the compiled code reads it.
 #'
-#' Recycling is length one or length `p` and nothing between: a
-#' `lower` of length 2 for three parameters is far more likely to be a
-#' mistake than a request, and R's ordinary recycling would silently oblige.
+#' Recycling is to length one or length `p` and nothing between: a `lower` of
+#' length 2 for three parameters is much more likely to be a mistake than a
+#' request, and the ordinary recycling of R would accept it silently.
 #'
-#' The starting value must be strictly interior, and rejecting a boundary start
-#' is not pedantry. The reparametrization sends a bound to an infinite value of
-#' the transformed variable, so a run started exactly on one begins at infinity:
-#' every subsequent quantity is non-finite and the failure surfaces far from its
-#' cause. Saying so here, naming the coordinate, costs one check.
+#' The starting value must be strictly interior. The reparametrization sends
+#' a bound to an infinite value of the transformed variable, so a run that
+#' starts exactly on a bound would begin at infinity, every later quantity
+#' would be non-finite, and the failure would appear far from its cause. The
+#' error raised here names the coordinate.
 #'
 #' @param lower,upper Numeric, of length one or `length(par)`.
 #' @param par The starting value.
@@ -541,26 +550,28 @@ check_bounds <- function(lower, upper, par) {
 #' @title The Bound Transform, and Its First Two Derivatives
 #'
 #' @description
-#' Evaluates the reparametrization a set of bounds implies. This is how the
-#' package removes a box, and it is exported so that a [minimize()]
-#' user-defined method can remove one the same way.
+#' Evaluates the reparametrization defined by a pair of bounds. The package
+#' removes a box in this way, and the function is exported so that a
+#' user-defined [minimize()] method can remove one in the same way.
 #'
 #' @param b A length-2 numeric vector, `c(lower, upper)`, using
 #'   `-Inf` and `Inf` for a side that is unbounded.
 #' @param eta A numeric vector on the unconstrained scale.
 #'
 #' @details
-#' Bounds are removed here, not enforced. The map is a shifted log for a
-#' one-sided bound, a scaled logit for a two-sided one, and the identity for
-#' neither, so optimizing in \eqn{\eta} makes every proposed point admissible
-#' by construction.
+#' Bounds are removed here and not enforced. The map \eqn{h} is a shifted
+#' exponential for a one-sided bound, a scaled logistic function for a
+#' two-sided one, and the identity for neither (its inverse,
+#' [bounded_forward()], is the shifted log or the scaled logit), so
+#' optimizing in \eqn{\eta} makes every proposed point admissible by
+#' construction.
 #'
-#' What \eqn{\eta = 0} becomes is the midpoint of the box in the map's own
-#' sense: `1` for \eqn{(0, \infty)}, `0.5` for \eqn{(0, 1)}, `4` for
-#' \eqn{(2, 6)}, and `0` where there is no bound at all. That is why
-#' [start_zeros()] is a sensible default start whatever the parameter means.
+#' The image of \eqn{\eta = 0} is the middle of the box in the sense of the
+#' map: `1` for \eqn{(0, \infty)}, `0.5` for \eqn{(0, 1)}, `4` for
+#' \eqn{(2, 6)}, and `0` where there is no bound. For this reason
+#' [start_zeros()] gives a sensible start for every kind of parameter.
 #'
-#' # Using it in a method of your own
+#' # Using it in a method written by the caller
 #'
 #' Map the starting value with [bounded_forward()], run unconstrained, and
 #' wrap the objective so that it maps back before evaluating. The Jacobian is
@@ -569,13 +580,13 @@ check_bounds <- function(lower, upper, par) {
 #' and `d2` is needed only when a Hessian is transformed, where it appears on
 #' the diagonal alone. Report `par` on the caller's scale.
 #'
-#' # Where it comes from
+#' # Relation to linkfunctions7
 #'
-#' These are \pkg{linkfunctions7}'s `bounded_link()` written out in C++,
-#' because the transform is applied at every objective evaluation and a
-#' callback into R there would undo the reason for compiling the loop. The
-#' test suite pins them to `linkinv()`, `dlinkinv()` and `d2linkinv()` on
-#' every run, so the copy cannot drift from the original.
+#' \eqn{h} and its two derivatives are the inverse link of `bounded_link()`
+#' of \pkg{linkfunctions7} and its derivatives, written in C++ because the transform is applied at every evaluation of the
+#' objective, where a callback into R would cost more than the loop saves.
+#' The test suite compares them with `linkinv()`, `dlinkinv()` and
+#' `d2linkinv()`, so that the copy stays equal to the original.
 #'
 #' @return A named list of three numeric vectors, each as long as `eta`:
 #'   \describe{
@@ -585,16 +596,16 @@ check_bounds <- function(lower, upper, par) {
 #'   }
 #'
 #' @examples
-#' # A variance: the whole line maps onto the positive half, and no value of
-#' # eta, however absurd, leaves it.
+#' # A variance: the whole line maps onto the positive half-line, and every
+#' # value of eta, however large, maps inside it.
 #' bounded_transform(c(0, Inf), c(-2, 0, 2))$h
 #' bounded_transform(c(0, Inf), c(-500, 500))$h > 0
 #'
 #' # A probability, with the derivative that carries a gradient across.
 #' str(bounded_transform(c(0, 1), c(-1, 0, 1)))
 #'
-#' # Zero is the middle of the box, whichever box it is. This is why
-#' # start_zeros() means something sensible for every kind of parameter.
+#' # Zero maps to the middle of the box, whatever the box. For this reason
+#' # start_zeros() gives a sensible start for every kind of parameter.
 #' vapply(list(c(-Inf, Inf), c(0, Inf), c(0, 1), c(2, 6)),
 #'        function(b) bounded_transform(b, 0)$h, 0)
 #'
@@ -626,9 +637,10 @@ bounded_transform <- function(b, eta) bounded_transform_cpp(b, as.numeric(eta))
 #' @param theta A numeric vector strictly inside the bounds.
 #'
 #' @details
-#' Strictly inside. A value **on** a bound maps to an infinite \eqn{\eta}, so
-#' a run started there begins at infinity and fails far from its cause. That
-#' is why [minimize()] rejects such a starting value by name, before anything
+#' The values must lie strictly inside. A value **on** a bound maps to an
+#' infinite \eqn{\eta}, so a run started there would begin at infinity and
+#' fail far from its cause. For this reason [minimize()] rejects such a
+#' starting value, with an error that names the coordinate, before anything
 #' is evaluated.
 #'
 #' @return A numeric vector on the unconstrained scale, as long as `theta`.
@@ -640,7 +652,7 @@ bounded_transform <- function(b, eta) bounded_transform_cpp(b, as.numeric(eta))
 #' bounded_forward(c(0, 1), 0.5)
 #'
 #' # A value on a bound has no finite image, so such a starting point is
-#' # unusable and minimize() refuses it.
+#' # unusable and minimize() rejects it.
 #' bounded_forward(c(0, 1), c(0, 1))
 #'
 #' # Round trip, in this direction too.

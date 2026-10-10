@@ -14,8 +14,8 @@ An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is 
 \code{par} and whose trace, when kept, carries a \code{gnorm} column.
 }
 \description{
-Runs \code{\link[=gd]{gd()}} on the objective: take \eqn{-g} as the direction and let the
-line search choose how far. Shares the descent loop with \code{\link[=cg]{cg()}} and
-\code{\link[=bb]{bb()}}, which differ from it only in how the direction is formed.
+Runs \code{\link[=gd]{gd()}} on the objective: the direction is \eqn{-g}, and the line
+search chooses the step length. It shares the descent loop with \code{\link[=cg]{cg()}}
+and \code{\link[=bb]{bb()}}, which differ from it only in the direction.
 }
 \keyword{internal}

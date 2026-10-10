@@ -41,9 +41,9 @@ Defaults to \code{1}.}
 to \code{0.5}.}
 
 \item{restart}{Reset the momentum when the objective increases by more
-than the objective's own rounding? Defaults to \code{TRUE}, and is ignored
-when \code{accelerate} is \code{FALSE}. See the measured cost at a tight
-tolerance above.}
+than the allowance for its rounding error? Defaults to \code{TRUE}, and is
+ignored when \code{accelerate} is \code{FALSE}. See the details about a tight
+tolerance.}
 
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
 \code{\link[=crit_grad]{crit_grad()}}, which here reads the proximal gradient mapping.}
@@ -61,17 +61,18 @@ tolerance above.}
 }
 \value{
 An S7 object of class \link{ProxGrad}, inheriting from \code{\link[=optimizer]{optimizer()}},
-to be handed to \code{\link[=minimize]{minimize()}}. Box bounds are refused: pass the
+to be handed to \code{\link[=minimize]{minimize()}}. Box bounds are rejected: pass the
 constraint through \code{prox} instead, composing the projection onto the box
-into it.
+with the operator.
 }
 \description{
 Minimizes \eqn{f(x) + g(x)} where \eqn{f} is smooth and \eqn{g} is
 handled entirely through its proximal operator, so that a
-non-differentiable term is minimized without ever differencing it. With
-\code{accelerate = TRUE} the method is the accelerated one of Beck and
-Teboulle, whose objective gap falls as \eqn{O(1/k^2)} against the
-\eqn{O(1/k)} of the plain iteration.
+non-differentiable term is minimized without being differenced. With
+\code{accelerate = TRUE} the method is an accelerated iteration of the kind of
+Beck and Teboulle, with momentum weight \eqn{(k-1)/(k+2)}, whose objective
+gap falls as \eqn{O(1/k^2)} against the \eqn{O(1/k)} of the plain
+iteration.
 }
 \details{
 Each iteration takes a gradient step on the smooth part and applies the
@@ -79,79 +80,58 @@ proximal operator to the result,
 \deqn{x_{k+1} = \mathrm{prox}_{t g}\big(y_k - t\nabla f(y_k)\big),}
 with \eqn{y_k = x_k} for the plain method and
 \eqn{y_k = x_k + \frac{k-1}{k+2}(x_k - x_{k-1})} for the accelerated
-one. The step length is found by backtracking: \eqn{t} is halved until
-the quadratic model built at \eqn{y_k} dominates \eqn{f} at the new
-point, which is the condition the convergence proof uses and which
-needs no knowledge of the Lipschitz constant.
+one. The step length is found by backtracking: \eqn{t} is multiplied by
+\code{shrink} (one half by default) until the quadratic model built at
+\eqn{y_k} dominates \eqn{f} at the new point, which is the condition used
+by the convergence proof and needs no knowledge of the Lipschitz constant.
+The step length is not increased again during the run.
 }
 \section{What the stopping rule reads}{
-The gradient of \eqn{f + g} does not vanish at the solution, \eqn{g} being
-non-differentiable there, so this method reports the \strong{proximal gradient
-mapping}
+The gradient of \eqn{f + g} does not vanish at the solution, since \eqn{g}
+is not differentiable there, so this method reports the \strong{proximal
+gradient mapping}
 \deqn{G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}}
-as its gradient, read at the iterate. It vanishes exactly at a stationary
-point of \eqn{f + g} and reduces to \eqn{\nabla f} when \eqn{g} is absent,
-so \code{\link[=crit_grad]{crit_grad()}} keeps its meaning and its default tolerance. Measured on
-the lasso of the examples below, the mapping agrees with the KKT
-violation: at the reported point the active coordinates satisfy
-\eqn{\lvert \nabla f + \lambda \operatorname{sign}(\beta) \rvert \le}
-\code{4.5e-07} and the inactive ones have \eqn{\lvert \nabla f \rvert \le
-0.129} against a \eqn{\lambda} of 0.4.
+as its gradient, read at the iterate \eqn{x}, the point that is reported.
+It vanishes exactly at a stationary point of \eqn{f + g} and reduces to
+\eqn{\nabla f} when \eqn{g} is absent, so \code{\link[=crit_grad]{crit_grad()}} keeps its meaning
+and its default tolerance. On the lasso of the examples the mapping agrees
+with the KKT conditions, which the last example checks.
 
-Acceleration pays 2.1 gradient evaluations per iteration against the plain
-method's 1.0, the extrapolated point at which it takes its step not being
-the point it reports.
+Without momentum, the next iteration starts at the iterate, so the
+gradient read there serves as the gradient of the next step, and the
+plain method evaluates the gradient once per iteration. The accelerated
+method takes its step at the extrapolated point, which is not the point
+that it reports, and evaluates the gradient about twice per iteration.
 }
 
-\section{Acceleration, and where it earns its keep}{
-On an ill-conditioned problem the difference is the one the theory
-predicts. Measured on a smooth quadratic in eight unknowns at
-\code{crit_grad(1e-8)}, plain against accelerated: 64 iterations against 31 at
-a condition number near 3, 1154 against 100 at 55, and 9321 against 268 at
-480.
-
-On a well-conditioned problem asked for a tight tolerance the plain
-iteration is still the better one. The lasso below converges in 12
-iterations at \code{crit_grad(1e-9)} with \code{accelerate = FALSE}, in 89 with
-\code{restart = FALSE}, and in 782 with the defaults, all three reaching the
-same support, the same objective to the last bit and the same
-coefficients to \code{8e-09}. What costs the iterations is the restart, not the
-momentum: near the solution the objective moves at the rounding level, and
-each spurious reset discards the momentum built since the last one. At the default \code{crit_grad(1e-6)} none of this appears, both settings
-taking about ten iterations.
+\section{Acceleration}{
+On an ill-conditioned problem the accelerated iteration needs far fewer
+iterations than the plain one, as the \eqn{O(1/k^2)} and \eqn{O(1/k)}
+rates indicate. On a well-conditioned problem with a tight tolerance the
+plain iteration can need fewer: near the solution the objective changes
+at the level of its rounding error, and each restart triggered there
+discards the momentum built since the previous one. At the default
+\code{crit_grad(1e-6)} this does not occur on the lasso of the examples.
 }
 
 \section{Restarting}{
 Momentum makes the objective non-monotone, and an increase far from the
-solution is a symptom of momentum built in the wrong direction. With
+solution indicates momentum built in the wrong direction. With
 \code{restart = TRUE} an increase resets the extrapolation to the current
-point. This is the adaptive restart of O'Donoghue and Candes and costs one
-comparison per iteration. It is worth a great deal where the problem is
-badly conditioned: on a smooth quadratic in eight unknowns at
-\code{crit_grad(1e-8)}, with the restart against without, 150 iterations
-against 858 at a condition number of 55, 573 against 5418 at 480, and
-1042 against 15104 at 2400.
+point. This is the adaptive restart of O'Donoghue and Candes, and it costs
+one comparison per iteration. On a badly conditioned problem it reduces
+the number of iterations substantially.
 
-An increase is measured against the objective's own rounding, not against
-zero. The objective is a sum, so its error grows with the number
-of terms, and a test reading a bare \code{>} fires on that error once the
-iteration is near enough to the solution: the lasso below took 21646
-iterations at \code{crit_grad(1e-9)} before the allowance and takes 782 after
-it, at the same answer. The allowance is eight units in the last place of
-the current objective, measured to give the same run anywhere between one
-and thirty-two while 256 begins costing iterations on the ill-conditioned
-quadratic, where it suppresses restarts that are real. What it costs
-there is about a tenth: 149, 571 and 934 iterations at the three
-condition numbers before, against the 150, 573 and 1042 above.
-
-On an ill-conditioned lasso that tenth is a median and not a bound.
-Over twelve draws of one such problem the allowance costs a median of
-1.01 and a worst of 14, the accelerated count going from 111 to 1560
-on the draw that moves furthest, so a cost quoted from a single
-problem understates the spread. The allowance is kept, and is
-conservative rather than generous: the error of a sum of \code{n} terms is
-bounded by about \code{n/2} units in the last place, which for the four
-hundred observations of that lasso is far above the eight allowed.
+An increase is measured against an allowance for the rounding error of
+the objective, \eqn{8\,\varepsilon\,\max(1, \lvert f \rvert)}, where
+\eqn{f} is the current total objective, and not against zero. The
+objective is a sum, so its rounding error grows with the number of terms,
+and a bare \code{>} test fires on that error once the iteration is close
+enough to the solution, restarting the momentum at nearly every
+iteration. A larger allowance would suppress real restarts on an
+ill-conditioned problem. The error of a sum of \eqn{n} terms can reach
+about \eqn{n/2} units in the last place, so for a large sum the allowance
+is smaller than the possible error.
 }
 
 \examples{
@@ -174,14 +154,15 @@ round(fit@par, 3)
 sum(fit@par != 0)          # the operator sets coefficients exactly to zero
 
 # The KKT conditions confirm the answer, and share no arithmetic with the
-# iteration: stationary where a coefficient survives, and inside the
-# interval the kink opens where one does not.
+# iteration: stationarity where a coefficient is not zero, and a gradient
+# inside the interval opened by the kink where it is.
 gr_at <- gf(fit@par)
 active <- fit@par != 0
 max(abs(gr_at[active] + lambda * sign(fit@par[active])))
 max(abs(gr_at[!active])) < lambda
 
-# Box bounds are refused, and the message says where the constraint goes.
+# Box bounds are rejected, and the message names the argument that takes
+# the constraint.
 try(minimize(prox_grad(prox = function(v, t) v, g = function(b) 0),
              f, rep(0, 8), gr = gf, lower = 0))
 

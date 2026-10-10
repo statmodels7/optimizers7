@@ -13,19 +13,20 @@ check_criterion(optimizer)
 Invisibly \code{TRUE}; raises an error otherwise.
 }
 \description{
-Compares what the optimizer's criterion reads against what the optimizer can
-supply, and stops if the rule asks for something absent.
+Compares the quantities that the criterion of the optimizer reads with the
+quantities that the optimizer supplies, and signals an error if the rule
+needs a quantity that the optimizer does not supply.
 }
 \details{
-Call this at the top of a user-defined \code{\link[=minimize]{minimize()}} method. A rule
-needing a gradient, handed to a method that computes none, would sit testing
-\code{NULL} at every iteration and never fire; the run would then end on its
-iteration budget and report a reason nowhere near the truth. Rejecting it here,
-by name, is what \code{\link[=check_optimizer]{check_optimizer()}} tests for.
+Call this at the top of a user-defined \code{\link[=minimize]{minimize()}} method. A rule that
+needs a gradient, used with a method that computes none, would test \code{NULL}
+at every iteration and never fire; the run would then end on its iteration
+budget and report a failure unrelated to the state of the run.
+\code{\link[=check_optimizer]{check_optimizer()}} tests that a method rejects such a rule.
 
-What an optimizer can supply is declared by
-\code{\link[=optimizer_provides]{optimizer_provides()}}, whose default claims a gradient. Override
-that when the method computes none.
+The quantities that an optimizer supplies are declared by
+\code{\link[=optimizer_provides]{optimizer_provides()}}, whose default method returns \code{"gradient"}.
+Override it when the method computes no gradient.
 }
 \examples{
 check_criterion(bfgs())

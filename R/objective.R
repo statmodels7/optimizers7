@@ -19,20 +19,21 @@ NULL
 #'
 #' @description
 #' Packs a function to be minimized, together with whichever of its gradient
-#' and Hessian the caller has, into the one handle every algorithm in the
-#' package is written against. The result is a named list carrying the pieces
-#' and two flags saying which derivatives were supplied. `as_objective()` is
-#' a generic dispatching on `fn`, so a caller holding some other kind of
-#' objective registers one method and every algorithm accepts it.
+#' and Hessian the caller has, into the handle on which every algorithm in
+#' the package operates. The result is a named list that contains the pieces
+#' and two flags recording which derivatives were supplied. `as_objective()`
+#' is a generic that dispatches on `fn`, so a caller with another kind of
+#' objective registers one method and every algorithm accepts that objective.
 #'
 #' @details
 #' # Two generics, each dispatching once
 #'
 #' [minimize()] dispatches on the optimizer, so an algorithm is written once
-#' whatever shape the objective arrived in. `as_objective()` dispatches on
-#' the objective, so the shapes are told apart once whatever algorithm is
-#' running. Dispatching [minimize()] on both would need one method per
-#' algorithm per shape.
+#' for every kind of objective. `as_objective()` dispatches on the objective,
+#' so each kind of objective is converted once for every algorithm.
+#' Dispatching [minimize()] on both would need one method for each pair of an
+#' algorithm and a kind of objective. The package ships one method, for an
+#' ordinary R function.
 #'
 #' # What happens when no gradient is supplied
 #'
@@ -41,32 +42,30 @@ NULL
 #'       h = \varepsilon^{1/3} \max(1, \lvert x_j \rvert),}
 #' with \eqn{\varepsilon} the machine epsilon, so \eqn{h} is about
 #' `6.06e-06` for a coordinate of size one. One gradient then costs
-#' \eqn{2p} evaluations of the objective. The accuracy is what a central
-#' difference gives: on the Rosenbrock function at \eqn{(0.5, 0.5)} the
-#' differenced gradient is right to a relative `1.4e-10`.
+#' \eqn{2p} evaluations of the objective, and its relative error is of the
+#' order of \eqn{\varepsilon^{2/3}}.
 #'
-#' A run that differences its gradient says so in the result's `message`
-#' field, so a fit is never quietly less exact than it looks.
+#' A run that differences its gradient records this in the `message` field
+#' of the result.
 #'
-#' # The Hessian is the one place two differences compose
+#' # A Hessian by differencing the gradient
 #'
-#' Only [newton()] asks for a Hessian, and when none is supplied it is
-#' obtained by differencing the gradient once. With an analytic gradient
-#' that is a single differentiation and costs \eqn{2p} gradient evaluations.
-#' With no gradient either, the gradient is itself a difference and the
-#' Hessian is a difference of differences, which costs about \eqn{4p^2}
-#' evaluations and loses accuracy accordingly: one Newton iteration on a
-#' quadratic in 20 unknowns takes 1682 evaluations of the objective without
-#' a gradient and 42 of the gradient with one. The Hessian is symmetrized
-#' before it is returned, the two triangles differing by the differencing
-#' error alone.
+#' [newton()] and [chebyshev()] read a Hessian, and when none is supplied it
+#' is obtained by differencing the gradient once. With an analytic gradient
+#' this is a single differentiation and costs \eqn{2p} gradient evaluations.
+#' Without a gradient, the gradient is itself a difference and the Hessian is
+#' a difference of differences, which costs about \eqn{4p^2} evaluations of
+#' the objective and is less accurate. The Hessian is symmetrized before it
+#' is returned, since its two triangles differ by the error of the
+#' differences.
 #'
-#' # A point the objective refuses
+#' # Points where the objective is not finite
 #'
-#' An objective that returns `NA`, `NaN` or an infinity at some point
-#' declares that point unusable. The algorithms treat that as an ordinary
-#' event, back away and continue, so a line search may probe outside the
-#' region where the objective is defined without the run failing.
+#' If the objective returns `NA`, `NaN` or an infinity at a point other than
+#' the starting value, the algorithms treat that point as unusable, reject
+#' the trial step and continue, so a line search can try points outside the
+#' region where the objective is defined. A value that is not finite at the
+#' starting value is an error.
 #'
 #' @param fn The objective, a function of the parameter vector returning a
 #'   single number to be **minimized**. An object of some other class is
@@ -77,9 +76,10 @@ NULL
 #'   gradient differenced from `fn` as above. Anything that is neither a
 #'   function nor `NULL` is an error.
 #' @param he The Hessian, a function of the parameter vector returning a
-#'   `p x p` symmetric matrix. `NULL` is the default. Only [newton()]
-#'   reads one; every other method accepts it and ignores it, so calling
-#'   code can pass whatever it has without branching on the method.
+#'   `p x p` symmetric matrix. `NULL` is the default. [newton()] and
+#'   [chebyshev()] read it; every other method accepts it and does not use
+#'   it, so calling code can pass whatever it has without branching on the
+#'   method.
 #' @param ... Passed to the method dispatched on. The shipped method for an
 #'   ordinary function reads nothing from it.
 #'
@@ -95,12 +95,12 @@ NULL
 #'   }
 #'
 #' @examples
-#' # The flags record what was supplied, and they are what the loop branches on.
+#' # The flags record what was supplied, and the compiled loop branches on them.
 #' str(as_objective(function(p) sum(p^2)))
 #' str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #'
-#' # What the difference costs, on Rosenbrock from the origin. Both runs take
-#' # 21 iterations and land in the same place; only the bill differs.
+#' # The cost of the difference, on Rosenbrock from the origin. Both runs take
+#' # 21 iterations and reach the same point; the evaluation counts differ.
 #' f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 #' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 #'                    200 * (p[2] - p[1]^2))
@@ -111,15 +111,15 @@ NULL
 #' unlist(b@counts)          # 30 objective evaluations and 24 gradients
 #' max(abs(a@par - b@par))   # the two answers agree to 1.5e-08
 #'
-#' # The run that differenced says so.
+#' # The message of the run that differenced records it.
 #' a@message
 #'
-#' # A class with no method is refused by name.
+#' # A class with no method is rejected, and the error names the class.
 #' try(as_objective(1:3))
 #'
-#' @seealso [minimize()] for the run itself, [newton()] for the one method
-#'   that reads a Hessian, [optimizer_provides()] for what a method offers a
-#'   stopping rule in return.
+#' @seealso [minimize()] for the run itself, [newton()] and [chebyshev()]
+#'   for the methods that read a Hessian, [optimizer_provides()] for the
+#'   quantities that a method supplies to a stopping rule.
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
                                 function(fn, gr = NULL, he = NULL, ...)
@@ -130,35 +130,33 @@ as_objective <- S7::new_generic("as_objective", "fn",
 #' @name as_objective.function
 #'
 #' @description
-#' The shipped method, and the case almost every caller is in: `fn(par)`
-#' returns the number to be minimized, and `gr(par)` and `he(par)` return
-#' its gradient and Hessian when the caller has them. Every evaluation is a
-#' callback into R, which is the cost of accepting an arbitrary closure and
-#' the reason a run reports its evaluation counts.
+#' The shipped method: `fn(par)` returns the number to be minimized, and
+#' `gr(par)` and `he(par)` return its gradient and Hessian when the caller
+#' has them. Every evaluation is a callback into R. The compiled objective
+#' counts the evaluations, and the result reports them in `counts`.
 #'
 #' @param fn A function of the parameter vector returning a single number.
 #' @param gr A function of the parameter vector returning the gradient, or
 #'   `NULL` for a central difference of `fn`.
 #' @param he A function of the parameter vector returning the Hessian, or
-#'   `NULL`. Read by [newton()] alone.
+#'   `NULL`. Read by [newton()] and [chebyshev()].
 #' @param ... Unused.
 #'
 #' @return The six-component list described under [as_objective()], with
 #'   `kind = "r"`.
 #'
 #' @section Validation:
-#' `gr` and `he` are each checked to be a function or `NULL`, and anything
-#' else raises immediately, before the run starts. `fn` itself is not
-#' checked here: dispatch has already established that it is a function, and
-#' whether it returns a single number is settled at the first evaluation,
-#' where the offending value can be reported.
+#' `gr` and `he` are each checked to be a function or `NULL`, and any other
+#' value raises an error before the run starts. `fn` is not checked here:
+#' dispatch has already established that it is a function, and the compiled
+#' objective checks at every evaluation that it returns a single number.
 #'
 #' @examples
 #' obj <- as_objective(function(p) sum(p^2), gr = function(p) 2 * p)
 #' obj$kind
 #' c(obj$has_gradient, obj$has_hessian)
 #'
-#' # A gradient that is not a function is refused before any evaluation.
+#' # A gradient that is not a function is rejected before any evaluation.
 #' try(as_objective(function(p) sum(p^2), gr = 1))
 #'
 #' @keywords internal

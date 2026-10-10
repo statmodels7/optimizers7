@@ -30,12 +30,13 @@ inherits from \code{\link[=optimizer]{optimizer()}} it is accepted anywhere a si
 including inside \code{\link[=multistart]{multistart()}}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Chain} carries
-\code{stages}, the list of optimizers in running order. The seven it inherits
-describe the \strong{last} stage: its \code{criterion}, \code{maxit} and \code{max_eval} are
-copied from there, because the last stage is the one whose rule ends the
-run and whose result is reported. \code{refresh} is fixed at 1, the chain's own
-progress being one line per stage.
+Beyond the seven properties of every optimizer, a \code{Chain} carries
+\code{stages}, the list of optimizers in running order. Three of the seven
+shared properties describe the \strong{last} stage: \code{criterion}, \code{maxit} and
+\code{max_eval} are copied from it, because the rule of the last stage ends the
+run and its result is reported. \code{name} joins the names of all the stages,
+\code{verbose} and \code{keep_trace} belong to the chain, and \code{refresh} is fixed at
+1, since the progress of the chain is one line per stage.
 }
 \seealso{
 \code{\link[=chain]{chain()}} for the constructor, \code{\link[=minimize.Chain]{minimize.Chain()}} for the run.

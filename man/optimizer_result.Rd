@@ -40,9 +40,8 @@ side.}
 
 \item{converged}{A single logical; see Details.}
 
-\item{criterion_met}{A single string: the label of the rule that fired, or
-\verb{iteration budget reached} or \verb{evaluation budget exhausted} when the run
-ended without one.}
+\item{criterion_met}{A single string: the label of the rule that fired,
+\verb{no decrease above the objective's resolution} or \verb{bracket at machine resolution} for the two stops described in Details, \verb{iteration budget reached} or \verb{evaluation budget reached} for a budget, and \verb{stopped without converging} for a run that stopped for another reason.}
 
 \item{message}{A single string, empty when there is nothing to report.
 Carries notes such as \verb{gradient obtained by finite differences}.}
@@ -62,44 +61,58 @@ an integer vector, or \code{NULL} for a deterministic method.}
 \value{
 An S7 object of class \code{optimizer_result} carrying the twelve
 properties above. Built by the methods of \code{\link[=minimize]{minimize()}}; a caller
-receives one rather than constructing it.
+receives one and does not construct it.
 }
 \description{
-What \code{\link[=minimize]{minimize()}} and \code{\link[=maximize]{maximize()}} return: the point reached and the value
-there, the evaluation counts, whether a stopping rule was satisfied and
-which one, and enough of the run to diagnose it when none was. The
-optimizer itself is kept on the object, so a run can be repeated from what
-it returned.
+The value of \code{\link[=minimize]{minimize()}} and \code{\link[=maximize]{maximize()}}: the point reached and the
+value there, the evaluation counts, whether the run converged and which
+rule stopped it, and enough of the run to diagnose it otherwise. The
+optimizer itself is kept on the object, so a run can be repeated from its
+result.
 }
-\section{\code{converged} means a rule fired}{
-\code{converged} is \code{TRUE} only when the stopping rule was satisfied. Running
-out of iterations or of evaluations leaves it \code{FALSE} and puts
-\verb{iteration budget reached} or \verb{evaluation budget exhausted} into
-\code{criterion_met}. Reporting a budget as a success is the commonest defect
-in a hand-written optimization loop; it turns a failure into a wrong
-answer that nothing downstream can detect.
+\section{The meaning of \code{converged}}{
+\code{converged} is \code{TRUE} when the stopping rule was satisfied, and also when
+a line search with a declared resolution established that no step
+decreases the objective by more than that resolution (\code{criterion_met} is
+then \verb{no decrease above the objective's resolution}) or when \code{\link[=brent]{brent()}}
+reduced its bracket to the resolution of the iterate (\verb{bracket at machine resolution}). Running out of iterations or evaluations leaves it \code{FALSE}
+and puts \verb{iteration budget reached} or \verb{evaluation budget reached} into
+\code{criterion_met}; \code{message} then reads \verb{evaluation budget exhausted} for
+the second. A line search that finds no acceptable step also leaves it
+\code{FALSE}, with \code{criterion_met} equal to \verb{stopped without converging}. A
+run that ends on a budget is therefore reported as not converged, so
+that code reading the result can distinguish it from a run that
+satisfied a rule.
 }
 
-\section{The trace, and the column that changes name}{
+\section{The trace}{
 With \code{keep_trace = TRUE} on the optimizer, \code{trace} is a data frame with
-one row per iteration and five columns: \code{iteration}, \code{value}, the
-quantity the stopping rule is watching, \code{step} and \code{safeguard}. The third
-column is \code{gnorm} for a method that computes a gradient and
-\code{stationarity} for one that does not, so code reading a trace should ask
-for the column by position or check \code{names(trace)}.
+one row per iteration. For a single method it has the columns
+\code{iteration}, \code{value}, a third column holding the quantity read by the
+stopping rule, \code{step} and \code{safeguard}; \code{\link[=brent]{brent()}} has no \code{step} column. The
+third column is \code{gnorm} for a method that computes a gradient and
+\code{stationarity} for one that does not, so code that reads a trace should
+select the column by position or check \code{names(trace)}. A \code{\link[=multistart]{multistart()}}
+trace has one row per start, with the columns \code{start}, \code{value},
+\code{converged} and \code{iterations}, and a \code{\link[=chain]{chain()}} trace has an additional
+\code{stage} column.
 
-\code{safeguard} names the repair the algorithm applied to its own step, or
-\code{"none"}. The names differ by method and are worth reading: \verb{step shortened} and \verb{step adjusted} for the line-search methods, \verb{cg restart}
-when conjugacy is lost, \verb{bb curvature reset} when a secant pair reports
-none, and \code{reflect}, \code{expand}, \verb{contract in} and \verb{contract out} for the
-simplex. \code{summary()} tabulates them.
+\code{safeguard} names the repair that the algorithm applied to its own step,
+or \code{"none"}. The names differ by method; examples are \verb{step shortened}
+and \verb{step adjusted} for the line-search methods, \verb{cg restart} when
+conjugacy is lost, \verb{bb curvature reset} when a secant pair has no usable
+curvature, and \code{reflect}, \code{expand}, \verb{contract in} and \verb{contract out} for
+the simplex. \code{summary()} tabulates them.
 }
 
 \section{Repeating a stochastic run}{
-\code{seed} holds \code{.Random.seed} as it stood when the run began, and is filled
-in only by the methods that draw: \code{\link[=sa]{sa()}}, a resampling \code{\link[=adam]{adam()}}, a
-\code{\link[=multistart]{multistart()}} generating its own starts. Assigning it back reproduces
-the run exactly:
+\code{seed} holds \code{.Random.seed} as it was when the run began, and is filled in
+only by the methods that draw random numbers themselves: \code{\link[=sa]{sa()}},
+\code{\link[=compass]{compass()}} with its default \code{directions = "mads"}, and \code{\link[=multistart]{multistart()}}.
+A \code{\link[=chain]{chain()}} carries the seed of its first stage. \code{\link[=adam]{adam()}} draws no random
+numbers, so its \code{seed} is \code{NULL}; a resampling objective draws in the
+session of the caller. Assigning the seed back reproduces the run
+exactly:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{a <- minimize(sa(maxit = 300), f, c(-1.2, 1))
 assign(".Random.seed", a@seed, globalenv())
@@ -121,11 +134,13 @@ res@converged
 res@criterion_met
 res@counts
 
-# A budget stops the run and leaves converged FALSE, with the reason.
+# A budget stops the run and leaves converged FALSE, with the reason in
+# criterion_met.
 short <- minimize(bfgs(maxit = 3), f, c(-1.2, 1), gr = g)
 c(short@converged, short@criterion_met)
 
-# The trace names its third column after what the rule watches.
+# The name of the third column of the trace is the quantity read by the
+# rule.
 names(res@trace)
 names(minimize(nelder_mead(keep_trace = TRUE), f, c(-1.2, 1))@trace)
 

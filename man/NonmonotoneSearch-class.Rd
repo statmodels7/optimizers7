@@ -17,32 +17,35 @@ NonmonotoneSearch(
 \arguments{
 \item{c1}{The sufficient-decrease constant.}
 
-\item{shrink}{The factor the step is multiplied by on each backtrack.}
+\item{shrink}{The factor by which the step is multiplied on each
+backtrack.}
 
-\item{memory}{How many earlier values the reference looks back over.}
+\item{memory}{The number of earlier values, besides the current one, over
+which the reference is taken.}
 
-\item{max_step}{The most backtracks allowed. A \strong{count}.}
+\item{max_step}{The most trial points allowed, the full step included. A
+\strong{count}.}
 
-\item{resolution}{What the objective can tell apart, a number or a
-function of no arguments.}
+\item{resolution}{The smallest difference in the objective that the
+objective can resolve, a number or a function of no arguments.}
 }
 \value{
 An S7 object of class \code{NonmonotoneSearch} inheriting from
 \code{\link[=line_search]{line_search()}}, with the five properties above beside \code{label}.
 }
 \description{
-Armijo backtracking whose reference value is the worst of the last
-\code{memory + 1} objective values instead of the current one, so a step may
-make things worse now to be better placed later. Built by \code{\link[=nonmonotone]{nonmonotone()}}.
+Armijo backtracking whose reference value is the largest of the last
+\code{memory + 1} objective values, the current one included, so a step may
+increase the objective. Built by \code{\link[=nonmonotone]{nonmonotone()}}.
 }
 \details{
-Beyond the \code{label} every line search carries, a \code{NonmonotoneSearch} holds
-\code{c1}, \code{shrink}, \code{memory}, \code{max_step} and \code{resolution}. \code{memory} is the one
-property no other line search has, and at \code{memory = 0} the object behaves
-exactly as an \link{ArmijoSearch} with the same constants.
+Beyond the \code{label} of every line search, a \code{NonmonotoneSearch} holds
+\code{c1}, \code{shrink}, \code{memory}, \code{max_step} and \code{resolution}. \code{memory} is the
+only property that no other line search has, and at \code{memory = 0} the
+object behaves exactly as an \link{ArmijoSearch} with the same constants.
 }
 \seealso{
 \code{\link[=nonmonotone]{nonmonotone()}} for the constructor, \code{\link[=bb]{bb()}} for the method that
-needs it.
+uses it by default.
 }
 \keyword{internal}

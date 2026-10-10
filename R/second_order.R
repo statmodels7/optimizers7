@@ -11,22 +11,23 @@ NULL
 #' @title S7 Class for Newton's Method
 #'
 #' @description
-#' An optimizer holding the initial step length, the line search, and the two
-#' settings that decide how an indefinite Hessian is repaired. Built by
-#' [newton()]. It is the only shipped method that reads the `he` argument of
-#' [minimize()].
+#' An optimizer holding the initial step length, the line search, the two
+#' settings that decide how an indefinite Hessian is repaired, and the two
+#' settings that bound and scale a step. Built by [newton()]. Among the
+#' shipped methods, only this one and [chebyshev()], which inherits from it,
+#' read the `he` argument of [minimize()].
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `Newton` carries five:
+#' Beyond the seven properties of every optimizer, a `Newton` carries six:
 #' `step` and `line_search`, shared with the other line-search methods, and
 #' `hessian_mod`, `floor`, `max_length` and `typical`, which are its own.
 #'
 #' @param hessian_mod How an indefinite Hessian is repaired, `"eigen"` or
 #'   `"ridge"`.
-#' @param floor The smallest eigenvalue the repaired Hessian may have.
+#' @param floor The lower bound of the repair; see [newton()].
 #' @param max_length The largest component that a step may have.
-#' @param typical `NULL`, or the typical size of each parameter, in whose
-#'   units the step lengths are read.
+#' @param typical `NULL`, or the typical size of each parameter, in the
+#'   units of which the step lengths are measured.
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [newton()].
 #'
@@ -50,137 +51,133 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'
 #' @description
 #' Solves \eqn{H d = -g} for the direction, repairing \eqn{H} when it is not
-#' positive definite, and then line searches along it. Converges
-#' quadratically near a minimum: on Rosenbrock from the customary start it
-#' reaches a value of `3.7e-21` in 21 iterations, 29 objective evaluations
-#' and 21 Hessians.
+#' positive definite, and then performs a line search along it. The method
+#' converges quadratically near a minimum.
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`; see
-#'   [crit_any()] for what that disjunction buys and costs.
+#'   [crit_any()] for the effect of that disjunction.
 #' @param hessian_mod How to repair an indefinite Hessian: `"eigen"`
-#'   (default) or `"ridge"`. Partial matching applies and any other string is
-#'   refused, naming both.
-#' @param floor The smallest eigenvalue the repaired Hessian is allowed, a
-#'   single positive number. Defaults to `1e-8`, relative to the largest
-#'   eigenvalue.
+#'   (default) or `"ridge"`. Partial matching applies, and any other string
+#'   is rejected by [match.arg()].
+#' @param floor The lower bound of the repair, a single positive number.
+#'   Defaults to `1e-8`. With `"eigen"`, eigenvalues below
+#'   \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
+#'   are raised to that value, so the bound is relative to the largest
+#'   eigenvalue when that eigenvalue exceeds one in absolute value; with
+#'   `"ridge"`, `floor` is the smallest shift \eqn{\tau} tried.
 #' @param step Initial step length offered to the line search, a single
-#'   positive number. Defaults to `1`, which is the natural Newton step and
-#'   is accepted unchanged near the solution.
-#' @param line_search A [line_search()] object. Defaults to [armijo()], the
-#'   curvature condition [bfgs()] needs being unnecessary here because the
+#'   positive number. Defaults to `1`, which is the Newton step itself and is
+#'   accepted unchanged near the solution.
+#' @param line_search A [line_search()] object. Defaults to [armijo()]. The
+#'   curvature condition that [bfgs()] needs is unnecessary here, because the
 #'   curvature is read from the Hessian.
 #' @param maxit,max_eval,verbose,refresh,keep_trace As in [optimizer()].
-#'   `maxit` defaults to 200 here where [optimizer()] uses 500, a Newton run
-#'   that has not arrived in 200 iterations being in trouble of another kind.
-#' @param max_length The largest component that a step may have, a
-#'   single positive number. If a direction is longer than this in the
-#'   infinity norm, it is scaled down to this length before the line
-#'   search sees it. Defaults to `Inf`,
+#'   `maxit` defaults to 200 here and to 500 in [bfgs()] and [lbfgs()]: a
+#'   Newton run that has not converged in 200 iterations usually has a
+#'   problem that more iterations do not solve.
+#' @param max_length The largest component that a step may have, a single
+#'   positive number. A direction longer than this in the infinity norm is
+#'   scaled down to this length before the line search. Defaults to `Inf`,
 #'   which leaves every step as it is. See below.
 #' @param typical `NULL` (the default), or the typical size of each
-#'   parameter: one positive number, or one per parameter. Every length the
-#'   method reads is then read in these units, the largest
+#'   parameter: one positive number, or one per parameter. Every length used
+#'   by the method is then measured in these units, as the largest
 #'   \eqn{\lvert d_i\rvert / t_i} in place of the largest
 #'   \eqn{\lvert d_i\rvert}: the bound `max_length`, and the scaling of a
-#'   direction whose length no curvature sets. `NULL` reads them in the
-#'   parameters' own units.
+#'   direction whose length is not set by the curvature. With `NULL` the
+#'   lengths are measured in the units of the parameters.
 #'
 #' @details
 #' # Why the Hessian has to be repaired
 #'
-#' \eqn{H^{-1}g} is a descent direction only when \eqn{H} is positive
-#' definite. Where the objective curves downwards the unmodified step points
-#' towards a saddle or a maximum, and no line search can rescue it: every
-#' step along an ascent direction increases the objective. That is the
-#' ordinary situation far from the solution, not an edge case.
+#' \eqn{-H^{-1}g} is guaranteed to be a descent direction only when \eqn{H}
+#' is positive definite. Where the objective curves downwards the unmodified
+#' step can point towards a saddle or a maximum, and a line search along an
+#' ascent direction cannot decrease the objective. Indefinite Hessians are
+#' common far from the solution.
 #'
-#' Both repairs begin with an attempted Cholesky factorization, which when it
-#' succeeds is at once the test for positive definiteness and the solve.
+#' Both repairs begin with an attempted Cholesky factorization, which, when
+#' it succeeds, is both the test for positive definiteness and the solve.
 #' When it fails:
 #'
 #' \describe{
 #'   \item{`"eigen"`}{decompose \eqn{H} and raise every eigenvalue below
-#'     `floor` to it. The direction is then the Newton one in the subspace
-#'     where the curvature is trustworthy, and gradient-like in the rest. Costs a
-#'     symmetric eigendecomposition and gives the best-conditioned repair.}
-#'   \item{`"ridge"`}{add \eqn{\tau I} with \eqn{\tau} doubling until the
-#'     factorization succeeds. This is Levenberg's idea: it interpolates between
-#'     the Newton step at \eqn{\tau = 0} and a scaled steepest-descent step for
-#'     large \eqn{\tau}. Cheaper, and blunter.}
+#'     \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
+#'     to that value. The direction is then the Newton direction in the
+#'     subspace where the curvature is positive, and close to the gradient
+#'     direction in the rest. The repair costs a symmetric eigendecomposition
+#'     and gives the best-conditioned matrix. If the eigendecomposition
+#'     fails, the ridge repair is used.}
+#'   \item{`"ridge"`}{add \eqn{\tau I}, with \eqn{\tau} doubled until the
+#'     factorization succeeds. This is Levenberg's idea: it interpolates
+#'     between the Newton step at \eqn{\tau = 0} and a scaled steepest-descent
+#'     step for large \eqn{\tau}. It costs less than the eigendecomposition and
+#'     shifts every eigenvalue, not only the small ones.}
 #' }
 #'
-#' Which repair fired is recorded in the trace, under the names
-#' `hessian modified` and `hessian modified (capped)`, so a run that spent
-#' its time repairing can be told from one that spent it converging.
+#' A repair of the Hessian is recorded in the trace as `hessian modified`,
+#' or `hessian modified (capped)` when the repaired step is also scaled down
+#' (see below). The label does not record which of the two repairs was used.
 #'
-#' # A long Newton step can leave the region its model describes
+#' # Bounding the length of a step
 #'
 #' The Newton step minimizes the local quadratic model of the objective, and
 #' its length is set by the curvature at the current point. Where the
-#' objective flattens towards an asymptote the curvature is small, the step
-#' is long, and it can carry the iterate past the minimum into the flat
+#' objective flattens towards an asymptote the curvature is small and the
+#' step is long, and it can carry the iterate past the minimum into the flat
 #' region. The line search accepts such a step whenever it lowers the
 #' objective, and in the flat region the gradient is close to zero, so the
-#' run can stop there. Measured on the REML criterion of statmodels7 for a
-#' ridge penalty on the fifteen predictors of `MASS::UScrime`, standardized
-#' by the term (`standardize = TRUE`), the first step from
-#' \eqn{\lambda = 1} had a length of 23.5 on the log scale and reached
-#' \eqn{\lambda = 1.6\times10^{10}}, where the criterion is flat at -65.40,
-#' while its maximum, -53.30, lies near \eqn{\lambda = 91.5}.
+#' run can stop there. Such steps occur, for example, when a smoothing
+#' parameter is optimized on the logarithmic scale.
 #'
-#' `max_length` bounds the step, which is the `maxstep` of the line-search
+#' `max_length` bounds the step; it is the `maxstep` of the line-search
 #' Newton method of Dennis and Schnabel (1983) and the `maxNstep` of the
-#' smoothing-parameter iteration of mgcv. The bound only ever shortens a
-#' step, and near a minimum the Newton steps are short, so the quadratic
-#' convergence of the method is kept. A step shortened by it is recorded in
-#' the trace as `newton step capped`.
+#' smoothing-parameter iteration of mgcv. The bound only shortens a step, and
+#' near a minimum the Newton steps are short, so the quadratic convergence of
+#' the method is kept. A step shortened by the bound is recorded in the trace
+#' as `newton step capped`, except at an iteration at which the Hessian was
+#' repaired, which keeps the label of the repair.
 #'
 #' # Parameters in different units
 #'
-#' A length in the parameters' own units means different things for
-#' parameters that carry different units: a displacement of 5, or of one, is a
-#' long step for a log-scale parameter and a short one for a variance near
-#' 236. Measured on a restricted likelihood in such a variance, started at
-#' 651 where the criterion is not concave, the repaired direction scaled to
-#' length one moved the variance by one unit per iteration, for 180
-#' iterations. `typical` gives the typical size \eqn{t_i} of each parameter,
-#' which is the scaled norm of Dennis and Schnabel (1983): every length is
-#' then the largest \eqn{\lvert d_i\rvert / t_i}, the bound `max_length`
-#' and the scaling of a repaired direction or of a gradient fallback alike.
+#' A length in the units of the parameters has different meanings for
+#' parameters on different scales: a displacement of one is a long step for
+#' a parameter on the log scale and a short one for a variance of several
+#' hundred. `typical` gives the typical size \eqn{t_i} of each parameter, as
+#' in the scaled norm of Dennis and Schnabel (1983): every length is then the
+#' largest \eqn{\lvert d_i\rvert / t_i}, for the bound `max_length` and for
+#' the scaling of a repaired direction or of a gradient fallback.
 #'
-#' # A repaired step is capped and an unrepaired one is not
+#' # The length of a repaired step
 #'
-#' Where the factorization succeeds, \eqn{H^{-1}g} is the Newton step and
-#' `step = 1` is its own unit, so it is taken as it stands. Where it fails,
-#' the component of the direction in the floored subspace is
-#' \eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is set by `floor` and by no
-#' curvature of the objective. The direction is therefore scaled to
-#' \eqn{\min(1, 1/\lVert d\rVert_\infty)}, a displacement of order one in the
-#' parameters. That is the rule [bb()] applies when its secant pair reports
-#' no curvature and the one [bfgs()] and [lbfgs()] apply to their first
-#' direction, and it can only ever shorten a step, so a run whose repaired
-#' steps were already of order one is untouched. The same scaling reaches the
-#' gradient the method falls back on when a solve fails.
+#' Where the factorization succeeds, \eqn{-H^{-1}g} is the Newton step and
+#' `step = 1` is its natural unit, so the step is taken as it stands, subject
+#' only to `max_length`. Where it fails, the component of the direction in
+#' the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is
+#' set by `floor` and not by the curvature of the objective. The direction is
+#' therefore multiplied by \eqn{\min(1, 1/\lVert d\rVert_\infty)}, which
+#' gives a displacement of order one in the parameters. [bfgs()] and
+#' [lbfgs()] apply the same rule to their first direction. The factor never
+#' exceeds one, so a run whose repaired steps were already of order one is
+#' unchanged. The same scaling applies to the gradient direction that the
+#' method uses when a solve fails.
 #'
-#' Without the cap the length of a repaired step is unbounded and the line
-#' search is the only thing bounding it, at one objective evaluation per
-#' backtrack. Measured on a marginal criterion whose outer Hessian is
-#' indefinite at ordinary points, a gradient of 29 along a direction floored
-#' at \eqn{10^{-8}\lambda_{\max}} gave a step of \eqn{4\times 10^{4}} on a
-#' log scale, and each of the 23 backtracks that followed was a whole
-#' penalized refit that could not be evaluated.
+#' Without this factor the length of a repaired step is bounded only by the
+#' line search, at one objective evaluation per backtrack. Each backtrack can
+#' be expensive, for example a complete penalized refit when the objective is
+#' a marginal criterion.
 #'
-#' # On the Hessian itself
+#' # The Hessian by differences
 #'
 #' When `he` is not supplied to [minimize()] the Hessian is obtained by
 #' differencing the gradient. With an analytic gradient that is one numerical
-#' differentiation and is acceptable. When the gradient is *also* differenced
-#' it is two composed, the one place in the package where that happens, and
-#' the cost shows: one Newton iteration on a quadratic in 20 unknowns takes
-#' 1682 objective evaluations without a gradient and 42 gradient evaluations
-#' with one. An objective with neither derivative is better served by
-#' [bfgs()], which needs no Hessian at all.
+#' differentiation. When the gradient is *also* differenced, the Hessian is a
+#' difference of differences, which happens only in [newton()] and
+#' [chebyshev()]: one Newton iteration then costs about \eqn{4p^2}
+#' evaluations of the objective, against about \eqn{2p} evaluations of the
+#' gradient with an analytic gradient. For an objective without either
+#' derivative, [bfgs()], which needs no Hessian, is usually cheaper.
 #'
 #' @return An S7 object of class [Newton], inheriting from [optimizer()], to
 #'   be handed to [minimize()].
@@ -196,8 +193,8 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #'
 #' # A saddle, where the unrepaired step points the wrong way. The Hessian at
-#' # the start has eigenvalues 2 and -1.99, and both repairs reach the minimum
-#' # in five iterations, reporting the repair in the trace.
+#' # the start has eigenvalues 2 and -1.99; the repair is recorded in the
+#' # trace.
 #' sad <- function(p) p[1]^2 - p[2]^2 + 0.1 * p[2]^4
 #' sg  <- function(p) c(2 * p[1], -2 * p[2] + 0.4 * p[2]^3)
 #' sh  <- function(p) matrix(c(2, 0, 0, -2 + 1.2 * p[2]^2), 2, 2)
@@ -207,7 +204,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' c(value = r@value, iterations = r@iterations)
 #' unique(r@trace$safeguard)
 #'
-#' # summary() counts the repairs, which is how a struggling run is read.
+#' # summary() counts the safeguards that fired during the run.
 #' summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
 #'                  gr = rosen_gr, he = rosen_he))
 #'
@@ -262,12 +259,12 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
 #'
 #' @description
 #' An optimizer holding the initial step length, the line search, and the two
-#' settings that govern what happens when a secant pair carries no usable
-#' curvature. Built by [bfgs()]. The inverse-Hessian approximation itself is
-#' not a property: it is built inside the run and discarded with it.
+#' settings that apply when a secant pair has no usable curvature. Built by
+#' [bfgs()]. The inverse-Hessian approximation is not a property: it is built
+#' inside the run and discarded at its end.
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `Bfgs` carries four:
+#' Beyond the seven properties of every optimizer, a `Bfgs` carries four:
 #' `step` and `line_search`, shared with the other line-search methods, and
 #' `curv_tol` and `max_skip`, which are its own.
 #'
@@ -296,25 +293,25 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' @description
 #' Builds an approximation to the inverse Hessian from successive gradients,
 #' so the direction is a matrix-vector product and no second derivatives are
-#' ever required. The default method for a smooth problem of moderate size:
-#' on Rosenbrock from the customary start it converges in 35 iterations and
-#' 49 objective evaluations with the gradient supplied.
+#' ever required. It is the usual choice for a smooth problem of moderate
+#' size.
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`.
 #' @param curv_tol The update is skipped when
 #'   \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 #'   Defaults to `1e-10`. A larger value skips more often. Zero is admitted
-#'   and gives the textbook condition \eqn{s^\top y > 0}; a negative value is
-#'   refused, because the comparison would then hold for every pair and the
-#'   skip protection would be off without saying so.
+#'   and gives the textbook condition \eqn{s^\top y > 0}. A negative value is
+#'   rejected, because it would admit pairs with negative curvature, and the
+#'   approximation would then no longer be guaranteed to stay positive
+#'   definite.
 #' @param max_skip Consecutive skipped updates before the approximation is
 #'   reset to the identity. Defaults to 5, and has to be a whole number.
 #'   Zero is admitted and resets on the first skip; a negative value is
-#'   refused, the comparison being `>=`, which would make it behave as zero.
+#'   rejected, because the comparison `>=` would treat it as zero.
 #' @param step,line_search,maxit,max_eval,verbose,refresh,keep_trace As in
 #'   [newton()], except that `line_search` defaults to [wolfe()] and `maxit`
-#'   to 500. See below for why the line search matters here.
+#'   to 500. See below for the reason for the line search.
 #'
 #' @details
 #' # Notation
@@ -327,37 +324,37 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' # Why the line search is the strong Wolfe one
 #'
 #' The update is meaningful only when \eqn{s^\top y > 0}, and the Wolfe
-#' curvature condition is exactly the guarantee that it holds: Armijo
-#' backtracking can accept a step so short that the gradient has barely
-#' moved, leaving a pair with no curvature in it.
+#' curvature condition guarantees that it holds: Armijo backtracking can
+#' accept a step so short that the gradient has barely changed, which gives
+#' a pair without curvature.
 #'
-#' In practice the guarantee is worth less than it sounds, and the honest
-#' measurement is worth having. Over the eight problems of
-#' [test_problems()], BFGS under Armijo skips an update on three of them,
-#' once each, and matches Wolfe elsewhere: Rosenbrock 39 iterations against
-#' 35, himmelblau 11 against 10, and on the non-smooth `abs_sum` Armijo is
-#' the **better** of the two, reaching `6.8e-08` in 37 iterations where Wolfe
-#' stops at `1.3e-02` reporting failure. Wolfe is the default because it
-#' makes the update sound by construction; Armijo is a reasonable choice
-#' where evaluations are dear.
+#' On the problems of [test_problems()] the difference is small in practice.
+#' Under [armijo()], BFGS skips an update on a few problems, needs a few more
+#' iterations on two of them, and converges on the non-smooth `abs_sum`,
+#' where it stops without converging under [wolfe()]. Wolfe is the default
+#' because it guarantees a sound update; Armijo is a reasonable choice where
+#' evaluations are expensive.
 #'
 #' # Skipping and resetting
 #'
-#' When the curvature condition fails anyway the update is **skipped**. A
-#' small \eqn{s^\top y} makes \eqn{\rho = 1/s^\top y} enormous and one bad
-#' step destroys the accumulated approximation; a stale but sound matrix
-#' beats a fresh but corrupted one. After `max_skip` consecutive skips there
-#' is no curvature information left worth keeping and the matrix is reset to
-#' the identity, so the method restarts as steepest descent and rebuilds.
-#' Both events appear in the trace, as `bfgs update skipped` and
-#' `bfgs reset`.
+#' When the curvature condition fails, the update is **skipped**. A small
+#' \eqn{s^\top y} makes \eqn{\rho = 1/s^\top y} very large, and one such
+#' update can destroy the accumulated approximation; skipping it keeps the
+#' previous matrix, which is still positive definite. After `max_skip`
+#' consecutive skips the matrix is reset to the identity, so the method
+#' restarts as steepest descent and rebuilds the approximation. Both events
+#' appear in the trace, as `bfgs update skipped` and `bfgs reset`. After a
+#' reset of this kind the next direction is \eqn{-g}, without the scaling
+#' described below; after a reset caused by a direction that is not a
+#' descent direction, the direction is scaled.
 #'
 #' The first accepted pair rescales the identity by \eqn{s^\top y / y^\top y}.
 #' Without it the first quasi-Newton step is taken with a unit Hessian, which
-#' on a badly scaled problem has the wrong magnitude entirely and wastes a
-#' line search discovering so. The first direction is also scaled to
-#' \eqn{\min(1, 1/\lVert g\rVert_\infty)}, a displacement of order one in the
-#' parameters, which can only ever shorten it.
+#' on a badly scaled problem has the wrong magnitude and costs backtracks.
+#' Until a pair has been accepted, the direction is the negative gradient
+#' multiplied by \eqn{\min(1, 1/\lVert g\rVert_\infty)}, which gives a
+#' displacement of order one in the parameters and never lengthens the
+#' step.
 #'
 #' @return An S7 object of class [Bfgs], inheriting from [optimizer()], to be
 #'   handed to [minimize()].
@@ -368,21 +365,22 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'                     200 * (p[2] - p[1]^2))
 #' minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
 #'
-#' # Armijo instead of Wolfe: the update is skipped once here, which the trace
-#' # reports, and the run still arrives.
+#' # Armijo instead of Wolfe: the update is skipped once here, the trace
+#' # records it, and the run converges.
 #' a <- minimize(bfgs(line_search = armijo(), keep_trace = TRUE), rosen,
 #'               c(-1.2, 1), gr = rg)
 #' c(iterations = a@iterations, skips = sum(a@trace$safeguard == "bfgs update skipped"))
 #'
-#' # Forcing the skip: a curvature threshold nothing can meet exhausts the
-#' # budget, and the trace names both safeguards.
+#' # A curvature threshold that no pair can meet forces every update to be
+#' # skipped; the run exhausts its budget, and the trace names both
+#' # safeguards.
 #' b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
 #'               gr = rg)
 #' c(converged = b@converged, value = b@value)
 #' unique(b@trace$safeguard)
 #'
 #' @seealso [lbfgs()] for many parameters, [newton()] when a Hessian is
-#'   available, [wolfe()] for the line search this method wants.
+#'   available, [wolfe()] for the default line search of this method.
 #' @references
 #' Broyden, C. G. (1970). The convergence of a class of double-rank
 #' minimization algorithms. *IMA Journal of Applied Mathematics*
@@ -413,16 +411,18 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 #' @title S7 Class for Limited-Memory BFGS
 #'
 #' @description
-#' An optimizer holding how many secant pairs to keep, the curvature
-#' threshold a pair must meet to be stored, and the usual step length and
-#' line search. Built by [lbfgs()]. The pairs themselves live inside the run.
+#' An optimizer holding the number of secant pairs to keep, the curvature
+#' threshold that a pair must meet to be stored, and the step length and the
+#' line search. Built by [lbfgs()]. The pairs themselves exist only inside
+#' the run.
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, an `Lbfgs` carries four:
+#' Beyond the seven properties of every optimizer, an `Lbfgs` carries four:
 #' `step` and `line_search`, and `memory` and `curv_tol`, which are its own.
-#' Where [Bfgs] has `max_skip`, this class has nothing corresponding: a pair
-#' failing the curvature test is discarded rather than skipped, so there is
-#' no accumulated matrix to protect.
+#' It has no counterpart of `max_skip` of [Bfgs]: a pair that fails the
+#' curvature test is not stored (the trace records `lbfgs update skipped`),
+#' and there is no accumulated matrix to protect. When the direction is not a
+#' descent direction, the stored pairs are cleared (`lbfgs reset`).
 #'
 #' @param memory How many secant pairs to keep.
 #' @param curv_tol The curvature threshold below which a pair is not stored.
@@ -448,19 +448,23 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' @description
 #' BFGS without ever forming the matrix: only the last `memory` secant pairs
 #' are kept, and the direction comes from the two-loop recursion. Costs
-#' \eqn{O(mp)} in time and memory where [bfgs()] costs \eqn{O(p^2)}, and
-#' returns the same direction the full matrix would when the pairs are the
-#' same.
+#' \eqn{O(mp)} in time and memory where [bfgs()] costs \eqn{O(p^2)}. The
+#' direction equals the one of the explicitly assembled inverse built from
+#' the same pairs and the same initial scaling. The two methods do not give
+#' the same directions in a run, because [bfgs()] keeps every pair and scales
+#' its initial matrix by the first accepted pair, whereas the recursion uses
+#' the last `memory` pairs and the most recent one for the scaling.
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`.
 #' @param memory How many secant pairs to keep, a single positive whole
-#'   number. Defaults to 10. A fractional value is refused rather than
-#'   truncated, the kernel reading the count through `as.integer()`.
-#' @param curv_tol A pair is discarded when
+#'   number. Defaults to 10. A fractional value is rejected instead of
+#'   truncated, since the count is passed to the compiled code as an integer.
+#' @param curv_tol A pair is not stored when
 #'   \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 #'   Defaults to `1e-10`. Zero is admitted and gives \eqn{s^\top y > 0}; a
-#'   negative value is refused, for the reason [bfgs()]'s page gives.
+#'   negative value is rejected, for the reason given on the page of
+#'   [bfgs()].
 #' @param step,line_search,maxit,max_eval,verbose,refresh,keep_trace As in
 #'   [bfgs()].
 #'
@@ -471,39 +475,29 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' \eqn{y = g_{new} - g_{old}} the change in the gradient. The scalar step
 #' length is \eqn{\alpha}, a different quantity.
 #'
-#' # Where the saving is
+#' # The saving
 #'
-#' The two-loop recursion returns exactly the product the explicitly
-#' assembled inverse would: built from the same four pairs and the same
-#' scaling, the two agree to `1.7e-16`. What differs is the cost.
+#' The two-loop recursion returns exactly the product of the explicitly
+#' assembled inverse built from the same pairs and the same scaling (the
+#' last example). The difference is in the cost: one iteration costs
+#' \eqn{O(p^2)} for [bfgs()] and \eqn{O(mp)} for [lbfgs()], while the
+#' numbers of iterations of the two methods on a dense quadratic are close.
+#' The difference in time becomes large for a few hundred parameters, and
+#' for several thousand the \eqn{O(p^2)} storage and work of the full matrix
+#' become prohibitive.
 #'
-#' Measured on a dense quadratic, both methods taking the gradient and
-#' converging to the same point:
-#'
-#' \tabular{lll}{
-#'   **p** \tab **bfgs** \tab **lbfgs** \cr
-#'   5 \tab 9 iterations \tab 8 iterations \cr
-#'   50 \tab 15 \tab 15 \cr
-#'   200 \tab 16, 0.06 s \tab 17, 0.00 s \cr
-#'   800 \tab 16, **4.06 s** \tab 17, **0.02 s** \cr
-#' }
-#'
-#' The iteration counts barely differ; the cost per iteration is what
-#' diverges, and it does so between 200 and 800 parameters. Beyond a few
-#' thousand the full matrix is not storable at all.
-#'
-#' The recursion is scaled at each iteration by the most recent pair's
-#' \eqn{s^\top y / y^\top y}. That single number does the work the full
-#' matrix would otherwise do, and is the reason the method converges without
-#' one.
+#' The recursion is scaled at each iteration by
+#' \eqn{s^\top y / y^\top y} of the most recent pair. This scalar estimates
+#' the inverse curvature along the latest step and takes the place of the
+#' initial matrix of the full update.
 #'
 #' # Choosing memory
 #'
-#' More is not better. Old pairs describe curvature at points the iterate has
-#' left, and they cost \eqn{O(p)} each per iteration. Measured on Rosenbrock,
-#' `memory` of 3, 5, 10, 30 and 100 gives 38, 36, 37, 37 and 37 iterations:
-#' past a handful there is nothing left to gain and the arithmetic keeps
-#' rising. Ten is the conventional choice for that reason.
+#' A larger `memory` is not always better. Old pairs describe the curvature
+#' at points that the iterate has left, and each pair costs \eqn{O(p)} per
+#' iteration. Beyond a handful of pairs the number of iterations changes
+#' little while the arithmetic keeps rising; ten is the conventional
+#' choice.
 #'
 #' @return An S7 object of class [Lbfgs], inheriting from [optimizer()], to
 #'   be handed to [minimize()].
@@ -514,8 +508,8 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #'                     200 * (p[2] - p[1]^2))
 #' minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
 #'
-#' # The two-loop recursion is not an approximation to the full update: on the
-#' # same pairs it returns the same product, to machine precision.
+#' # The two-loop recursion is not an approximation to the full update: on
+#' # the same pairs it returns the same product, to rounding error.
 #' set.seed(1)
 #' p <- 6
 #' S <- matrix(rnorm(p * 4), p, 4)
@@ -597,8 +591,8 @@ S7::method(minimize, Newton) <-
       p <- length(par)
       per_iter <- if (is.null(gr)) 4 * p^2 + 2 * p else 0
       if (per_iter > 0 && 2 * per_iter > optimizer@max_eval) {
-        warning("newton() without 'gr' and 'he' costs about 4*p^2 = ",
-                format(4 * p^2), " objective evaluations per iteration at p = ",
+        warning("newton() without 'gr' and 'he' costs about 4*p^2 + 2*p = ",
+                format(per_iter), " objective evaluations per iteration at p = ",
                 p, ",
   and max_eval = ", format(optimizer@max_eval),
                 " admits fewer than two iterations. Supply 'gr' (or 'he'),

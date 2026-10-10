@@ -277,3 +277,23 @@ test_that("the constructors refuse nonsense", {
   expect_error(bundle(t_min = 10, t_max = 1), "strictly below")
   expect_error(bundle(t0 = 1e20), "between")
 })
+
+test_that("a restarted simplex keeps the diameter it had reached", {
+  # a flat simplex far from the origin: the restart rebuilds it at the
+  # diameter reached, which is a length, so it is not multiplied by the size
+  # of the coordinates
+  V <- rbind(c(100, 100), c(101, 101), c(102, 102))
+  r <- minimize(nelder_mead(simplex = V, keep_trace = TRUE, maxit = 3),
+                function(p) sum(p^2), c(100, 100))
+  expect_identical(r@trace$safeguard[1], "restart")
+  expect_lt(max(r@trace$stationarity), 10)
+})
+
+test_that("the bundle's aggregate is a cut below the objective", {
+  # with a bundle of two the aggregate is stored at every iteration; stored
+  # at the wrong center it lies above f and the run stopped at 0.044
+  r <- minimize(bundle(bundle_size = 2), function(p) sum(p^2), c(1, 1, 1),
+                gr = function(p) 2 * p)
+  expect_true(r@converged)
+  expect_lt(r@value, 1e-8)
+})

@@ -23,9 +23,9 @@ and records the gap between the value reached and the known minimum. The
 result is information: no row is a pass or a failure.
 }
 \details{
-A problem the optimizer cannot run at all is caught rather than
-propagated, so one method that refuses one problem does not lose the other
-seven. Such a row carries \code{NA} in every numeric column and the error
-message in \code{note}.
+An error on a problem is caught and reported in the \code{note} column, so
+that it does not discard the results on the other problems. Such a row
+keeps the name of the problem and has \code{NA} in the other numeric and
+logical columns.
 }
 \keyword{internal}

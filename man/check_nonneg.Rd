@@ -19,8 +19,9 @@ Checks that the value is a single finite number that is not negative.
 Used for the curvature threshold \code{curv_tol} of \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}},
 which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
 \lVert y \rVert}. Zero is admitted and is the textbook curvature
-condition \eqn{s'y > 0}; a negative value is refused because it makes the
-comparison hold for every pair, which turns the skip protection off
-without saying so.
+condition \eqn{s'y > 0}. A negative value is rejected because it admits
+pairs with \eqn{s'y \le 0}, which weakens the protection given by the
+skipped updates; by the Cauchy-Schwarz inequality a value below \eqn{-1}
+admits every pair.
 }
 \keyword{internal}

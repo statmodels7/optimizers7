@@ -34,12 +34,12 @@ the four properties above beside the seven shared ones.
 }
 \description{
 An optimizer holding the initial step length, the line search, and the two
-settings that govern what happens when a secant pair carries no usable
-curvature. Built by \code{\link[=bfgs]{bfgs()}}. The inverse-Hessian approximation itself is
-not a property: it is built inside the run and discarded with it.
+settings that apply when a secant pair has no usable curvature. Built by
+\code{\link[=bfgs]{bfgs()}}. The inverse-Hessian approximation is not a property: it is built
+inside the run and discarded at its end.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Bfgs} carries four:
+Beyond the seven properties of every optimizer, a \code{Bfgs} carries four:
 \code{step} and \code{line_search}, shared with the other line-search methods, and
 \code{curv_tol} and \code{max_skip}, which are its own.
 }

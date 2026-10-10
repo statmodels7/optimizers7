@@ -23,15 +23,17 @@ method that draws no random numbers.}
 An \code{\link[=optimizer_result]{optimizer_result()}}.
 }
 \description{
-Turns the list the compiled loop returned into an \code{\link[=optimizer_result]{optimizer_result()}}:
-fills in the point and the value, the counts and the trace, decides the
-verdict, and composes the message from whatever needs reporting.
+Converts the list returned by the compiled loop into an
+\code{\link[=optimizer_result]{optimizer_result()}}: it fills in the point and the value, the counts and
+the trace, sets the verdict, and composes the message.
 }
 \details{
-The one judgment here is the meaning of \code{converged}: it is taken
-straight from whether the stopping rule fired, and never inferred from the
-run having ended. An optimizer that exhausted its iterations has not
-converged, and saying otherwise turns a failure into a wrong answer that
-looks right.
+\code{converged} is the flag returned by the loop, and it is never inferred
+from the run having ended. The loop sets it when the stopping rule fires,
+when a line search with a declared resolution establishes that no step
+decreases the objective by more than that resolution, and, for \code{\link[=brent]{brent()}},
+when the bracket reaches the resolution of the iterate. \code{criterion_met}
+is the label of the rule in the first case and a label of its own in the
+others; a run that exhausted a budget reports the budget.
 }
 \keyword{internal}

@@ -4,23 +4,27 @@
 \alias{check_tol}
 \title{Validate a Tolerance}
 \usage{
-check_tol(tol)
+check_tol(tol, nm = "tol")
 }
 \arguments{
 \item{tol}{The value supplied.}
+
+\item{nm}{Its name, for the message. Defaults to \code{"tol"}.}
 }
 \value{
-Invisibly \code{TRUE}. Raises an error naming \code{tol} otherwise.
+Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
 Checks that the value is a single positive number, so that every criterion
-constructor rejects the same nonsense in the same words. Zero is refused
-as well as a negative: a rule with a tolerance of zero can never fire.
+constructor rejects invalid values with the same message. Zero is rejected
+as well as a negative value, because a rule with a tolerance of zero can
+never fire.
 }
 \details{
-It is also called from outside this file, by \code{\link[=bundle]{bundle()}} for its proximity
-weights and by \code{\link[=bb]{bb()}} for its step bounds, so the message names \code{tol}
-rather than the caller's own argument. A reader who wrote
-\code{bb(alpha0 = 0)} sees a message about \code{tol}.
+It is also called by \code{\link[=bundle]{bundle()}} for \code{t0}, \code{t_min}, \code{t_max} and \code{qp_tol},
+by \code{\link[=bb]{bb()}} for \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curv_tol}, by
+\code{\link[=nelder_mead]{nelder_mead()}} for \code{degenerate_tol} and by \code{\link[=multistart]{multistart()}} for \code{spread}
+and \code{distinct_tol}. These callers pass the name of their own argument in
+\code{nm}, so that the message names the argument that was supplied.
 }
 \keyword{internal}

@@ -29,7 +29,8 @@ Compass(
 improvement it finds.}
 
 \item{expand, shrink}{Factors applied to the poll size after a success and
-after a failure.}
+after a failure. After a success the poll size is capped at \eqn{10^4}
+times its initial value.}
 }
 \value{
 An S7 object of class \code{Compass} inheriting from \code{\link[=optimizer]{optimizer()}},
@@ -43,10 +44,10 @@ generator and records its seed; with \code{"coordinate"} it is deterministic
 and records none.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Compass} carries five
+Beyond the seven properties of every optimizer, a \code{Compass} carries five
 of its own: \code{step}, \code{expand} and \code{shrink} govern the poll radius,
-\code{directions} says which set is polled, and \code{opportunistic} when the poll
-stops.
+\code{directions} selects the set that is polled, and \code{opportunistic} decides
+when the poll stops.
 }
 \seealso{
 \code{\link[=compass]{compass()}} for the constructor, \link{NelderMead} for the other

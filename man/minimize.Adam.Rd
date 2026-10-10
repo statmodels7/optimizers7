@@ -11,7 +11,7 @@ and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}}. Under the default \code{\link[=crit_never]{crit_never()}} it
-reports \code{converged = FALSE} and \code{criterion_met} \verb{iteration budget reached}, the run having ended on its budget.
+reports \code{converged = FALSE} and \code{criterion_met} \verb{iteration budget reached}, since the run ended on its budget.
 }
 \description{
 Runs \code{\link[=adam]{adam()}} on the objective: one gradient per iteration, the two

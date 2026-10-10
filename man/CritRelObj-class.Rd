@@ -16,29 +16,28 @@ An S7 object of class \code{CritRelObj} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The rule \code{\link[=crit_rel_obj]{crit_rel_obj()}} builds. It fires when
+The class of the rule built by \code{\link[=crit_rel_obj]{crit_rel_obj()}}. The rule fires when
 \eqn{\lvert f_{new} - f_{old}\rvert < \texttt{tol}\,
-(\lvert f_{old}\rvert + \texttt{tol})}, so the comparison is against the
-objective's own scale and one tolerance serves whatever units the problem
-is in. It declares nothing through \code{\link[=crit_needs]{crit_needs()}}.
+(\lvert f_{old}\rvert + \texttt{tol})}, so the change is compared with the
+size of the objective and one tolerance serves for any units. It declares
+nothing through \code{\link[=crit_needs]{crit_needs()}}.
 }
 \details{
-\code{crit_met()} returns \code{FALSE} when \code{f_old} is \code{NULL} or not finite, as at
-the first iteration.
+\code{crit_met()} returns \code{FALSE} when \code{f_old} is \code{NULL} or not finite.
 
-The \code{+ tol} in the denominator is a floor and is load-bearing: an
-objective whose optimum sits at zero would otherwise be compared against a
-vanishing scale, and the rule would either never fire or fire at once.
+The term \code{+ tol} is a floor on the scale. Without it the threshold would
+be zero at an objective value of zero, and since the comparison is strict
+the rule could never fire at an optimum of zero.
 }
 \examples{
 crit_met(crit_rel_obj(1e-6), list(f_new = 1.0000001, f_old = 1.0000002))
 
-# The floor is what keeps an optimum at zero usable.
+# With the floor, the rule can fire at an optimum of zero.
 crit_met(crit_rel_obj(), list(f_new = 1e-30, f_old = 0))
 
 }
 \seealso{
 \code{\link[=crit_rel_obj]{crit_rel_obj()}} for the constructor, \code{\link[=crit_abs_obj]{crit_abs_obj()}} for the
-version in the objective's own units.
+version in the units of the objective.
 }
 \keyword{internal}

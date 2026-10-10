@@ -29,12 +29,12 @@ object, as in \code{\link[=newton]{newton()}}.}
 \item{hessian_mod}{How an indefinite Hessian is repaired, \code{"eigen"} or
 \code{"ridge"}.}
 
-\item{floor}{The smallest eigenvalue the repaired Hessian may have.}
+\item{floor}{The lower bound of the repair; see \code{\link[=newton]{newton()}}.}
 
 \item{max_length}{The largest component that a step may have.}
 
-\item{typical}{\code{NULL}, or the typical size of each parameter, in whose
-units the step lengths are read.}
+\item{typical}{\code{NULL}, or the typical size of each parameter, in the
+units of which the step lengths are measured.}
 
 \item{ratio}{The largest \eqn{\lVert d - d_N\rVert / \lVert d_N\rVert} at
 which the corrected direction \eqn{d} is used.}
@@ -48,8 +48,8 @@ correction. Built by \code{\link[=chebyshev]{chebyshev()}}.
 }
 \details{
 Beyond the properties of \link{Newton}, a \code{Chebyshev} carries \code{ratio}, the
-largest relative length the correction may have before the Newton step is
-kept instead.
+largest relative length of the correction at which the corrected
+direction is used; above it the Newton step is used.
 }
 \seealso{
 \code{\link[=chebyshev]{chebyshev()}} for the constructor.

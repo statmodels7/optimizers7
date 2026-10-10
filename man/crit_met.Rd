@@ -15,26 +15,37 @@ crit_met(criterion, state)
 A single logical.
 }
 \description{
-Asks a criterion whether the run should stop, given the state of the
-iteration just completed. This is the one generic a criterion must
-implement: a class inheriting from \code{\link[=criterion]{criterion()}} with a method here is a
-stopping rule, and every algorithm in the package will consult it.
+Evaluates a criterion on the state of the iteration just completed and
+returns whether the run should stop. This is the one generic that a
+criterion must implement: a class that inherits from \code{\link[=criterion]{criterion()}} and has
+a method here is a stopping rule, and every algorithm in the package
+consults it.
 }
 \details{
-\code{state} carries everything any rule could need:
+\code{state} has the following components:
 \describe{
 \item{\code{iter}}{the iteration just completed.}
 \item{\code{f_new}, \code{f_old}}{the objective after and before it.}
 \item{\code{x_new}, \code{x_old}}{the parameter vectors, likewise.}
 \item{\code{gradient}}{the gradient at \code{x_new}, or \code{NULL} when the
-method does not compute one.}
+method does not compute one. \code{\link[=prox_grad]{prox_grad()}} supplies the proximal
+gradient mapping instead.}
 \item{\code{stationarity}}{a non-negative measure of remaining progress,
-supplied by the derivative-free methods in place of a gradient, or
-\code{NULL}. See \code{\link[=crit_stationary]{crit_stationary()}}.}
+supplied in place of a gradient by \code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}},
+\code{\link[=brent]{brent()}}, \code{\link[=sa]{sa()}} and \code{\link[=bundle]{bundle()}}, or \code{NULL}. See \code{\link[=crit_stationary]{crit_stationary()}}.}
 }
-A rule needing something absent from \code{state}, such as a gradient on a
-derivative-free method, says so through \code{\link[=crit_needs]{crit_needs()}}, so that the
-optimizer can refuse it when the run starts.
+The shipped methods supply \code{f_old} and \code{x_old} from the first call on,
+except \code{\link[=brent]{brent()}}, which supplies them from its second iteration. A descent
+method calls the rule with \code{f_old} and \code{x_old} set to \code{NULL} only after a
+line search that accepted no step, so that only the state at \code{x_new} can
+end the run there. With box constraints, \code{x_new},
+\code{x_old} and \code{gradient} are on the unconstrained scale on which the
+optimizer moves.
+
+A rule that needs a component that a method does not supply, such as a
+gradient on a derivative-free method, declares it through
+\code{\link[=crit_needs]{crit_needs()}}, and the optimizer then rejects the rule when the run
+starts.
 }
 \examples{
 st <- list(iter = 3, f_new = 1.0000001, f_old = 1.0000002,
@@ -44,5 +55,5 @@ crit_met(crit_abs_obj(1e-12), st)
 
 }
 \seealso{
-\code{\link[=as_objective]{as_objective()}}, \code{\link[=crit_needs]{crit_needs()}}, \code{\link[=check_criterion]{check_criterion()}}
+\code{\link[=crit_needs]{crit_needs()}}, \code{\link[=check_criterion]{check_criterion()}}, \code{\link[=criterion]{criterion()}}
 }

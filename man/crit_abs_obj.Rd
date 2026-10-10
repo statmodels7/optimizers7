@@ -16,18 +16,18 @@ An S7 object of class \link{CritAbsObj}, inheriting from
 }
 \description{
 Builds the rule \eqn{\lvert f_{new} - f_{old} \rvert < \texttt{tol}}. It
-asks nothing of the method beyond an objective, so every optimizer accepts
-it, and it is one of the three terms in the gradient methods' default
-rule.
+reads only the objective, so every optimizer accepts it, and it is one of
+the three terms of the default rule of the gradient methods.
 }
 \details{
-The tolerance is in the objective's own units, so it carries the scale of
-the problem: \code{1e-10} is a strict demand on a log-likelihood per
-observation and a loose one on a summed log-likelihood of order
-\eqn{10^{5}}. \code{\link[=crit_rel_obj]{crit_rel_obj()}} is the version that does not.
+The tolerance is in the units of the objective, so it depends on the
+scale of the problem: \code{1e-10} is a strict condition on a log-likelihood
+divided by the number of observations and a loose one on a summed
+log-likelihood of order \eqn{10^{5}}. \code{\link[=crit_rel_obj]{crit_rel_obj()}} is the relative
+version.
 
-A rule reading the objective cannot tell a stalled run from a converged
-one. Where that distinction matters, ask for \code{\link[=crit_grad]{crit_grad()}}.
+A rule on the objective cannot distinguish a stalled run from a converged
+one. Where that distinction matters, use \code{\link[=crit_grad]{crit_grad()}}.
 }
 \examples{
 crit_abs_obj()
@@ -37,7 +37,7 @@ crit_met(crit_abs_obj(1e-6), list(f_new = 1.0000001, f_old = 1.0000002))
 
 }
 \seealso{
-\code{\link[=crit_rel_obj]{crit_rel_obj()}} for the scale-free version, \code{\link[=crit_grad]{crit_grad()}} for
-the test of stationarity, \code{\link[=crit_any]{crit_any()}} for the default rule that holds
-this one.
+\code{\link[=crit_rel_obj]{crit_rel_obj()}} for the relative version, \code{\link[=crit_grad]{crit_grad()}} for
+the test of stationarity, \code{\link[=crit_any]{crit_any()}} for the default rule that
+contains this one.
 }

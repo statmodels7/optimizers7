@@ -15,10 +15,11 @@ A character string such as \code{"250 ms"}, \code{"1 min 30 s"} or
 finite, so an unmeasured duration is reported as unmeasured.
 }
 \description{
-Renders a time in seconds using the unit its magnitude calls for, to three
-significant figures: microseconds below a millisecond, milliseconds below
-a second, seconds below a minute, whole minutes and seconds below an hour,
-whole hours and minutes above. Used by
-\code{\link[=print.optimizer_result]{print.optimizer_result()}} for the \code{elapsed} line.
+Renders a time in seconds in a unit matched to its size: microseconds
+below a millisecond, milliseconds below a second and seconds below a
+minute, each to three significant figures, then whole minutes and seconds
+below an hour, and whole hours and minutes above. The unit is chosen on
+the rounded value, so that no field reaches its carry (\code{"59 min 60 s"}).
+Used by \code{\link[=print.optimizer_result]{print.optimizer_result()}} for the \code{elapsed} line.
 }
 \keyword{internal}

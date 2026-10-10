@@ -7,7 +7,8 @@
 run_starts(one, n, ncores, verbose, refresh)
 }
 \arguments{
-\item{one}{A function of the start's index, returning a result or a message.}
+\item{one}{A function of the index of the start, returning a result or a
+message.}
 
 \item{n}{How many starts.}
 
@@ -25,29 +26,29 @@ Evaluates \code{one(i)} for \code{i} in \code{1:n}, over \code{ncores}
 processes, and cleans up after itself.
 }
 \details{
-Three routes, chosen here so that the caller need not.
+There are three routes, chosen here so that the caller need not choose.
 
-One process is the sequential loop, and it is the only route that can report
-progress as it goes, a worker having nowhere to print to that the caller
-would see.
+One process is the sequential loop, and it is the only route that reports
+progress during the run, since a worker has no output that the caller
+would see. When \pkg{optimizers7} was loaded with \pkg{pkgload}, this
+route is used whatever \code{ncores} is.
 
-On a Unix-alike the workers are \strong{forks}, through
-\code{parallel::mclapply()}. A fork starts in microseconds and inherits this
-session entire, so there is nothing to load and nothing to export. That
-includes a package loaded with \pkg{pkgload}, so this route works during
-development where a socket cluster does not.
+On a Unix-alike the workers are \strong{forks}, through \code{parallel::mclapply()}.
+A fork starts in microseconds and inherits the whole session, so nothing
+has to be loaded or exported.
 
-On Windows there is no \code{fork}, so a \strong{socket cluster} is started
-here and stopped on exit. Its workers are fresh sessions that know nothing, so
-\pkg{optimizers7} has to be loaded on them; when it cannot be, because it is
-not installed anywhere they can see, this warns and runs sequentially rather
-than failing. A slower answer beats an error about \code{checkForRemoteErrors}
-for someone who only asked for several starting points.
+On Windows there is no \code{fork}, so a \strong{socket cluster} is started here and
+stopped on exit. Its workers are new sessions, so \pkg{optimizers7} has to
+be loaded on them; when that is not possible, because the package is not
+installed in a library that they can see, the function gives a warning
+and runs the starts sequentially instead of failing.
 
-Both parallel routes seed their workers from this session's stream, so
-\code{set.seed()} reproduces the run and reproduces it identically whatever
-\code{ncores} was. The generator is set to \code{"L'Ecuyer-CMRG"} for the
-duration and put back afterwards, that being the only kind \R can split into
+Both parallel routes seed their workers from the stream of this session,
+so \code{set.seed()} reproduces the run. For a deterministic inner optimizer
+the result is the same for every \code{ncores}; for one that draws random
+numbers, such as \code{\link[=sa]{sa()}}, it depends on the assignment of the streams to
+the workers. The generator is set to \code{"L'Ecuyer-CMRG"} for the duration
+and restored afterwards, since it is the only kind that \R can split into
 independent streams.
 }
 \keyword{internal}

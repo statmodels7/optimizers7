@@ -39,15 +39,16 @@ stationarity measure, the comparison being of the walk alone.
 }
 \description{
 The annealing loop written in R, the twin of the compiled \code{sa_run()}. It
-exists so that the kernel has something to be compared against that shares
-none of its code, and it is used by the tests alone.
+gives the kernel a reference that shares none of its code, and it is used
+by the tests only.
 }
 \details{
-It draws from \R's generator in the same order as the kernel, so from one
-seed the two are the same run and the comparison needs no tolerance at
-all. The order is the thing that has to match: one uniform per proposal,
-and a second one for the Metropolis test only when the proposal is uphill.
-A transcription that consumes a uniform unconditionally passes every test
-written on the answer and fails this one immediately.
+It draws from the generator of \R in the same order as the kernel, so from
+one seed the two produce the same run and the comparison needs no
+tolerance. The order of the draws has to match: one uniform per proposal
+(a Cauchy draw also uses one uniform), and a second one for the Metropolis
+test only when the proposal is uphill, finite, and the temperature is
+positive. The calibration of the temperature draws two uniforms per
+sample.
 }
 \keyword{internal}

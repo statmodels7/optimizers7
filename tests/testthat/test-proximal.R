@@ -215,8 +215,38 @@ test_that("the trace records the iteration path", {
   fit <- minimize(prox_grad(pr$prox, pr$g, keep_trace = TRUE, maxit = 25),
                   fn = pr$fn, gr = pr$gr, par = rep(0, 5))
   expect_s3_class(fit@trace, "data.frame")
-  expect_named(fit@trace, c("iteration", "value", "step", "gradient"))
+  expect_named(fit@trace, c("iteration", "value", "gnorm", "step", "safeguard"))
   expect_true(all(diff(fit@trace$iteration) == 1))
+  # a step of 10 is too long for this problem, so the first iteration
+  # backtracks and says so, and summary() reads the column
+  fit <- minimize(prox_grad(pr$prox, pr$g, step = 10, keep_trace = TRUE),
+                  fn = pr$fn, gr = pr$gr, par = rep(0, 5))
+  expect_identical(fit@trace$safeguard[1], "step shortened")
+  expect_true(all(fit@trace$safeguard %in%
+                    c("none", "step shortened", "momentum restart")))
+})
+
+test_that("the differenced gradient's evaluations are counted", {
+  pr <- lasso_problem(n = 100, p = 4)
+  calls <- 0L
+  fn <- function(b) { calls <<- calls + 1L; pr$fn(b) }
+  op <- options(optimizers7.check_gradient = FALSE)
+  on.exit(options(op))
+  fit <- minimize(prox_grad(pr$prox, pr$g), fn = fn, par = rep(0, 4))
+  expect_identical(as.integer(fit@counts[["f"]]), calls)
+})
+
+test_that("the reported mapping is the one at the reported point", {
+  pr <- lasso_problem(n = 100, p = 4)
+  for (acc in c(TRUE, FALSE)) {
+    fit <- minimize(prox_grad(pr$prox, pr$g, accelerate = acc,
+                              keep_trace = TRUE),
+                    fn = pr$fn, gr = pr$gr, par = rep(0, 4))
+    t <- fit@trace$step[nrow(fit@trace)]
+    b <- fit@par
+    gm <- (b - pr$prox(b - t * pr$gr(b), t)) / t
+    expect_equal(fit@gradient, gm, tolerance = 1e-12, label = paste(acc))
+  }
 })
 
 test_that("the constructor and the method reject what they cannot honour", {

@@ -191,6 +191,22 @@ test_that("maximize() restores the sign of everything it flipped", {
 })
 
 
+test_that("maximize() negates the third-derivative contraction too", {
+  # -f with f the Rosenbrock function: maximizing it with the derivatives of
+  # -f as written must take the same path as minimizing f
+  rp <- test_problems("rosenbrock")[[1]]
+  t3 <- function(x, d) {
+    c(2400 * x[1] * d[1]^2 - 800 * d[1] * d[2], -400 * d[1]^2)
+  }
+  mn <- minimize(chebyshev(), rp$fn, rp$par, gr = rp$gr, he = rp$he, t3 = t3)
+  mx <- maximize(chebyshev(), function(p) -rp$fn(p), rp$par,
+                 gr = function(p) -rp$gr(p), he = function(p) -rp$he(p),
+                 t3 = function(x, d) -t3(x, d))
+  expect_identical(mx@iterations, mn@iterations)
+  expect_equal(mx@par, mn@par, tolerance = 0)
+})
+
+
 test_that("constructors refuse settings that are not settings", {
   expect_error(gd(maxit = 0), "positive")
   expect_error(gd(refresh = -1), "non-negative")
@@ -202,6 +218,14 @@ test_that("constructors refuse settings that are not settings", {
   expect_error(crit_grad(0), "positive")
   expect_error(crit_any(), "At least one")
   expect_error(crit_any(crit_grad(), "nonsense"), "criterion")
+  # a count goes to the compiled code as an integer, so Inf is not a count
+  expect_error(lbfgs(memory = Inf), "'memory'")
+  expect_error(bfgs(max_skip = Inf), "'max_skip'")
+  expect_error(armijo(max_step = Inf), "'max_step'")
+  expect_error(nonmonotone(memory = Inf), "'memory'")
+  expect_error(sa(cycles = Inf), "'cycles'")
+  expect_error(bundle(bundle_size = Inf), "'bundle_size'")
+  expect_error(multistart(bfgs(), ncores = Inf), "'ncores'")
 })
 
 
@@ -232,6 +256,11 @@ test_that("format_elapsed picks the unit from the magnitude", {
   expect_equal(format_elapsed(1.79), "1.79 s")
   expect_equal(format_elapsed(150), "2 min 30 s")
   expect_equal(format_elapsed(4380), "1 h 13 min")
+  # the unit is chosen after rounding, so no field reaches its carry
+  expect_equal(format_elapsed(0.99999), "1 s")
+  expect_equal(format_elapsed(59.99), "1 min 0 s")
+  expect_equal(format_elapsed(3599.7), "1 h 0 min")
+  expect_equal(format_elapsed(7199.8), "2 h 0 min")
   expect_true(is.na(format_elapsed(numeric(0))))
   expect_true(is.na(format_elapsed(NA_real_)))
 })

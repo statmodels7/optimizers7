@@ -13,8 +13,8 @@ reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is the \strong{aggregate}
-subgradient, the one quantity of that shape which goes to zero at a
-solution, and whose \code{message} reports the serious and null step counts.
+subgradient, which tends to zero at a solution, and whose \code{message}
+reports the numbers of serious and null steps.
 }
 \description{
 Runs \code{\link[=bundle]{bundle()}} on the objective: a cutting-plane model built from the

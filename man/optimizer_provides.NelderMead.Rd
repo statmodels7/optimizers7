@@ -12,23 +12,24 @@
 The character vector \code{"stationarity"}.
 }
 \description{
-Both derivative-free methods report \code{"stationarity"} and no gradient,
-having none to report. A rule reading a gradient is refused when the run
-starts, so it cannot sit there testing \code{NULL} at every iteration and never
-firing.
+\code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}} and \code{\link[=brent]{brent()}} report \code{"stationarity"} and no
+gradient, since they compute none. A rule that reads a gradient is
+rejected when the run starts; without this check it would test \code{NULL} at
+every iteration and never fire.
 }
 \details{
-The measure differs by method and \code{\link[=crit_stationary]{crit_stationary()}} reads whichever is
-offered: for \code{\link[=nelder_mead]{nelder_mead()}} the \strong{diameter of the simplex}, so the
-tolerance is on the parameter scale, for \code{\link[=compass]{compass()}} the \strong{poll size}
-\eqn{\Delta}, the quantity Torczon's theorem is stated in, and for
+The measure differs by method, and \code{\link[=crit_stationary]{crit_stationary()}} reads the measure
+of the method: for \code{\link[=nelder_mead]{nelder_mead()}} the \strong{size of the simplex}, the
+largest distance from the best vertex to another vertex, so the tolerance
+is on the parameter scale; for \code{\link[=compass]{compass()}} the \strong{poll size}
+\eqn{\Delta}, the quantity in which Torczon's theorem is stated; and for
 \code{\link[=brent]{brent()}} the half-width of the bracket.
 }
 \examples{
 optimizer_provides(nelder_mead())
 optimizer_provides(compass())
 
-# So a gradient rule is refused, naming the method.
+# A gradient rule is therefore rejected, and the error names the method.
 try(minimize(nelder_mead(criterion = crit_grad()),
              function(p) sum(p^2), c(1, 1)))
 

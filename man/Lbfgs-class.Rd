@@ -32,16 +32,18 @@ An S7 object of class \code{Lbfgs} inheriting from \code{\link[=optimizer]{optim
 the four properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding how many secant pairs to keep, the curvature
-threshold a pair must meet to be stored, and the usual step length and
-line search. Built by \code{\link[=lbfgs]{lbfgs()}}. The pairs themselves live inside the run.
+An optimizer holding the number of secant pairs to keep, the curvature
+threshold that a pair must meet to be stored, and the step length and the
+line search. Built by \code{\link[=lbfgs]{lbfgs()}}. The pairs themselves exist only inside
+the run.
 }
 \details{
-Beyond the seven properties every optimizer has, an \code{Lbfgs} carries four:
+Beyond the seven properties of every optimizer, an \code{Lbfgs} carries four:
 \code{step} and \code{line_search}, and \code{memory} and \code{curv_tol}, which are its own.
-Where \link{Bfgs} has \code{max_skip}, this class has nothing corresponding: a pair
-failing the curvature test is discarded rather than skipped, so there is
-no accumulated matrix to protect.
+It has no counterpart of \code{max_skip} of \link{Bfgs}: a pair that fails the
+curvature test is not stored (the trace records \verb{lbfgs update skipped}),
+and there is no accumulated matrix to protect. When the direction is not a
+descent direction, the stored pairs are cleared (\verb{lbfgs reset}).
 }
 \seealso{
 \code{\link[=lbfgs]{lbfgs()}} for the constructor, \link{Bfgs} for the full-matrix

@@ -15,30 +15,31 @@ it is for any duplicated argument.}
 }
 \description{
 Draws the objective against the iteration number as a line, with a filled
-point at every iteration where a safeguard fired and a legend saying so.
-The method's name is the title. Reading the marks against the curve shows
-where the algorithm was in trouble and whether the objective moved when it
-was.
+point at every iteration where a safeguard fired and a legend for the
+points. The title is the name of the method. The marks show the
+iterations at which the algorithm repaired its step and how the objective
+moved there.
 }
 \details{
 The plot is built from the \code{trace}, so the optimizer must have been
-created with \code{keep_trace = TRUE}. Without one the method stops with a
-message naming that argument, since an empty plot would say nothing.
+created with \code{keep_trace = TRUE}. Without a trace the method stops with an
+error that names that argument.
 
-The vertical axis is the objective on its own scale; a run whose objective
-falls over several orders of magnitude is better read with \code{log = "y"},
-which passes through to \code{\link[graphics:plot.default]{graphics::plot()}} like any other argument.
+The vertical axis is the objective on its own scale; for a run whose
+objective falls over several orders of magnitude, \code{log = "y"} is more
+readable, and it is passed to \code{\link[graphics:plot.default]{graphics::plot()}} like any other
+argument.
 }
 \examples{
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
 
-# The marked iterations are the ones where a step had to be repaired.
+# The marked iterations are those at which a step was repaired.
 plot(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g), log = "y")
 
-# Without a trace there is nothing to draw, and the method says which
-# argument was missing.
+# Without a trace there is nothing to draw, and the error names the
+# missing argument.
 try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
 
 }

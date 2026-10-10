@@ -12,13 +12,14 @@ and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is \code{NULL} and whose trace
-carries a \code{stationarity} column holding the half-width of the bracket.
-The \code{safeguard} column names the step taken at each iteration:
-\code{parabolic} or \code{golden}.
+has the columns \code{iteration}, \code{value}, \code{stationarity} (the half-width of
+the bracket) and \code{safeguard}, which names the step taken at each
+iteration: \code{parabolic} or \code{golden}.
 }
 \description{
 Runs \code{\link[=brent]{brent()}} on a function of one variable: bracket the minimum by
 golden expansion, then reduce the bracket by parabolic and golden-section
-steps until the stopping rule fires.
+steps until the stopping rule fires or the bracket reaches the resolution
+of the iterate.
 }
 \keyword{internal}

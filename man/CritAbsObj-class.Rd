@@ -16,18 +16,17 @@ An S7 object of class \code{CritAbsObj} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The rule \code{\link[=crit_abs_obj]{crit_abs_obj()}} builds. It reads \code{state$f_new} and
-\code{state$f_old} and fires when they differ by less than \code{tol}. It declares
-nothing through \code{\link[=crit_needs]{crit_needs()}}, every optimizer evaluating the objective,
-so no method refuses it.
+The class of the rule built by \code{\link[=crit_abs_obj]{crit_abs_obj()}}. The rule reads
+\code{state$f_new} and \code{state$f_old} and fires when they differ by less than
+\code{tol}. It declares nothing through \code{\link[=crit_needs]{crit_needs()}}, because every optimizer
+evaluates the objective, so every method accepts it.
 }
 \details{
-\code{crit_met()} returns \code{FALSE} when \code{f_old} is \code{NULL} or not finite, which
-is the state at the first iteration, so the rule cannot fire before there
-are two values to compare.
+\code{crit_met()} returns \code{FALSE} when \code{f_old} is \code{NULL} or not finite, so the
+rule cannot fire without two values to compare.
 
-The tolerance is in the objective's own units, so this rule carries the
-scale of the problem with it: \code{1e-10} means something different for a
+The tolerance is in the units of the objective, so the rule depends on
+the scale of the problem: \code{1e-10} has a different meaning for a
 log-likelihood of order one and for one of order \eqn{10^{5}}.
 }
 \examples{
@@ -35,7 +34,7 @@ crit_needs(crit_abs_obj())
 crit_met(crit_abs_obj(1e-6),
          list(f_new = 1.0000001, f_old = 1.0000002))
 
-# Nothing to compare against at the first iteration.
+# Without a previous value there is nothing to compare.
 crit_met(crit_abs_obj(), list(f_new = 1, f_old = NULL))
 
 }

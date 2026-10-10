@@ -23,10 +23,10 @@ Bundle(
 )
 }
 \arguments{
-\item{t0}{Initial proximity weight, as a step length on the parameter
-scale.}
+\item{t0}{Initial value of the proximal parameter \eqn{t}, as a step
+length on the parameter scale.}
 
-\item{t_min, t_max}{Bounds on the proximity weight.}
+\item{t_min, t_max}{Bounds on \eqn{t}.}
 
 \item{m_serious}{Fraction of the predicted decrease a serious step must
 achieve.}
@@ -40,19 +40,19 @@ An S7 object of class \code{Bundle} inheriting from \code{\link[=optimizer]{opti
 the seven properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the proximity weight and its bounds, the acceptance
-fraction that separates a serious step from a null one, the size of the
-bundle of linearizations, and the effort spent on the subproblem. Built by
-\code{\link[=bundle]{bundle()}}.
+An optimizer holding the proximal parameter \eqn{t} and its bounds, the
+acceptance fraction that separates a serious step from a null one, the
+size of the bundle of linearizations, and the effort spent on the
+subproblem. Built by \code{\link[=bundle]{bundle()}}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Bundle} carries seven
-of its own, in three groups: the proximity weight (\code{t0}, \code{t_min},
+Beyond the seven properties of every optimizer, a \code{Bundle} carries seven
+of its own, in three groups: the proximal parameter (\code{t0}, \code{t_min},
 \code{t_max}), the acceptance test (\code{m_serious}), and the model and its
 subproblem (\code{bundle_size}, \code{qp_iters}, \code{qp_tol}).
 }
 \seealso{
-\code{\link[=bundle]{bundle()}} for the constructor, \code{\link[=crit_stationary]{crit_stationary()}} for the rule
-it reads.
+\code{\link[=bundle]{bundle()}} for the constructor, \code{\link[=crit_stationary]{crit_stationary()}} for its
+default rule.
 }
 \keyword{internal}

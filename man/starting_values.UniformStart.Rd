@@ -13,10 +13,10 @@ A numeric vector of length \code{npar}, drawn with \code{stats::runif()}, so
 \code{set.seed()} governs it.
 }
 \description{
-Draws \code{npar} values, coordinate by coordinate, from the starter's \code{min}
-and \code{max} on the unconstrained scale. A \code{min} or \code{max} of length one is
-used for every coordinate; one of length \code{npar} gives each its own range,
-and any other length raises an error naming both lengths.
+Draws \code{npar} values, coordinate by coordinate, from the \code{min} and \code{max}
+of the starter on the unconstrained scale. A \code{min} or \code{max} of length one
+is used for every coordinate; one of length \code{npar} gives each its own
+range, and any other length raises an error that names both lengths.
 }
 \examples{
 set.seed(1)

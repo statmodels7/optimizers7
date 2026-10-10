@@ -28,17 +28,16 @@ An S7 object of class \code{GradientDescent} inheriting from
 properties.
 }
 \description{
-An optimizer holding the initial step length and the line search, and
-nothing else: steepest descent carries no model of the surface, so there
-is nothing else to hold. Built by \code{\link[=gd]{gd()}}.
+An optimizer holding the initial step length and the line search only,
+since steepest descent keeps no model of the surface. Built by \code{\link[=gd]{gd()}}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{GradientDescent}
+Beyond the seven properties of every optimizer, a \code{GradientDescent}
 carries \code{step} and \code{line_search}, both shared with the other line-search
-methods. It is the smallest optimizer class in the package.
+methods.
 }
 \seealso{
-\code{\link[=gd]{gd()}} for the constructor, \link{Cg} and \link{Bb} for the two first-order
-methods that carry a little more.
+\code{\link[=gd]{gd()}} for the constructor, \link{Cg} and \link{Bb} for the two other
+first-order methods.
 }
 \keyword{internal}

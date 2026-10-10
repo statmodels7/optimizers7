@@ -30,7 +30,7 @@ ProxGrad(
 
 \item{step}{The initial step length offered to the backtracking search.}
 
-\item{shrink}{The factor a rejected step is multiplied by.}
+\item{shrink}{The factor by which a rejected step is multiplied.}
 
 \item{restart}{Logical; whether an increase in the objective resets the
 momentum.}
@@ -43,13 +43,13 @@ with the six properties above beside the seven shared ones.
 An optimizer holding the two descriptions of the non-smooth part of an
 objective, its proximal operator and its value, together with the three
 settings of the accelerated iteration. Built by \code{\link[=prox_grad]{prox_grad()}}. It is the
-one shipped class whose \code{\link[=optimizer_bounded]{optimizer_bounded()}} is \code{FALSE}: its constraint
-travels inside \code{prox}, so box bounds are refused.
+only shipped class whose \code{\link[=optimizer_bounded]{optimizer_bounded()}} is \code{FALSE}: its constraint
+is passed inside \code{prox}, so box bounds are rejected.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{ProxGrad} carries six
-of its own. \code{prox} and \code{g} describe the same non-smooth term from two
-sides and are both required. \code{accelerate}, \code{step}, \code{shrink} and \code{restart}
+Beyond the seven properties of every optimizer, a \code{ProxGrad} carries six
+of its own. \code{prox} and \code{g} describe the same non-smooth term in two ways
+and are both required. \code{accelerate}, \code{step}, \code{shrink} and \code{restart}
 govern the iteration.
 }
 \seealso{

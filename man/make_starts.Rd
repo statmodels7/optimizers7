@@ -7,11 +7,13 @@
 make_starts(par, n, spread, bounds)
 }
 \arguments{
-\item{par}{The user's starting value.}
+\item{par}{The starting value of the caller.}
 
 \item{n}{Total number of starts, including \code{par}.}
 
-\item{spread}{Half-width of the sampling range, in unconstrained units.}
+\item{spread}{Scale of the half-width of the sampling range in
+unconstrained units: the half-width is
+\eqn{3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)}.}
 
 \item{bounds}{Box constraints in the shape \code{\link[=check_bounds]{check_bounds()}}
 returns, possibly empty.}
@@ -24,11 +26,14 @@ Scatters \code{n - 1} starting points around \code{par}, generated on the
 unconstrained scale so that any bounds are respected by construction.
 }
 \details{
-Each coordinate's range is cut into \code{n - 1} strata, each used exactly
-once, so the starts cannot all fall in one corner the way independent draws
-can. The range is \code{par} plus or minus \code{3 * spread} on the
-unconstrained scale, which for an unbounded parameter is the parameter itself
-and for a bounded one is its log or logit. A start for a variance is
-therefore drawn as a log and comes back positive with no rejected draw.
+The range of each coordinate is cut into \code{n - 1} strata, each used
+exactly once, so the starts cannot all fall in one corner, as independent
+draws can. On the unconstrained scale the range is the starting value
+\eqn{\eta_0} plus or minus
+\eqn{3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)}. The
+unconstrained scale is the parameter itself for an unbounded coordinate
+and its shifted log or scaled logit for a bounded one, so a start for a
+variance is drawn on the log scale and comes back positive, without a
+rejected draw.
 }
 \keyword{internal}

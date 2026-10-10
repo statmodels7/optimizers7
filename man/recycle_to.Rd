@@ -11,17 +11,17 @@ recycle_to(v, n, nm)
 
 \item{n}{The length wanted.}
 
-\item{nm}{The argument's name, for the message.}
+\item{nm}{The name of the argument, for the message.}
 }
 \value{
 A numeric vector of length \code{n}.
 }
 \description{
 Returns \code{v} at length \code{n}: a single value is repeated, a value already of
-length \code{n} is passed through as a double, and anything else raises an
-error naming the argument and both lengths. \R's own recycling is
-deliberately not used, since it is silent whenever the shorter length
-divides the longer, and a partial range is far likelier to be a mistake
-than a request.
+length \code{n} is passed through as a double, and any other length raises an
+error that names the argument and both lengths. The recycling of \R is not
+used, since it is silent whenever the shorter length divides the longer,
+and a partial range is much more likely to be a mistake than a
+request.
 }
 \keyword{internal}

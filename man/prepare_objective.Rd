@@ -17,14 +17,14 @@ prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
 The objective handle from \code{\link[=as_objective]{as_objective()}}.
 }
 \description{
-Normalizes the objective, checks the stopping rule can actually be evaluated
-by this optimizer, and checks the starting value.
+Normalizes the objective, checks that this optimizer can evaluate the
+stopping rule, and checks the starting value.
 }
 \details{
-The criterion check is the one worth explaining. A rule needing a gradient
-handed to a method that computes none would sit there testing \code{NULL} at
-every iteration and never fire, so the run would end on its iteration
-budget and report failure for a reason nowhere near the truth. Refusing it
-here, by name, turns that into an error a caller can act on.
+A rule that needs a gradient, used with a method that computes none,
+would test \code{NULL} at every iteration and never fire, so the run would end
+on its iteration budget and report a failure unrelated to the state of the
+run. The check rejects such a rule when the run starts, with an error that
+names the missing quantity and the method.
 }
 \keyword{internal}

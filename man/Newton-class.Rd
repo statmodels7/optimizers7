@@ -28,25 +28,26 @@ object, as in \code{\link[=newton]{newton()}}.}
 \item{hessian_mod}{How an indefinite Hessian is repaired, \code{"eigen"} or
 \code{"ridge"}.}
 
-\item{floor}{The smallest eigenvalue the repaired Hessian may have.}
+\item{floor}{The lower bound of the repair; see \code{\link[=newton]{newton()}}.}
 
 \item{max_length}{The largest component that a step may have.}
 
-\item{typical}{\code{NULL}, or the typical size of each parameter, in whose
-units the step lengths are read.}
+\item{typical}{\code{NULL}, or the typical size of each parameter, in the
+units of which the step lengths are measured.}
 }
 \value{
 An S7 object of class \code{Newton} inheriting from \code{\link[=optimizer]{optimizer()}}, with
 the six properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the initial step length, the line search, and the two
-settings that decide how an indefinite Hessian is repaired. Built by
-\code{\link[=newton]{newton()}}. It is the only shipped method that reads the \code{he} argument of
-\code{\link[=minimize]{minimize()}}.
+An optimizer holding the initial step length, the line search, the two
+settings that decide how an indefinite Hessian is repaired, and the two
+settings that bound and scale a step. Built by \code{\link[=newton]{newton()}}. Among the
+shipped methods, only this one and \code{\link[=chebyshev]{chebyshev()}}, which inherits from it,
+read the \code{he} argument of \code{\link[=minimize]{minimize()}}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Newton} carries five:
+Beyond the seven properties of every optimizer, a \code{Newton} carries six:
 \code{step} and \code{line_search}, shared with the other line-search methods, and
 \code{hessian_mod}, \code{floor}, \code{max_length} and \code{typical}, which are its own.
 }

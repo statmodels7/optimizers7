@@ -18,7 +18,7 @@ whose \code{gradient} is the proximal gradient mapping at \code{par} rather than
 \description{
 Runs \code{\link[=prox_grad]{prox_grad()}} on the objective: a backtracked gradient step on the
 smooth part, the proximal operator applied to the result, and the momentum
-extrapolation with its restart. Box bounds are refused here, with a
-message naming \code{prox} as where the constraint belongs.
+extrapolation with its restart. Box bounds are rejected here, with a
+message that names \code{prox} as the place for the constraint.
 }
 \keyword{internal}

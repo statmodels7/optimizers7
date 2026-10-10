@@ -18,18 +18,21 @@ Invisibly \code{TRUE}. Raises an error naming the offending argument
 otherwise.
 }
 \description{
-Checks the seven arguments common to every constructor, so that all
-fifteen reject the same nonsense in the same words. Called at the top of
-each constructor, before any algorithm-specific validation.
+Checks the six arguments common to the constructors (the stopping rule,
+\code{maxit}, \code{max_eval}, \code{verbose}, \code{refresh} and \code{keep_trace}), so that every
+constructor that calls it rejects invalid settings with the same messages.
+It is called at the top of each such constructor, before any validation
+specific to the algorithm.
 }
 \details{
-The rules, and they differ from one another:
+The rules are:
 \itemize{
 \item \code{criterion} must inherit from \code{\link[=criterion]{criterion()}}.
 \item \code{maxit} must be a single number at least 1 \strong{and finite}.
 \item \code{max_eval} must be a single number at least 1; \code{Inf} passes.
 \item \code{refresh} must be a single number at least 0.
-\item \code{verbose} and \code{keep_trace} must each be \code{TRUE} or \code{FALSE}, \code{NA} refused.
+\item \code{verbose} and \code{keep_trace} must each be \code{TRUE} or \code{FALSE}; \code{NA} is
+rejected.
 }
 }
 \keyword{internal}

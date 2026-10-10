@@ -15,8 +15,8 @@ Raises an error otherwise.
 }
 \description{
 Checks that \code{npar} is a single positive whole number, or \code{NULL}, and
-returns it as an integer. Called by both starter constructors, so
-\code{start_zeros(0)} and \code{start_runif(npar = 2.5)} are refused in the same
-words at the point they are written.
+returns it as an integer. Called by both starter constructors, so that
+\code{start_zeros(0)} and \code{start_runif(npar = 2.5)} are rejected with the same
+message where they are written.
 }
 \keyword{internal}

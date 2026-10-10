@@ -7,44 +7,44 @@
 line_search(label = character(0))
 }
 \arguments{
-\item{label}{A short character label, shown when the optimizer carrying it
-is printed.}
+\item{label}{A short character label, shown when the optimizer that
+contains the search is printed.}
 }
 \value{
 An S7 object of class \code{line_search}, carrying \code{label}. The class
 is abstract, so every value is an object of one of its three subclasses.
 }
 \description{
-The abstract parent of the three line searches. A line search answers one
-question, how far to travel along a direction another piece of the method
-has already chosen, and it answers it as an object, so Newton, BFGS,
-L-BFGS, conjugate gradients, gradient descent and Barzilai-Borwein share
-one carefully written answer and a caller can replace it without touching
-the method.
+The abstract parent of the three line searches. A line search decides how
+far to travel along a direction that the method has already chosen. It is
+an object, so the descent methods (\code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}},
+\code{\link[=cg]{cg()}}, \code{\link[=gd]{gd()}}, \code{\link[=bb]{bb()}} and \code{\link[=chebyshev]{chebyshev()}}) share one implementation, and a
+caller can replace it without changing the method.
 }
 \details{
-What every subclass guarantees is \emph{sufficient decrease}, Armijo's
-condition
+Every subclass guarantees \emph{sufficient decrease}. For \code{\link[=armijo]{armijo()}} and
+\code{\link[=wolfe]{wolfe()}} this is Armijo's condition
 
 \deqn{f(x + \alpha d) \le f(x) + c_1 \alpha\, g^\top d,
   \qquad 0 < c_1 < 1,}
 
-which asks for a fraction \eqn{c_1} of the decrease the linear model
-predicts, and so rules out steps that shrink the objective by an amount
-vanishing faster than the step itself. \code{\link[=wolfe]{wolfe()}} adds the strong
-curvature condition
+which requires at least the fraction \eqn{c_1} of the decrease that the
+linear model predicts, and so rules out steps that reduce the objective by
+an amount that vanishes faster than the step itself. \code{\link[=wolfe]{wolfe()}} adds the
+strong curvature condition
 
 \deqn{\lvert \nabla f(x + \alpha d)^\top d \rvert \le
       c_2 \lvert g^\top d \rvert, \qquad c_1 < c_2 < 1,}
 
-which excludes steps too short to have moved the directional derivative,
-and is the guarantee \code{\link[=bfgs]{bfgs()}} needs for its secant pair to carry usable
-curvature. \code{\link[=nonmonotone]{nonmonotone()}} keeps Armijo's condition and replaces \eqn{f(x)}
-by the worst of the last few values.
+which excludes steps too short to have changed the directional derivative,
+and which gives \code{\link[=bfgs]{bfgs()}} a secant pair with usable curvature.
+\code{\link[=nonmonotone]{nonmonotone()}} keeps the form of Armijo's condition and replaces
+\eqn{f(x)} by the largest of the last few values.
 
 The class is abstract; use \code{\link[=armijo]{armijo()}}, \code{\link[=wolfe]{wolfe()}} or \code{\link[=nonmonotone]{nonmonotone()}}. A
-fourth would need a branch in the compiled loop, so the set is not
-extensible from outside the package as the criteria are.
+fourth search would need a branch in the compiled loop, so, unlike the
+criteria, the set of line searches cannot be extended from outside the
+package.
 }
 \section{Notation}{
 
@@ -64,10 +64,9 @@ wolfe()
 
 nonmonotone()
 
-# A method takes whichever it is given. On a problem where nothing goes
-# wrong the two cost about the same; where they differ is on a method that
-# needs the curvature condition, and on how a non-smooth problem is
-# handled.
+# A method uses the search that it is given. On a smooth problem the two
+# cost about the same; they differ on a method that needs the curvature
+# condition and on a non-smooth problem.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
@@ -76,8 +75,8 @@ rbind(armijo = unlist(minimize(bfgs(line_search = armijo()), f,
       wolfe  = unlist(minimize(bfgs(line_search = wolfe()), f,
                                c(-1.2, 1), gr = g)@counts))
 
-# The non-smooth problem of the battery, where Armijo is the better of the
-# two and Wolfe stops without converging.
+# The non-smooth problem of the battery, on which BFGS converges with
+# Armijo and stops without converging with Wolfe.
 k <- test_problems("abs_sum")[[1]]
 rbind(armijo = c(value = minimize(bfgs(line_search = armijo()), k$fn,
                                   k$par, gr = k$gr)@value),

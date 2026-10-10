@@ -40,25 +40,26 @@ An S7 object of class \code{MultiStart} inheriting from \code{\link[=optimizer]{
 with the six properties above beside the seven shared ones.
 }
 \description{
-An optimizer wrapping another and running it from several starting points.
-Built by \code{\link[=multistart]{multistart()}}. Its seven shared properties describe the wrapper
-and not the inner run: \code{criterion}, \code{max_eval} and the rest are copied
-from the optimizer inside so that printing tells the truth, while \code{maxit}
-counts \strong{starts}.
+An optimizer that wraps another and runs it from several starting points.
+Built by \code{\link[=multistart]{multistart()}}. Its seven shared properties describe the wrapper:
+\code{criterion} and \code{max_eval} are copied from the inner optimizer, so that
+the printed stopping rule and evaluation budget are those in force;
+\code{verbose}, \code{refresh} and \code{keep_trace} are the arguments of \code{\link[=multistart]{multistart()}};
+and \code{maxit} counts \strong{starts}.
 }
 \details{
 Beyond the seven shared properties a \code{MultiStart} carries six of its own:
-\code{optimizer} is the one being wrapped, \code{n}, \code{starts} and \code{spread} say where
-the runs begin, \code{ncores} how they are spread over processes, and
-\code{distinct_tol} how close two answers must be to count as one.
+\code{optimizer} is the wrapped optimizer, \code{n}, \code{starts} and \code{spread} describe
+where the runs begin, \code{ncores} how they are distributed over processes,
+and \code{distinct_tol} how close two values must be to count as one optimum.
 
 Because the rule that is evaluated belongs to the inner optimizer,
 \code{\link[=with_criterion]{with_criterion()}} has a method for this class that sets both; setting the
-outer property alone changes the printing and nothing else.
+outer property alone changes only the printing.
 }
 \seealso{
 \code{\link[=multistart]{multistart()}} for the constructor, \code{\link[=chain]{chain()}} for the other
-wrapper, \code{\link[=with_criterion]{with_criterion()}} for why setting the outer rule is not
-enough.
+wrapper, \code{\link[=with_criterion]{with_criterion()}} for the reason why setting the outer rule is
+not enough.
 }
 \keyword{internal}

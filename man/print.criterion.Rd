@@ -12,9 +12,9 @@
 \code{x}, invisibly. Called for the output.
 }
 \description{
-Shows a criterion in one line, as \verb{<criterion>} and its label. The label
-is what the result reports in \code{criterion_met}, so printing a rule shows
-exactly the string a converged run will carry.
+Shows a criterion in one line, as \verb{<criterion>} followed by its label.
+When the rule ends a run, the result reports the same label in
+\code{criterion_met}.
 }
 \examples{
 crit_grad()
@@ -24,7 +24,7 @@ crit_stationary(1e-10)
 crit_any(crit_grad(), crit_rel_obj())
 crit_any(crit_all(crit_grad(), crit_abs_par()), crit_never())
 
-# And it is the string the result reports.
+# The result of a run that ends on the rule reports the same string.
 r <- minimize(bfgs(criterion = crit_grad()), function(p) sum(p^2), c(1, 1),
               gr = function(p) 2 * p)
 r@criterion_met

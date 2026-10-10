@@ -10,18 +10,20 @@
 \code{FALSE}.
 }
 \description{
-Returns \code{FALSE}, the only shipped method that does. A box constraint is
-itself a non-smooth term, expressed by the projection onto the box, and
-this method already has a slot for such a term: \code{prox}. Offering bounds
-beside it would be a second and conflicting route to the same thing, and
-the two operators would have to be composed by somebody.
+Returns \code{FALSE}; it is the only shipped method that does. A box
+constraint is itself a non-smooth term, expressed by the projection onto
+the box, and this method already receives such a term through \code{prox}.
+Bounds beside it would be a second, conflicting way of imposing a
+constraint, and the two operators would have to be composed.
 }
 \details{
-\code{\link[=check_optimizer]{check_optimizer()}} consults this before running its bounds check, so a
-method that answers \code{FALSE} is not failed for refusing a box it never
-promised. The composition a caller writes instead is
-\code{prox(v, t) = pmin(pmax(prox_penalty(v, t), lower), upper)}, which imposes
-both terms exactly.
+\code{\link[=check_optimizer]{check_optimizer()}} reads this declaration before its bounds check, so a
+method that returns \code{FALSE} is not failed for rejecting bounds. For a
+penalty that is convex and separable coordinate by coordinate, such as
+the lasso or the ridge, the composition
+\code{prox(v, t) = pmin(pmax(prox_penalty(v, t), lower), upper)} is the
+proximal operator of the penalty plus the box. For a nonconvex or a
+non-separable penalty the composition is not the operator of the sum.
 }
 \examples{
 pg <- prox_grad(prox = function(v, t) v, g = function(b) 0)

@@ -16,21 +16,21 @@ A single logical.
 \description{
 \code{TRUE} when the optimizer honors the \code{lower} and \code{upper} arguments of
 \code{\link[=minimize]{minimize()}}, so that \code{\link[=check_optimizer]{check_optimizer()}} tests them, and \code{FALSE} for a
-method that takes its constraint another way.
+method that takes its constraint in another way.
 }
 \details{
-Every method here removes bounds by reparametrization and answers \code{TRUE},
-which is the default. \code{\link[=prox_grad]{prox_grad()}} is the one exception: a constraint
-reaches it inside the proximal operator, where it composes with the term
-already there, so bounds beside the objective would be a second and
-conflicting route to the same thing.
+Every method in the package except \code{\link[=prox_grad]{prox_grad()}} removes bounds by
+reparametrization and returns \code{TRUE}, which is the default. \code{\link[=prox_grad]{prox_grad()}}
+receives a constraint inside the proximal operator, where it combines
+with the non-smooth term, so bounds beside the objective would be a
+second, conflicting way of imposing the same constraint.
 
-A wrapper answers for what it contains. \code{\link[=chain]{chain()}} is bounded only when
-\strong{every} stage is, the bounds being passed to all of them.
+A wrapper returns the answer of what it contains. \code{\link[=chain]{chain()}} is bounded
+only when \strong{every} stage is, since the bounds are passed to all of them,
+and \code{\link[=multistart]{multistart()}} returns the answer of its inner optimizer.
 
-The declaration is read by \code{\link[=check_optimizer]{check_optimizer()}} before its seventh check,
-so a method answering \code{FALSE} is not failed for refusing a box it never
-promised.
+\code{\link[=check_optimizer]{check_optimizer()}} reads the declaration before its seventh check, so a
+method that returns \code{FALSE} is not failed for rejecting bounds.
 }
 \examples{
 optimizer_bounded(bfgs())

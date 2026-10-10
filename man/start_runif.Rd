@@ -20,23 +20,25 @@ be passed as \code{par}.
 }
 \description{
 Each coordinate is drawn independently from \code{runif(min, max)} on the
-unconstrained scale and mapped back through the bounds, so no draw is ever
-rejected for being outside the box.
+unconstrained scale and mapped back through the bounds, so every draw
+lies inside the box.
 }
 \details{
-The range is in unconstrained units, and a single default is workable
-because of it. A draw in \eqn{(-1, 1)} becomes a variance between
-\code{0.368} and \code{2.72}, a probability between \code{0.269} and \code{0.731}, and a
-parameter bounded on both sides lands well inside its interval. The same
-numbers on the parameter scale would mean quite different things and would
-sometimes be inadmissible.
+The range is in unconstrained units, which makes a single default
+usable. A draw in \eqn{(-1, 1)} becomes a variance between \code{0.368} and
+\code{2.72}, a probability between \code{0.269} and \code{0.731}, and a parameter bounded
+on both sides lies well inside its interval. The same numbers on the
+parameter scale would have different meanings for different parameters
+and would sometimes be inadmissible.
 
-Widen it when the scale of the problem is unknown. \code{start_runif(-5, 5)}
+A wider range suits a problem of unknown scale. \code{start_runif(-5, 5)}
 spans \code{0.0067} to \code{148} for a positive parameter, four orders of
-magnitude, and is still a range no draw can fall out of.
+magnitude, and every draw still lies inside the box.
 
-The draw uses \R's ordinary generator, so \code{\link[=set.seed]{set.seed()}} reproduces it, and
-the state is recorded in the result's \code{seed}.
+The draw uses the ordinary generator of \R, so \code{\link[=set.seed]{set.seed()}} reproduces
+it. The draw is made before the optimizer starts, so the \code{seed} that a
+stochastic optimizer records does not reproduce the draw, and a
+deterministic optimizer records no \code{seed}.
 }
 \examples{
 f <- function(p) sum((p - c(1, 2, 3))^2)
@@ -53,7 +55,7 @@ minimize(bfgs(), function(p) (log(p) - 1)^2, start_runif(-5, 5, npar = 1),
          lower = 0)@par
 
 # One range per parameter is allowed; a length that is neither 1 nor npar
-# is refused when the draw is made.
+# is rejected when the draw is made.
 set.seed(1)
 starting_values(start_runif(c(-1, -10), c(1, 10)), 2)
 try(starting_values(start_runif(c(-1, -2, -3)), 2))

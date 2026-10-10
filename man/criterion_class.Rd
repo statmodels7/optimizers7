@@ -12,14 +12,14 @@ The \code{\link[=criterion]{criterion()}} class object, an \code{S7_class}.
 \description{
 Returns the \code{\link[=criterion]{criterion()}} class itself, for code that has to test whether
 a value inherits from it. The indirection exists because the functions
-asking that question take an argument named \code{criterion}, which shadows the
+that make this test take an argument named \code{criterion}, which shadows the
 class inside their own body.
 }
 \details{
 Written directly, \code{S7_inherits(criterion, criterion)} inside a function
-whose formal is \code{criterion} compares the value with itself, and S7 stops
-with \verb{`class` must be an <S7_class> or NULL}. Reaching the class
-through a function of no arguments looks it up in the namespace, past the
-formal. \code{\link[=check_optimizer_args]{check_optimizer_args()}} is the caller.
+whose formal is \code{criterion} passes the value of the argument as the class,
+and S7 stops with \verb{`class` must be an <S7_class> or NULL}. A
+function of no arguments looks the class up in the namespace, where the
+formal does not shadow it. \code{\link[=check_optimizer_args]{check_optimizer_args()}} is the caller.
 }
 \keyword{internal}

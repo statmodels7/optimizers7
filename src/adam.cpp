@@ -188,6 +188,20 @@ Rcpp::List adam_run(Rcpp::List spec,
   const double f_end = obj->value(x);
   const arma::vec g_end = obj->grad(x);
 
+  // The rule is asked at the top of the next pass, so a run that ends on a
+  // budget has not yet asked it about the point the last pass produced. The
+  // gradient there has just been computed, so it is asked now: the verdict on
+  // the point that is returned does not depend on whether one more pass
+  // would have been allowed.
+  if (have_prev && (stopped_by == "maxit" || stopped_by == "max_eval") &&
+      g_end.is_finite() &&
+      ask_criterion(crit_fn, criterion, it, f_end, f_prev, x, x_prev,
+                    g_end, true, true)) {
+    converged = true;
+    stopped_by = "criterion";
+    note = "";
+  }
+
   if (verbose) {
     Rcpp::Rcout << "  stopped after " << it << " iterations ("
                 << stopped_by << "), objective " << f_end << "\n";

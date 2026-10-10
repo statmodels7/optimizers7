@@ -10,19 +10,16 @@ capture_seed()
 An integer vector, the value of \code{.Random.seed}.
 }
 \description{
-The state \code{.Random.seed} held before a run that draws random numbers, so
-that the run can be repeated exactly.
+Returns the value of \code{.Random.seed} before a run that draws random
+numbers, so that the run can be repeated exactly.
 }
 \details{
-Assigning the recorded value back into the global environment reproduces the
-run. When no stream exists yet one uniform is drawn to force \R to create
-one, which costs a single discarded number on the first stochastic call of a
-session.
+Assigning the recorded value back into the global environment reproduces
+the run. When no stream exists yet, one uniform is drawn to make \R create
+one, which costs a single discarded number on the first stochastic call of
+a session.
 
-It is emphatically \strong{not} done with \code{set.seed(NULL)}, which
-reseeds from the clock and throws away whatever the caller had set. That is a
-defect this toolkit has already met once: it made a check in \pkg{distributions7}
-silently random, and the resulting test failed about one CI run in several
-hundred, on whichever platform happened to draw it.
+The stream is \strong{not} created with \code{set.seed(NULL)}, which reseeds from
+the clock and discards the seed that the caller had set.
 }
 \keyword{internal}

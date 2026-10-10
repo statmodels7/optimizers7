@@ -11,12 +11,15 @@ and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose trace, when kept, reports
-\verb{bb curvature reset} where a secant pair carried none and
-\verb{step shortened} where the step was clamped or backtracked.
+\verb{bb curvature reset} where a secant pair had no usable curvature,
+\verb{bb step clamped} where the step was clamped to
+\verb{[alpha_min, alpha_max]}, and \verb{step shortened} where the line search
+backtracked.
 }
 \description{
-Runs \code{\link[=bb]{bb()}} on the objective: form the step length from the previous
-secant pair, offer that step to the line search unaltered, and backtrack
-only if it is rejected. Shares the descent loop with \code{\link[=gd]{gd()}} and \code{\link[=cg]{cg()}}.
+Runs \code{\link[=bb]{bb()}} on the objective: the step length is formed from the
+previous secant pair and offered to the line search unaltered, which
+backtracks only if it is rejected. It shares the descent loop with \code{\link[=gd]{gd()}}
+and \code{\link[=cg]{cg()}}.
 }
 \keyword{internal}

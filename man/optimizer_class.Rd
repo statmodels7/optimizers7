@@ -10,15 +10,16 @@ optimizer_class()
 The \code{\link[=optimizer]{optimizer()}} class object, an \code{S7_class}.
 }
 \description{
-Returns the \code{\link[=optimizer]{optimizer()}} class itself, for the same reason
-\code{\link[=criterion_class]{criterion_class()}} exists: the three functions that accept an arbitrary
-optimizer and must check what they were given all take an argument named
+Returns the \code{\link[=optimizer]{optimizer()}} class itself, for the same reason as
+\code{\link[=criterion_class]{criterion_class()}}: the three functions that accept an arbitrary
+optimizer and check their argument all take an argument named
 \code{optimizer}, which shadows the class inside their body.
 }
 \details{
 The callers are \code{\link[=multistart]{multistart()}}, which wraps an optimizer, \code{\link[=chain]{chain()}},
 which holds a list of them, and \code{\link[=check_optimizer]{check_optimizer()}}, which tests one.
-Each rejects a non-optimizer with a message of its own; without the check
-the failure would surface later, inside \code{\link[=minimize]{minimize()}} dispatch.
+Each rejects a value that is not an optimizer with a message of its own;
+without the check the failure would appear later, in the dispatch of
+\code{\link[=minimize]{minimize()}}.
 }
 \keyword{internal}

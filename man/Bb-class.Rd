@@ -28,7 +28,8 @@ Bb(
 
 \item{alpha0}{The step length used before there is a secant pair.}
 
-\item{alpha_min, alpha_max}{Bounds the step length is clamped to.}
+\item{alpha_min, alpha_max}{The bounds to which the step length is
+clamped.}
 
 \item{curv_tol}{The relative threshold below which a secant pair is
 rejected.}
@@ -42,16 +43,16 @@ seven properties above beside the seven shared ones.
 }
 \description{
 An optimizer holding which of the two Rayleigh quotients gives the step
-length, the bounds that quotient is clamped to, the curvature threshold a
-secant pair must meet, and the usual step multiplier and line search.
-Built by \code{\link[=bb]{bb()}}. Its line search defaults to \code{\link[=nonmonotone]{nonmonotone()}}, the only
-shipped method for which it does.
+length, the bounds to which that quotient is clamped, the curvature
+threshold that a secant pair must meet, and the step multiplier and the
+line search. Built by \code{\link[=bb]{bb()}}. Its line search defaults to \code{\link[=nonmonotone]{nonmonotone()}};
+it is the only shipped method with that default.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{Bb} carries seven of
+Beyond the seven properties of every optimizer, a \code{Bb} carries seven of
 its own: \code{variant}, \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curv_tol} for
-the step-length estimate, and \code{step} and \code{line_search} for what is done
-with it.
+the step-length estimate, and \code{step} and \code{line_search} for the search
+along the direction.
 }
 \seealso{
 \code{\link[=bb]{bb()}} for the constructor, \code{\link[=nonmonotone]{nonmonotone()}} for the acceptance

@@ -13,15 +13,15 @@ An S7 object of class \code{CritNever} inheriting from \code{\link[=criterion]{c
 carrying \code{label} alone.
 }
 \description{
-The rule \code{\link[=crit_never]{crit_never()}} builds. Its \code{crit_met()} returns \code{FALSE} at every
-state without reading anything, so a run carrying it ends only when a
-budget runs out and reports \code{converged = FALSE}. It declares nothing
-through \code{\link[=crit_needs]{crit_needs()}}, so no optimizer refuses it.
+The class of the rule built by \code{\link[=crit_never]{crit_never()}}. Its \code{crit_met()} returns
+\code{FALSE} at every state without reading it, so a run with this rule ends
+when a budget runs out or when the method stops for a reason of its own.
+It declares nothing through \code{\link[=crit_needs]{crit_needs()}}, so every optimizer accepts it.
 }
 \details{
-It carries no \code{tol}, having nothing to compare, and is the only criterion
-class with no property beyond \code{label}. \code{\link[=adam]{adam()}} is the one shipped method
-that defaults to it.
+It has no \code{tol}, since it compares nothing, and it is the only criterion
+class with no property beyond \code{label}. \code{\link[=adam]{adam()}} is the only shipped
+method that uses it by default.
 }
 \examples{
 crit_needs(crit_never())

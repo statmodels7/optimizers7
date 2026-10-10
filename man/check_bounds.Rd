@@ -23,22 +23,21 @@ Recycles \code{lower} and \code{upper} to the length of \code{par}, checks
 them, and returns them in the shape the compiled loop reads.
 }
 \details{
-The interface is two numeric vectors rather than a list of pairs, which is
-what \code{stats::optim} and \code{stats::nlminb} take and what makes
-\code{lower = 0} say "every parameter is positive" in four characters instead
-of a list of identical pairs one per coefficient. The list of pairs is an
-internal shape, produced here, because that is what the per-coordinate
-transform on the C++ side wants.
+The interface is two numeric vectors and not a list of pairs, as in
+\code{stats::optim} and \code{stats::nlminb}, so that \code{lower = 0} makes every
+parameter positive without one pair per coefficient. The list of pairs is
+an internal shape, produced here, because the transform of each coordinate
+in the compiled code reads it.
 
-Recycling is length one or length \code{p} and nothing between: a
-\code{lower} of length 2 for three parameters is far more likely to be a
-mistake than a request, and R's ordinary recycling would silently oblige.
+Recycling is to length one or length \code{p} and nothing between: a \code{lower} of
+length 2 for three parameters is much more likely to be a mistake than a
+request, and the ordinary recycling of R would accept it silently.
 
-The starting value must be strictly interior, and rejecting a boundary start
-is not pedantry. The reparametrization sends a bound to an infinite value of
-the transformed variable, so a run started exactly on one begins at infinity:
-every subsequent quantity is non-finite and the failure surfaces far from its
-cause. Saying so here, naming the coordinate, costs one check.
+The starting value must be strictly interior. The reparametrization sends
+a bound to an infinite value of the transformed variable, so a run that
+starts exactly on a bound would begin at infinity, every later quantity
+would be non-finite, and the failure would appear far from its cause. The
+error raised here names the coordinate.
 }
 \examples{
 check_bounds(0, Inf, par = c(1, 2))

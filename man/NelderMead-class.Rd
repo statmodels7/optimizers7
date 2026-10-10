@@ -44,10 +44,10 @@ that has collapsed. Built by \code{\link[=nelder_mead]{nelder_mead()}}. The simp
 inside the run; the \code{simplex} property is a starting one, or \code{NULL}.
 }
 \details{
-Beyond the seven properties every optimizer has, a \code{NelderMead} carries
-five of its own: \code{step} and \code{simplex} describe where the run begins,
-\code{adaptive} which coefficients it uses, and \code{max_restarts} with
-\code{degenerate_tol} the safeguard.
+Beyond the seven properties of every optimizer, a \code{NelderMead} carries
+five of its own: \code{step} and \code{simplex} describe the starting simplex,
+\code{adaptive} selects the coefficients, and \code{max_restarts} and
+\code{degenerate_tol} control the safeguard.
 }
 \seealso{
 \code{\link[=nelder_mead]{nelder_mead()}} for the constructor, \link{Compass} for the other

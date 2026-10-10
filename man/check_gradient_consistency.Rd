@@ -18,34 +18,36 @@ Invisibly \code{TRUE}; warns on a gross mismatch.
 }
 \description{
 Compares the directional derivative of \code{fn} along the gradient direction
-at \code{par}, obtained from one central difference, with the rate the supplied
-\code{gr} predicts. A gradient computed from a different model than the
-objective, such as one holding a predictor fixed where the objective
-varies it or reading a stale copy of the data, makes the two disagree
-grossly. Without this check the symptom downstream is a mute line-search
-failure at the first iteration.
+at \code{par}, obtained from one central difference, with the rate predicted
+by the supplied \code{gr}. A gradient computed from a different model than the
+objective, such as one that holds a predictor fixed where the objective
+varies it or that reads an outdated copy of the data, makes the two
+disagree by a large factor. Without this check the effect is a
+line-search failure at the first iteration, with no indication of its
+cause.
 }
 \details{
-The check costs one call to \code{gr} and two to \code{fn} (six where the first
-difference disagrees), runs once per
-\code{\link[=minimize]{minimize()}} call, and is skipped whenever it cannot be decisive: a
-non-function objective, a non-finite gradient at \code{par}, an objective that
-is not finite at the probe points, and a gradient too small to be
-distinguished from the truncation error of the difference it is compared
-with. That last case is the one a caller who starts at the optimum
-supplies, and firing there would penalize the best possible start.
+The check costs one call to \code{gr} and two to \code{fn}, runs once per call of
+\code{\link[=minimize]{minimize()}}, and is skipped when it cannot decide: for an objective that
+is not a function, a gradient that is not finite at \code{par}, an objective
+that is not finite at the probe points, and a gradient too small to be
+distinguished from the truncation error of the difference. The last case
+arises when a caller starts at the optimum, where a warning would be
+wrong.
 
-The tolerance is deliberately loose, a relative disagreement above one
-half, so that finite-difference error or a subgradient of a non-smooth
-objective does not trip it. It exists to catch the wrong function, not the
-eighth digit. A disagreement at the first step is checked again at steps
-ten and a hundred times smaller, and the warning is given only if it
-persists: the step is scaled by the length of \code{par}, so a large coordinate
-can make it too long for a strongly curved direction, and the truncation
-error of the difference shrinks with the step where a wrong gradient does
-not. A check that has to repeat costs four more calls to \code{fn}.
+The tolerance is loose, a relative disagreement above one half, so that
+the error of the difference or a subgradient of a non-smooth objective
+does not trigger it. It is meant to detect a wrong function, not an error
+in the eighth digit. A disagreement at the first step is checked again at
+a step ten times smaller and, if it persists, at a step a hundred times
+smaller, and the warning is given only if it persists at both: the step
+is scaled by the length of \code{par}, so a large coordinate can make it too
+long for a strongly curved direction, and the truncation error of the
+difference shrinks with the step, whereas the disagreement of a wrong
+gradient does not. Each repetition costs two more calls to \code{fn}.
 
-Setting \code{options(optimizers7.check_gradient = FALSE)} disables it, and
-\code{\link[=multistart]{multistart()}} disables it for its inner runs after the first.
+Setting \code{options(optimizers7.check_gradient = FALSE)} disables it.
+\code{\link[=multistart]{multistart()}} disables it for all its inner runs, since the generic has
+already checked the gradient at the starting value of the caller.
 }
 \keyword{internal}

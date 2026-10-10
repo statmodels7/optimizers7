@@ -21,22 +21,24 @@ A named list of three numeric vectors, each as long as \code{eta}:
 }
 }
 \description{
-Evaluates the reparametrization a set of bounds implies. This is how the
-package removes a box, and it is exported so that a \code{\link[=minimize]{minimize()}}
-user-defined method can remove one the same way.
+Evaluates the reparametrization defined by a pair of bounds. The package
+removes a box in this way, and the function is exported so that a
+user-defined \code{\link[=minimize]{minimize()}} method can remove one in the same way.
 }
 \details{
-Bounds are removed here, not enforced. The map is a shifted log for a
-one-sided bound, a scaled logit for a two-sided one, and the identity for
-neither, so optimizing in \eqn{\eta} makes every proposed point admissible
-by construction.
+Bounds are removed here and not enforced. The map \eqn{h} is a shifted
+exponential for a one-sided bound, a scaled logistic function for a
+two-sided one, and the identity for neither (its inverse,
+\code{\link[=bounded_forward]{bounded_forward()}}, is the shifted log or the scaled logit), so
+optimizing in \eqn{\eta} makes every proposed point admissible by
+construction.
 
-What \eqn{\eta = 0} becomes is the midpoint of the box in the map's own
-sense: \code{1} for \eqn{(0, \infty)}, \code{0.5} for \eqn{(0, 1)}, \code{4} for
-\eqn{(2, 6)}, and \code{0} where there is no bound at all. That is why
-\code{\link[=start_zeros]{start_zeros()}} is a sensible default start whatever the parameter means.
+The image of \eqn{\eta = 0} is the middle of the box in the sense of the
+map: \code{1} for \eqn{(0, \infty)}, \code{0.5} for \eqn{(0, 1)}, \code{4} for
+\eqn{(2, 6)}, and \code{0} where there is no bound. For this reason
+\code{\link[=start_zeros]{start_zeros()}} gives a sensible start for every kind of parameter.
 }
-\section{Using it in a method of your own}{
+\section{Using it in a method written by the caller}{
 Map the starting value with \code{\link[=bounded_forward]{bounded_forward()}}, run unconstrained, and
 wrap the objective so that it maps back before evaluating. The Jacobian is
 diagonal, so the chain rule is one product per coordinate,
@@ -45,25 +47,25 @@ and \code{d2} is needed only when a Hessian is transformed, where it appears on
 the diagonal alone. Report \code{par} on the caller's scale.
 }
 
-\section{Where it comes from}{
-These are \pkg{linkfunctions7}'s \code{bounded_link()} written out in C++,
-because the transform is applied at every objective evaluation and a
-callback into R there would undo the reason for compiling the loop. The
-test suite pins them to \code{linkinv()}, \code{dlinkinv()} and \code{d2linkinv()} on
-every run, so the copy cannot drift from the original.
+\section{Relation to linkfunctions7}{
+\eqn{h} and its two derivatives are the inverse link of \code{bounded_link()}
+of \pkg{linkfunctions7} and its derivatives, written in C++ because the transform is applied at every evaluation of the
+objective, where a callback into R would cost more than the loop saves.
+The test suite compares them with \code{linkinv()}, \code{dlinkinv()} and
+\code{d2linkinv()}, so that the copy stays equal to the original.
 }
 
 \examples{
-# A variance: the whole line maps onto the positive half, and no value of
-# eta, however absurd, leaves it.
+# A variance: the whole line maps onto the positive half-line, and every
+# value of eta, however large, maps inside it.
 bounded_transform(c(0, Inf), c(-2, 0, 2))$h
 bounded_transform(c(0, Inf), c(-500, 500))$h > 0
 
 # A probability, with the derivative that carries a gradient across.
 str(bounded_transform(c(0, 1), c(-1, 0, 1)))
 
-# Zero is the middle of the box, whichever box it is. This is why
-# start_zeros() means something sensible for every kind of parameter.
+# Zero maps to the middle of the box, whatever the box. For this reason
+# start_zeros() gives a sensible start for every kind of parameter.
 vapply(list(c(-Inf, Inf), c(0, Inf), c(0, 1), c(2, 6)),
        function(b) bounded_transform(b, 0)$h, 0)
 

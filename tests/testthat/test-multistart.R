@@ -171,7 +171,7 @@ test_that("a mads run repeats from its own recorded seed", {
 test_that("the constructor refuses nonsense", {
   expect_error(multistart("bfgs"), "must be an optimizer")
   expect_error(multistart(bfgs(), n = 0), "'maxit'")
-  expect_error(multistart(bfgs(), spread = -1), "'tol'")
+  expect_error(multistart(bfgs(), spread = -1), "'spread'")
   expect_error(multistart(bfgs(), starts = 1:3), "one starting point per row")
   expect_error(multistart(bfgs(), ncores = 0), "'ncores'")
   expect_error(multistart(bfgs(), ncores = 2.5), "'ncores'")

@@ -8,8 +8,8 @@ crit_rel_obj(tol = 1e-12)
 }
 \arguments{
 \item{tol}{Numeric tolerance, a single positive number. Defaults to
-\code{1e-12}, tighter than \code{\link[=crit_abs_obj]{crit_abs_obj()}}'s because the quantity compared
-is a ratio.}
+\code{1e-12}, smaller than the default of \code{\link[=crit_abs_obj]{crit_abs_obj()}} because the
+quantity compared is a ratio.}
 }
 \value{
 An S7 object of class \link{CritRelObj}, inheriting from
@@ -20,16 +20,15 @@ The rule
 \eqn{\lvert f_{new} - f_{old} \rvert < \texttt{tol}\,(\lvert f_{old} \rvert + \texttt{tol})}.
 }
 \details{
-The \code{+ tol} in the denominator is a floor, and it is load-bearing: an
-objective whose optimum sits at zero would otherwise be compared against a
-vanishing scale, and the rule would either never fire or fire at once.
+The term \code{+ tol} is a floor on the scale. Without it the threshold would
+be zero at an objective value of zero, and since the comparison is strict
+the rule could never fire at an optimum of zero.
 
-It was in the gradient methods' default rule until version 0.6.0 and is
-not any more, because it never fired there: measured over the package's
-own \code{\link[=test_problems]{test_problems()}}, six methods on eight problems, the default with it
-and the default without it agree on every flag, every evaluation count and
-every reported point. It remains useful where an objective's scale is not
-known in advance, which is exactly where \code{\link[=crit_abs_obj]{crit_abs_obj()}} is hard to set.
+The rule was part of the default rule of the gradient methods until
+version 0.6.0. It was removed because on the package's \code{\link[=test_problems]{test_problems()}}
+it never fired before the other terms. It is useful where the scale of the
+objective is not known in advance, which is where \code{\link[=crit_abs_obj]{crit_abs_obj()}} is
+hard to set.
 }
 \examples{
 crit_rel_obj()
@@ -39,11 +38,11 @@ c(small = crit_met(crit_rel_obj(1e-6), list(f_new = 1, f_old = 1 + 1e-7)),
   large = crit_met(crit_rel_obj(1e-6),
                    list(f_new = 1e6, f_old = 1e6 + 1e-7)))
 
-# And the floor, which keeps an optimum at zero usable.
+# With the floor, the rule can fire at an optimum of zero.
 crit_met(crit_rel_obj(), list(f_new = 1e-30, f_old = 0))
 
 }
 \seealso{
-\code{\link[=crit_abs_obj]{crit_abs_obj()}} for the version in the objective's own units,
-\code{\link[=crit_any]{crit_any()}} for the default rule it left.
+\code{\link[=crit_abs_obj]{crit_abs_obj()}} for the version in the units of the objective,
+\code{\link[=crit_any]{crit_any()}} for the default rule of the gradient methods.
 }

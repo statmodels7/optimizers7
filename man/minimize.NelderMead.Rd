@@ -7,13 +7,13 @@
 \item{optimizer}{A \code{NelderMead} object.}
 
 \item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{he} are
-accepted and ignored, the method using no derivative; refusing them
-would force calling code to branch on the algorithm. Bounds are taken
-and removed by reparametrization.}
+accepted and ignored, since the method uses no derivative; rejecting
+them would force calling code to branch on the algorithm. Bounds are
+taken and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is \code{NULL} and whose trace
-carries a \code{stationarity} column holding the simplex diameter. The
+has a \code{stationarity} column holding the size of the simplex. The
 \code{safeguard} column names the operation taken at each iteration:
 \code{reflect}, \code{expand}, \verb{contract in}, \verb{contract out}, \code{shrink}, or
 \code{restart} when a degenerate simplex was rebuilt.
@@ -21,12 +21,12 @@ carries a \code{stationarity} column holding the simplex diameter. The
 \description{
 Runs \code{\link[=nelder_mead]{nelder_mead()}} on the objective: build a simplex of \eqn{p+1}
 vertices from \code{par} and \code{step}, then reflect, expand, contract or shrink
-it until its diameter falls below the tolerance.
+it until the stopping rule fires.
 }
 \details{
 A \code{simplex} supplied on the optimizer is checked here against the
 starting value, since only now is the number of parameters known: it must
-have \eqn{p+1} rows and \eqn{p} columns, and a mismatch reports both
-shapes.
+have \eqn{p+1} rows and \eqn{p} columns, and a mismatch is rejected with
+an error that states the required numbers of rows and columns.
 }
 \keyword{internal}

@@ -14,8 +14,8 @@ A single logical.
 }
 \description{
 \code{TRUE} when \code{x} inherits from the abstract \link{starter} class, \code{FALSE}
-otherwise. \code{\link[=minimize]{minimize()}} asks it to decide whether \code{par} is a vector to be
-used as given or an object to be resolved into one, and the question has a
-name so that the test is written once.
+otherwise. \code{\link[=minimize]{minimize()}} calls it to decide whether \code{par} is a vector to be
+used as given or an object to be resolved into one, so that the test is
+written in one place.
 }
 \keyword{internal}

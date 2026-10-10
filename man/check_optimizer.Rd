@@ -2,7 +2,7 @@
 % Please edit documentation in R/check_optimizer.R
 \name{check_optimizer}
 \alias{check_optimizer}
-\title{Check That an Optimizer Keeps Its Promises}
+\title{Check What an Optimizer Reports}
 \usage{
 check_optimizer(
   optimizer,
@@ -23,9 +23,11 @@ Defaults to all eight. Pass a subset to keep the report short:
 table; \code{FALSE} returns the same information silently.}
 
 \item{tol}{Tolerance for the checks that compare numbers, a single
-positive number, default \code{1e-6}. It governs checks 1, 2 and 9; check 12
-uses a fixed \code{1e-3} on the distance to the solution, and check 7 tests
-the bounds strictly and reads no tolerance at all.}
+positive number, default \code{1e-6}. It applies to check 1 and to the
+comparison of the two values in check 9. Check 2 uses a fixed \code{1e-3} on
+the gradient, check 9 compares the two points with a fixed relative
+tolerance of \code{1e-5}, check 12 uses a fixed \code{1e-3} on the distance to the
+solution, and check 7 tests the bounds strictly, without a tolerance.}
 }
 \value{
 Invisibly, a named list of two:
@@ -34,63 +36,64 @@ Invisibly, a named list of two:
 numbered check, named by what the check asserts.}
 \item{\code{battery}}{a data frame with one row per problem and the columns
 \code{problem}, \code{value}, \code{gap}, \code{converged}, \code{evaluations} and \code{note}. A
-problem the optimizer could not run at all has \code{NA} throughout and
+problem that the optimizer could not run keeps its name in
+\code{problem}, has \code{NA} in the other numeric and logical columns, and has
 the error message in \code{note}.}
 }
 }
 \description{
 Puts an optimizer through twelve checks on what it \emph{reports}, prints the
 verdict on each, and then runs it over the standard test problems and
-reports the gap it reached on every one. Written for whoever adds a method
-of their own; all twelve shipped methods pass all twelve checks.
+reports the gap that it reached on each one. It is intended for a caller
+who adds a method. Every shipped method except \code{\link[=brent]{brent()}} passes all
+twelve checks; \code{\link[=brent]{brent()}} minimizes a function of one variable and cannot
+run the battery, whose problems have more parameters.
 }
-\section{The contract and the power are different questions}{
-The twelve numbered checks are statements an optimizer must satisfy
-however weak it is. How strong it is comes afterwards, as a table of gaps
-with no verdict attached. Conflating the two would make the function
-useless: gradient descent does not solve Rosenbrock in five hundred
-iterations, and it is slow rather than broken, which is a documented
-property of the method.
+\section{Requirements and performance}{
+The twelve numbered checks are statements that an optimizer must satisfy
+whatever its performance. The performance comes afterwards, as a table of
+gaps without a verdict. The two are kept apart because a slow method is
+not a defective one: gradient descent does not solve Rosenbrock in five
+hundred iterations, and that is a documented property of the method.
 
-The one performance requirement among the numbered checks is check 12,
-minimizing a quadratic. That is a floor no correct method can fail.
+The only performance requirement among the numbered checks is check 12,
+the minimization of a quadratic, which every correct method passes.
 }
 
 \section{The twelve checks}{
 \enumerate{
-\item \code{value} is the objective at \code{par}. A method reporting a value from a
-point it has since left is a defect that survives every test written in
-terms of the value alone.
+\item \code{value} is the objective at \code{par}. A method that reports the value at a
+point that it has since left passes every test written in terms of the
+value alone.
 \item the reported gradient is the gradient at \code{par}. Checked only for an
-optimizer that offers \code{"gradient"} through \code{\link[=optimizer_provides]{optimizer_provides()}}, and
-so is claiming that what it reports is one. \code{\link[=bundle]{bundle()}} reports an
-aggregate subgradient and makes no such claim, so it is exempt.
+optimizer that declares \code{"gradient"} through \code{\link[=optimizer_provides]{optimizer_provides()}}.
+\code{\link[=bundle]{bundle()}} reports an aggregate subgradient and does not declare a
+gradient, so the check does not apply to it.
 \item \code{converged} follows the stopping rule and is never inferred from the
 run having ended. Checked by starving the optimizer of iterations: a
 run cut off after one must not report success.
 \item budgets are respected: \code{iterations} never exceeds \code{maxit}.
-\item evaluations are counted. A method reporting zero of them evaluated
-nothing.
-\item the trace, when kept, is a data frame whose iteration numbers start at
-one and increase.
+\item evaluations are counted: the reported number of evaluations is not
+zero.
+\item the trace, when kept, is a data frame whose key column (\code{iteration}, or
+\code{start} for a \code{\link[=multistart]{multistart()}} trace) starts at one and increases.
 \item bounds are respected \strong{strictly}. A probability of exactly 1 is not a
-probability inside \eqn{(0, 1)}, and the caller's next act is usually
-to divide by it.
+probability inside \eqn{(0, 1)}, and the next computation of the caller
+often divides by it.
 \item the run repeats. A deterministic method gives the same answer twice; a
 stochastic one gives it again from the seed it recorded, which tests
 the recording as well as the repeatability.
 \item \code{\link[=maximize]{maximize()}} is \code{\link[=minimize]{minimize()}} of the negative.
-\item a stopping rule the optimizer cannot evaluate is rejected at
-construction, not accepted and left never to fire.
-\item a starting point where the objective is not finite raises an error, so
-no run quietly returns \code{NaN}.
+\item a stopping rule that the optimizer cannot evaluate is rejected when
+the run starts, and is not accepted and left never to fire.
+\item a starting point where the objective is not finite raises an error,
+so that a run does not return \code{NaN} silently.
 \item it minimizes a quadratic.
 }
 
-A deliberately lying optimizer, one returning a made-up point with
-\code{converged = TRUE}, fails six of the twelve: 1, 2, 3, 10, 11 and 12. The
-six it passes are the bookkeeping ones, which is why the battery is not
-the whole check.
+An optimizer that returns an invented point with \code{converged = TRUE} fails
+six of the twelve checks: 1, 2, 3, 10, 11 and 12. The six that it passes
+concern bookkeeping.
 }
 
 \section{The problem battery}{
@@ -98,24 +101,24 @@ The table reports the gap between the value reached and the known minimum,
 as information. A large gap on \code{rastrigin} or \code{himmelblau} means the
 method found a different local minimum, which for a local method is
 correct behavior, and the \code{note} column labels those two. A large gap on
-\code{abs_sum} means the method was defeated by a kink, the case \code{\link[=bundle]{bundle()}} and
-the derivative-free methods exist for.
+\code{abs_sum} means that the method stopped at a kink, the case for which
+\code{\link[=bundle]{bundle()}} and the derivative-free methods are intended.
 }
 
 \examples{
 check_optimizer(bfgs())
 
-# A method that computes no gradient is held to fewer claims, and to the
-# same standard on the ones it does make.
+# For a method that computes no gradient, the gradient check does not
+# apply, and the other checks are the same.
 res <- check_optimizer(nelder_mead(), problems = test_problems("sphere"))
 all(res$checks)
 
-# The battery is a table, so it can be read rather than printed.
+# The battery is returned as a table.
 check_optimizer(cg(), verbose = FALSE)$battery
 
 }
 \seealso{
 \code{\link[=test_problems]{test_problems()}} for the battery, \code{\link[=check_criterion]{check_criterion()}} and
-\code{\link[=check_bounds]{check_bounds()}} for the two pieces a method of your own has to use,
-\code{\link[=optimizer_provides]{optimizer_provides()}} for the claim check 2 rests on.
+\code{\link[=check_bounds]{check_bounds()}} for the two functions that a new method has to call,
+\code{\link[=optimizer_provides]{optimizer_provides()}} for the declaration read by check 2.
 }

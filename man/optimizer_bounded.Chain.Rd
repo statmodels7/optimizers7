@@ -11,14 +11,14 @@ A single logical.
 }
 \description{
 \code{TRUE} when every stage takes bounds, \code{FALSE} otherwise. The bounds are
-passed to all of them, so a single stage that would ignore them leaves the
-chain unable to promise the box.
+passed to all of them, so a single stage that does not take them makes
+the whole chain unable to take them.
 }
 \details{
-\code{\link[=prox_grad]{prox_grad()}} is the one shipped method that answers \code{FALSE}: it takes its
-constraint inside the proximal operator, where the constraint composes
-with the penalty already there. A chain containing it is therefore
-unbounded whatever else is in it.
+\code{\link[=prox_grad]{prox_grad()}} is the only shipped method that returns \code{FALSE}: it takes
+its constraint inside the proximal operator, where the constraint combines
+with the penalty. A chain that contains it therefore does not take bounds,
+whatever its other stages.
 }
 \examples{
 optimizer_bounded(chain(bfgs(), newton()))

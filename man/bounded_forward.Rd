@@ -22,9 +22,10 @@ inverse of \code{\link[=bounded_transform]{bounded_transform()}}'s \code{h}, and
 value goes through before an unconstrained run.
 }
 \details{
-Strictly inside. A value \strong{on} a bound maps to an infinite \eqn{\eta}, so
-a run started there begins at infinity and fails far from its cause. That
-is why \code{\link[=minimize]{minimize()}} rejects such a starting value by name, before anything
+The values must lie strictly inside. A value \strong{on} a bound maps to an
+infinite \eqn{\eta}, so a run started there would begin at infinity and
+fail far from its cause. For this reason \code{\link[=minimize]{minimize()}} rejects such a
+starting value, with an error that names the coordinate, before anything
 is evaluated.
 }
 \examples{
@@ -32,7 +33,7 @@ bounded_forward(c(0, Inf), c(0.5, 1, 8))
 bounded_forward(c(0, 1), 0.5)
 
 # A value on a bound has no finite image, so such a starting point is
-# unusable and minimize() refuses it.
+# unusable and minimize() rejects it.
 bounded_forward(c(0, 1), c(0, 1))
 
 # Round trip, in this direction too.

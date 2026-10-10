@@ -2,7 +2,7 @@
 % Please edit documentation in R/criterion.R
 \name{crit_never}
 \alias{crit_never}
-\title{Never Stop Early}
+\title{The Rule That Never Fires}
 \usage{
 crit_never()
 }
@@ -10,33 +10,33 @@ crit_never()
 An S7 object of class \link{CritNever}, inheriting from \code{\link[=criterion]{criterion()}}.
 }
 \description{
-Builds the rule that never fires, so a run ends only when it exhausts a
-budget and reports \code{converged = FALSE}. This is \code{\link[=adam]{adam()}}'s default and is
-the honest arrangement for a stochastic method, where every quantity a
-convergence rule could read is an estimate.
+Builds the rule that never fires, so a run ends when it exhausts a budget
+and reports \code{converged = FALSE}. It is the default of \code{\link[=adam]{adam()}}, a method
+for stochastic objectives, on which every quantity that a stopping rule
+could read is an estimate.
 }
 \details{
-This is not a placeholder. For a stochastic method there is often nothing
-left to test: every quantity a convergence rule could look at, the
-objective and the gradient alike, is a noisy estimate drawn from whichever
-observations happened to be sampled, and a tolerance applied to one of
-those measures the noise. Such a run is meant to be governed by its
-budget, and saying so with an object beats leaving a real criterion in
-place that quietly never fires.
+On a stochastic objective the value and the gradient are noisy estimates
+computed from the observations that were sampled, and a tolerance applied
+to one of them tests the noise. Such a run is governed by its budget, and
+this rule states that explicitly.
 
-A run that ends this way reports \code{converged = FALSE}, which is the truth:
-the budget ran out, and nothing checked whether the answer was any good.
-That is the package's rule everywhere. Convergence is what a stopping rule
-confirmed, never what the run merely stopped doing.
+A run that ends on its budget reports \code{converged = FALSE}, because no rule
+tested the answer. A descent method can also stop before its budget, when
+its line search accepts no step, and it then reports \code{converged = FALSE}
+as well. In the package \code{converged} is \code{TRUE} only when a stopping rule
+fired, when a line search with a declared resolution established that no
+step decreases the objective by more than that resolution, or when
+\code{\link[=brent]{brent()}} reduced its bracket to the resolution of the iterate.
 }
 \examples{
 crit_never()
 
-# It fires at no state at all, however good.
+# It fires at no state, even at an exact minimum.
 crit_met(crit_never(), list(f_new = 0, f_old = 0, x_new = 1, x_old = 1,
                             gradient = c(0, 0)))
 
-# A run carrying it ends on its budget and says so.
+# A run with this rule ends on its budget, and the result reports it.
 r <- minimize(adam(maxit = 50), function(p) sum(p^2), c(1, 1),
               gr = function(p) 2 * p)
 c(r@converged, r@criterion_met)

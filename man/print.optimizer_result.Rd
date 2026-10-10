@@ -21,18 +21,19 @@ number, default 6; the remainder is reported as
 \code{x}, invisibly. Called for the output.
 }
 \description{
-Shows the run in six lines at most: the method's name, the objective
-value, the leading parameters, the iteration and evaluation counts, the
-elapsed time and the convergence status with the rule that fired. A
-non-empty \code{message} adds a \code{note} line. A failure prints \code{NO} in capitals,
-so a run that did not converge cannot be skimmed past.
+Shows the run in six lines: the name of the method, the objective value,
+the leading parameters, the iteration and evaluation counts, the elapsed
+time and the convergence status with the rule that fired. The elapsed line
+is omitted when the time is missing, and a non-empty \code{message} adds a
+seventh line, \code{note}. A run that did not converge prints \code{NO} in
+capitals.
 }
 \examples{
 res <- minimize(gd(), function(p) sum((p - 1:2)^2), c(0, 0))
 res
 print(res, digits = 2, max_par = 1)
 
-# A run stopped by its budget says so on the converged line.
+# The converged line of a run stopped by its budget names the budget.
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 print(minimize(gd(maxit = 5), rosen, c(-1.2, 1)))
 

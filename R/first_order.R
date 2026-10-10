@@ -11,14 +11,13 @@ NULL
 #' @title S7 Class for Gradient Descent
 #'
 #' @description
-#' An optimizer holding the initial step length and the line search, and
-#' nothing else: steepest descent carries no model of the surface, so there
-#' is nothing else to hold. Built by [gd()].
+#' An optimizer holding the initial step length and the line search only,
+#' since steepest descent keeps no model of the surface. Built by [gd()].
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `GradientDescent`
+#' Beyond the seven properties of every optimizer, a `GradientDescent`
 #' carries `step` and `line_search`, both shared with the other line-search
-#' methods. It is the smallest optimizer class in the package.
+#' methods.
 #'
 #' @param step The initial step length offered to the line search.
 #' @param line_search A [line_search()] object.
@@ -27,8 +26,8 @@ NULL
 #'   [optimizer()], with `step` and `line_search` beside the seven shared
 #'   properties.
 #'
-#' @seealso [gd()] for the constructor, [Cg] and [Bb] for the two first-order
-#'   methods that carry a little more.
+#' @seealso [gd()] for the constructor, [Cg] and [Bb] for the two other
+#'   first-order methods.
 #' @name GradientDescent-class
 #' @aliases GradientDescent
 #' @keywords internal
@@ -49,9 +48,8 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' @param step Initial step length offered to the line search each iteration.
 #'   Defaults to `1`.
 #' @param line_search How far to go along the direction; see
-#'   [armijo()] and [wolfe()]. Defaults to Armijo
-#'   backtracking, which suffices for a method carrying no curvature
-#'   approximation to protect.
+#'   [armijo()] and [wolfe()]. Defaults to Armijo backtracking, which is
+#'   sufficient for a method that keeps no curvature approximation.
 #' @param maxit Maximum iterations. Defaults to 500.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
@@ -64,13 +62,13 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
 #' Euclidean length. Under an exact line search consecutive directions are
 #' orthogonal, so on an ill-conditioned objective the iterates zigzag and
-#' converge slowly. [cg()] repairs that by combining each direction with the
-#' previous one at no extra cost per iteration.
+#' converge slowly. [cg()] corrects this by combining each direction with
+#' the previous one, at no extra cost per iteration.
 #'
-#' Gradient descent is a baseline. On Rosenbrock from the customary start it
-#' exhausts its budget of 500 iterations at a value of `1.9e-03` after 4905
-#' objective evaluations, where [cg()] reaches `7.4e-10` in 25 iterations,
-#' [bb()] `5.2e-09` in 58 and [bfgs()] `3.2e-13` in 35.
+#' Gradient descent serves as a baseline for the other methods. On the
+#' Rosenbrock function from the usual start it does not converge within its
+#' default budget of 500 iterations, while [cg()], [bb()] and [bfgs()]
+#' converge in far fewer (the last example).
 #'
 #' @return An S7 object of class [GradientDescent], inheriting from
 #'   [optimizer()], to be handed to [minimize()].
@@ -79,11 +77,11 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' gd()
 #' gd(criterion = crit_grad(1e-10), maxit = 2000)
 #'
-#' # It solves an easy problem readily.
+#' # A well-conditioned problem is solved quickly.
 #' minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),
 #'          gr = function(p) 2 * (p - c(1, 2)))
 #'
-#' # And is the wrong tool for a curved valley: the budget runs out first.
+#' # In a curved valley the budget runs out before convergence.
 #' ros <- test_problems("rosenbrock")[[1]]
 #' r <- minimize(gd(), ros$fn, ros$par, gr = ros$gr)
 #' c(converged = r@converged, iterations = r@iterations,
@@ -92,9 +90,9 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' @seealso [cg()] for the same storage and a better direction, [bb()] for a
 #'   scalar curvature estimate, [bfgs()] for a matrix one.
 #' @references
-#' Cauchy's method is the oldest of them; the modern treatment,
-#' including why its rate is linear in the condition number, is
-#' chapter 3 of
+#' Cauchy's method is the oldest of the methods in the package; chapter 3 of
+#' the following book treats it, including the dependence of its linear rate
+#' on the condition number:
 #' Nocedal, J. and Wright, S. J. (2006). *Numerical Optimization*,
 #' 2nd edition. Springer, New York.
 #'
@@ -119,9 +117,9 @@ gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #' @name minimize.GradientDescent
 #'
 #' @description
-#' Runs [gd()] on the objective: take \eqn{-g} as the direction and let the
-#' line search choose how far. Shares the descent loop with [cg()] and
-#' [bb()], which differ from it only in how the direction is formed.
+#' Runs [gd()] on the objective: the direction is \eqn{-g}, and the line
+#' search chooses the step length. It shares the descent loop with [cg()]
+#' and [bb()], which differ from it only in the direction.
 #'
 #' @param optimizer A `GradientDescent` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
@@ -143,15 +141,16 @@ S7::method(minimize, GradientDescent) <-
 #' @title S7 Class for Conjugate Gradients
 #'
 #' @description
-#' An optimizer holding which of the four \eqn{\beta} formulas bends the
-#' direction, how often the method is restarted at steepest descent, and the
-#' usual step length and line search. Built by [cg()].
+#' An optimizer holding which of the four \eqn{\beta} formulas combines the
+#' gradient with the previous direction, how often the method is restarted
+#' at steepest descent, and the step length and the line search. Built by
+#' [cg()].
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `Cg` carries four:
+#' Beyond the seven properties of every optimizer, a `Cg` carries four:
 #' `step` and `line_search`, shared with the other line-search methods, and
 #' `beta` and `restart_every`, which are its own. The previous direction is
-#' not a property; it lives in the run.
+#' not a property; it exists only inside the run.
 #'
 #' @param beta Which update formula, one of `"pr"`, `"fr"`, `"hs"`, `"dy"`.
 #' @param restart_every How often the method is restarted at steepest
@@ -162,8 +161,8 @@ S7::method(minimize, GradientDescent) <-
 #' @return An S7 object of class `Cg` inheriting from [optimizer()], with the
 #'   four properties above beside the seven shared ones.
 #'
-#' @seealso [cg()] for the constructor, [GradientDescent] for the method it
-#'   improves on.
+#' @seealso [cg()] for the constructor, [GradientDescent] for steepest
+#'   descent.
 #' @name Cg-class
 #' @aliases Cg
 #' @keywords internal
@@ -185,7 +184,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' matrix, which suits problems too large for a Hessian.
 #'
 #' @param criterion The stopping rule; see [crit_any()].
-#' @param beta Which formula for the bend: `"pr"` (Polak-Ribière, the
+#' @param beta Which formula for \eqn{\beta}: `"pr"` (Polak-Ribière, the
 #'   default), `"fr"` (Fletcher-Reeves), `"hs"` (Hestenes-Stiefel) or
 #'   `"dy"` (Dai-Yuan). See Details.
 #' @param restart_every Restart at steepest descent every this many iterations.
@@ -194,7 +193,7 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' @param step Initial step length offered to the line search. Defaults to
 #'   `1`.
 #' @param line_search Defaults to `wolfe(c2 = 0.1)`; the convergence
-#'   theory of the method assumes a strong Wolfe step, see Details.
+#'   theory of the method assumes a Wolfe step, see Details.
 #' @param maxit Maximum iterations. Defaults to 1000.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
 #'   no evaluation budget, so the run stops on the criterion or on
@@ -209,53 +208,44 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' and the methods differ only in the choice of \eqn{\beta}. The storage is
 #' two vectors against [bfgs()]'s \eqn{p \times p} matrix.
 #'
-#' # What conjugacy buys, and what it needs
+#' # Conjugate directions and the line search
 #'
-#' On a quadratic **with an exact line search** the directions come out
-#' conjugate with respect to the Hessian, and the method then terminates in
-#' \eqn{p} steps without ever forming that Hessian. The line search here is
-#' inexact, so that guarantee does not transfer: measured on dense quadratics
-#' at `crit_grad(1e-12)`, the run takes 16, 34 and 70 iterations at
-#' \eqn{p = 3, 8, 20}. The saving is still real, since each iteration costs
-#' two vectors.
+#' On a quadratic **with an exact line search** the directions are conjugate
+#' with respect to the Hessian, and the method terminates in \eqn{p} steps
+#' without forming that Hessian. The line search here is inexact, so that
+#' guarantee does not hold, and the number of iterations on a quadratic
+#' depends on its conditioning. Each iteration still stores only two
+#' vectors.
 #'
 #' # Choice of beta
 #'
-#' All four agree on a quadratic under an exact line search and differ
-#' everywhere else. `"fr"` has the cleanest convergence theory and the
-#' well-known practical fault of stalling for many iterations after a poor
-#' step. `"pr"` recovers from a poor step immediately, a small
-#' \eqn{y = g_k - g_{k-1}} sending \eqn{\beta} towards zero and the method
-#' back to steepest descent; its known theoretical non-convergence is
-#' repaired by clamping \eqn{\beta} at zero, which restarts the method and
-#' appears in the trace as `cg restart`. `"hs"` and `"dy"` are the other two
-#' standard choices.
-#'
-#' Measured on Rosenbrock from the customary start, iterations and objective
-#' evaluations: `pr` 25 and 249 with twelve clamps, `fr` 59 and 743, `hs` 17
-#' and 166, `dy` 50 and 667. `pr` is the default as the safest of the four on
-#' a general objective, and `hs` was the fastest here; on another problem the
-#' order will differ.
+#' All four formulas agree on a quadratic under an exact line search and
+#' differ elsewhere. `"fr"` has the simplest convergence theory and is known
+#' to stall for many iterations after a poor step. `"pr"` recovers from a
+#' poor step at once, since a small \eqn{y = g_k - g_{k-1}} makes \eqn{\beta}
+#' small and the direction close to steepest descent; its known theoretical
+#' non-convergence is removed by clamping \eqn{\beta} at zero, which restarts
+#' the method and appears in the trace as `cg restart`. `"hs"` and `"dy"` are
+#' the other two standard choices. `"pr"` is the default as the safest of the
+#' four on a general objective; which formula needs the fewest iterations
+#' depends on the problem (see the examples).
 #'
 #' # Line search
 #'
-#' The theory behind every one of these formulas assumes a step satisfying
-#' the **strong** Wolfe conditions, and uses it to prove that the direction
-#' produced is a descent direction at all. Backtracking gives no such
-#' guarantee, so [wolfe()] is the default and departing from it departs from
-#' the theory.
+#' The convergence results for these formulas assume a step that satisfies
+#' the Wolfe conditions (the strong ones for `"fr"` and `"pr"`) and use them
+#' to show that the direction produced is a descent direction. Backtracking
+#' gives no such guarantee, so [wolfe()] is the default.
 #'
-#' The constant matters too. [wolfe()] defaults to \eqn{c_2 = 0.9}, which is
-#' right for [bfgs()], where the curvature approximation repairs a loose
-#' step. Conjugate gradients has nothing to repair with: the accumulated
-#' conjugacy is only as good as the line search that produced it. The default
-#' here is therefore `wolfe(c2 = 0.1)`, and the cost of loosening it is
-#' modest on Rosenbrock, 28 iterations against 25, with the value reached
-#' `3.3e-08` against `7.4e-10`.
+#' The constant also matters. [wolfe()] defaults to \eqn{c_2 = 0.9}, which
+#' suits [bfgs()], because its curvature update compensates for an inexact
+#' step. The conjugacy accumulated by conjugate gradients depends directly on
+#' the accuracy of the line search, so the default here is
+#' `wolfe(c2 = 0.1)`.
 #'
-#' A direction that comes out non-descent is replaced by \eqn{-g} and the
-#' substitution is reported in the trace, as a safeguard against the cases
-#' the theory misses.
+#' A direction that is not a descent direction is replaced by \eqn{-g}, and
+#' the trace records the replacement as `cg not descent`. A periodic restart
+#' set by `restart_every` is recorded as `cg restart`.
 #'
 #' @return An S7 object of class [Cg], inheriting from [optimizer()], to be
 #'   handed to [minimize()].
@@ -282,20 +272,20 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #'                     200 * (p[2] - p[1]^2))
 #' minimize(cg(), f, c(-1.2, 1), gr = gr)@par
 #'
-#' # The four formulas on the same problem. They agree on a quadratic under an
-#' # exact line search and differ here, and which is best is a property of the
+#' # The four formulas on the same problem. They agree on a quadratic under
+#' # an exact line search and differ here; which is best depends on the
 #' # problem.
 #' vapply(c("pr", "fr", "hs", "dy"),
 #'        function(b) minimize(cg(beta = b), f, c(-1.2, 1), gr = gr)@iterations,
 #'        integer(1))
 #'
-#' # Polak-Ribiere clamps beta at zero when a step goes badly, which restarts
-#' # the method; the trace counts those.
+#' # Polak-Ribiere clamps beta at zero after a poor step, which restarts the
+#' # method; the trace counts the restarts.
 #' r <- minimize(cg(keep_trace = TRUE), f, c(-1.2, 1), gr = gr)
 #' table(r@trace$safeguard)
 #'
-#' @seealso [gd()] for the direction this one bends, [lbfgs()] for a method
-#'   with the same storage order and more curvature, [bb()] for the scalar
+#' @seealso [gd()] for steepest descent, [lbfgs()] for a method with storage
+#'   of the same order and more curvature information, [bb()] for the scalar
 #'   estimate.
 #' @export
 cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
@@ -325,17 +315,19 @@ cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #' @name minimize.Cg
 #'
 #' @description
-#' Runs [cg()] on the objective: bend each direction with the previous one by
-#' the chosen \eqn{\beta}, and let the line search choose how far along it to
-#' go. Shares the descent loop with [gd()] and [bb()].
+#' Runs [cg()] on the objective: each direction is combined with the
+#' previous one through the chosen \eqn{\beta}, and the line search chooses
+#' the step length. It shares the descent loop with [gd()] and [bb()].
 #'
 #' @param optimizer A `Cg` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
 #'   and ignored. Bounds are taken and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose trace, when kept, reports
-#'   `cg restart` at each iteration where the bend was clamped to zero or the
-#'   direction was replaced by the gradient.
+#'   `cg restart` at each iteration where \eqn{\beta} was set to zero, because
+#'   the Polak-Ribière value was negative or because `restart_every`
+#'   iterations had passed, and `cg not descent` at each iteration where the
+#'   direction was replaced by the negative gradient.
 #'
 #' @keywords internal
 S7::method(minimize, Cg) <-
@@ -353,21 +345,22 @@ S7::method(minimize, Cg) <-
 #'
 #' @description
 #' An optimizer holding which of the two Rayleigh quotients gives the step
-#' length, the bounds that quotient is clamped to, the curvature threshold a
-#' secant pair must meet, and the usual step multiplier and line search.
-#' Built by [bb()]. Its line search defaults to [nonmonotone()], the only
-#' shipped method for which it does.
+#' length, the bounds to which that quotient is clamped, the curvature
+#' threshold that a secant pair must meet, and the step multiplier and the
+#' line search. Built by [bb()]. Its line search defaults to [nonmonotone()];
+#' it is the only shipped method with that default.
 #'
 #' @details
-#' Beyond the seven properties every optimizer has, a `Bb` carries seven of
+#' Beyond the seven properties of every optimizer, a `Bb` carries seven of
 #' its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curv_tol` for
-#' the step-length estimate, and `step` and `line_search` for what is done
-#' with it.
+#' the step-length estimate, and `step` and `line_search` for the search
+#' along the direction.
 #'
 #' @param variant Which step-length formula, one of `"alternate"`, `"bb1"`,
 #'   `"bb2"`.
 #' @param alpha0 The step length used before there is a secant pair.
-#' @param alpha_min,alpha_max Bounds the step length is clamped to.
+#' @param alpha_min,alpha_max The bounds to which the step length is
+#'   clamped.
 #' @param curv_tol The relative threshold below which a secant pair is
 #'   rejected.
 #' @param step,line_search The multiplier offered to the line search and the
@@ -429,39 +422,38 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'       \alpha_{BB2} = \frac{s^\top y}{y^\top y},}
 #' the two Rayleigh quotients of the secant pair \eqn{s = x_k - x_{k-1}},
 #' \eqn{y = g_k - g_{k-1}}. Both estimate the inverse curvature along the
-#' direction just traveled, so this is a quasi-Newton method that has discarded
-#' everything except one scalar. On a quadratic, where the curvature is
-#' constant, that scalar is exactly right.
-#'
-#' On a quadratic, where the curvature is constant, the estimate is exact and
-#' the method converges in **two** iterations. On a general smooth objective
-#' it needs more iterations than [bfgs()] while storing a single scalar
-#' instead of a matrix: on Rosenbrock 58 iterations against 35, but 67
-#' objective evaluations against 49.
+#' direction just traveled, so the method is a quasi-Newton method that keeps
+#' a single scalar. When the Hessian is a multiple of the identity, the
+#' curvature is the same in every direction, the estimate from one secant
+#' pair is exact, and the method converges in **two** iterations. Otherwise
+#' the scalar is the curvature along the last step only, and the number of
+#' iterations grows with the spread of the curvatures. On a general smooth
+#' objective the method usually needs more iterations and more evaluations
+#' than
+#' [bfgs()], and it stores one scalar instead of a matrix.
 #'
 #' # Variants
 #'
 #' `"bb1"` and `"bb2"` are the two quotients above, and `"alternate"`, the
 #' default, switches between them at each iteration. They estimate the same
-#' curvature from opposite ends, and alternating is the more robust choice
-#' across problems, though not always the fastest on any one: measured on
-#' Rosenbrock, `bb1` takes 56 iterations and 97 evaluations, `bb2` 51 and 56,
-#' `alternate` 58 and 67.
+#' curvature in two ways, and alternating is the more robust choice across
+#' problems, although not always the fastest on a given one (see the
+#' examples).
 #'
 #' # Line search
 #'
 #' The Barzilai-Borwein step is offered to the line search first and
 #' unaltered, and backtracking occurs only when it fails the acceptance test.
 #' The method makes progress through steps that may increase the objective
-#' temporarily, so the default acceptance test is [nonmonotone()], which asks
-#' for improvement over the maximum of the last `memory` values instead of
-#' over the current one. A plain Armijo condition rejects exactly the steps
-#' the method relies on: measured on Rosenbrock, 72 iterations and 154
-#' evaluations against 58 and 67.
+#' temporarily, so the default acceptance test is [nonmonotone()], which
+#' requires an improvement over the largest of the last `memory + 1`
+#' objective values, the current one included, and not over the current value
+#' alone. A plain Armijo condition rejects every step that increases the
+#' objective, and with it the steps on which the method relies, so the run
+#' needs more than twice as many evaluations (see the examples).
 #'
-#' `nonmonotone(memory = 0)` is [armijo()] value for value, and the two give
-#' the identical run here, 72 iterations and 154 evaluations. That identity is
-#' what makes the comparison a comparison of the memory alone.
+#' `nonmonotone(memory = 0)` is [armijo()] value for value, so a comparison
+#' of the two isolates the effect of the memory.
 #'
 #' # Rejected secant pairs
 #'
@@ -473,8 +465,9 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' in the parameters. The reset reads the current gradient and not the step
 #' length being replaced or a fixed constant, so it can neither freeze the
 #' iteration at a too-short step nor produce one the backtracking cannot
-#' rescale. Steps outside `[alpha_min, alpha_max]` are clamped, and both the
-#' reset and the clamp appear in the trace, as `bb curvature reset` and
+#' rescale. Steps outside `[alpha_min, alpha_max]` are clamped. The reset and
+#' the clamp appear in the trace as `bb curvature reset` and
+#' `bb step clamped`, and a step shortened by the line search as
 #' `step shortened`.
 #'
 #' @return An S7 object of class [Bb], inheriting from [optimizer()], to be
@@ -492,27 +485,27 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'                     200 * (p[2] - p[1]^2))
 #' minimize(bb(), f, c(-1.2, 1), gr = gr)@par
 #'
-#' # Two iterations on a quadratic: one secant pair determines the curvature,
-#' # and on a quadratic that curvature is exactly right.
+#' # Two iterations on a quadratic whose Hessian is a multiple of the
+#' # identity: one secant pair determines the curvature exactly.
 #' minimize(bb(), function(p) sum((p - c(1, 2))^2), c(0, 0),
 #'          gr = function(p) 2 * (p - c(1, 2)))@iterations
 #'
-#' # The nonmonotone rule is what the method needs. With memory = 0 it is
-#' # armijo() value for value, and both give the identical, slower run.
+#' # The nonmonotone search against the monotone one. With memory = 0 it is
+#' # armijo() value for value, and both give the same, slower run.
 #' evals <- function(ls) minimize(bb(line_search = ls), f, c(-1.2, 1),
 #'                                gr = gr)@counts[["f"]]
 #' c(nonmonotone = evals(nonmonotone()),
 #'   memory_zero = evals(nonmonotone(memory = 0)),
 #'   armijo      = evals(armijo()))
 #'
-#' # Which variant is fastest is a property of the problem.
+#' # Which variant is fastest depends on the problem.
 #' vapply(c("bb1", "bb2", "alternate"),
 #'        function(v) minimize(bb(variant = v), f, c(-1.2, 1), gr = gr)@iterations,
 #'        integer(1))
 #'
 #' @seealso [gd()] for the same direction with a line-searched step,
-#'   [nonmonotone()] for the acceptance test this method needs, [lbfgs()]
-#'   for the next amount of curvature to carry.
+#'   [nonmonotone()] for the default acceptance test of this method,
+#'   [lbfgs()] for a method that keeps more curvature information.
 #' @export
 bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                variant = c("alternate", "bb1", "bb2"),
@@ -525,10 +518,10 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
-  check_tol(alpha0)
-  check_tol(alpha_min)
-  check_tol(alpha_max)
-  check_tol(curv_tol)
+  check_tol(alpha0, "alpha0")
+  check_tol(alpha_min, "alpha_min")
+  check_tol(alpha_max, "alpha_max")
+  check_tol(curv_tol, "curv_tol")
   if (alpha_min >= alpha_max) {
     stop("'alpha_min' must be strictly below 'alpha_max'.", call. = FALSE)
   }
@@ -547,17 +540,20 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #' @name minimize.Bb
 #'
 #' @description
-#' Runs [bb()] on the objective: form the step length from the previous
-#' secant pair, offer that step to the line search unaltered, and backtrack
-#' only if it is rejected. Shares the descent loop with [gd()] and [cg()].
+#' Runs [bb()] on the objective: the step length is formed from the
+#' previous secant pair and offered to the line search unaltered, which
+#' backtracks only if it is rejected. It shares the descent loop with [gd()]
+#' and [cg()].
 #'
 #' @param optimizer A `Bb` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
 #'   and ignored. Bounds are taken and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose trace, when kept, reports
-#'   `bb curvature reset` where a secant pair carried none and
-#'   `step shortened` where the step was clamped or backtracked.
+#'   `bb curvature reset` where a secant pair had no usable curvature,
+#'   `bb step clamped` where the step was clamped to
+#'   `[alpha_min, alpha_max]`, and `step shortened` where the line search
+#'   backtracked.
 #'
 #' @keywords internal
 S7::method(minimize, Bb) <-

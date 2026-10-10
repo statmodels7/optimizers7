@@ -254,6 +254,12 @@ Rcpp::List bundle_run(Rcpp::List spec,
     x_prev = xhat;
     have_prev = true;
 
+    // the center at which the aggregate was formed; a serious step below moves
+    // the center, and the aggregate kept by the compression must be the affine
+    // function of THIS center, not of the new one
+    const double f_center = fhat;
+    const arma::vec x_center = xhat;
+
     const arma::vec d = -t * p_agg;
     const arma::vec y = xhat + d;
     const double fy = obj->value(y);
@@ -309,7 +315,7 @@ Rcpp::List bundle_run(Rcpp::List spec,
     // and can stall the method; the aggregate keeps a summary of all of it in
     // one element, which is what makes a bounded bundle safe.
     if (static_cast<int>(Gs.size()) > bundle_size) {
-      const double a_of_agg = fhat - a_agg - arma::dot(p_agg, xhat);
+      const double a_of_agg = f_center - a_agg - arma::dot(p_agg, x_center);
       std::vector<arma::vec> Gn;
       std::vector<double> an;
       Gn.push_back(p_agg);

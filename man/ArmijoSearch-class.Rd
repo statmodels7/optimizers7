@@ -16,29 +16,31 @@ ArmijoSearch(
 \arguments{
 \item{c1}{The sufficient-decrease constant.}
 
-\item{shrink}{The factor the step is multiplied by on each backtrack.}
+\item{shrink}{The factor by which the step is multiplied on each
+backtrack.}
 
-\item{max_step}{The most backtracks allowed. A \strong{count}, not a length.}
+\item{max_step}{The most trial points allowed, the full step included. A
+\strong{count}, not a length.}
 
-\item{resolution}{What the objective can tell apart, a number or a
-function of no arguments.}
+\item{resolution}{The smallest difference in the objective that the
+objective can resolve, a number or a function of no arguments.}
 }
 \value{
 An S7 object of class \code{ArmijoSearch} inheriting from
 \code{\link[=line_search]{line_search()}}, with the four properties above beside \code{label}.
 }
 \description{
-A line search that starts from the full step and halves it until the
-objective falls by enough. Built by \code{\link[=armijo]{armijo()}}. It evaluates the objective
-at trial points and never the gradient, which makes it the cheap choice
-per iteration.
+A line search that starts from the full step and multiplies it by
+\code{shrink} until the objective decreases by enough. Built by \code{\link[=armijo]{armijo()}}. It
+evaluates the objective at trial points and never the gradient, which
+makes it the cheaper search per iteration.
 }
 \details{
-Beyond the \code{label} every line search carries, an \code{ArmijoSearch} holds
-\code{c1}, \code{shrink}, \code{max_step} and \code{resolution}. It has no \code{c2}, having no
+Beyond the \code{label} of every line search, an \code{ArmijoSearch} holds \code{c1},
+\code{shrink}, \code{max_step} and \code{resolution}. It has no \code{c2}, since it has no
 curvature condition; \code{\link[=line_search_spec]{line_search_spec()}} fills that field with a value
-the compiled side ignores so that all three searches describe themselves
-in the same shape.
+that the compiled code ignores, so that the three searches are passed to
+the compiled code as lists of the same shape.
 }
 \seealso{
 \code{\link[=armijo]{armijo()}} for the constructor, \link{WolfeSearch} and

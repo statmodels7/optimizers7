@@ -15,15 +15,16 @@ check_whole(v, nm)
 Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
-Checks that the value is a single whole number, zero included. Used where
-a count says how many of something to tolerate, so that zero says
-\emph{tolerate none} and is a legitimate setting:
-\code{\link[=nonmonotone]{nonmonotone()}}'s \code{memory}, where zero makes the reference the current
-value and the search is \code{\link[=armijo]{armijo()}} exactly, and \code{\link[=bfgs]{bfgs()}}'s \code{max_skip},
-where zero resets the approximation on the first skipped update.
+Checks that the value is a single whole number, zero included, no larger
+than \code{.Machine$integer.max}. Used where a count says how many of something
+to tolerate, so that zero means that none is tolerated: the \code{memory} of
+\code{\link[=nonmonotone]{nonmonotone()}}, where zero makes the reference the current value and the
+search identical to \code{\link[=armijo]{armijo()}}, and the \code{max_skip} of \code{\link[=bfgs]{bfgs()}}, where zero
+resets the approximation on the first skipped update.
 
-A negative value is refused because the kernel compares against it with
-\code{>=}, so any negative setting behaves as zero without saying so.
+A negative value is rejected because the compiled code treats it as zero:
+it compares \code{max_skip} with \code{>=} and tests \code{memory > 0}. An infinite value
+is rejected because \code{as.integer()} would turn it into \code{NA}.
 }
 \seealso{
 \code{\link[=check_count]{check_count()}} for a count that has to be at least one.

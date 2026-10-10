@@ -6,26 +6,33 @@
 \arguments{
 \item{optimizer}{A \code{MultiStart} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{par} is the first
-starting point and is used as given; the rest are generated around it.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. Unless \code{starts}
+was given, \code{par} is the first starting point and is used as given, and
+the others are generated around it. When \code{starts} was given, \code{par} is
+used only to check the objective and the bounds and to fix the number of
+parameters.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}}: the best run, carrying its own \code{par},
-\code{value}, \code{gradient} and \code{converged}, with the per-start summary in
-\code{trace} and the counts in \code{message}. \code{seed} is the state the whole run
-began from.
+An \code{\link[=optimizer_result]{optimizer_result()}} with the \code{par}, \code{value}, \code{gradient},
+\code{converged} and \code{criterion_met} of the best run, the \code{counts} summed
+over the successful starts, \code{iterations} equal to the number of starts,
+the summary of the starts in \code{trace} and the counts in \code{message}. \code{seed}
+is the state from which the whole run began.
 }
 \description{
-Runs \code{\link[=multistart]{multistart()}} on the objective: generate or take the starting
-points, run the inner optimizer from each, and assemble the best.
+Runs \code{\link[=multistart]{multistart()}} on the objective: it generates or takes the starting
+points, runs the inner optimizer from each, and assembles the result from
+the best run.
 }
 \details{
-Three things happen before the first start runs. The objective and the
-bounds are validated \strong{once}, so a bad criterion or a start outside its
-box is refused before \eqn{n} runs are launched rather than \eqn{n} times
-over. The generator state is captured for the result's \code{seed}. And the
-gradient-consistency check is switched off for the duration, the generic
-having already made it at the caller's \code{par}; without that the same
-warning would print once per start.
+Three things happen before the first start runs. The objective, the
+bounds and \code{par} are validated \strong{once}, so a bad criterion or a \code{par}
+outside its box is rejected before the \eqn{n} runs are launched; a row of
+a user-supplied \code{starts} matrix is not checked in advance, and a row
+outside the box fails in its own run. The state of the generator is
+recorded for the \code{seed} of the result. And the gradient check is switched
+off for the inner runs, since the generic has already made it at the \code{par}
+of the caller; without that the same warning would be printed once per
+start.
 }
 \keyword{internal}

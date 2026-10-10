@@ -22,13 +22,14 @@ lbfgs(
 \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}.}
 
 \item{memory}{How many secant pairs to keep, a single positive whole
-number. Defaults to 10. A fractional value is refused rather than
-truncated, the kernel reading the count through \code{as.integer()}.}
+number. Defaults to 10. A fractional value is rejected instead of
+truncated, since the count is passed to the compiled code as an integer.}
 
-\item{curv_tol}{A pair is discarded when
+\item{curv_tol}{A pair is not stored when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 Defaults to \code{1e-10}. Zero is admitted and gives \eqn{s^\top y > 0}; a
-negative value is refused, for the reason \code{\link[=bfgs]{bfgs()}}'s page gives.}
+negative value is rejected, for the reason given on the page of
+\code{\link[=bfgs]{bfgs()}}.}
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
 \code{\link[=bfgs]{bfgs()}}.}
@@ -40,9 +41,12 @@ be handed to \code{\link[=minimize]{minimize()}}.
 \description{
 BFGS without ever forming the matrix: only the last \code{memory} secant pairs
 are kept, and the direction comes from the two-loop recursion. Costs
-\eqn{O(mp)} in time and memory where \code{\link[=bfgs]{bfgs()}} costs \eqn{O(p^2)}, and
-returns the same direction the full matrix would when the pairs are the
-same.
+\eqn{O(mp)} in time and memory where \code{\link[=bfgs]{bfgs()}} costs \eqn{O(p^2)}. The
+direction equals the one of the explicitly assembled inverse built from
+the same pairs and the same initial scaling. The two methods do not give
+the same directions in a run, because \code{\link[=bfgs]{bfgs()}} keeps every pair and scales
+its initial matrix by the first accepted pair, whereas the recursion uses
+the last \code{memory} pairs and the most recent one for the scaling.
 }
 \section{Notation}{
 \eqn{s = x_{new} - x_{old}} is the secant vector and
@@ -50,38 +54,28 @@ same.
 length is \eqn{\alpha}, a different quantity.
 }
 
-\section{Where the saving is}{
-The two-loop recursion returns exactly the product the explicitly
-assembled inverse would: built from the same four pairs and the same
-scaling, the two agree to \code{1.7e-16}. What differs is the cost.
+\section{The saving}{
+The two-loop recursion returns exactly the product of the explicitly
+assembled inverse built from the same pairs and the same scaling (the
+last example). The difference is in the cost: one iteration costs
+\eqn{O(p^2)} for \code{\link[=bfgs]{bfgs()}} and \eqn{O(mp)} for \code{\link[=lbfgs]{lbfgs()}}, while the
+numbers of iterations of the two methods on a dense quadratic are close.
+The difference in time becomes large for a few hundred parameters, and
+for several thousand the \eqn{O(p^2)} storage and work of the full matrix
+become prohibitive.
 
-Measured on a dense quadratic, both methods taking the gradient and
-converging to the same point:
-
-\tabular{lll}{
-\strong{p} \tab \strong{bfgs} \tab \strong{lbfgs} \cr
-5 \tab 9 iterations \tab 8 iterations \cr
-50 \tab 15 \tab 15 \cr
-200 \tab 16, 0.06 s \tab 17, 0.00 s \cr
-800 \tab 16, \strong{4.06 s} \tab 17, \strong{0.02 s} \cr
-}
-
-The iteration counts barely differ; the cost per iteration is what
-diverges, and it does so between 200 and 800 parameters. Beyond a few
-thousand the full matrix is not storable at all.
-
-The recursion is scaled at each iteration by the most recent pair's
-\eqn{s^\top y / y^\top y}. That single number does the work the full
-matrix would otherwise do, and is the reason the method converges without
-one.
+The recursion is scaled at each iteration by
+\eqn{s^\top y / y^\top y} of the most recent pair. This scalar estimates
+the inverse curvature along the latest step and takes the place of the
+initial matrix of the full update.
 }
 
 \section{Choosing memory}{
-More is not better. Old pairs describe curvature at points the iterate has
-left, and they cost \eqn{O(p)} each per iteration. Measured on Rosenbrock,
-\code{memory} of 3, 5, 10, 30 and 100 gives 38, 36, 37, 37 and 37 iterations:
-past a handful there is nothing left to gain and the arithmetic keeps
-rising. Ten is the conventional choice for that reason.
+A larger \code{memory} is not always better. Old pairs describe the curvature
+at points that the iterate has left, and each pair costs \eqn{O(p)} per
+iteration. Beyond a handful of pairs the number of iterations changes
+little while the arithmetic keeps rising; ten is the conventional
+choice.
 }
 
 \examples{
@@ -90,8 +84,8 @@ rg <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                     200 * (p[2] - p[1]^2))
 minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
 
-# The two-loop recursion is not an approximation to the full update: on the
-# same pairs it returns the same product, to machine precision.
+# The two-loop recursion is not an approximation to the full update: on
+# the same pairs it returns the same product, to rounding error.
 set.seed(1)
 p <- 6
 S <- matrix(rnorm(p * 4), p, 4)

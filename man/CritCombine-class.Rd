@@ -19,21 +19,21 @@ An S7 object of class \code{CritCombine} inheriting from \code{\link[=criterion]
 carrying \code{label}, \code{criteria} and \code{how}.
 }
 \description{
-The class \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}} both build, and the two methods it
-implements. Its \code{crit_met()} evaluates every rule it holds and reduces
-with \code{any()} or \code{all()} according to \code{how}; its \code{crit_needs()} is the
-union of what they need, so a combination containing a gradient rule is
-refused by a derivative-free method exactly as the bare rule would be.
+The class built by both \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}}, and its two
+methods. Its \code{crit_met()} evaluates every rule that it contains and
+reduces the results with \code{any()} or \code{all()} according to \code{how}; its
+\code{crit_needs()} is the union of the needs of those rules, so a derivative-free
+method rejects a combination that contains a gradient rule, as it rejects
+the gradient rule alone.
 }
 \details{
 A \code{CritCombine} is itself a \code{\link[=criterion]{criterion()}}, so combinations nest and the
 label nests with them: \code{crit_any(crit_all(a, b), c)} reads
-\verb{a and b or c}. Every rule is evaluated at every call, \code{any()} and \code{all()}
-taking the whole vector rather than short-circuiting, which costs nothing
-worth counting against an objective evaluation.
+\verb{a and b or c}. Every rule is evaluated at every call, because \code{any()} and
+\code{all()} receive the whole vector of results and do not short-circuit.
 }
 \examples{
-# The needs are the union, so this is refused by a simplex method.
+# The needs are the union, so a simplex method rejects this combination.
 crit_needs(crit_any(crit_grad(), crit_stationary()))
 
 st <- list(iter = 3, f_new = 1, f_old = 2, x_new = 1, x_old = 1,

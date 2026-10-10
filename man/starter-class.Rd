@@ -17,31 +17,31 @@ one of its subclasses.
 }
 \description{
 The abstract parent of \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A starter
-stands in for the vector of starting values: it says how the values are to
-be produced and carries how many of them there are, and \code{\link[=minimize]{minimize()}}
-turns it into an actual vector before dispatch. Every optimizer therefore
-accepts one, including an optimizer written outside the package, and no
-method needs to know that starters exist.
+takes the place of the vector of starting values: it specifies how the
+values are produced and how many there are, and \code{\link[=minimize]{minimize()}} turns it into
+a vector before dispatch. Every optimizer therefore accepts one, including
+an optimizer written outside the package, and no method needs code of its
+own for starters.
 }
 \details{
 The class is abstract and carries one property, \code{npar}, an integer or
 \code{NULL}. A subclass needs a method for \code{\link[=starting_values]{starting_values()}} and nothing
 else. \code{\link[=minimize]{minimize()}} decides whether \code{par} is a vector to use as given or an
-object to resolve by testing inheritance from this class, so a starter of
-your own has to be parented here; a class carrying a \code{starting_values()}
-method but parented elsewhere is refused with \verb{'par' must be a numeric vector of starting values}.
+object to resolve by testing inheritance from this class, so a new starter
+has to inherit from it; a class that has a \code{starting_values()} method but
+inherits from another class is rejected with the error \verb{'par' must be a numeric vector of starting values}.
 
-This is the third of the package's extension points and it is exported for
-the same reason as the other two, \code{\link[=criterion]{criterion()}} for a stopping rule and
-\code{\link[=optimizer]{optimizer()}} for an algorithm: the generic is of no use without the class
-it dispatches on.
+A starter is an extension point of the package, like \code{\link[=criterion]{criterion()}} for a
+stopping rule and \code{\link[=optimizer]{optimizer()}} for an algorithm, and its class is
+exported for the same reason: the generic is of no use without the class
+on which it dispatches.
 }
 \examples{
 # The class is abstract, so it cannot be instantiated directly...
 try(starter(npar = 3))
 
 # ...but a subclass with a starting_values() method is a starter, and
-# minimize() resolves it exactly as it resolves the two shipped ones.
+# minimize() resolves it as it resolves the two shipped ones.
 Grid <- S7::new_class("Grid", parent = starter)
 S7::method(starting_values, Grid) <- function(starter, npar)
   seq(-1, 1, length.out = npar)

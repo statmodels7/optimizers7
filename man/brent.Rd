@@ -17,16 +17,18 @@ brent(
 }
 \arguments{
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
-\code{crit_stationary(1e-5)}, read on the half-width of the bracket, so the
-tolerance is on the parameter's scale. A gradient rule is refused when
-the run starts.}
+\code{crit_stationary(1e-5)}, which reads the half-width of the bracket, so
+the tolerance is on the scale of the parameter, or on the unconstrained
+scale when \code{lower} or \code{upper} is given. A rule that needs a gradient is
+rejected when the run starts.}
 
 \item{step}{The length of the first trial step of the bracketing phase, a
 single positive number, default \code{1}.}
 
 \item{max_expand}{How many golden expansions the bracketing phase may
-take, a single positive number, default \code{50}. A run that has not
-bracketed the minimum by then continues from the best point it has.}
+take, a single number of at least 1, default \code{50}. If no minimum has
+been bracketed by then, the run stops at the lowest point evaluated and
+reports \code{converged = FALSE}.}
 
 \item{maxit}{Maximum iterations of the reduction phase. Defaults to 100.}
 
@@ -52,9 +54,13 @@ and golden-section steps.
 The bracketing phase evaluates the starting value \eqn{x_0} and
 \eqn{x_0 + h}, turns round if the second is the higher, and steps on in
 the descending direction, each step \eqn{1.618} times the last, until the
-value rises. The three points then satisfy \eqn{f(b) < f(a)} and
-\eqn{f(b) < f(c)} with \eqn{b} between \eqn{a} and \eqn{c}, so a minimum
-lies inside \eqn{(a, c)}.
+value no longer falls. The three points then satisfy
+\eqn{f(b) \le f(a)} and \eqn{f(b) \le f(c)} with \eqn{b} between \eqn{a}
+and \eqn{c}, so a minimum lies in \eqn{[a, c]}. If the value is still
+falling when \code{max_expand} expansions have been taken, or when the
+evaluation budget runs out, no minimum has been bracketed: the run stops
+at the lowest point evaluated, reports \code{converged = FALSE} and records the
+reason in \code{message}.
 
 The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 iteration the parabola through the three best points is tried first; its
@@ -65,9 +71,19 @@ superlinearly on a smooth minimum, and the golden steps bound the number
 of evaluations when the function is not well modeled by a parabola. The
 stationarity measure is the half-width of the bracket.
 
+The rule receives \code{iter}, \code{f_new}, \code{f_old}, \code{x_new}, \code{x_old} and
+\code{stationarity}; \code{f_old} and \code{x_old} are those of the previous iteration
+and are \code{NULL} at the first. Besides the rule, the reduction stops on
+Brent's own test, when the bracket has shrunk to about
+\eqn{\sqrt{\varepsilon}\,\lvert x \rvert + 10^{-12}} around the best point
+\eqn{x}, below which no further point can be distinguished from \eqn{x}.
+That stop reports \code{converged = TRUE} with \code{criterion_met} equal to
+\verb{bracket at machine resolution}, so a rule with a smaller tolerance than
+this resolution, or \code{\link[=crit_never]{crit_never()}}, ends there.
+
 The method is for one parameter only; a starting value of any other
-length is rejected. Bounds are removed by the same reparametrization the
-other methods use (see \code{\link[=bounded_transform]{bounded_transform()}}).
+length is rejected. Bounds are removed by the same reparametrization as in
+the other methods (see \code{\link[=bounded_transform]{bounded_transform()}}).
 }
 \examples{
 brent()
@@ -87,5 +103,5 @@ Prentice-Hall, Englewood Cliffs.
 }
 \seealso{
 \code{\link[=nelder_mead]{nelder_mead()}} for the derivative-free method in several
-dimensions, \code{\link[=crit_stationary]{crit_stationary()}} for the rule this method reads.
+dimensions, \code{\link[=crit_stationary]{crit_stationary()}} for the default rule of this method.
 }

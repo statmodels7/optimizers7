@@ -10,7 +10,7 @@
 \code{NULL} for a central difference of \code{fn}.}
 
 \item{he}{A function of the parameter vector returning the Hessian, or
-\code{NULL}. Read by \code{\link[=newton]{newton()}} alone.}
+\code{NULL}. Read by \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}.}
 
 \item{...}{Unused.}
 }
@@ -19,19 +19,17 @@ The six-component list described under \code{\link[=as_objective]{as_objective()
 \code{kind = "r"}.
 }
 \description{
-The shipped method, and the case almost every caller is in: \code{fn(par)}
-returns the number to be minimized, and \code{gr(par)} and \code{he(par)} return
-its gradient and Hessian when the caller has them. Every evaluation is a
-callback into R, which is the cost of accepting an arbitrary closure and
-the reason a run reports its evaluation counts.
+The shipped method: \code{fn(par)} returns the number to be minimized, and
+\code{gr(par)} and \code{he(par)} return its gradient and Hessian when the caller
+has them. Every evaluation is a callback into R. The compiled objective
+counts the evaluations, and the result reports them in \code{counts}.
 }
 \section{Validation}{
 
-\code{gr} and \code{he} are each checked to be a function or \code{NULL}, and anything
-else raises immediately, before the run starts. \code{fn} itself is not
-checked here: dispatch has already established that it is a function, and
-whether it returns a single number is settled at the first evaluation,
-where the offending value can be reported.
+\code{gr} and \code{he} are each checked to be a function or \code{NULL}, and any other
+value raises an error before the run starts. \code{fn} is not checked here:
+dispatch has already established that it is a function, and the compiled
+objective checks at every evaluation that it returns a single number.
 }
 
 \examples{
@@ -39,7 +37,7 @@ obj <- as_objective(function(p) sum(p^2), gr = function(p) 2 * p)
 obj$kind
 c(obj$has_gradient, obj$has_hessian)
 
-# A gradient that is not a function is refused before any evaluation.
+# A gradient that is not a function is rejected before any evaluation.
 try(as_objective(function(p) sum(p^2), gr = 1))
 
 }
