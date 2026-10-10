@@ -1,12 +1,14 @@
 # S7 Class for Multi-Start
 
-An optimizer wrapping another and running it from several starting
+An optimizer that wraps another and runs it from several starting
 points. Built by
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md).
-Its seven shared properties describe the wrapper and not the inner run:
-`criterion`, `max_eval` and the rest are copied from the optimizer
-inside so that printing tells the truth, while `maxit` counts
-**starts**.
+Its seven shared properties describe the wrapper: `criterion` and
+`max_eval` are copied from the inner optimizer, so that the printed
+stopping rule and evaluation budget are those in force; `verbose`,
+`refresh` and `keep_trace` are the arguments of
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md);
+and `maxit` counts **starts**.
 
 ## Usage
 
@@ -65,14 +67,15 @@ with the six properties above beside the seven shared ones.
 ## Details
 
 Beyond the seven shared properties a `MultiStart` carries six of its
-own: `optimizer` is the one being wrapped, `n`, `starts` and `spread`
-say where the runs begin, `ncores` how they are spread over processes,
-and `distinct_tol` how close two answers must be to count as one.
+own: `optimizer` is the wrapped optimizer, `n`, `starts` and `spread`
+describe where the runs begin, `ncores` how they are distributed over
+processes, and `distinct_tol` how close two values must be to count as
+one optimum.
 
 Because the rule that is evaluated belongs to the inner optimizer,
 [`with_criterion()`](https://statmodels7.github.io/optimizers7/reference/with_criterion.md)
 has a method for this class that sets both; setting the outer property
-alone changes the printing and nothing else.
+alone changes only the printing.
 
 ## See also
 
@@ -81,4 +84,4 @@ for the constructor,
 [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
 for the other wrapper,
 [`with_criterion()`](https://statmodels7.github.io/optimizers7/reference/with_criterion.md)
-for why setting the outer rule is not enough.
+for the reason why setting the outer rule is not enough.

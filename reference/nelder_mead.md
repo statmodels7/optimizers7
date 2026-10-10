@@ -29,14 +29,17 @@ nelder_mead(
 
   The stopping rule, a
   [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
-  object. Defaults to `crit_stationary(1e-8)`, read on the diameter of
-  the simplex, so the tolerance is on the parameter scale. A gradient
-  rule is refused when the run starts.
+  object. Defaults to `crit_stationary(1e-8)`, read on the size of the
+  simplex (the largest distance from the best vertex to another vertex),
+  so the tolerance is on the parameter scale. A gradient rule is
+  rejected when the run starts.
 
 - step:
 
-  Size of the initial simplex, relative to each coordinate of the
-  starting value. A single positive number, default `0.1`.
+  Size of the initial simplex: the vertex that moves coordinate \\j\\ is
+  displaced by `step` times the larger of 1 and the absolute value of
+  that coordinate of the starting value. A single positive number,
+  default `0.1`.
 
 - adaptive:
 
@@ -52,14 +55,14 @@ nelder_mead(
 - degenerate_tol:
 
   Rebuild the simplex when its conditioning falls below this, a single
-  positive number, default `1e-6`. A non-positive value is refused, with
-  a message naming `tol` rather than the argument.
+  positive number, default `1e-6`. A value that is not positive is
+  rejected.
 
 - simplex:
 
   An optional starting simplex: a matrix with \\p+1\\ rows, one vertex
   per row. Defaults to `NULL`, meaning build one from `par` and `step`.
-  Anything that is not a matrix or `NULL` is refused.
+  A value that is not a matrix or `NULL` is rejected.
 
 - maxit:
 
@@ -98,32 +101,31 @@ Reflect the worst vertex through the centroid of the rest; if that is
 the best point yet, try going further; if it is no better than the
 second worst, pull back; and if even that fails, shrink everything
 towards the best vertex. No model of the function is built and no
-derivative is assumed to exist, which is why the method survives a kink.
-It is also why it is slow: an ordering of \\p+1\\ values is very little
-information about a surface, and on the quadratic below it costs 133
-evaluations where
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-costs 3.
+derivative is assumed to exist, so the method works at a kink. It is
+slow because the ordering of \\p+1\\ values carries little information
+about the surface; the first example compares its evaluation count with
+that of
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
 
 ## Degenerate simplices
 
 Nelder-Mead can converge to a point that is not a minimizer. McKinnon
 (1998) exhibited a strictly convex function with continuous derivatives
-on which it performs inside contractions for ever: the simplex flattens
-onto a line through a point where the gradient is not zero, every vertex
-agrees, and every ordinary stopping rule reports success. The *values*
-offer no defense, behaving exactly as convergence would; what has gone
-wrong is the *shape*.
+on which it performs inside contractions indefinitely: the simplex
+flattens onto a line through a point where the gradient is not zero, the
+vertices approach a common value, and every ordinary stopping rule
+reports success. The function values behave as they would at
+convergence, and only the shape of the simplex shows the failure.
 
-So the shape is watched. The conditioning measured is \\\lvert \det E
-\rvert\\ divided by the product of the edge lengths, where \\E\\ holds
-the edges from the best vertex. It is 1 for a right-angled simplex, 0
-for one that has collapsed into a lower dimension, and unchanged by
-rescaling, so one threshold serves at every size. When it falls below
-`degenerate_tol` the simplex is rebuilt right-angled at the current best
-vertex, at the diameter it had reached, so the scale the run has earned
-is kept. Each rebuild is counted, appears in the trace as `restart` and
-is reported in the result's `message`.
+The method therefore monitors the shape. The conditioning measured is
+\\\lvert \det E \rvert\\ divided by the product of the edge lengths,
+where \\E\\ holds the edges from the best vertex. It is 1 for a
+right-angled simplex, 0 for one that has collapsed into a lower
+dimension, and unchanged by rescaling, so one threshold serves at every
+size. When it falls below `degenerate_tol` the simplex is rebuilt with
+right angles at the current best vertex, with edges equal to the size
+that the simplex had reached. Each rebuild is counted, appears in the
+trace as `restart` and is reported in the `message` of the result.
 
 The safeguard is not free: a restart costs \\p+1\\ evaluations and can
 delay a genuine convergence. `max_restarts = 0` turns it off.
@@ -136,18 +138,24 @@ parameters. In higher dimension a fixed expansion of 2 makes the simplex
 overshoot along whichever direction it happened to try. Gao and Han
 (2012) replace them by \\1,\\ 1 + 2/p,\\ 3/4 - 1/(2p),\\ 1 - 1/p\\,
 which at \\p = 2\\ are *exactly* the classical values, so `TRUE` is the
-default at no cost to the small problems anyone would recognize. At \\p
-= 10\\ they are \\1, 1.2, 0.7, 0.9\\, and on a quadratic in ten unknowns
-the adaptive run takes 959 iterations against 1230.
+default without changing the method on problems with two parameters. At
+\\p = 10\\ they are \\1, 1.2, 0.7, 0.9\\, and on a quadratic in ten
+unknowns the adaptive run needs fewer iterations than the classical one
+(see the examples).
 
-## When to reach for it
+## Where the method applies
 
-Rarely, and knowingly. On a smooth objective every gradient-based method
-here beats it by orders of magnitude. Its place is an objective that is
-genuinely non-smooth or noisy and whose subgradients are unavailable.
-Where subgradients *are* available,
+On a smooth objective the gradient-based methods that use curvature,
+such as
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md),
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+and
+[`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),
+need far fewer evaluations. The method is intended for an objective that
+is non-smooth or noisy and whose subgradients are unavailable. Where
+subgradients *are* available,
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
-uses them and this method uses nothing.
+uses them.
 
 ## References
 
@@ -168,7 +176,7 @@ for the derivative-free method with a convergence theorem,
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 when subgradients are available,
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
-for the rule this method reads.
+for the default rule of this method.
 
 ## Examples
 
@@ -179,16 +187,16 @@ nelder_mead()
 #>   budgets   : maxit 2000, evaluations Inf
 #>   settings  : step = 0.1, adaptive = TRUE, max_restarts = 3, degenerate_tol = 1e-06, simplex = <NULL>
 
-# A smooth problem, to show that it works and what it costs. BFGS reaches
-# the same point in 3 evaluations.
+# A smooth problem, to show the cost: BFGS reaches the same point in far
+# fewer evaluations.
 q <- function(p) sum((p - c(1, 2))^2)
 minimize(nelder_mead(), q, c(0, 0))@counts[["f"]]
 #> [1] 133
 minimize(bfgs(), q, c(0, 0), gr = function(p) 2 * (p - c(1, 2)))@counts[["f"]]
 #> [1] 3
 
-# What it is for: a sum of absolute deviations, whose minimizer is the
-# median and whose derivative does not exist there.
+# A sum of absolute deviations, whose minimizer is the median and whose
+# derivative does not exist there.
 set.seed(1)
 y <- rcauchy(101)
 r <- minimize(nelder_mead(), function(p) sum(abs(y - p)), par = 0)
@@ -198,14 +206,14 @@ c(nelder_mead = r@par, median = median(y))
 abs(r@par - median(y))
 #> [1] 2.477776e-10
 
-# The adaptive coefficients are the classical ones at p = 2 and differ
-# above it, where they save iterations.
+# The adaptive coefficients equal the classical ones at p = 2 and differ
+# above it; here they save iterations.
 f10 <- function(x) sum((x - 1:10)^2)
 c(adaptive = minimize(nelder_mead(maxit = 20000), f10, numeric(10))@iterations,
   classical = minimize(nelder_mead(adaptive = FALSE, maxit = 20000),
                        f10, numeric(10))@iterations)
 #>  adaptive classical 
-#>       959      1230 
+#>       969      1230 
 
 # The trace names the simplex operation taken at each iteration.
 unique(minimize(nelder_mead(keep_trace = TRUE), q, c(0, 0))@trace$safeguard)

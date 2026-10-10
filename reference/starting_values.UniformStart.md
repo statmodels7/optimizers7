@@ -1,9 +1,9 @@
 # Uniform Starting Values
 
-Draws `npar` values, coordinate by coordinate, from the starter's `min`
-and `max` on the unconstrained scale. A `min` or `max` of length one is
-used for every coordinate; one of length `npar` gives each its own
-range, and any other length raises an error naming both lengths.
+Draws `npar` values, coordinate by coordinate, from the `min` and `max`
+of the starter on the unconstrained scale. A `min` or `max` of length
+one is used for every coordinate; one of length `npar` gives each its
+own range, and any other length raises an error that names both lengths.
 
 ## Arguments
 

@@ -42,7 +42,8 @@ Chebyshev(
 
 - floor:
 
-  The smallest eigenvalue the repaired Hessian may have.
+  The lower bound of the repair; see
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - max_length:
 
@@ -50,8 +51,8 @@ Chebyshev(
 
 - typical:
 
-  `NULL`, or the typical size of each parameter, in whose units the step
-  lengths are read.
+  `NULL`, or the typical size of each parameter, in the units of which
+  the step lengths are measured.
 
 - ratio:
 
@@ -67,8 +68,9 @@ An S7 object of class `Chebyshev` inheriting from
 
 Beyond the properties of
 [Newton](https://statmodels7.github.io/optimizers7/reference/Newton-class.md),
-a `Chebyshev` carries `ratio`, the largest relative length the
-correction may have before the Newton step is kept instead.
+a `Chebyshev` carries `ratio`, the largest relative length of the
+correction at which the corrected direction is used; above it the Newton
+step is used.
 
 ## See also
 

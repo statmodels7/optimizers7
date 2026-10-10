@@ -43,6 +43,8 @@ Compass(
 - expand, shrink:
 
   Factors applied to the poll size after a success and after a failure.
+  After a success the poll size is capped at \\10^4\\ times its initial
+  value.
 
 ## Value
 
@@ -52,10 +54,10 @@ with the five properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `Compass` carries
-five of its own: `step`, `expand` and `shrink` govern the poll radius,
-`directions` says which set is polled, and `opportunistic` when the poll
-stops.
+Beyond the seven properties of every optimizer, a `Compass` carries five
+of its own: `step`, `expand` and `shrink` govern the poll radius,
+`directions` selects the set that is polled, and `opportunistic` decides
+when the poll stops.
 
 ## See also
 

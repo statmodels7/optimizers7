@@ -1,8 +1,10 @@
 # Assemble the Result of a Multi-Start Run
 
-Picks the run with the lowest value, keeps everything that run carried,
-and adds what the others found: the per-start table, the counts, and the
-number of distinct optima.
+Picks the run with the lowest value and takes its `par`, `value`,
+`gradient`, `converged` and `criterion_met`. The evaluation counts are
+summed over the successful starts, `iterations` is the number of starts,
+and the table of the starts, the counts of starts and the number of
+distinct optimal values are added in `trace` and `message`.
 
 ## Usage
 
@@ -39,8 +41,7 @@ An
 
 ## Details
 
-The count of distinct optima is the reason to run this at all, so it is
-computed here: the values reached are sorted and cut wherever
-consecutive ones differ by more than `distinct_tol`. It is a statement
-about the objective, not about the optimizer, and it is the one piece of
-evidence a single run can never supply.
+The number of distinct optimal values is computed by sorting the values
+reached and cutting wherever consecutive values differ by more than
+`distinct_tol`. It describes the objective and not the optimizer, and a
+single run cannot provide it.

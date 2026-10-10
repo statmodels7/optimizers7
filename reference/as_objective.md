@@ -1,12 +1,12 @@
 # Normalize an Objective for the Optimizers
 
 Packs a function to be minimized, together with whichever of its
-gradient and Hessian the caller has, into the one handle every algorithm
-in the package is written against. The result is a named list carrying
-the pieces and two flags saying which derivatives were supplied.
-`as_objective()` is a generic dispatching on `fn`, so a caller holding
-some other kind of objective registers one method and every algorithm
-accepts it.
+gradient and Hessian the caller has, into the handle on which every
+algorithm in the package operates. The result is a named list that
+contains the pieces and two flags recording which derivatives were
+supplied. `as_objective()` is a generic that dispatches on `fn`, so a
+caller with another kind of objective registers one method and every
+algorithm accepts that objective.
 
 ## Usage
 
@@ -33,9 +33,11 @@ as_objective(fn, gr = NULL, he = NULL, ...)
 - he:
 
   The Hessian, a function of the parameter vector returning a `p x p`
-  symmetric matrix. `NULL` is the default. Only
+  symmetric matrix. `NULL` is the default.
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
-  reads one; every other method accepts it and ignores it, so calling
+  and
+  [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+  read it; every other method accepts it and does not use it, so calling
   code can pass whatever it has without branching on the method.
 
 - ...:
@@ -75,12 +77,12 @@ side:
 ## Two generics, each dispatching once
 
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-dispatches on the optimizer, so an algorithm is written once whatever
-shape the objective arrived in. `as_objective()` dispatches on the
-objective, so the shapes are told apart once whatever algorithm is
-running. Dispatching
+dispatches on the optimizer, so an algorithm is written once for every
+kind of objective. `as_objective()` dispatches on the objective, so each
+kind of objective is converted once for every algorithm. Dispatching
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-on both would need one method per algorithm per shape.
+on both would need one method for each pair of an algorithm and a kind
+of objective. The package ships one method, for an ordinary R function.
 
 ## What happens when no gradient is supplied
 
@@ -88,48 +90,49 @@ The compiled loop differences the objective, once per coordinate,
 \$\$\hat{g}\_j = \frac{f(x + h e_j) - f(x - h e_j)}{2h}, \qquad h =
 \varepsilon^{1/3} \max(1, \lvert x_j \rvert),\$\$ with \\\varepsilon\\
 the machine epsilon, so \\h\\ is about `6.06e-06` for a coordinate of
-size one. One gradient then costs \\2p\\ evaluations of the objective.
-The accuracy is what a central difference gives: on the Rosenbrock
-function at \\(0.5, 0.5)\\ the differenced gradient is right to a
-relative `1.4e-10`.
+size one. One gradient then costs \\2p\\ evaluations of the objective,
+and its relative error is of the order of \\\varepsilon^{2/3}\\.
 
-A run that differences its gradient says so in the result's `message`
-field, so a fit is never quietly less exact than it looks.
+A run that differences its gradient records this in the `message` field
+of the result.
 
-## The Hessian is the one place two differences compose
+## A Hessian by differencing the gradient
 
-Only
 [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
-asks for a Hessian, and when none is supplied it is obtained by
-differencing the gradient once. With an analytic gradient that is a
-single differentiation and costs \\2p\\ gradient evaluations. With no
-gradient either, the gradient is itself a difference and the Hessian is
-a difference of differences, which costs about \\4p^2\\ evaluations and
-loses accuracy accordingly: one Newton iteration on a quadratic in 20
-unknowns takes 1682 evaluations of the objective without a gradient and
-42 of the gradient with one. The Hessian is symmetrized before it is
-returned, the two triangles differing by the differencing error alone.
+and
+[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+read a Hessian, and when none is supplied it is obtained by differencing
+the gradient once. With an analytic gradient this is a single
+differentiation and costs \\2p\\ gradient evaluations. Without a
+gradient, the gradient is itself a difference and the Hessian is a
+difference of differences, which costs about \\4p^2\\ evaluations of the
+objective and is less accurate. The Hessian is symmetrized before it is
+returned, since its two triangles differ by the error of the
+differences.
 
-## A point the objective refuses
+## Points where the objective is not finite
 
-An objective that returns `NA`, `NaN` or an infinity at some point
-declares that point unusable. The algorithms treat that as an ordinary
-event, back away and continue, so a line search may probe outside the
-region where the objective is defined without the run failing.
+If the objective returns `NA`, `NaN` or an infinity at a point other
+than the starting value, the algorithms treat that point as unusable,
+reject the trial step and continue, so a line search can try points
+outside the region where the objective is defined. A value that is not
+finite at the starting value is an error.
 
 ## See also
 
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 for the run itself,
 [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
-for the one method that reads a Hessian,
+and
+[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+for the methods that read a Hessian,
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)
-for what a method offers a stopping rule in return.
+for the quantities that a method supplies to a stopping rule.
 
 ## Examples
 
 ``` r
-# The flags record what was supplied, and they are what the loop branches on.
+# The flags record what was supplied, and the compiled loop branches on them.
 str(as_objective(function(p) sum(p^2)))
 #> List of 6
 #>  $ kind        : chr "r"
@@ -147,8 +150,8 @@ str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #>  $ has_gradient: logi TRUE
 #>  $ has_hessian : logi FALSE
 
-# What the difference costs, on Rosenbrock from the origin. Both runs take
-# 21 iterations and land in the same place; only the bill differs.
+# The cost of the difference, on Rosenbrock from the origin. Both runs take
+# 21 iterations and reach the same point; the evaluation counts differ.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
@@ -164,11 +167,11 @@ unlist(b@counts)          # 30 objective evaluations and 24 gradients
 max(abs(a@par - b@par))   # the two answers agree to 1.5e-08
 #> [1] 1.466677e-08
 
-# The run that differenced says so.
+# The message of the run that differenced records it.
 a@message
 #> [1] "gradient obtained by finite differences"
 
-# A class with no method is refused by name.
+# A class with no method is rejected, and the error names the class.
 try(as_objective(1:3))
 #> Error : Can't find method for `as_objective(<integer>)`.
 ```

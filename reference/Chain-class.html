@@ -13,7 +13,7 @@ including inside multistart()."><meta property="og:image" content="https://statm
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,12 +79,13 @@ the property <code>stages</code> beside the seven shared ones.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Beyond the seven properties every optimizer has, a <code>Chain</code> carries
-<code>stages</code>, the list of optimizers in running order. The seven it inherits
-describe the <strong>last</strong> stage: its <code>criterion</code>, <code>maxit</code> and <code>max_eval</code> are
-copied from there, because the last stage is the one whose rule ends the
-run and whose result is reported. <code>refresh</code> is fixed at 1, the chain's own
-progress being one line per stage.</p>
+    <p>Beyond the seven properties of every optimizer, a <code>Chain</code> carries
+<code>stages</code>, the list of optimizers in running order. Three of the seven
+shared properties describe the <strong>last</strong> stage: <code>criterion</code>, <code>maxit</code> and
+<code>max_eval</code> are copied from it, because the rule of the last stage ends the
+run and its result is reported. <code>name</code> joins the names of all the stages,
+<code>verbose</code> and <code>keep_trace</code> belong to the chain, and <code>refresh</code> is fixed at
+1, since the progress of the chain is one line per stage.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

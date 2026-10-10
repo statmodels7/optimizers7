@@ -4,8 +4,8 @@
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
 so that
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-tests them, and `FALSE` for a method that takes its constraint another
-way.
+tests them, and `FALSE` for a method that takes its constraint in
+another way.
 
 ## Usage
 
@@ -26,23 +26,25 @@ A single logical.
 
 ## Details
 
-Every method here removes bounds by reparametrization and answers
-`TRUE`, which is the default.
+Every method in the package except
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
-is the one exception: a constraint reaches it inside the proximal
-operator, where it composes with the term already there, so bounds
-beside the objective would be a second and conflicting route to the same
-thing.
+removes bounds by reparametrization and returns `TRUE`, which is the
+default.
+[`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
+receives a constraint inside the proximal operator, where it combines
+with the non-smooth term, so bounds beside the objective would be a
+second, conflicting way of imposing the same constraint.
 
-A wrapper answers for what it contains.
+A wrapper returns the answer of what it contains.
 [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
-is bounded only when **every** stage is, the bounds being passed to all
-of them.
+is bounded only when **every** stage is, since the bounds are passed to
+all of them, and
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+returns the answer of its inner optimizer.
 
-The declaration is read by
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-before its seventh check, so a method answering `FALSE` is not failed
-for refusing a box it never promised.
+reads the declaration before its seventh check, so a method that returns
+`FALSE` is not failed for rejecting bounds.
 
 ## See also
 

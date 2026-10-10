@@ -39,10 +39,9 @@ with the two properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `Brent` carries two
-of its own: `step`, the length of the first trial step on the
-parameter's scale, and `max_expand`, the number of golden expansions the
-bracketing phase may take before it stops.
+Beyond the seven properties of every optimizer, a `Brent` carries two of
+its own: `step`, the length of the first trial step, and `max_expand`,
+the number of golden expansions that the bracketing phase may take.
 
 ## See also
 

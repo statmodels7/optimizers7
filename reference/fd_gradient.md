@@ -1,6 +1,6 @@
 # A Central-Difference Gradient
 
-The finite-difference gradient the R-level proximal loop uses when the
+The finite-difference gradient that the proximal loop uses when the
 caller supplies none, with the step scaled to each coordinate.
 
 ## Usage

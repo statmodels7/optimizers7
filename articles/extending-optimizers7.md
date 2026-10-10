@@ -1,23 +1,21 @@
 # Extending optimizers7
 
-A toolkit that only worked for the algorithms it ships with would have
-solved nothing. This vignette covers the other half: what can be added,
-and what the package guarantees about the added pieces.
+This vignette describes how to add a stopping rule, a kind of objective
+and an algorithm to the package, and which checks the package applies to
+the added pieces.
 
-Three components can be replaced: the stopping rule, the objective, and
-the algorithm. They are separate on purpose, so that replacing one costs
-nothing in the other two.
+The three components are separate, so that replacing one of them
+requires no change to the other two.
 
 ## A user-defined stopping rule
 
-The alternative to an object here would be an argument taking a string
-and a `switch` inside every algorithm. That arrangement fixes, at the
-moment the package is written, what everyone downstream is allowed to
-mean by *finished*, and convergence is the definition of the answer
-rather than a detail.
+The alternative to an object would be an argument that takes a string,
+with a `switch` inside every algorithm. That arrangement fixes the set
+of meanings of *finished* when the package is written, and the meaning
+of convergence determines what the reported answer is.
 
-A criterion is one class and one method. The method receives the whole
-state of the iteration and returns a single logical:
+A criterion is one class and one method. The method receives the state
+of the iteration and returns a single logical:
 
 ``` r
 
@@ -31,8 +29,7 @@ S7::method(crit_met, CritTiny) <- function(criterion, state) {
 tiny <- CritTiny(label = "objective below 1e-8", tol = 1e-8)
 ```
 
-It is then usable by every algorithm in the package, with no further
-ceremony:
+Every algorithm in the package then accepts it:
 
 ``` r
 
@@ -44,15 +41,20 @@ minimize(bfgs(criterion = tiny), f, c(0, 0), gr = gr)@criterion_met
 ```
 
 `state` carries `iter`, `f_new`, `f_old`, `x_new`, `x_old`, `gradient`
-and `stationarity`. The last two are not always there, and that matters.
+and `stationarity`. A method supplies `gradient` or `stationarity`
+according to its kind and `NULL` for the other, and `f_old` and `x_old`
+are `NULL` when there is no previous value; the help page of
+[`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
+gives the details.
 
 ### Declaring what a rule needs
 
-A rule that reads the gradient, handed to a method that computes none,
-would sit testing `NULL` at every iteration and quietly never fire; the
-run would end on its iteration budget and report a reason nowhere near
-the truth. So a rule declares what it reads, and an optimizer that
-cannot supply it rejects the rule by name:
+A rule that reads the gradient, used with a method that computes none,
+would test `NULL` at every iteration and never fire; the run would end
+on its iteration budget and report a failure unrelated to the state of
+the run. A rule therefore declares what it reads, and an optimizer that
+cannot supply it rejects the rule with an error that names the missing
+quantity:
 
 ``` r
 
@@ -62,8 +64,10 @@ minimize(nelder_mead(criterion = crit_grad()), f, c(0, 0))
 #>   Choose a criterion this optimizer can evaluate, or a method that provides it.
 ```
 
-A rule that reads something optional declares it through
-[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md):
+A rule declares the components that it needs through
+[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md);
+a rule that reads only the objective, as `CritTiny` does, declares
+nothing:
 
 ``` r
 
@@ -89,15 +93,14 @@ crit_any(tiny, crit_grad(1e-10))
 dispatches on the optimizer, so an algorithm is written once. The
 objective is normalized separately, by
 [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
-which dispatches on the objective. Each generic dispatches where there
-is real variation; dispatching
+which dispatches on the objective. Dispatching
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-on both would need one method per algorithm per shape.
+on both would need one method for each pair of an algorithm and a kind
+of objective.
 
 ### An ordinary function
 
-The common case, and the one that costs the most: every evaluation is a
-callback into R.
+This is the common case. Every evaluation is a callback into R.
 
 ``` r
 
@@ -107,8 +110,7 @@ minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 ```
 
 With no gradient supplied, one is obtained by central differences, and
-the result records it, so a run is never silently less exact than it
-appears:
+the result records it:
 
 ``` r
 
@@ -118,9 +120,13 @@ minimize(bfgs(), f, c(0, 0))@message
 
 ### An objective that resamples itself
 
-Subsampling is a property of the objective, not of an algorithm, and the
-sharpest way to say so is that it needs no support at all. An objective
-that draws a fresh minibatch on every call is an ordinary R function:
+Subsampling is a property of the objective, not of an algorithm, and it
+needs no support from the package. An objective that draws a new
+minibatch on every call is an ordinary R function. Here `batch` and
+`batch_gr` draw different minibatches, so the gradient check of
+[`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
+gives a warning, which `options(optimizers7.check_gradient = FALSE)`
+switches off:
 
 ``` r
 
@@ -140,31 +146,30 @@ mean(y)
 #> [1] 2.986045
 ```
 
-The package deliberately has no objective class that declares itself a
-sum over observations for
+The package has no objective class that declares itself a sum over
+observations for
 [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
-to subset. Supporting one would require a second kind of objective, a
-rule for which stopping rules that objective permits, a way of reporting
-which is in force, and a branch in the compiled loop, all serving a task
-the caller can do in one line and do better, since the caller is the one
-who knows what an observation is. An optimizer with its own notion of an
-observation has stopped being a general one; the batch is drawn in the
-layer that owns the notion.
+to subset. Such a class would require a second kind of objective, a rule
+for the stopping rules that it permits, a way of reporting which one is
+in force, and a branch in the compiled loop, for a task that the caller
+can do in one line, since the caller defines what an observation is. An
+optimizer with its own notion of an observation would not be a general
+optimizer, so the batch is drawn in the layer that defines observations.
 
-One detail matters when writing such an objective. The resampling
-belongs *inside* the objective, not around the run. Calling
-`minimize(adam(maxit = 1), ...)` in a loop resets and to zero and the
-bias correction to at every call. Each call then takes a first step of
-length , and the accumulated moments, which are the whole of the method,
-are thrown away each time.
+The resampling belongs *inside* the objective, not around the run.
+Calling `minimize(adam(maxit = 1), ...)` in a loop resets $`m`$ and
+$`v`$ to zero and the bias correction to $`t = 1`$ at every call. Each
+call then takes a first step of length $`\alpha`$ in each coordinate,
+and the accumulated moments, on which the method depends, are discarded
+at each call.
 
 ### A user-defined kind of objective
 
-There is one shipped shape, and
+The package ships one kind of objective, and
 [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md)
-is a generic so that there can be others. A caller holding a
-fitted-model object, say, registers one method and every algorithm in
-the package accepts it:
+is a generic so that there can be others. A caller with a fitted-model
+object, for example, registers one method and every algorithm in the
+package accepts the object:
 
 ``` r
 
@@ -177,41 +182,39 @@ S7::method(as_objective, MyModel) <- function(fn, gr = NULL, he = NULL, ...) {
 }
 ```
 
-A second shape, `cpp_objective()`, taking a pair of external pointers so
-that the iteration never returns to R, is also absent, for two reasons.
+The package does not provide a compiled objective, a pair of external
+pointers through which the iteration would never return to R, for two
+reasons.
 
-First, it could not carry data. The pointer type was
+First, such an objective cannot carry data. The pointer type would be
 `double(*)(const arma::vec&)`, a bare function pointer with no closure
-and no user-data argument, so any real statistical objective had to keep
-its `y` and its `X` in C++ globals. That is not reentrant, it means one
+and no user-data argument, so a statistical objective would have to keep
+its `y` and its `X` in C++ globals. That is not reentrant, it allows one
 model at a time, and it rules out running several starts in one process.
 
-Second, it was not faster where it matters. Measured on a Gamma
-regression against the same objective written in vectorized R, the
-compiled version was *slower* below about twenty thousand observations
-and never better than about twice as fast above it. The reason is
-structural: assembling a gradient or a Hessian from model terms is
-`crossprod(Z, s)` and `crossprod(Z, W * Z)`, and R’s matrix arithmetic
-and Armadillo’s call the same BLAS, so on the operation that dominates a
-real fit the two languages run the same code. Compiled kernels pay where
-the arithmetic is elementwise and irregular, which is where puts them,
-in the fourth-order derivative expressions of each family.
+Second, it gives no general speed gain. The gradient and the Hessian of
+a model are assembled from `crossprod(Z, s)` and `crossprod(Z, W * Z)`,
+and R and Armadillo call the same BLAS for these, so the dominant
+operation runs the same code in both languages. Compiled kernels pay
+where the arithmetic is elementwise and irregular, which is where
+distributions7 uses them, in the derivative expressions of each family
+up to the fifth order.
 
 ## A user-defined algorithm
 
-An optimizer is a subclass of `optimizer` carrying its own settings,
-plus a method on
+An optimizer is a subclass of `optimizer` that carries its own settings,
+and a method of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-Here is one the package does not ship — the heavy-ball method, gradient
-descent with momentum, which adds a fraction of the previous
-*displacement* to each step:
+The example is a method that the package does not ship, the heavy-ball
+method (gradient descent with momentum), which adds a fraction of the
+previous *displacement* to each step:
 
 ``` math
 x_{k+1} = x_k - \alpha g_k + \beta (x_k - x_{k-1}).
 ```
 
-The momentum term is what carries the iterate along a valley floor
-instead of across it, and it is the ancestor of the moment estimate in
+The momentum term carries the iterate along the floor of a valley
+instead of across it, and it is the precursor of the moment estimate in
 [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md).
 
 ``` r
@@ -265,11 +268,11 @@ S7::method(minimize, HeavyBall) <-
   }
 ```
 
-Note the thing the method is responsible for and that nothing can do for
-it: `converged` is set from whether the rule fired and **never** from
-the run having ended.
+The method sets `converged` itself: it is `TRUE` when the stopping rule
+fired and `FALSE` otherwise, including when the run ended on its
+iteration budget.
 
-It works:
+On a quadratic:
 
 ``` r
 
@@ -282,14 +285,14 @@ c(par = r@par, iterations = r@iterations, converged = r@converged)
 ## Checking it
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-separates two questions that are easy to confuse: whether the optimizer
-keeps its **contract**, and how **powerful** it is. Conflating them
-would make the function useless, since gradient descent does not solve
-Rosenbrock in five hundred iterations and is not broken but slow.
+separates two questions: whether the optimizer satisfies the twelve
+numbered checks, and how **powerful** it is. A slow method is not a
+defective one: gradient descent does not solve Rosenbrock in five
+hundred iterations, and that is a property of the method.
 
-The numbered checks are therefore statements every optimizer must
-satisfy however weak it is, and the battery underneath is a table of
-gaps, reported as information rather than as a verdict:
+The numbered checks are therefore statements that every optimizer must
+satisfy, whatever its performance, and the battery below them is a table
+of gaps, reported as information and not as a verdict:
 
 ``` r
 
@@ -321,23 +324,25 @@ res <- check_optimizer(heavy_ball(alpha = 0.01))
 #>     abs_sum      gap  3.39e-02  -        4001 evals  non-smooth
 ```
 
-The battery shows a real limitation: a fixed step length makes this
-method crawl on problems whose curvature varies by orders of magnitude,
-and that is a fair description of heavy ball rather than a defect in it.
+The battery shows a limitation of the method: with the fixed step length
+of 0.01 the iterate diverges on `rosenbrock` and `powell`, whose
+curvature varies by orders of magnitude, and the run does not converge
+on `rastrigin` and `abs_sum`. This is a property of heavy ball with a
+fixed step.
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
-which the package does ship, is the same shape of method with the step
-length estimated from the last secant pair instead of fixed, and it
-solves those same problems to machine precision.
+which the package ships, has the same form with the step length
+estimated from the last secant pair, and it converges on all eight
+problems.
 
-The two failed checks are the more useful half of the output. Nothing
-above is wrong with the *algorithm*; the method accepted two arguments
-and did nothing with them.
+The two failed checks concern the method and not the algorithm: the
+method receives two arguments and does nothing with them, and it does
+not validate its stopping rule.
 
-**It ignored `lower` and `upper`.** The signature has to include them,
-since S7 requires a method’s formals to contain every named argument of
-the generic, and an argument the author did not plan for is easily left
-sitting there. A caller then passes a box, gets no error, and receives
-an answer outside it.
+**It ignores `lower` and `upper`.** The signature includes them, since
+S7 warns when the formals of a method omit a named argument of the
+generic, and an argument that the author did not plan for is easily left
+unused. A caller then passes a box, gets no error, and receives an
+answer outside it.
 
 Removing the box is a few lines, because
 [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
@@ -377,23 +382,23 @@ S7::method(minimize, HeavyBall) <-
 )
 ```
 
-**It never validated the stopping rule.**
+**It does not validate the stopping rule.**
 [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-— marked (2) — is the one line that rejects a rule the method cannot
-evaluate, instead of accepting one that would test `NULL` for ever. What
-a method *can* supply is declared by
+(marked (2)) is the line that rejects a rule that the method cannot
+evaluate, instead of accepting one that would test `NULL` at every
+iteration. The quantities that a method supplies are declared by
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md),
-whose default claims a gradient and an objective. This one has both, so
-the default reports what was actually checked; a derivative-free method
+whose default method returns `"gradient"`. This method computes the
+gradient, so the default is correct for it. A derivative-free method
 would need one line:
 
 ``` r
 
 S7::method(optimizer_provides, HeavyBall) <- function(optimizer)
-  c("objective", "stationarity")
+  "stationarity"
 ```
 
-With both promises kept, the contract holds:
+With both repairs, every check passes:
 
 ``` r
 
@@ -403,16 +408,16 @@ all(check_optimizer(heavy_ball(alpha = 0.01),
 #> [1] TRUE
 ```
 
-The algorithm was right from the first line. What was missing was two
-promises the package makes on every optimizer’s behalf, and neither
-omission would have shown itself in any run that happened to succeed;
-the numbered checks exist to expose exactly this kind of gap.
+The two repairs add the handling of bounds and the validation of the
+stopping rule, which the package requires of every optimizer. Neither
+omission affects a run without bounds and with a rule that the method
+can evaluate, and the numbered checks are written to detect both.
 
 ## The test problems
 
 [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
-is exported because a battery is useful to anyone writing an optimizer,
-not only to this package:
+is exported because a battery is useful for writing any optimizer, not
+only those of this package:
 
 ``` r
 
@@ -435,10 +440,10 @@ p$solution
 #> [1] 3.0 0.5
 ```
 
-Two of them are marked `multimodal`, where a local method reaching a
-different minimum is behaving correctly rather than failing. One is
-marked non-`smooth`, where a method that assumes a derivative exists
-will walk to the answer and then be unable to certify it:
+Two of them are marked `multimodal`: on them a local method that reaches
+a different minimum is behaving correctly. One is marked non-`smooth`:
+on it a method that assumes a derivative reaches the solution and cannot
+certify it:
 
 ``` r
 

@@ -11,7 +11,7 @@ result is information: no row is a pass or a failure."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,10 +73,10 @@ result is information: no row is a pass or a failure.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>A problem the optimizer cannot run at all is caught rather than
-propagated, so one method that refuses one problem does not lose the other
-seven. Such a row carries <code>NA</code> in every numeric column and the error
-message in <code>note</code>.</p>
+    <p>An error on a problem is caught and reported in the <code>note</code> column, so
+that it does not discard the results on the other problems. Such a row
+keeps the name of the problem and has <code>NA</code> in the other numeric and
+logical columns.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

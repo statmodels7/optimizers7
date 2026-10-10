@@ -1,11 +1,11 @@
 # Recycle a Length-One Vector, and Reject Any Other Mismatch
 
 Returns `v` at length `n`: a single value is repeated, a value already
-of length `n` is passed through as a double, and anything else raises an
-error naming the argument and both lengths. R's own recycling is
-deliberately not used, since it is silent whenever the shorter length
-divides the longer, and a partial range is far likelier to be a mistake
-than a request.
+of length `n` is passed through as a double, and any other length raises
+an error that names the argument and both lengths. The recycling of R is
+not used, since it is silent whenever the shorter length divides the
+longer, and a partial range is much more likely to be a mistake than a
+request.
 
 ## Usage
 
@@ -25,7 +25,7 @@ recycle_to(v, n, nm)
 
 - nm:
 
-  The argument's name, for the message.
+  The name of the argument, for the message.
 
 ## Value
 

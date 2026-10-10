@@ -1,18 +1,18 @@
 # S7 Class for a Combination of Criteria
 
-The class
+The class built by both
 [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
 and
-[`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md)
-both build, and the two methods it implements. Its
+[`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md),
+and its two methods. Its
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
-evaluates every rule it holds and reduces with
+evaluates every rule that it contains and reduces the results with
 [`any()`](https://rdrr.io/r/base/any.html) or
 [`all()`](https://rdrr.io/r/base/all.html) according to `how`; its
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md)
-is the union of what they need, so a combination containing a gradient
-rule is refused by a derivative-free method exactly as the bare rule
-would be.
+is the union of the needs of those rules, so a derivative-free method
+rejects a combination that contains a gradient rule, as it rejects the
+gradient rule alone.
 
 ## Usage
 
@@ -44,10 +44,10 @@ A `CritCombine` is itself a
 [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md),
 so combinations nest and the label nests with them:
 `crit_any(crit_all(a, b), c)` reads `a and b or c`. Every rule is
-evaluated at every call, [`any()`](https://rdrr.io/r/base/any.html) and
-[`all()`](https://rdrr.io/r/base/all.html) taking the whole vector
-rather than short-circuiting, which costs nothing worth counting against
-an objective evaluation.
+evaluated at every call, because
+[`any()`](https://rdrr.io/r/base/any.html) and
+[`all()`](https://rdrr.io/r/base/all.html) receive the whole vector of
+results and do not short-circuit.
 
 ## See also
 
@@ -61,7 +61,7 @@ for the shared body.
 ## Examples
 
 ``` r
-# The needs are the union, so this is refused by a simplex method.
+# The needs are the union, so a simplex method rejects this combination.
 crit_needs(crit_any(crit_grad(), crit_stationary()))
 #> [1] "gradient"     "stationarity"
 

@@ -100,25 +100,24 @@ Take the direction \\-\alpha g\\ with \$\$\alpha\_{BB1} = \frac{s^\top
 s}{s^\top y}, \qquad \alpha\_{BB2} = \frac{s^\top y}{y^\top y},\$\$ the
 two Rayleigh quotients of the secant pair \\s = x_k - x\_{k-1}\\, \\y =
 g_k - g\_{k-1}\\. Both estimate the inverse curvature along the
-direction just traveled, so this is a quasi-Newton method that has
-discarded everything except one scalar. On a quadratic, where the
-curvature is constant, that scalar is exactly right.
-
-On a quadratic, where the curvature is constant, the estimate is exact
-and the method converges in **two** iterations. On a general smooth
-objective it needs more iterations than
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-while storing a single scalar instead of a matrix: on Rosenbrock 58
-iterations against 35, but 67 objective evaluations against 49.
+direction just traveled, so the method is a quasi-Newton method that
+keeps a single scalar. When the Hessian is a multiple of the identity,
+the curvature is the same in every direction, the estimate from one
+secant pair is exact, and the method converges in **two** iterations.
+Otherwise the scalar is the curvature along the last step only, and the
+number of iterations grows with the spread of the curvatures. On a
+general smooth objective the method usually needs more iterations and
+more evaluations than
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+and it stores one scalar instead of a matrix.
 
 ## Variants
 
 `"bb1"` and `"bb2"` are the two quotients above, and `"alternate"`, the
 default, switches between them at each iteration. They estimate the same
-curvature from opposite ends, and alternating is the more robust choice
-across problems, though not always the fastest on any one: measured on
-Rosenbrock, `bb1` takes 56 iterations and 97 evaluations, `bb2` 51 and
-56, `alternate` 58 and 67.
+curvature in two ways, and alternating is the more robust choice across
+problems, although not always the fastest on a given one (see the
+examples).
 
 ## Line search
 
@@ -127,16 +126,16 @@ unaltered, and backtracking occurs only when it fails the acceptance
 test. The method makes progress through steps that may increase the
 objective temporarily, so the default acceptance test is
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
-which asks for improvement over the maximum of the last `memory` values
-instead of over the current one. A plain Armijo condition rejects
-exactly the steps the method relies on: measured on Rosenbrock, 72
-iterations and 154 evaluations against 58 and 67.
+which requires an improvement over the largest of the last `memory + 1`
+objective values, the current one included, and not over the current
+value alone. A plain Armijo condition rejects every step that increases
+the objective, and with it the steps on which the method relies, so the
+run needs more than twice as many evaluations (see the examples).
 
 `nonmonotone(memory = 0)` is
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
-value for value, and the two give the identical run here, 72 iterations
-and 154 evaluations. That identity is what makes the comparison a
-comparison of the memory alone.
+value for value, so a comparison of the two isolates the effect of the
+memory.
 
 ## Rejected secant pairs
 
@@ -149,8 +148,9 @@ g \rVert\_\infty\\, a trial displacement of order one in the parameters.
 The reset reads the current gradient and not the step length being
 replaced or a fixed constant, so it can neither freeze the iteration at
 a too-short step nor produce one the backtracking cannot rescale. Steps
-outside `[alpha_min, alpha_max]` are clamped, and both the reset and the
-clamp appear in the trace, as `bb curvature reset` and `step shortened`.
+outside `[alpha_min, alpha_max]` are clamped. The reset and the clamp
+appear in the trace as `bb curvature reset` and `bb step clamped`, and a
+step shortened by the line search as `step shortened`.
 
 ## References
 
@@ -162,9 +162,9 @@ methods. *IMA Journal of Numerical Analysis* **8**, 141–148.
 [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md) for
 the same direction with a line-searched step,
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
-for the acceptance test this method needs,
+for the default acceptance test of this method,
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
-for the next amount of curvature to carry.
+for a method that keeps more curvature information.
 
 ## Examples
 
@@ -181,14 +181,14 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 minimize(bb(), f, c(-1.2, 1), gr = gr)@par
 #> [1] 0.9999277 0.9998551
 
-# Two iterations on a quadratic: one secant pair determines the curvature,
-# and on a quadratic that curvature is exactly right.
+# Two iterations on a quadratic whose Hessian is a multiple of the
+# identity: one secant pair determines the curvature exactly.
 minimize(bb(), function(p) sum((p - c(1, 2))^2), c(0, 0),
          gr = function(p) 2 * (p - c(1, 2)))@iterations
 #> [1] 2
 
-# The nonmonotone rule is what the method needs. With memory = 0 it is
-# armijo() value for value, and both give the identical, slower run.
+# The nonmonotone search against the monotone one. With memory = 0 it is
+# armijo() value for value, and both give the same, slower run.
 evals <- function(ls) minimize(bb(line_search = ls), f, c(-1.2, 1),
                                gr = gr)@counts[["f"]]
 c(nonmonotone = evals(nonmonotone()),
@@ -197,7 +197,7 @@ c(nonmonotone = evals(nonmonotone()),
 #> nonmonotone memory_zero      armijo 
 #>          67         154         154 
 
-# Which variant is fastest is a property of the problem.
+# Which variant is fastest depends on the problem.
 vapply(c("bb1", "bb2", "alternate"),
        function(v) minimize(bb(variant = v), f, c(-1.2, 1), gr = gr)@iterations,
        integer(1))

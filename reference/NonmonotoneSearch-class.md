@@ -1,8 +1,8 @@
 # S7 Class for the Nonmonotone Line Search
 
-Armijo backtracking whose reference value is the worst of the last
-`memory + 1` objective values instead of the current one, so a step may
-make things worse now to be better placed later. Built by
+Armijo backtracking whose reference value is the largest of the last
+`memory + 1` objective values, the current one included, so a step may
+increase the objective. Built by
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md).
 
 ## Usage
@@ -26,20 +26,21 @@ NonmonotoneSearch(
 
 - shrink:
 
-  The factor the step is multiplied by on each backtrack.
+  The factor by which the step is multiplied on each backtrack.
 
 - memory:
 
-  How many earlier values the reference looks back over.
+  The number of earlier values, besides the current one, over which the
+  reference is taken.
 
 - max_step:
 
-  The most backtracks allowed. A **count**.
+  The most trial points allowed, the full step included. A **count**.
 
 - resolution:
 
-  What the objective can tell apart, a number or a function of no
-  arguments.
+  The smallest difference in the objective that the objective can
+  resolve, a number or a function of no arguments.
 
 ## Value
 
@@ -49,9 +50,9 @@ with the five properties above beside `label`.
 
 ## Details
 
-Beyond the `label` every line search carries, a `NonmonotoneSearch`
-holds `c1`, `shrink`, `memory`, `max_step` and `resolution`. `memory` is
-the one property no other line search has, and at `memory = 0` the
+Beyond the `label` of every line search, a `NonmonotoneSearch` holds
+`c1`, `shrink`, `memory`, `max_step` and `resolution`. `memory` is the
+only property that no other line search has, and at `memory = 0` the
 object behaves exactly as an
 [ArmijoSearch](https://statmodels7.github.io/optimizers7/reference/ArmijoSearch-class.md)
 with the same constants.
@@ -61,4 +62,4 @@ with the same constants.
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
 for the constructor,
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) for
-the method that needs it.
+the method that uses it by default.

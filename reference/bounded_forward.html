@@ -11,7 +11,7 @@ value goes through before an unconstrained run."><meta property="og:image" conte
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,9 +72,10 @@ than an error, the check belonging to <code><a href="check_bounds.html">check_bo
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Strictly inside. A value <strong>on</strong> a bound maps to an infinite \(\eta\), so
-a run started there begins at infinity and fails far from its cause. That
-is why <code><a href="minimize.html">minimize()</a></code> rejects such a starting value by name, before anything
+    <p>The values must lie strictly inside. A value <strong>on</strong> a bound maps to an
+infinite \(\eta\), so a run started there would begin at infinity and
+fail far from its cause. For this reason <code><a href="minimize.html">minimize()</a></code> rejects such a
+starting value, with an error that names the coordinate, before anything
 is evaluated.</p>
     </div>
     <div class="section level2">
@@ -91,7 +92,7 @@ is evaluated.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># A value on a bound has no finite image, so such a starting point is</span></span></span>
-<span class="r-in"><span><span class="co"># unusable and minimize() refuses it.</span></span></span>
+<span class="r-in"><span><span class="co"># unusable and minimize() rejects it.</span></span></span>
 <span class="r-in"><span><span class="fu">bounded_forward</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -Inf  Inf</span>
 <span class="r-in"><span></span></span>

@@ -1,10 +1,11 @@
 # Print Method for an Optimization Result
 
-Shows the run in six lines at most: the method's name, the objective
-value, the leading parameters, the iteration and evaluation counts, the
-elapsed time and the convergence status with the rule that fired. A
-non-empty `message` adds a `note` line. A failure prints `NO` in
-capitals, so a run that did not converge cannot be skimmed past.
+Shows the run in six lines: the name of the method, the objective value,
+the leading parameters, the iteration and evaluation counts, the elapsed
+time and the convergence status with the rule that fired. The elapsed
+line is omitted when the time is missing, and a non-empty `message` adds
+a seventh line, `note`. A run that did not converge prints `NO` in
+capitals.
 
 ## Arguments
 
@@ -53,14 +54,14 @@ print(res, digits = 2, max_par = 1)
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 
-# A run stopped by its budget says so on the converged line.
+# The converged line of a run stopped by its budget names the budget.
 rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 print(minimize(gd(maxit = 5), rosen, c(-1.2, 1)))
 #> <optimizer_result> gradient descent
 #>   value      : 4.10215
 #>   par        : -1.0203  1.0553
 #>   iterations : 5   evaluations: f 77, g 0
-#>   elapsed    : 1e+03 us
+#>   elapsed    : 1 ms
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```

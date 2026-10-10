@@ -1,9 +1,9 @@
 # Validate a Constant in the Unit Interval
 
 Checks that the value is a single number **strictly** inside \\(0, 1)\\.
-Both endpoints are refused: `c1 = 0` asks for no decrease at all and
-`c1 = 1` asks for the whole decrease the linear model predicts, which a
-curved objective cannot supply.
+Both endpoints are rejected: `c1 = 0` requires no decrease at all, and
+`c1 = 1` requires the whole decrease that the linear model predicts,
+which a strictly convex objective cannot supply.
 
 ## Usage
 

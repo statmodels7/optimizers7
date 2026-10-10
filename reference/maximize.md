@@ -4,9 +4,8 @@ Runs
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 on the negated objective and hands back a result whose value, gradient
 and traced objective are those of the objective as written. Every
-algorithm in the package minimizes; this is the wrapper for the other
-direction, so that a log-likelihood need not be negated by hand and the
-answer negated back.
+algorithm in the package minimizes; this wrapper maximizes, so that a
+log-likelihood need not be negated by hand and the answer negated back.
 
 ## Usage
 
@@ -36,9 +35,9 @@ maximize(
   The objective, a **plain function** of the parameter vector returning
   a single number, to be maximized. Unlike
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
-  an object of another class is refused rather than passed to
+  an object of another class is rejected and not passed to
   [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md);
-  negate such an objective yourself and call
+  such an objective has to be negated by the caller and passed to
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 
 - par:
@@ -57,7 +56,9 @@ maximize(
 
   The Hessian of `fn` as written, or `NULL`. Negated here too, and read
   only by
-  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+  and
+  [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md).
 
 - lower, upper:
 
@@ -70,7 +71,10 @@ maximize(
 
   Passed to
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
-  and from there to the method.
+  and from there to the method. A `t3` argument for
+  [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+  is the contraction of the third derivative of `fn` as written, and is
+  negated here like `gr` and `he`.
 
 ## Value
 
@@ -89,23 +93,20 @@ returns, and with `value`, `gradient` and `trace$value` referring to
 so `par` is exactly what
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 returned, while `value`, `gradient` and the `value` column of `trace`
-have their sign restored. Everything else on the result belongs to the
-run and passes through untouched: `counts`, `iterations`, `converged`,
-`criterion_met` and the optimizer.
+have their sign restored. The other properties of the result pass
+through unchanged: `counts`, `iterations`, `converged`, `criterion_met`
+and the optimizer.
 
-A consequence worth knowing: `criterion_met` names a rule that was
-evaluated on the **negated** objective. For a rule reading a gradient
-norm or an absolute change that makes no difference, both being
-invariant under the sign. For a rule reading the objective's own scale,
-such as
-[`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md),
-it makes none either, the relative change being a ratio.
+The rule named in `criterion_met` was evaluated on the **negated**
+objective. Each shipped rule gives the same verdict on \\f\\ and on
+\\-f\\, since each reads a gradient norm, an absolute change or a
+relative change.
 
 `fn` here must be a plain function. An objective of some other class,
 reached through a method of
 [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
-is refused by name: this wrapper negates by composing a closure, and it
-has no way to negate an object whose evaluation it does not perform.
+is rejected with an error: this wrapper negates by composing a closure,
+and it cannot negate an object whose evaluation it does not perform.
 
 ## See also
 
@@ -126,7 +127,7 @@ c(fit@par, mean(y))
 all.equal(fit@value, ll(fit@par))
 #> [1] TRUE
 
-# An objective that is not a plain function is refused by name.
+# An objective that is not a plain function is rejected.
 try(maximize(bfgs(), 1:3, c(0, 0)))
 #> Error : maximize() takes a plain function; negate other objectives yourself.
 ```

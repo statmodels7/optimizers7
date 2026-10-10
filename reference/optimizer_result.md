@@ -1,13 +1,13 @@
 # S7 Class for the Result of an Optimization
 
-What
+The value of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 and
-[`maximize()`](https://statmodels7.github.io/optimizers7/reference/maximize.md)
-return: the point reached and the value there, the evaluation counts,
-whether a stopping rule was satisfied and which one, and enough of the
-run to diagnose it when none was. The optimizer itself is kept on the
-object, so a run can be repeated from what it returned.
+[`maximize()`](https://statmodels7.github.io/optimizers7/reference/maximize.md):
+the point reached and the value there, the evaluation counts, whether
+the run converged and which rule stopped it, and enough of the run to
+diagnose it otherwise. The optimizer itself is kept on the object, so a
+run can be repeated from its result.
 
 ## Usage
 
@@ -65,9 +65,12 @@ optimizer_result(
 
 - criterion_met:
 
-  A single string: the label of the rule that fired, or
-  `iteration budget reached` or `evaluation budget exhausted` when the
-  run ended without one.
+  A single string: the label of the rule that fired,
+  `no decrease above the objective's resolution` or
+  `bracket at machine resolution` for the two stops described in
+  Details, `iteration budget reached` or `evaluation budget reached` for
+  a budget, and `stopped without converging` for a run that stopped for
+  another reason.
 
 - message:
 
@@ -101,44 +104,65 @@ optimizer_result(
 An S7 object of class `optimizer_result` carrying the twelve properties
 above. Built by the methods of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md);
-a caller receives one rather than constructing it.
+a caller receives one and does not construct it.
 
-## `converged` means a rule fired
+## The meaning of `converged`
 
-`converged` is `TRUE` only when the stopping rule was satisfied. Running
-out of iterations or of evaluations leaves it `FALSE` and puts
-`iteration budget reached` or `evaluation budget exhausted` into
-`criterion_met`. Reporting a budget as a success is the commonest defect
-in a hand-written optimization loop; it turns a failure into a wrong
-answer that nothing downstream can detect.
+`converged` is `TRUE` when the stopping rule was satisfied, and also
+when a line search with a declared resolution established that no step
+decreases the objective by more than that resolution (`criterion_met` is
+then `no decrease above the objective's resolution`) or when
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+reduced its bracket to the resolution of the iterate
+(`bracket at machine resolution`). Running out of iterations or
+evaluations leaves it `FALSE` and puts `iteration budget reached` or
+`evaluation budget reached` into `criterion_met`; `message` then reads
+`evaluation budget exhausted` for the second. A line search that finds
+no acceptable step also leaves it `FALSE`, with `criterion_met` equal to
+`stopped without converging`. A run that ends on a budget is therefore
+reported as not converged, so that code reading the result can
+distinguish it from a run that satisfied a rule.
 
-## The trace, and the column that changes name
+## The trace
 
 With `keep_trace = TRUE` on the optimizer, `trace` is a data frame with
-one row per iteration and five columns: `iteration`, `value`, the
-quantity the stopping rule is watching, `step` and `safeguard`. The
-third column is `gnorm` for a method that computes a gradient and
-`stationarity` for one that does not, so code reading a trace should ask
-for the column by position or check `names(trace)`.
+one row per iteration. For a single method it has the columns
+`iteration`, `value`, a third column holding the quantity read by the
+stopping rule, `step` and `safeguard`;
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+has no `step` column. The third column is `gnorm` for a method that
+computes a gradient and `stationarity` for one that does not, so code
+that reads a trace should select the column by position or check
+`names(trace)`. A
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+trace has one row per start, with the columns `start`, `value`,
+`converged` and `iterations`, and a
+[`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
+trace has an additional `stage` column.
 
-`safeguard` names the repair the algorithm applied to its own step, or
-`"none"`. The names differ by method and are worth reading:
-`step shortened` and `step adjusted` for the line-search methods,
-`cg restart` when conjugacy is lost, `bb curvature reset` when a secant
-pair reports none, and `reflect`, `expand`, `contract in` and
-`contract out` for the simplex.
-[`summary()`](https://rdrr.io/r/base/summary.html) tabulates them.
+`safeguard` names the repair that the algorithm applied to its own step,
+or `"none"`. The names differ by method; examples are `step shortened`
+and `step adjusted` for the line-search methods, `cg restart` when
+conjugacy is lost, `bb curvature reset` when a secant pair has no usable
+curvature, and `reflect`, `expand`, `contract in` and `contract out` for
+the simplex. [`summary()`](https://rdrr.io/r/base/summary.html)
+tabulates them.
 
 ## Repeating a stochastic run
 
-`seed` holds `.Random.seed` as it stood when the run began, and is
-filled in only by the methods that draw:
-[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md), a
-resampling
-[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md),
-a
-[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-generating its own starts. Assigning it back reproduces the run exactly:
+`seed` holds `.Random.seed` as it was when the run began, and is filled
+in only by the methods that draw random numbers themselves:
+[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md),
+[`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
+with its default `directions = "mads"`, and
+[`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md).
+A
+[`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
+carries the seed of its first stage.
+[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
+draws no random numbers, so its `seed` is `NULL`; a resampling objective
+draws in the session of the caller. Assigning the seed back reproduces
+the run exactly:
 
     a <- minimize(sa(maxit = 300), f, c(-1.2, 1))
     assign(".Random.seed", a@seed, globalenv())
@@ -175,12 +199,14 @@ res@counts
 #>  f  g  h 
 #> 49 39  0 
 
-# A budget stops the run and leaves converged FALSE, with the reason.
+# A budget stops the run and leaves converged FALSE, with the reason in
+# criterion_met.
 short <- minimize(bfgs(maxit = 3), f, c(-1.2, 1), gr = g)
 c(short@converged, short@criterion_met)
 #> [1] "FALSE"                    "iteration budget reached"
 
-# The trace names its third column after what the rule watches.
+# The name of the third column of the trace is the quantity read by the
+# rule.
 names(res@trace)
 #> [1] "iteration" "value"     "gnorm"     "step"      "safeguard"
 names(minimize(nelder_mead(keep_trace = TRUE), f, c(-1.2, 1))@trace)

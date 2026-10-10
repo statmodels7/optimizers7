@@ -31,10 +31,10 @@ An optimizer of the same class as `optimizer`.
 ## Details
 
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-carries a criterion so that printing it tells the truth; the rule the
-run evaluates belongs to the optimizer inside. Setting the outer one
-alone changes the printing and nothing else, which is exactly the sort
-of thing that makes a check pass while testing nothing:
+carries a criterion property that is used for printing; the rule that
+the run evaluates belongs to the optimizer inside. Setting the outer one
+alone changes only the printing, and a check that relied on it would
+test the default rule:
 
     ms <- multistart(bfgs(), n = 3)
     with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label
@@ -44,5 +44,5 @@ of thing that makes a check pass while testing nothing:
     # "gradient (max-norm) < 1e-06 or ..."  (unchanged)
 
 [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
-has a method of its own for the same reason, its reported rule being the
-last stage's.
+has a method of its own for the same reason, since its rule is the rule
+of the last stage.

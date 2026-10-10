@@ -56,8 +56,9 @@ adam(
 
 - decay:
 
-  Reduces the learning rate as \\\alpha_t = \alpha/(1 + \delta t)\\.
-  Defaults to `0`, a constant rate; see Details.
+  Reduces the learning rate as \\\alpha_t = \alpha/(1 + \delta (t -
+  1))\\ at iteration \\t = 1, 2, \ldots\\, so that the first step uses
+  \\\alpha\\. Defaults to `0`, a constant rate; see Details.
 
 - amsgrad:
 
@@ -66,9 +67,9 @@ adam(
 
 - maxit:
 
-  Maximum iterations. Defaults to 1000, higher than the other methods
-  because Adam takes many small steps where a second-order method takes
-  few large ones.
+  Maximum iterations. Defaults to 1000, more than the Newton and
+  quasi-Newton methods, because Adam takes many small steps where a
+  second-order method takes few large ones.
 
 - max_eval:
 
@@ -99,47 +100,42 @@ to be handed to
 
 ## Details
 
-The idea is one line. Adam keeps an exponentially weighted average of
-the gradient, \\m_t\\, and of its square, \\v_t\\, and steps
-\$\$x\_{t+1} = x_t - \alpha\\ \hat m_t / (\sqrt{\hat v_t} +
-\epsilon).\$\$ The division is elementwise: a coordinate whose gradient
-has been consistently large is divided by a large number and moves
-modestly, while one whose gradient is small but persistent still moves.
-It is a diagonal preconditioner assembled from the gradients already
-seen, so it costs nothing beyond them. That is also its limit: a
+Adam keeps an exponentially weighted average of the gradient, \\m_t\\,
+and of its square, \\v_t\\, and steps \$\$x\_{t+1} = x_t - \alpha\\ \hat
+m_t / (\sqrt{\hat v_t} + \epsilon).\$\$ The division is elementwise: a
+coordinate whose gradient has been consistently large is divided by a
+large number and moves modestly, while one whose gradient is small but
+persistent still moves. This is a diagonal preconditioner assembled from
+the gradients already computed, so it costs nothing beyond them. A
 diagonal cannot represent the correlation between parameters that
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 learns from the same information.
 
-Both averages start at zero, so early on they are pulled towards it;
-dividing by \\1 - \beta^t\\ removes exactly that bias, and without it
-the first iterations would barely move.
+Both averages start at zero, so in the first iterations they are biased
+towards zero; dividing by \\1 - \beta^t\\ removes that bias, without
+which the first iterations would barely move.
 
 ## Relation to the descent methods
 
-Adam takes no line search and makes no attempt to decrease the objective
-at every step. That freedom to go uphill is most of why it tolerates a
-gradient that is right only on average, and it also means that none of
-the usual reassurances apply: there is no guarantee of monotone
-progress, and the run may end somewhere worse than it passed through.
+Adam takes no line search and does not require the objective to decrease
+at every step. This is the main reason why it tolerates a gradient that
+is correct only on average, and it also means that there is no guarantee
+of monotone progress: the run may end at a point worse than one it
+passed through.
 
-The practical consequence is that Adam is the wrong tool for a small
-smooth problem where a Hessian is affordable. Measured on \\\sum(x - (1,
-2))^2\\ from the origin, `adam(alpha = 0.1)` reaches the answer in 2000
-iterations and 2002 evaluations while
+Adam is therefore a poor choice for a small smooth problem where a
+Hessian is affordable: on a quadratic
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-reaches it in 2 and 3. Adam is for a long parameter vector, a noisy
-objective, or a surface rough enough that a quadratic model is a
-fiction.
+needs a few iterations and Adam some hundreds (see the examples). Adam
+suits a long parameter vector, a noisy objective, or a surface on which
+a quadratic model is a poor description.
 
 ## Stochastic objectives
 
-Adam draws no subsamples of its own, and that is the design. An
-optimizer has no notion of an observation; a version that did would need
-a second kind of objective to be told, a rule for which stopping rules
-such an objective allows, and a way to report which was in force. A
-closure does all of it in two lines, because a stochastic objective is
-an objective:
+Adam draws no subsamples of its own. The optimizer has no notion of an
+observation, and a stochastic objective is an ordinary function of the
+parameters, so a minibatch is drawn inside the objective, as in the
+following closure:
 
     batch <- function(par) {
       i <- sample.int(n, size = 0.05 * n)
@@ -147,64 +143,67 @@ an objective:
     }
     minimize(adam(), batch, par = 0, gr = batch_gr)
 
-Adam then behaves as it would on a minibatch of its own drawing, and
+Adam then behaves as on a minibatch of its own drawing, and
 [`set.seed()`](https://rdrr.io/r/base/Random.html) governs the run
-because the draws happen in the caller's code.
+because the draws happen in the code of the caller.
 
 **Resample inside the objective, not around the run.** Calling
-`minimize(adam(maxit = 1), ...)` in a loop and drawing a new batch each
-time does not work: \\m\\ and \\v\\ start at zero and the bias
-correction restarts at \\t = 1\\, so every call takes a first step of
-length \\\alpha\\ and the accumulated moments, which are the whole of
-the method, are thrown away at each one. Measured on the example below,
-200 one-iteration runs reach `2.90` where one 200-iteration run reaches
-`2.956`, against a target of `2.986`.
+`minimize(adam(maxit = 1), ...)` in a loop with a new batch each time
+does not work: \\m\\ and \\v\\ start at zero and the bias correction
+restarts at \\t = 1\\, so every call takes a first step of length
+\\\alpha\\, and the accumulated moments, on which the method depends,
+are discarded at each call.
 
-One thing to expect on such a run. The gradient consistency check
+The gradient check that
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 makes before starting compares `fn` and `gr` at one point, and on a
-resampling objective those are two different minibatches, so the check
-warns on every stochastic fit and the warning means nothing. Set
-`options(optimizers7.check_gradient = FALSE)` around it.
+resampling objective the two use different minibatches, so the check
+warns on every stochastic fit, and the warning does not indicate an
+error. Set `options(optimizers7.check_gradient = FALSE)` around such a
+fit.
 
 ## Stopping
 
 The default criterion is
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
 so the run ends when `maxit` is reached and reports `converged = FALSE`,
-which is the truth about a run nothing checked. With a fixed `alpha`
-Adam circles an optimum instead of settling on it, so a tolerance on the
-gradient is usually a rule that never fires.
+because no stopping rule was tested. On a noisy objective Adam with a
+fixed `alpha` circles an optimum instead of settling on it, so a
+tolerance on the gradient seldom fires there.
 
-On an exact objective a real rule can be passed and will work. On a
-noisy one nothing read from the objective or the gradient means much,
-both being estimates, and the package cannot detect which kind it was
-given.
+On an exact objective a stopping rule such as
+[`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
+can be passed and fires. On a noisy objective the value and the gradient
+are both estimates, so a rule that reads either is unreliable, and the
+method cannot determine which kind of objective it receives. The rule is
+also tested at the point produced by the last iteration of the budget.
 
 ## The safeguards
 
 `eps` floors the denominator, so a coordinate whose gradient has been
 uniformly zero is not divided by zero.
 
-`decay` makes the learning rate \\O(1/t)\\, which is the Robbins-Monro
-condition a run on a noisy objective needs to settle at the optimum
-instead of rattling about it at a radius set by \\\alpha\\. In the
-minibatch example below, five runs at `alpha = 0.05` scatter with a
-standard deviation of `0.033` at `decay = 0` and `0.0079` at `0.01`. It
-is off by default, an exact objective having nothing to average away.
+`decay` makes the learning rate \\O(1/t)\\, a schedule that satisfies
+the Robbins-Monro conditions (a divergent sum and a convergent sum of
+squares), which a run on a noisy objective needs in order to settle at
+the optimum instead of fluctuating about it within a radius set by
+\\\alpha\\. The minibatch example below compares the scatter of five
+runs with and without decay. It is off by default, because an exact
+objective has no noise to average away.
 
 `amsgrad` replaces \\v_t\\ by its running maximum. Reddi, Kale and Kumar
 (2018) exhibited a convex problem on which Adam as published fails to
 converge, because \\v_t\\ can shrink and let a single large gradient
-dominate the iterate long after it has passed. The maximum forbids that,
-and the price is that a coordinate's effective rate
-\\\alpha/\sqrt{\max_s v_s}\\ can then never grow again. It is `FALSE` by
-default so that `adam()` is Adam, and worth turning on when a run fails
-to settle.
+dominate the iterate long after it has passed. The maximum prevents
+this, at the price that the second moment in the effective rate
+\\\alpha/\sqrt{\max_s v_s}\\ of a coordinate can no longer decrease. It
+is `FALSE` by default so that `adam()` is Adam as published; it can be
+set to `TRUE` when a run fails to settle.
 
-A non-finite gradient or update ends the run rather than propagating a
-`NaN` into every iterate after it. The result reports
-`converged = FALSE` with the message `gradient not finite; stopped`, and
+A gradient or an update that is not finite ends the run instead of
+propagating a `NaN` into every later iterate. The result reports
+`converged = FALSE`, with the message `gradient not finite; stopped` for
+a gradient and `the update is not finite; stopped` for an update, and
 `par` is the last usable point.
 
 ## References
@@ -222,7 +221,7 @@ for the smooth case,
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md)
 for the default stopping rule,
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) for
-the other method that goes uphill on purpose.
+the other method that accepts uphill steps by design.
 
 ## Examples
 
@@ -238,8 +237,9 @@ adam(alpha = 0.05, amsgrad = TRUE)
 #>   budgets   : maxit 1000, evaluations Inf
 #>   settings  : alpha = 0.05, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = TRUE
 
-# On an exact quadratic it arrives, and pays for it: 2002 evaluations
-# against BFGS's 3. The flag is FALSE because crit_never() checked nothing.
+# On an exact quadratic it reaches the minimum, at the cost of many more
+# evaluations than BFGS. The flag is FALSE because crit_never() tests
+# nothing.
 q <- function(p) sum((p - c(1, 2))^2)
 qg <- function(p) 2 * (p - c(1, 2))
 a <- minimize(adam(alpha = 0.1, maxit = 2000), q, c(0, 0), gr = qg)
@@ -249,9 +249,9 @@ c(a@par, evaluations = a@counts[["f"]], converged = a@converged)
 minimize(bfgs(), q, c(0, 0), gr = qg)@counts[["f"]]
 #> [1] 3
 
-# The objective it is for: the minibatch is drawn inside the function, so
-# the optimizer never has to know about it. The check that compares fn
-# against gr would compare two different batches, so it is turned off.
+# A stochastic objective: the minibatch is drawn inside the function, so
+# the optimizer needs no knowledge of it. The check that compares fn with
+# gr would compare two different batches, so it is turned off.
 set.seed(1)
 y <- rnorm(2000, mean = 3)
 m <- 100
@@ -265,7 +265,7 @@ minimize(adam(alpha = 0.05, decay = 0.01, maxit = 2000),
 mean(y)
 #> [1] 2.986045
 
-# A decaying rate settles the run: the scatter over five runs falls with it.
+# A decaying rate settles the run: the scatter over five runs is smaller.
 spread <- function(d) sd(replicate(5,
   minimize(adam(alpha = 0.05, decay = d, maxit = 2000),
            batch, par = 0, gr = batch_gr)@par))
@@ -274,7 +274,7 @@ set.seed(2); c(none = spread(0), some = spread(0.01))
 #> 0.032751298 0.007941274 
 options(old)
 
-# A gradient that is not finite ends the run and says so.
+# A gradient that is not finite ends the run, and the message records it.
 bad <- minimize(adam(maxit = 50), q, c(0, 0), gr = function(p) c(NaN, 1))
 c(bad@converged, bad@message)
 #> [1] "FALSE"                        "gradient not finite; stopped"

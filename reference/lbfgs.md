@@ -4,8 +4,14 @@ BFGS without ever forming the matrix: only the last `memory` secant
 pairs are kept, and the direction comes from the two-loop recursion.
 Costs \\O(mp)\\ in time and memory where
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-costs \\O(p^2)\\, and returns the same direction the full matrix would
-when the pairs are the same.
+costs \\O(p^2)\\. The direction equals the one of the explicitly
+assembled inverse built from the same pairs and the same initial
+scaling. The two methods do not give the same directions in a run,
+because
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+keeps every pair and scales its initial matrix by the first accepted
+pair, whereas the recursion uses the last `memory` pairs and the most
+recent one for the scaling.
 
 ## Usage
 
@@ -36,17 +42,16 @@ lbfgs(
 - memory:
 
   How many secant pairs to keep, a single positive whole number.
-  Defaults to 10. A fractional value is refused rather than truncated,
-  the kernel reading the count through
-  [`as.integer()`](https://rdrr.io/r/base/integer.html).
+  Defaults to 10. A fractional value is rejected instead of truncated,
+  since the count is passed to the compiled code as an integer.
 
 - curv_tol:
 
-  A pair is discarded when \\s^\top y \le \texttt{curv\\tol}\\\lVert
+  A pair is not stored when \\s^\top y \le \texttt{curv\\tol}\\\lVert
   s\rVert\lVert y\rVert\\. Defaults to `1e-10`. Zero is admitted and
-  gives \\s^\top y \> 0\\; a negative value is refused, for the reason
-  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)'s
-  page gives.
+  gives \\s^\top y \> 0\\; a negative value is rejected, for the reason
+  given on the page of
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
 
 - step, line_search, maxit, max_eval, verbose, refresh, keep_trace:
 
@@ -68,39 +73,30 @@ to be handed to
 g\_{old}\\ the change in the gradient. The scalar step length is
 \\\alpha\\, a different quantity.
 
-## Where the saving is
+## The saving
 
-The two-loop recursion returns exactly the product the explicitly
-assembled inverse would: built from the same four pairs and the same
-scaling, the two agree to `1.7e-16`. What differs is the cost.
+The two-loop recursion returns exactly the product of the explicitly
+assembled inverse built from the same pairs and the same scaling (the
+last example). The difference is in the cost: one iteration costs
+\\O(p^2)\\ for
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+and \\O(mp)\\ for `lbfgs()`, while the numbers of iterations of the two
+methods on a dense quadratic are close. The difference in time becomes
+large for a few hundred parameters, and for several thousand the
+\\O(p^2)\\ storage and work of the full matrix become prohibitive.
 
-Measured on a dense quadratic, both methods taking the gradient and
-converging to the same point:
-
-|       |                |                |
-|-------|----------------|----------------|
-| **p** | **bfgs**       | **lbfgs**      |
-| 5     | 9 iterations   | 8 iterations   |
-| 50    | 15             | 15             |
-| 200   | 16, 0.06 s     | 17, 0.00 s     |
-| 800   | 16, **4.06 s** | 17, **0.02 s** |
-
-The iteration counts barely differ; the cost per iteration is what
-diverges, and it does so between 200 and 800 parameters. Beyond a few
-thousand the full matrix is not storable at all.
-
-The recursion is scaled at each iteration by the most recent pair's
-\\s^\top y / y^\top y\\. That single number does the work the full
-matrix would otherwise do, and is the reason the method converges
-without one.
+The recursion is scaled at each iteration by \\s^\top y / y^\top y\\ of
+the most recent pair. This scalar estimates the inverse curvature along
+the latest step and takes the place of the initial matrix of the full
+update.
 
 ## Choosing memory
 
-More is not better. Old pairs describe curvature at points the iterate
-has left, and they cost \\O(p)\\ each per iteration. Measured on
-Rosenbrock, `memory` of 3, 5, 10, 30 and 100 gives 38, 36, 37, 37 and 37
-iterations: past a handful there is nothing left to gain and the
-arithmetic keeps rising. Ten is the conventional choice for that reason.
+A larger `memory` is not always better. Old pairs describe the curvature
+at points that the iterate has left, and each pair costs \\O(p)\\ per
+iteration. Beyond a handful of pairs the number of iterations changes
+little while the arithmetic keeps rising; ten is the conventional
+choice.
 
 ## References
 
@@ -128,11 +124,11 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 1.94698e-14
 #>   par        : 1 1
 #>   iterations : 36   evaluations: f 49, g 40
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
-# The two-loop recursion is not an approximation to the full update: on the
-# same pairs it returns the same product, to machine precision.
+# The two-loop recursion is not an approximation to the full update: on
+# the same pairs it returns the same product, to rounding error.
 set.seed(1)
 p <- 6
 S <- matrix(rnorm(p * 4), p, 4)
@@ -161,5 +157,5 @@ two_loop <- function(g, S, Y, gamma) {       # the recursion
   r
 }
 max(abs(H %*% g - two_loop(g, S, Y, gamma)))
-#> [1] 1.665335e-16
+#> [1] 1.804112e-16
 ```

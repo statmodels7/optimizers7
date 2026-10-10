@@ -4,10 +4,10 @@ An optimizer holding the two descriptions of the non-smooth part of an
 objective, its proximal operator and its value, together with the three
 settings of the accelerated iteration. Built by
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md).
-It is the one shipped class whose
+It is the only shipped class whose
 [`optimizer_bounded()`](https://statmodels7.github.io/optimizers7/reference/optimizer_bounded.md)
-is `FALSE`: its constraint travels inside `prox`, so box bounds are
-refused.
+is `FALSE`: its constraint is passed inside `prox`, so box bounds are
+rejected.
 
 ## Usage
 
@@ -49,7 +49,7 @@ ProxGrad(
 
 - shrink:
 
-  The factor a rejected step is multiplied by.
+  The factor by which a rejected step is multiplied.
 
 - restart:
 
@@ -63,10 +63,10 @@ with the six properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `ProxGrad` carries
-six of its own. `prox` and `g` describe the same non-smooth term from
-two sides and are both required. `accelerate`, `step`, `shrink` and
-`restart` govern the iteration.
+Beyond the seven properties of every optimizer, a `ProxGrad` carries six
+of its own. `prox` and `g` describe the same non-smooth term in two ways
+and are both required. `accelerate`, `step`, `shrink` and `restart`
+govern the iteration.
 
 ## See also
 

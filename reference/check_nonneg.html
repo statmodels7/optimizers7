@@ -3,15 +3,17 @@
 Used for the curvature threshold curv_tol of bfgs() and lbfgs(),
 which is compared as \(s'y &amp;gt; \mathrm{curv\_tol} \, \lVert s \rVert
 \lVert y \rVert\). Zero is admitted and is the textbook curvature
-condition \(s'y &amp;gt; 0\); a negative value is refused because it makes the
-comparison hold for every pair, which turns the skip protection off
-without saying so."><meta property="og:description" content="Checks that the value is a single finite number that is not negative.
+condition \(s'y &amp;gt; 0\). A negative value is rejected because it admits
+pairs with \(s'y \le 0\), which weakens the protection given by the
+skipped updates; by the Cauchy-Schwarz inequality a value below \(-1\)
+admits every pair."><meta property="og:description" content="Checks that the value is a single finite number that is not negative.
 Used for the curvature threshold curv_tol of bfgs() and lbfgs(),
 which is compared as \(s'y &amp;gt; \mathrm{curv\_tol} \, \lVert s \rVert
 \lVert y \rVert\). Zero is admitted and is the textbook curvature
-condition \(s'y &amp;gt; 0\); a negative value is refused because it makes the
-comparison hold for every pair, which turns the skip protection off
-without saying so."><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
+condition \(s'y &amp;gt; 0\). A negative value is rejected because it admits
+pairs with \(s'y \le 0\), which weakens the protection given by the
+skipped updates; by the Cauchy-Schwarz inequality a value below \(-1\)
+admits every pair."><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +21,7 @@ without saying so."><meta property="og:image" content="https://statmodels7.githu
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,9 +56,10 @@ without saying so."><meta property="og:image" content="https://statmodels7.githu
 Used for the curvature threshold <code>curv_tol</code> of <code><a href="bfgs.html">bfgs()</a></code> and <code><a href="lbfgs.html">lbfgs()</a></code>,
 which is compared as \(s'y &gt; \mathrm{curv\_tol} \, \lVert s \rVert
 \lVert y \rVert\). Zero is admitted and is the textbook curvature
-condition \(s'y &gt; 0\); a negative value is refused because it makes the
-comparison hold for every pair, which turns the skip protection off
-without saying so.</p>
+condition \(s'y &gt; 0\). A negative value is rejected because it admits
+pairs with \(s'y \le 0\), which weakens the protection given by the
+skipped updates; by the Cauchy-Schwarz inequality a value below \(-1\)
+admits every pair.</p>
     </div>
 
     <div class="section level2">

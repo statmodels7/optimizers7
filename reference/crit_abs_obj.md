@@ -1,9 +1,8 @@
 # Stop When the Objective Stops Moving (Absolute)
 
 Builds the rule \\\lvert f\_{new} - f\_{old} \rvert \< \texttt{tol}\\.
-It asks nothing of the method beyond an objective, so every optimizer
-accepts it, and it is one of the three terms in the gradient methods'
-default rule.
+It reads only the objective, so every optimizer accepts it, and it is
+one of the three terms of the default rule of the gradient methods.
 
 ## Usage
 
@@ -26,25 +25,25 @@ inheriting from
 
 ## Details
 
-The tolerance is in the objective's own units, so it carries the scale
-of the problem: `1e-10` is a strict demand on a log-likelihood per
-observation and a loose one on a summed log-likelihood of order
-\\10^{5}\\.
+The tolerance is in the units of the objective, so it depends on the
+scale of the problem: `1e-10` is a strict condition on a log-likelihood
+divided by the number of observations and a loose one on a summed
+log-likelihood of order \\10^{5}\\.
 [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
-is the version that does not.
+is the relative version.
 
-A rule reading the objective cannot tell a stalled run from a converged
-one. Where that distinction matters, ask for
+A rule on the objective cannot distinguish a stalled run from a
+converged one. Where that distinction matters, use
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md).
 
 ## See also
 
 [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
-for the scale-free version,
+for the relative version,
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 for the test of stationarity,
 [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
-for the default rule that holds this one.
+for the default rule that contains this one.
 
 ## Examples
 

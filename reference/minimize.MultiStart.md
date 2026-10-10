@@ -2,8 +2,8 @@
 
 Runs
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-on the objective: generate or take the starting points, run the inner
-optimizer from each, and assemble the best.
+on the objective: it generates or takes the starting points, runs the
+inner optimizer from each, and assembles the result from the best run.
 
 ## Arguments
 
@@ -15,23 +15,29 @@ optimizer from each, and assemble the best.
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `par` is the first starting point and is used as given; the rest are
-  generated around it.
+  Unless `starts` was given, `par` is the first starting point and is
+  used as given, and the others are generated around it. When `starts`
+  was given, `par` is used only to check the objective and the bounds
+  and to fix the number of parameters.
 
 ## Value
 
 An
-[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md):
-the best run, carrying its own `par`, `value`, `gradient` and
-`converged`, with the per-start summary in `trace` and the counts in
-`message`. `seed` is the state the whole run began from.
+[`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
+with the `par`, `value`, `gradient`, `converged` and `criterion_met` of
+the best run, the `counts` summed over the successful starts,
+`iterations` equal to the number of starts, the summary of the starts in
+`trace` and the counts in `message`. `seed` is the state from which the
+whole run began.
 
 ## Details
 
-Three things happen before the first start runs. The objective and the
-bounds are validated **once**, so a bad criterion or a start outside its
-box is refused before \\n\\ runs are launched rather than \\n\\ times
-over. The generator state is captured for the result's `seed`. And the
-gradient-consistency check is switched off for the duration, the generic
-having already made it at the caller's `par`; without that the same
-warning would print once per start.
+Three things happen before the first start runs. The objective, the
+bounds and `par` are validated **once**, so a bad criterion or a `par`
+outside its box is rejected before the \\n\\ runs are launched; a row of
+a user-supplied `starts` matrix is not checked in advance, and a row
+outside the box fails in its own run. The state of the generator is
+recorded for the `seed` of the result. And the gradient check is
+switched off for the inner runs, since the generic has already made it
+at the `par` of the caller; without that the same warning would be
+printed once per start.

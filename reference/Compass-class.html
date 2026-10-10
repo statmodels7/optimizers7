@@ -15,7 +15,7 @@ and records none."><meta property="og:image" content="https://statmodels7.github
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,8 @@ improvement it finds.</p></dd>
 
 <dt id="arg-expand-shrink">expand, shrink<a class="anchor" aria-label="anchor" href="#arg-expand-shrink"></a></dt>
 <dd><p>Factors applied to the poll size after a success and
-after a failure.</p></dd>
+after a failure. After a success the poll size is capped at \(10^4\)
+times its initial value.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -100,10 +101,10 @@ with the five properties above beside the seven shared ones.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Beyond the seven properties every optimizer has, a <code>Compass</code> carries five
+    <p>Beyond the seven properties of every optimizer, a <code>Compass</code> carries five
 of its own: <code>step</code>, <code>expand</code> and <code>shrink</code> govern the poll radius,
-<code>directions</code> says which set is polled, and <code>opportunistic</code> when the poll
-stops.</p>
+<code>directions</code> selects the set that is polled, and <code>opportunistic</code> decides
+when the poll stops.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

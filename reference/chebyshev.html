@@ -7,7 +7,7 @@ where \(T[u, v]_i = \sum_{jk} \partial^3 f/\partial x_i\partial x_j
 \partial x_k\, u_j v_k\). Near a minimum the iteration converges cubically
 where Newton's converges quadratically. Everything else (the repair of an
 indefinite Hessian, the bound on the length of a step, the line search,
-the stopping rule) is newton()'s."><meta property="og:description" content="Newton's method with Chebyshev's correction: where the Hessian \(H\) is
+the stopping rule) is as in newton()."><meta property="og:description" content="Newton's method with Chebyshev's correction: where the Hessian \(H\) is
 positive definite the Newton step \(d_N = -H^{-1}g\) is corrected by the
 third derivative of the objective,
 $$d = d_N - \tfrac12 H^{-1}\, T[d_N, d_N],$$
@@ -15,7 +15,7 @@ where \(T[u, v]_i = \sum_{jk} \partial^3 f/\partial x_i\partial x_j
 \partial x_k\, u_j v_k\). Near a minimum the iteration converges cubically
 where Newton's converges quadratically. Everything else (the repair of an
 indefinite Hessian, the bound on the length of a step, the line search,
-the stopping rule) is newton()'s."><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
+the stopping rule) is as in newton()."><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +23,7 @@ the stopping rule) is newton()'s."><meta property="og:image" content="https://st
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@ where \(T[u, v]_i = \sum_{jk} \partial^3 f/\partial x_i\partial x_j
 \partial x_k\, u_j v_k\). Near a minimum the iteration converges cubically
 where Newton's converges quadratically. Everything else (the repair of an
 indefinite Hessian, the bound on the length of a step, the line search,
-the stopping rule) is <code><a href="newton.html">newton()</a></code>'s.</p>
+the stopping rule) is as in <code><a href="newton.html">newton()</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -93,12 +93,12 @@ the stopping rule) is <code><a href="newton.html">newton()</a></code>'s.</p>
 
 
 <dt id="arg-ratio">ratio<a class="anchor" aria-label="anchor" href="#arg-ratio"></a></dt>
-<dd><p>The largest relative change of the Newton step the
+<dd><p>The largest relative change of the Newton step that the
 correction may make, \(\lVert d - d_N\rVert \le
   \texttt{ratio}\,\lVert d_N\rVert\). A larger correction, or one that is
-not a descent direction, means the cubic model does not describe the
-objective over the length of the step, and the Newton step is used
-instead. Defaults to <code>0.5</code>.</p></dd>
+not a descent direction, indicates that the cubic model does not
+describe the objective over the length of the step, and the Newton step
+is used instead. Defaults to <code>0.5</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -108,50 +108,43 @@ class, to be handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="the-third-derivative">The third derivative<a class="anchor" aria-label="anchor" href="#the-third-derivative"></a></h2>
-    <p><code><a href="minimize.html">minimize()</a></code> passes the method a function <code>t3(x, d)</code> returning the vector
-\(T[d, d]\), the third derivative contracted twice with \(d\). The
-tensor itself is never needed: for a sum over observations
-\(f = \sum_i \phi_i(x_i^\top\beta)\) it is
-\(T[d, d] = X^\top(\phi'''\,(Xd)^2)\), which costs as much as a gradient.
-Without <code>t3</code> the contraction is one second difference of the gradient
-along \(d\), at two gradient evaluations an iteration.</p>
+    <p>The caller supplies to <code><a href="minimize.html">minimize()</a></code> a function <code>t3(x, d)</code> that returns
+the vector \(T[d, d]\), the third derivative contracted twice with
+\(d\), and <code><a href="minimize.html">minimize()</a></code> passes it to the method. The tensor itself is
+never needed: for a sum over observations
+\(f = \sum_i \phi_i(x_i^\top\beta)\) the contraction is
+\(T[d, d] = X^\top(\phi'''\,(Xd)^2)\), which costs as much as a
+gradient. Without <code>t3</code> the contraction is one second difference of the
+gradient along \(d\), at two gradient evaluations in each iteration at
+which the correction is attempted.</p>
     </div>
     <div class="section level2">
     <h2 id="where-the-correction-is-applied">Where the correction is applied<a class="anchor" aria-label="anchor" href="#where-the-correction-is-applied"></a></h2>
-    <p>Only at an iterate where \(H\) is positive definite and its Newton step
-is a descent direction; where the Hessian has to be repaired the step is
-the repaired Newton step, as in <code><a href="newton.html">newton()</a></code>. The correction then costs one
-further solve with the same matrix. A refused correction is recorded in
-the trace as <code>cubic correction refused</code>.</p>
-<p>Measured on the inner problems of statmodels7 (seven models, 14 to 113
-coefficients) started from the mode at neighbouring hyperparameters, the
-method reaches the mode in one iteration fewer than <code><a href="newton.html">newton()</a></code> on six of
-seven, at the same point. Far from the mode the correction is refused in
-most iterations, and the method behaves as <code><a href="newton.html">newton()</a></code>.</p>
-<p>Inside whole statmodels7 fits the gain disappears. Over the 32 models of
-its reference battery on which every inner method reaches the same point,
-the median number of inner iterations is 1.00 times <code><a href="newton.html">newton()</a></code>'s and the
-median time 1.01 times: an inner fit restarted from the previous mode is
-usually at its mode after one or two Newton steps, so a faster local rate
-has nothing left to shorten. It reduces the iterations where an inner fit
-starts far from its mode (761 against 534 on a lasso beside a random
-effect) and is no use as a replacement for that package's own scoring
-iteration.</p>
+    <p>The correction is attempted only at an iterate where \(H\) is positive
+definite and its Newton step is a descent direction; where the Hessian has
+to be repaired, the step is the repaired Newton step, as in <code><a href="newton.html">newton()</a></code>.
+The correction costs one further solve with the same matrix. A correction
+that is not used is recorded in the trace as <code>cubic correction refused</code>.</p>
+<p>Near the mode the correction is usually accepted, and the method needs
+fewer iterations than <code><a href="newton.html">newton()</a></code>. Far from the mode the correction is
+usually rejected, and the method then behaves as <code><a href="newton.html">newton()</a></code>. When the
+starting point is already within one or two Newton steps of the mode, as
+for an inner fit restarted from the previous mode, a faster local rate has
+little to shorten, and the method gives no gain over <code><a href="newton.html">newton()</a></code>.</p>
     </div>
     <div class="section level2">
-    <h2 id="why-not-halley">Why not Halley<a class="anchor" aria-label="anchor" href="#why-not-halley"></a></h2>
+    <h2 id="halley-s-method">Halley's method<a class="anchor" aria-label="anchor" href="#halley-s-method"></a></h2>
     <p>Halley's method solves with \(H + \tfrac12 T[d_N]\) in place of
-\(H\), which needs the contraction as a matrix and a second
-factorization, of a matrix that need not be positive definite. On the
-same models it took the same number of iterations as Chebyshev's and more
-time.</p>
+\(H\). This needs the contraction as a matrix and a second
+factorization, of a matrix that need not be positive definite, and the
+package does not provide it.</p>
     </div>
     <div class="section level2">
     <h2 id="box-constraints">Box constraints<a class="anchor" aria-label="anchor" href="#box-constraints"></a></h2>
     <p>With <code>lower</code> or <code>upper</code> the method runs on the unconstrained scale, as
-every method here does. A <code>t3</code> written for the original parameters is
-then the wrong derivative, so it is rejected together with bounds; the
-second difference of the gradient serves there.</p>
+every method that accepts bounds does. A <code>t3</code> written for the original
+parameters is then the wrong derivative, so <code>t3</code> together with bounds is
+rejected; without <code>t3</code> the second difference of the gradient is used.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -164,7 +157,7 @@ Australian Mathematical Society</em> <strong>55</strong>, 113–130.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="newton.html">newton()</a></code>, whose settings it shares.</p></div>
+    <div class="dont-index"><p><code><a href="newton.html">newton()</a></code>, whose settings this method shares.</p></div>
     </div>
 
     <div class="section level2">

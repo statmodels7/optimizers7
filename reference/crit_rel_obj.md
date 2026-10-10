@@ -14,8 +14,8 @@ crit_rel_obj(tol = 1e-12)
 - tol:
 
   Numeric tolerance, a single positive number. Defaults to `1e-12`,
-  tighter than
-  [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)'s
+  smaller than the default of
+  [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)
   because the quantity compared is a ratio.
 
 ## Value
@@ -27,27 +27,24 @@ inheriting from
 
 ## Details
 
-The `+ tol` in the denominator is a floor, and it is load-bearing: an
-objective whose optimum sits at zero would otherwise be compared against
-a vanishing scale, and the rule would either never fire or fire at once.
+The term `+ tol` is a floor on the scale. Without it the threshold would
+be zero at an objective value of zero, and since the comparison is
+strict the rule could never fire at an optimum of zero.
 
-It was in the gradient methods' default rule until version 0.6.0 and is
-not any more, because it never fired there: measured over the package's
-own
-[`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md),
-six methods on eight problems, the default with it and the default
-without it agree on every flag, every evaluation count and every
-reported point. It remains useful where an objective's scale is not
-known in advance, which is exactly where
+The rule was part of the default rule of the gradient methods until
+version 0.6.0. It was removed because on the package's
+[`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
+it never fired before the other terms. It is useful where the scale of
+the objective is not known in advance, which is where
 [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)
 is hard to set.
 
 ## See also
 
 [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)
-for the version in the objective's own units,
+for the version in the units of the objective,
 [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
-for the default rule it left.
+for the default rule of the gradient methods.
 
 ## Examples
 
@@ -62,7 +59,7 @@ c(small = crit_met(crit_rel_obj(1e-6), list(f_new = 1, f_old = 1 + 1e-7)),
 #> small large 
 #>  TRUE  TRUE 
 
-# And the floor, which keeps an optimum at zero usable.
+# With the floor, the rule can fire at an optimum of zero.
 crit_met(crit_rel_obj(), list(f_new = 1e-30, f_old = 0))
 #> [1] TRUE
 ```

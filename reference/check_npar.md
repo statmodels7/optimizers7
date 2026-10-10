@@ -1,9 +1,9 @@
 # Validate a Declared Parameter Count
 
 Checks that `npar` is a single positive whole number, or `NULL`, and
-returns it as an integer. Called by both starter constructors, so
-`start_zeros(0)` and `start_runif(npar = 2.5)` are refused in the same
-words at the point they are written.
+returns it as an integer. Called by both starter constructors, so that
+`start_zeros(0)` and `start_runif(npar = 2.5)` are rejected with the
+same message where they are written.
 
 ## Usage
 

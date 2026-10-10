@@ -3,9 +3,9 @@
 A line search that brackets a step satisfying both Wolfe conditions and
 then bisects inside the bracket. Built by
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md).
-It evaluates the **gradient** at trial points as well as the objective.
-That is what the curvature condition costs, and what a quasi-Newton
-method needs.
+It evaluates the **gradient** at trial points as well as the objective,
+which is the cost of the curvature condition that a quasi-Newton method
+needs.
 
 ## Usage
 
@@ -35,8 +35,8 @@ WolfeSearch(
 
 - resolution:
 
-  What the objective can tell apart, a number or a function of no
-  arguments.
+  The smallest difference in the objective that the objective can
+  resolve, a number or a function of no arguments.
 
 ## Value
 
@@ -46,11 +46,11 @@ with the four properties above beside `label`.
 
 ## Details
 
-Beyond the `label` every line search carries, a `WolfeSearch` holds
-`c1`, `c2`, `max_step` and `resolution`. It has no `shrink`, taking no
+Beyond the `label` of every line search, a `WolfeSearch` holds `c1`,
+`c2`, `max_step` and `resolution`. It has no `shrink`, since it takes no
 backtracking steps of a fixed ratio;
 [`line_search_spec()`](https://statmodels7.github.io/optimizers7/reference/line_search_spec.md)
-fills that field with a value the compiled side ignores.
+fills that field with a value that the compiled code ignores.
 
 ## See also
 

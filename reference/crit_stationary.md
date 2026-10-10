@@ -1,14 +1,16 @@
 # Stop When the Method's Own Measure of Progress Is Small
 
-Builds the stopping rule for a method that has no gradient to test.
-Every derivative-free method reports a non-negative scalar of its own
-that goes to zero as it converges, and this rule tests that. It is the
-default for
+Builds the stopping rule for a method that has no gradient to test. Each
+such method reports a non-negative scalar of its own that tends to zero
+as the method converges, and this rule tests that scalar. It is the
+default of
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
 [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md),
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) and
-[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md),
-and a gradient-based method is free to use it too.
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md).
+The gradient-based methods report no such scalar, so they reject the
+rule when the run starts.
 
 ## Usage
 
@@ -20,8 +22,9 @@ crit_stationary(tol = 1e-08)
 
 - tol:
 
-  Numeric tolerance, a single positive number. Defaults to `1e-8`. What
-  the tolerance is *on* depends on the method; see below.
+  Numeric tolerance, a single positive number. Defaults to `1e-8`. The
+  quantity to which the tolerance applies depends on the method; see
+  Details.
 
 ## Value
 
@@ -32,48 +35,55 @@ inheriting from
 
 ## Details
 
-A gradient-based method detects its arrival through the vanishing of
-\\\nabla f\\. None of the derivative-free methods can use that test, and
-for the non-smooth problems they exist to solve it would not be the
-right test even if they could: at the minimum of \\\lvert x \rvert\\ any
-evaluated subgradient is \\\pm 1\\, so
+A gradient-based method detects convergence through the vanishing of
+\\\nabla f\\. The derivative-free methods cannot use that test, and on a
+non-smooth problem it is not a reliable test in any case: at every point
+other than the minimum of \\\lvert x \rvert\\ the gradient is \\\pm 1\\,
+so
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-would never fire at the solution itself.
+fires only at an iterate that lands exactly on the minimum.
 
-Each such method therefore reports a non-negative scalar of its own that
-goes to zero as it converges, and this rule tests that. What the scalar
-*is* differs, deliberately, because the natural measure differs:
+The scalar differs by method:
 
 - [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md):
 
-  the diameter of the simplex, so the tolerance is on the parameter
-  scale.
+  the largest distance from the best vertex to another vertex of the
+  simplex, so the tolerance is on the parameter scale.
 
 - [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md):
 
-  the poll size \\\Delta\\. This is the rule with a theorem behind it:
-  the limit points of a pattern search with \\\Delta \to 0\\ are Clarke
-  stationary.
+  the poll size \\\Delta\\. For a continuously differentiable objective,
+  the limit points of a coordinate pattern search with \\\Delta \to 0\\
+  are stationary (Torczon 1997).
+
+- [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md):
+
+  the half-width of the bracket.
+
+- [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md):
+
+  Corana's termination measure; see
+  [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md).
 
 - [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md):
 
   the optimality estimate \\\lVert p \rVert^2 + \alpha\\, which vanishes
   exactly when zero lies in the convex hull of the collected
-  subgradients with no linearization error. Note that this is *not* the
-  predicted decrease, which carries a factor of the trust parameter and
-  can therefore be driven to zero by that parameter shrinking rather
-  than by the point becoming stationary.
+  subgradients with no linearization error. It is not the predicted
+  decrease, which contains a factor of the trust parameter and therefore
+  tends to zero when that parameter shrinks, whether or not the point is
+  stationary.
 
-The measure appears in the trace as the `stationarity` column, so a run
-can be read afterwards without knowing which method produced it.
+The measure appears in the trace as the `stationarity` column.
 
 ## See also
 
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
 [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md),
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) and
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
-for the four measures,
+for the five measures,
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 for the gradient-based rule.
 
@@ -91,8 +101,9 @@ c(present = crit_met(crit_stationary(1e-6), list(stationarity = 1e-9)),
 #> present  absent 
 #>    TRUE   FALSE 
 
-# What the number means differs by method: a simplex diameter here, a poll
-# size there, and the trace records whichever it is.
+# The measure differs by method (a size of the simplex for nelder_mead(),
+# the poll size for compass()), and the trace records it in the same
+# column.
 q <- function(p) sum((p - c(1, 2))^2)
 names(minimize(nelder_mead(keep_trace = TRUE), q, c(0, 0))@trace)
 #> [1] "iteration"    "value"        "stationarity" "step"         "safeguard"   

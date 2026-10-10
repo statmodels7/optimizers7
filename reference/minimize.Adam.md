@@ -26,4 +26,4 @@ An
 Under the default
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md)
 it reports `converged = FALSE` and `criterion_met`
-`iteration budget reached`, the run having ended on its budget.
+`iteration budget reached`, since the run ended on its budget.

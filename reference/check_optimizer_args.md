@@ -1,8 +1,10 @@
 # Validate the Settings Every Optimizer Shares
 
-Checks the seven arguments common to every constructor, so that all
-fifteen reject the same nonsense in the same words. Called at the top of
-each constructor, before any algorithm-specific validation.
+Checks the six arguments common to the constructors (the stopping rule,
+`maxit`, `max_eval`, `verbose`, `refresh` and `keep_trace`), so that
+every constructor that calls it rejects invalid settings with the same
+messages. It is called at the top of each such constructor, before any
+validation specific to the algorithm.
 
 ## Usage
 
@@ -31,7 +33,7 @@ otherwise.
 
 ## Details
 
-The rules, and they differ from one another:
+The rules are:
 
 - `criterion` must inherit from
   [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md).
@@ -42,5 +44,5 @@ The rules, and they differ from one another:
 
 - `refresh` must be a single number at least 0.
 
-- `verbose` and `keep_trace` must each be `TRUE` or `FALSE`, `NA`
-  refused.
+- `verbose` and `keep_trace` must each be `TRUE` or `FALSE`; `NA` is
+  rejected.

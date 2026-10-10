@@ -15,7 +15,7 @@ objective."><meta property="og:image" content="https://statmodels7.github.io/opt
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,7 +103,8 @@ Defaults to <code>1e-8</code>.</p></dd>
 
 <dt id="arg-decay">decay<a class="anchor" aria-label="anchor" href="#arg-decay"></a></dt>
 <dd><p>Reduces the learning rate as \(\alpha_t = \alpha/(1 + \delta
-t)\). Defaults to <code>0</code>, a constant rate; see Details.</p></dd>
+  (t - 1))\) at iteration \(t = 1, 2, \ldots\), so that the first step
+uses \(\alpha\). Defaults to <code>0</code>, a constant rate; see Details.</p></dd>
 
 
 <dt id="arg-amsgrad">amsgrad<a class="anchor" aria-label="anchor" href="#arg-amsgrad"></a></dt>
@@ -112,9 +113,9 @@ t)\). Defaults to <code>0</code>, a constant rate; see Details.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
-<dd><p>Maximum iterations. Defaults to 1000, higher than the other
-methods because Adam takes many small steps where a second-order method
-takes few large ones.</p></dd>
+<dd><p>Maximum iterations. Defaults to 1000, more than the Newton
+and quasi-Newton methods, because Adam takes many small steps where a
+second-order method takes few large ones.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
@@ -142,95 +143,94 @@ handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The idea is one line. Adam keeps an exponentially weighted average of the
-gradient, \(m_t\), and of its square, \(v_t\), and steps
+    <p>Adam keeps an exponentially weighted average of the gradient,
+\(m_t\), and of its square, \(v_t\), and steps
 $$x_{t+1} = x_t - \alpha\, \hat m_t / (\sqrt{\hat v_t} + \epsilon).$$
 The division is elementwise: a coordinate whose
 gradient has been consistently large is divided by a large number and moves
-modestly, while one whose gradient is small but persistent still moves. It is
-a diagonal preconditioner assembled from the gradients already seen, so it
-costs nothing beyond them. That is also its limit: a diagonal cannot
-represent the correlation between parameters that <code><a href="bfgs.html">bfgs()</a></code> learns from the
-same information.</p>
-<p>Both averages start at zero, so early on they are pulled towards it; dividing
-by \(1 - \beta^t\) removes exactly that bias, and without it the first
-iterations would barely move.</p>
+modestly, while one whose gradient is small but persistent still moves.
+This is a diagonal preconditioner assembled from the gradients already
+computed, so it costs nothing beyond them. A diagonal cannot represent the
+correlation between parameters that <code><a href="bfgs.html">bfgs()</a></code> learns from the same
+information.</p>
+<p>Both averages start at zero, so in the first iterations they are biased
+towards zero; dividing by \(1 - \beta^t\) removes that bias, without
+which the first iterations would barely move.</p>
     </div>
     <div class="section level2">
     <h2 id="relation-to-the-descent-methods">Relation to the descent methods<a class="anchor" aria-label="anchor" href="#relation-to-the-descent-methods"></a></h2>
-    <p>Adam takes no line search and makes no attempt to decrease the objective
-at every step. That freedom to go uphill is most of why it tolerates a
-gradient that is right only on average, and it also means that none of the
-usual reassurances apply: there is no guarantee of monotone progress, and
-the run may end somewhere worse than it passed through.</p>
-<p>The practical consequence is that Adam is the wrong tool for a small
-smooth problem where a Hessian is affordable. Measured on
-\(\sum(x - (1, 2))^2\) from the origin, <code>adam(alpha = 0.1)</code> reaches the
-answer in 2000 iterations and 2002 evaluations while <code><a href="bfgs.html">bfgs()</a></code> reaches it
-in 2 and 3. Adam is for a long parameter vector, a noisy objective, or a
-surface rough enough that a quadratic model is a fiction.</p>
+    <p>Adam takes no line search and does not require the objective to decrease
+at every step. This is the main reason why it tolerates a gradient that
+is correct only on average, and it also means that there is no guarantee
+of monotone progress: the run may end at a point worse than one it passed
+through.</p>
+<p>Adam is therefore a poor choice for a small smooth problem where a Hessian
+is affordable: on a quadratic <code><a href="bfgs.html">bfgs()</a></code> needs a few iterations and Adam
+some hundreds (see the examples). Adam suits a long parameter vector, a
+noisy objective, or a surface on which a quadratic model is a poor
+description.</p>
     </div>
     <div class="section level2">
     <h2 id="stochastic-objectives">Stochastic objectives<a class="anchor" aria-label="anchor" href="#stochastic-objectives"></a></h2>
-    <p>Adam draws no subsamples of its own, and that is the design. An optimizer
-has no notion of an observation; a version that did would need a second
-kind of objective to be told, a rule for which stopping rules such an
-objective allows, and a way to report which was in force. A closure does
-all of it in two lines, because a stochastic objective is an objective:</p>
+    <p>Adam draws no subsamples of its own. The optimizer has no notion of an
+observation, and a stochastic objective is an ordinary function of the
+parameters, so a minibatch is drawn inside the objective, as in the
+following closure:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">batch</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="va">n</span>, size <span class="op">=</span> <span class="fl">0.05</span> <span class="op">*</span> <span class="va">n</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">y</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">-</span> <span class="va">par</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="../reference/adam.html">adam</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">batch</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">batch_gr</span><span class="op">)</span></span></code></pre><p></p></div>
-<p>Adam then behaves as it would on a minibatch of its own drawing, and
-<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> governs the run because the draws happen in the caller's
-code.</p>
+<p>Adam then behaves as on a minibatch of its own drawing, and <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code>
+governs the run because the draws happen in the code of the caller.</p>
 <p><strong>Resample inside the objective, not around the run.</strong> Calling
-<code>minimize(adam(maxit = 1), ...)</code> in a loop and drawing a new batch each
-time does not work: \(m\) and \(v\) start at zero and the bias
-correction restarts at \(t = 1\), so every call takes a first step of
-length \(\alpha\) and the accumulated moments, which are the whole of
-the method, are thrown away at each one. Measured on the example below,
-200 one-iteration runs reach <code>2.90</code> where one 200-iteration run reaches
-<code>2.956</code>, against a target of <code>2.986</code>.</p>
-<p>One thing to expect on such a run. The gradient consistency check
-<code><a href="minimize.html">minimize()</a></code> makes before starting compares <code>fn</code> and <code>gr</code> at one point,
-and on a resampling objective those are two different minibatches, so the
-check warns on every stochastic fit and the warning means nothing. Set
-<code>options(optimizers7.check_gradient = FALSE)</code> around it.</p>
+<code>minimize(adam(maxit = 1), ...)</code> in a loop with a new batch each time does
+not work: \(m\) and \(v\) start at zero and the bias correction
+restarts at \(t = 1\), so every call takes a first step of length
+\(\alpha\), and the accumulated moments, on which the method depends,
+are discarded at each call.</p>
+<p>The gradient check that <code><a href="minimize.html">minimize()</a></code> makes before starting compares <code>fn</code>
+and <code>gr</code> at one point, and on a resampling objective the two use
+different minibatches, so the check warns on every stochastic fit, and the
+warning does not indicate an error. Set
+<code>options(optimizers7.check_gradient = FALSE)</code> around such a fit.</p>
     </div>
     <div class="section level2">
     <h2 id="stopping">Stopping<a class="anchor" aria-label="anchor" href="#stopping"></a></h2>
     <p>The default criterion is <code><a href="crit_never.html">crit_never()</a></code>, so the run ends when <code>maxit</code> is
-reached and reports <code>converged = FALSE</code>, which is the truth about a run
-nothing checked. With a fixed <code>alpha</code> Adam circles an optimum instead of
-settling on it, so a tolerance on the gradient is usually a rule that
-never fires.</p>
-<p>On an exact objective a real rule can be passed and will work. On a noisy
-one nothing read from the objective or the gradient means much, both being
-estimates, and the package cannot detect which kind it was given.</p>
+reached and reports <code>converged = FALSE</code>, because no stopping rule was
+tested. On a noisy objective Adam with a fixed <code>alpha</code> circles an optimum
+instead of settling on it, so a tolerance on the gradient seldom fires
+there.</p>
+<p>On an exact objective a stopping rule such as <code><a href="crit_grad.html">crit_grad()</a></code> can be passed
+and fires. On a noisy objective the value and the gradient are both
+estimates, so a rule that reads either is unreliable, and the method
+cannot determine which kind of objective it receives. The rule is also
+tested at the point produced by the last iteration of the budget.</p>
     </div>
     <div class="section level2">
     <h2 id="the-safeguards">The safeguards<a class="anchor" aria-label="anchor" href="#the-safeguards"></a></h2>
     <p><code>eps</code> floors the denominator, so a coordinate whose gradient has been
 uniformly zero is not divided by zero.</p>
-<p><code>decay</code> makes the learning rate \(O(1/t)\), which is the Robbins-Monro
-condition a run on a noisy objective needs to settle at the optimum
-instead of rattling about it at a radius set by \(\alpha\). In the
-minibatch example below, five runs at <code>alpha = 0.05</code> scatter with a
-standard deviation of <code>0.033</code> at <code>decay = 0</code> and <code>0.0079</code> at <code>0.01</code>. It
-is off by default, an exact objective having nothing to average away.</p>
+<p><code>decay</code> makes the learning rate \(O(1/t)\), a schedule that satisfies
+the Robbins-Monro conditions (a divergent sum and a convergent sum of
+squares), which a run on a noisy objective needs in order to settle at the
+optimum instead of fluctuating about it within a radius set by
+\(\alpha\). The minibatch example below compares the scatter of five
+runs with and without decay. It is off by default, because an exact
+objective has no noise to average away.</p>
 <p><code>amsgrad</code> replaces \(v_t\) by its running maximum. Reddi, Kale and Kumar
 (2018) exhibited a convex problem on which Adam as published fails to
 converge, because \(v_t\) can shrink and let a single large gradient
-dominate the iterate long after it has passed. The maximum forbids that,
-and the price is that a coordinate's effective rate
-\(\alpha/\sqrt{\max_s v_s}\) can then never grow again. It is <code>FALSE</code> by
-default so that <code>adam()</code> is Adam, and worth turning on when a run fails to
-settle.</p>
-<p>A non-finite gradient or update ends the run rather than propagating a
-<code>NaN</code> into every iterate after it. The result reports
-<code>converged = FALSE</code> with the message <code>gradient not finite; stopped</code>, and
+dominate the iterate long after it has passed. The maximum prevents this,
+at the price that the second moment in the effective rate
+\(\alpha/\sqrt{\max_s v_s}\) of a coordinate can no longer decrease. It
+is <code>FALSE</code> by default so that <code>adam()</code> is Adam as published; it can be set
+to <code>TRUE</code> when a run fails to settle.</p>
+<p>A gradient or an update that is not finite ends the run instead of
+propagating a <code>NaN</code> into every later iterate. The result reports
+<code>converged = FALSE</code>, with the message <code>gradient not finite; stopped</code> for
+a gradient and <code>the update is not finite; stopped</code> for an update, and
 <code>par</code> is the last usable point.</p>
     </div>
     <div class="section level2">
@@ -243,7 +243,8 @@ Beyond. <em>ICLR</em>.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="bfgs.html">bfgs()</a></code> for the smooth case, <code><a href="crit_never.html">crit_never()</a></code> for the default
-stopping rule, <code><a href="sa.html">sa()</a></code> for the other method that goes uphill on purpose.</p></div>
+stopping rule, <code><a href="sa.html">sa()</a></code> for the other method that accepts uphill steps by
+design.</p></div>
     </div>
 
     <div class="section level2">
@@ -259,8 +260,9 @@ stopping rule, <code><a href="sa.html">sa()</a></code> for the other method that
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 1000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : alpha = 0.05, beta1 = 0.9, beta2 = 0.999, eps = 1e-08, decay = 0, amsgrad = TRUE</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># On an exact quadratic it arrives, and pays for it: 2002 evaluations</span></span></span>
-<span class="r-in"><span><span class="co"># against BFGS's 3. The flag is FALSE because crit_never() checked nothing.</span></span></span>
+<span class="r-in"><span><span class="co"># On an exact quadratic it reaches the minimum, at the cost of many more</span></span></span>
+<span class="r-in"><span><span class="co"># evaluations than BFGS. The flag is FALSE because crit_never() tests</span></span></span>
+<span class="r-in"><span><span class="co"># nothing.</span></span></span>
 <span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">qg</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">adam</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.1</span>, maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">qg</span><span class="op">)</span></span></span>
@@ -270,9 +272,9 @@ stopping rule, <code><a href="sa.html">sa()</a></code> for the other method that
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">qg</span><span class="op">)</span><span class="op">@</span><span class="va">counts</span><span class="op">[[</span><span class="st">"f"</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The objective it is for: the minibatch is drawn inside the function, so</span></span></span>
-<span class="r-in"><span><span class="co"># the optimizer never has to know about it. The check that compares fn</span></span></span>
-<span class="r-in"><span><span class="co"># against gr would compare two different batches, so it is turned off.</span></span></span>
+<span class="r-in"><span><span class="co"># A stochastic objective: the minibatch is drawn inside the function, so</span></span></span>
+<span class="r-in"><span><span class="co"># the optimizer needs no knowledge of it. The check that compares fn with</span></span></span>
+<span class="r-in"><span><span class="co"># gr would compare two different batches, so it is turned off.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">2000</span>, mean <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">100</span></span></span>
@@ -286,7 +288,7 @@ stopping rule, <code><a href="sa.html">sa()</a></code> for the other method that
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.986045</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A decaying rate settles the run: the scatter over five runs falls with it.</span></span></span>
+<span class="r-in"><span><span class="co"># A decaying rate settles the run: the scatter over five runs is smaller.</span></span></span>
 <span class="r-in"><span><span class="va">spread</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">5</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">adam</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.05</span>, decay <span class="op">=</span> <span class="va">d</span>, maxit <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>           <span class="va">batch</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">batch_gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -295,7 +297,7 @@ stopping rule, <code><a href="sa.html">sa()</a></code> for the other method that
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.032751298 0.007941274 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span><span class="va">old</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A gradient that is not finite ends the run and says so.</span></span></span>
+<span class="r-in"><span><span class="co"># A gradient that is not finite ends the run, and the message records it.</span></span></span>
 <span class="r-in"><span><span class="va">bad</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">adam</span><span class="op">(</span>maxit <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NaN</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">bad</span><span class="op">@</span><span class="va">converged</span>, <span class="va">bad</span><span class="op">@</span><span class="va">message</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "FALSE"                        "gradient not finite; stopped"</span>

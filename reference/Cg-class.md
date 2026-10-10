@@ -1,8 +1,8 @@
 # S7 Class for Conjugate Gradients
 
-An optimizer holding which of the four \\\beta\\ formulas bends the
-direction, how often the method is restarted at steepest descent, and
-the usual step length and line search. Built by
+An optimizer holding which of the four \\\beta\\ formulas combines the
+gradient with the previous direction, how often the method is restarted
+at steepest descent, and the step length and the line search. Built by
 [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md).
 
 ## Usage
@@ -52,14 +52,14 @@ with the four properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `Cg` carries four:
+Beyond the seven properties of every optimizer, a `Cg` carries four:
 `step` and `line_search`, shared with the other line-search methods, and
 `beta` and `restart_every`, which are its own. The previous direction is
-not a property; it lives in the run.
+not a property; it exists only inside the run.
 
 ## See also
 
 [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md) for
 the constructor,
 [GradientDescent](https://statmodels7.github.io/optimizers7/reference/GradientDescent-class.md)
-for the method it improves on.
+for steepest descent.

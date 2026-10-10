@@ -1,7 +1,8 @@
 # The line_search Class Object
 
-Fetched rather than captured, so that a check cannot be fooled by the
-class being re-created.
+Returns the class object from the namespace at the time of the call, so
+that a class check does not depend on the class object being the one
+created when the package was loaded.
 
 ## Usage
 
@@ -17,9 +18,6 @@ class object.
 
 ## Details
 
-Comparing S7 classes by identity is object identity, so it is `FALSE`
-for a class rebuilt from the same definition, as happens under any
-loader that re-evaluates the code rather than loading it, covr among
-them. The same defect in linkfunctions7 silently turned every numerical
-fallback into a chain of first differences, and only the coverage job
-noticed.
+Comparing S7 classes is a comparison of objects, so it is `FALSE` for a
+class rebuilt from the same definition, which happens under any loader
+that re-evaluates the code instead of loading it, covr among them.

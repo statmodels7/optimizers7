@@ -1,11 +1,11 @@
 # Minimize by Gradient Descent
 
 Runs [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md)
-on the objective: take \\-g\\ as the direction and let the line search
-choose how far. Shares the descent loop with
+on the objective: the direction is \\-g\\, and the line search chooses
+the step length. It shares the descent loop with
 [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md) and
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
-which differ from it only in how the direction is formed.
+which differ from it only in the direction.
 
 ## Arguments
 

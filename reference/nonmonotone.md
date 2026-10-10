@@ -1,8 +1,8 @@
 # Nonmonotone Backtracking
 
-Armijo backtracking that compares against the worst of the last few
-objective values rather than against the current one, so a step is
-allowed to make things worse now in order to be better placed later.
+Armijo backtracking that compares the trial value with the largest of
+the last few objective values and not with the current one, so a step
+may increase the objective.
 
 ## Usage
 
@@ -28,23 +28,25 @@ nonmonotone(
 
 - memory:
 
-  How many earlier values to look back over. Defaults to `10`; `0` makes
-  this ordinary
+  The number of earlier values, besides the current one, over which the
+  reference is taken. Defaults to `10`; `0` makes the search identical
+  to
   [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md).
 
 - max_step:
 
-  Most backtracks before the search gives up. Defaults to `30`.
+  Maximum number of trial points, the full step included, before the
+  search gives up. Defaults to `30`.
 
 - resolution:
 
-  The smallest difference in the objective that means anything, in the
-  objective's own units, or a function of no arguments returning it
-  where it moves as the run goes. Defaults to `0`, which does not ask
-  the question; see
+  The smallest difference in the objective that the objective can
+  resolve, in the units of the objective, or a function of no arguments
+  that returns it when it changes during the run. Defaults to `0`, which
+  disables the test; see
   [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
-  for what it is for and why the question is put at the full step,
-  before the search begins.
+  for the purpose of the test and for the reason why it is applied at
+  the full step, before the search begins.
 
 ## Value
 
@@ -54,51 +56,50 @@ object.
 
 ## Details
 
-The condition is Grippo, Lampariello and Lucidi's: \$\$f(x_k + s d_k)
-\le \max\_{0 \le j \le m} f(x\_{k-j}) + c_1 s\\ g_k^\top d_k,\$\$ which
-is Armijo's with the reference replaced by the largest of the last
-\\m+1\\ values. Every step it accepts improves on the worst of recent
-memory; none is required to improve on the present.
+The condition is that of Grippo, Lampariello and Lucidi: \$\$f(x_k +
+\alpha d_k) \le \max\_{0 \le j \le m} f(x\_{k-j}) + c_1 \alpha\\
+g_k^\top d_k,\$\$ which is Armijo's condition with the reference
+replaced by the largest of the last \\m+1\\ values. An accepted step
+improves on the largest of the recent values, but it need not improve on
+the current one.
 
 ## Purpose
 
-Some methods are efficient *because* of steps that make the objective
-worse.
+Some methods are efficient *because* of steps that increase the
+objective.
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) is
-the clear case: its step length is a curvature estimate taken from the
-last secant pair, and following that estimate faithfully means
-occasionally going somewhere higher in order to be aligned with the
-curvature when it matters. An Armijo condition forbids exactly those
-steps and backtracks until it finds a shorter one, which is safe and is
-also most of what the method was for.
-
-Measured on Rosenbrock,
+the main case: its step length is a curvature estimate taken from the
+last secant pair, and following that estimate sometimes leads to a
+higher value. An Armijo condition rejects every step that increases the
+objective and backtracks until it finds a shorter one, which removes the
+steps on which the method relies. On the Rosenbrock function
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md)
-takes 58 iterations and 67 objective evaluations under `nonmonotone()`
-and 72 iterations and 154 evaluations under
-[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md).
+needs fewer than half as many evaluations of the objective under
+`nonmonotone()` as under
+[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+(see the examples).
 
-The cost is that the guarantee weakens. A monotone method cannot cycle,
-the objective being a decreasing sequence bounded below; a nonmonotone
-one needs the finite memory to play that role, and the convergence
-result is correspondingly more delicate. Use it where a method asks for
-it.
+The cost is a weaker guarantee. A monotone method cannot cycle, since
+the objective is a decreasing sequence bounded below; a nonmonotone
+method relies on the finite memory for that, and its convergence result
+is more delicate. The search is intended for methods such as
+[`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
+whose steps are not required to decrease the objective.
 
 ## memory = 0
 
 At `memory = 0` the reference is the current value and the condition is
-Armijo's exactly. Measured, `nonmonotone(memory = 0)` and
+exactly Armijo's, so `nonmonotone(memory = 0)` and
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
-give the identical run, 72 iterations and 154 evaluations on the same
-problem, so a comparison between the two settings is a comparison of the
-memory alone.
+produce the same run, and a comparison between the two settings isolates
+the effect of the memory.
 
-## No nonmonotone Wolfe
+## No nonmonotone Wolfe search
 
-The curvature condition is a statement about the gradient at the trial
-point and says nothing about which value the decrease is measured
-against, so a nonmonotone Wolfe search would be a fourth object rather
-than an option on this one. There is not one here.
+The curvature condition concerns the gradient at the trial point and
+does not involve the value against which the decrease is measured. A
+nonmonotone Wolfe search would therefore be a fourth object and not an
+option of this one, and the package does not provide one.
 
 ## References
 
@@ -115,9 +116,9 @@ Optimization* **7**, 26–33.
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
 for the monotone version,
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) for
-the method that needs this one,
+the method that uses this one by default,
 [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
-for the shared contract.
+for the parent class.
 
 ## Examples
 
@@ -127,7 +128,7 @@ nonmonotone()
 nonmonotone(memory = 5)
 #> <line_search> nonmonotone backtracking (memory = 5)
 
-# What it buys the method it was added for.
+# The effect on bb(), the method that uses it by default.
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
@@ -137,8 +138,8 @@ c(nonmonotone = evals(nonmonotone()), armijo = evals(armijo()))
 #> nonmonotone      armijo 
 #>          67         154 
 
-# And that memory = 0 is armijo(), which is what makes the comparison one
-# of the memory alone.
+# With memory = 0 the search is armijo(), so the comparison above
+# isolates the memory.
 identical(evals(nonmonotone(memory = 0)), evals(armijo()))
 #> [1] TRUE
 ```

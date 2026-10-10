@@ -4,12 +4,12 @@ The abstract parent of
 [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
 and
 [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md).
-A starter stands in for the vector of starting values: it says how the
-values are to be produced and carries how many of them there are, and
+A starter takes the place of the vector of starting values: it specifies
+how the values are produced and how many there are, and
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-turns it into an actual vector before dispatch. Every optimizer
-therefore accepts one, including an optimizer written outside the
-package, and no method needs to know that starters exist.
+turns it into a vector before dispatch. Every optimizer therefore
+accepts one, including an optimizer written outside the package, and no
+method needs code of its own for starters.
 
 ## Usage
 
@@ -38,19 +38,18 @@ The class is abstract and carries one property, `npar`, an integer or
 and nothing else.
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 decides whether `par` is a vector to use as given or an object to
-resolve by testing inheritance from this class, so a starter of your own
-has to be parented here; a class carrying a
+resolve by testing inheritance from this class, so a new starter has to
+inherit from it; a class that has a
 [`starting_values()`](https://statmodels7.github.io/optimizers7/reference/starting_values.md)
-method but parented elsewhere is refused with
+method but inherits from another class is rejected with the error
 `'par' must be a numeric vector of starting values`.
 
-This is the third of the package's extension points and it is exported
-for the same reason as the other two,
+A starter is an extension point of the package, like
 [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
 for a stopping rule and
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
-for an algorithm: the generic is of no use without the class it
-dispatches on.
+for an algorithm, and its class is exported for the same reason: the
+generic is of no use without the class on which it dispatches.
 
 ## See also
 
@@ -67,7 +66,7 @@ try(starter(npar = 3))
 #>   Can't construct an object from abstract class <starter>
 
 # ...but a subclass with a starting_values() method is a starter, and
-# minimize() resolves it exactly as it resolves the two shipped ones.
+# minimize() resolves it as it resolves the two shipped ones.
 Grid <- S7::new_class("Grid", parent = starter)
 S7::method(starting_values, Grid) <- function(starter, npar)
   seq(-1, 1, length.out = npar)

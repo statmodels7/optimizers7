@@ -11,7 +11,7 @@ actually consulted, which is not always the one on the outside."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,18 +70,18 @@ actually consulted, which is not always the one on the outside.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code><a href="multistart.html">multistart()</a></code> carries a criterion so that printing it tells the truth;
-the rule the run evaluates belongs to the optimizer inside. Setting the
-outer one alone changes the printing and nothing else, which is exactly
-the sort of thing that makes a check pass while testing nothing:</p>
+    <p><code><a href="multistart.html">multistart()</a></code> carries a criterion property that is used for printing;
+the rule that the run evaluates belongs to the optimizer inside. Setting
+the outer one alone changes only the printing, and a check that relied on
+it would test the default rule:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">ms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/multistart.html">multistart</a></span><span class="op">(</span><span class="fu"><a href="../reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/with_criterion.html">with_criterion</a></span><span class="op">(</span><span class="va">ms</span>, <span class="fu"><a href="../reference/crit_abs_obj.html">crit_abs_obj</a></span><span class="op">(</span><span class="fl">1e-4</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">optimizer</span><span class="op">@</span><span class="va">criterion</span><span class="op">@</span><span class="va">label</span></span>
 <span><span class="co"># "|df| &lt; 1e-04"  (the inner rule changed too)</span></span>
 <span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/props.html" class="external-link">set_props</a></span><span class="op">(</span><span class="va">ms</span>, criterion <span class="op">=</span> <span class="fu"><a href="../reference/crit_abs_obj.html">crit_abs_obj</a></span><span class="op">(</span><span class="fl">1e-4</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">optimizer</span><span class="op">@</span><span class="va">criterion</span><span class="op">@</span><span class="va">label</span></span>
 <span><span class="co"># "gradient (max-norm) &lt; 1e-06 or ..."  (unchanged)</span></span></code></pre><p></p></div>
-<p><code><a href="chain.html">chain()</a></code> has a method of its own for the same reason, its reported rule
-being the last stage's.</p>
+<p><code><a href="chain.html">chain()</a></code> has a method of its own for the same reason, since its rule is
+the rule of the last stage.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

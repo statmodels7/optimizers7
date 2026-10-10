@@ -1,8 +1,7 @@
 # What a Criterion Needs From the Iteration
 
-The names of the `state` components a criterion requires, so that an
-algorithm can reject a rule it cannot evaluate instead of accepting one
-that never fires.
+Returns the names of the `state` components that a criterion requires,
+so that an algorithm can reject a rule that it cannot evaluate.
 
 ## Usage
 
@@ -24,20 +23,21 @@ A character vector of `state` component names, possibly empty.
 
 ## Details
 
-A derivative-free method has no gradient, so
+A derivative-free method computes no gradient, so
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-handed to one would sit there testing `NULL` at every iteration and
-quietly never stop the run.
+given to such a method would test `NULL` at every iteration and never
+stop the run.
 [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-compares what this reports against what
+compares the value of this generic with the value of
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)
-reports and refuses the pair when the run starts, naming both.
+and, when the run starts, signals an error that names the missing
+component and the method.
 
 The base method returns
-[`character()`](https://rdrr.io/r/base/character.html), so a rule
-reading only the objective needs no method here: every optimizer
-evaluates the objective and no rule reading it is ever refused. The two
-names the shipped rules declare are `"gradient"` and `"stationarity"`.
+[`character()`](https://rdrr.io/r/base/character.html), so a rule that
+reads only the objective needs no method here: every optimizer evaluates
+the objective, and such a rule is accepted by every method. The shipped
+rules declare two names, `"gradient"` and `"stationarity"`.
 
 ## See also
 
@@ -58,8 +58,8 @@ crit_needs(crit_abs_obj())
 crit_needs(crit_grad())
 #> [1] "gradient"
 
-# A combination declares the union, so a method missing any one of them
-# is refused.
+# A combination declares the union, so a method that lacks any one of
+# them rejects it.
 crit_needs(crit_any(crit_grad(), crit_stationary()))
 #> [1] "gradient"     "stationarity"
 ```

@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,13 +65,13 @@
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The <code>+ tol</code> in each denominator is a floor, as in <code><a href="crit_rel_obj.html">crit_rel_obj()</a></code>: a
-coordinate sitting at zero would otherwise be divided by nothing. The same
+    <p>The term <code>+ tol</code> in each denominator is a floor, as in <code><a href="crit_rel_obj.html">crit_rel_obj()</a></code>,
+which keeps the denominator positive at a coordinate of zero. The same
 number therefore serves as the floor and as the threshold.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="crit_abs_par.html">crit_abs_par()</a></code> for the version in the parameters' own units.</p></div>
+    <div class="dont-index"><p><code><a href="crit_abs_par.html">crit_abs_par()</a></code> for the version in the units of the parameters.</p></div>
     </div>
 
     <div class="section level2">

@@ -1,7 +1,7 @@
 # Validate an Initial Step Length
 
-Checks that `step` is a single positive number, so that all six methods
-taking one reject the same nonsense in the same words.
+Checks that `step` is a single positive number, so that every
+constructor that takes one rejects invalid values with the same message.
 
 ## Usage
 

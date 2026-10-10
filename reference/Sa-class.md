@@ -4,9 +4,9 @@ An optimizer holding the annealing schedule and the step adaptation:
 which proposal the walk draws from, the temperature and how it cools,
 how much work is done at each level, and the acceptance rate the
 per-coordinate steps are tuned to. Built by
-[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md). It
-is the package's only global search and the only method whose result
-depends on the state of the random number generator.
+[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md). Its
+result depends on the state of the random number generator, which the
+result records in `seed`.
 
 ## Usage
 
@@ -57,15 +57,15 @@ Sa(
 
 - target_accept:
 
-  The acceptance rate the step adaptation aims at.
+  The acceptance rate at which the step adaptation aims.
 
 - adjust:
 
-  How hard the step is adjusted towards that rate.
+  How strongly the step is adjusted towards that rate.
 
 - n_eps:
 
-  How many temperature levels the stopping rule looks back over.
+  How many temperature levels the stationarity measure covers.
 
 ## Value
 
@@ -75,7 +75,7 @@ with the nine properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, an `Sa` carries nine of
+Beyond the seven properties of every optimizer, an `Sa` carries nine of
 its own. They fall into three groups: the proposal (`visiting`, `step`),
 the schedule (`t0`, `cooling`, `cycles`, `steps`), and the adaptation
 and its stopping rule (`target_accept`, `adjust`, `n_eps`).

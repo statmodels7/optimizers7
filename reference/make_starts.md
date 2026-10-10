@@ -13,7 +13,7 @@ make_starts(par, n, spread, bounds)
 
 - par:
 
-  The user's starting value.
+  The starting value of the caller.
 
 - n:
 
@@ -21,7 +21,9 @@ make_starts(par, n, spread, bounds)
 
 - spread:
 
-  Half-width of the sampling range, in unconstrained units.
+  Scale of the half-width of the sampling range in unconstrained units:
+  the half-width is \\3\\ \texttt{spread}\\ \max(1,
+  \lvert\eta_0\rvert)\\.
 
 - bounds:
 
@@ -35,10 +37,11 @@ A matrix with `n` rows, the first of which is `par`.
 
 ## Details
 
-Each coordinate's range is cut into `n - 1` strata, each used exactly
-once, so the starts cannot all fall in one corner the way independent
-draws can. The range is `par` plus or minus `3 * spread` on the
-unconstrained scale, which for an unbounded parameter is the parameter
-itself and for a bounded one is its log or logit. A start for a variance
-is therefore drawn as a log and comes back positive with no rejected
-draw.
+The range of each coordinate is cut into `n - 1` strata, each used
+exactly once, so the starts cannot all fall in one corner, as
+independent draws can. On the unconstrained scale the range is the
+starting value \\\eta_0\\ plus or minus \\3\\ \texttt{spread}\\ \max(1,
+\lvert\eta_0\rvert)\\. The unconstrained scale is the parameter itself
+for an unbounded coordinate and its shifted log or scaled logit for a
+bounded one, so a start for a variance is drawn on the log scale and
+comes back positive, without a rejected draw.

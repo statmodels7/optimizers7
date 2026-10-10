@@ -24,15 +24,15 @@ inheriting from
 
 ## Details
 
-The `+ tol` in each denominator is a floor, as in
-[`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md):
-a coordinate sitting at zero would otherwise be divided by nothing. The
-same number therefore serves as the floor and as the threshold.
+The term `+ tol` in each denominator is a floor, as in
+[`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md),
+which keeps the denominator positive at a coordinate of zero. The same
+number therefore serves as the floor and as the threshold.
 
 ## See also
 
 [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md)
-for the version in the parameters' own units.
+for the version in the units of the parameters.
 
 ## Examples
 

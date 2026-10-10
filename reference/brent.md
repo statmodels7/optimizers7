@@ -26,9 +26,10 @@ brent(
 
   The stopping rule, a
   [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
-  object. Defaults to `crit_stationary(1e-5)`, read on the half-width of
-  the bracket, so the tolerance is on the parameter's scale. A gradient
-  rule is refused when the run starts.
+  object. Defaults to `crit_stationary(1e-5)`, which reads the
+  half-width of the bracket, so the tolerance is on the scale of the
+  parameter, or on the unconstrained scale when `lower` or `upper` is
+  given. A rule that needs a gradient is rejected when the run starts.
 
 - step:
 
@@ -38,8 +39,9 @@ brent(
 - max_expand:
 
   How many golden expansions the bracketing phase may take, a single
-  positive number, default `50`. A run that has not bracketed the
-  minimum by then continues from the best point it has.
+  number of at least 1, default `50`. If no minimum has been bracketed
+  by then, the run stops at the lowest point evaluated and reports
+  `converged = FALSE`.
 
 - maxit:
 
@@ -75,9 +77,12 @@ to be handed to
 The bracketing phase evaluates the starting value \\x_0\\ and \\x_0 +
 h\\, turns round if the second is the higher, and steps on in the
 descending direction, each step \\1.618\\ times the last, until the
-value rises. The three points then satisfy \\f(b) \< f(a)\\ and \\f(b)
-\< f(c)\\ with \\b\\ between \\a\\ and \\c\\, so a minimum lies inside
-\\(a, c)\\.
+value no longer falls. The three points then satisfy \\f(b) \le f(a)\\
+and \\f(b) \le f(c)\\ with \\b\\ between \\a\\ and \\c\\, so a minimum
+lies in \\\[a, c\]\\. If the value is still falling when `max_expand`
+expansions have been taken, or when the evaluation budget runs out, no
+minimum has been bracketed: the run stops at the lowest point evaluated,
+reports `converged = FALSE` and records the reason in `message`.
 
 The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 iteration the parabola through the three best points is tried first; its
@@ -88,9 +93,21 @@ superlinearly on a smooth minimum, and the golden steps bound the number
 of evaluations when the function is not well modeled by a parabola. The
 stationarity measure is the half-width of the bracket.
 
+The rule receives `iter`, `f_new`, `f_old`, `x_new`, `x_old` and
+`stationarity`; `f_old` and `x_old` are those of the previous iteration
+and are `NULL` at the first. Besides the rule, the reduction stops on
+Brent's own test, when the bracket has shrunk to about
+\\\sqrt{\varepsilon}\\\lvert x \rvert + 10^{-12}\\ around the best point
+\\x\\, below which no further point can be distinguished from \\x\\.
+That stop reports `converged = TRUE` with `criterion_met` equal to
+`bracket at machine resolution`, so a rule with a smaller tolerance than
+this resolution, or
+[`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
+ends there.
+
 The method is for one parameter only; a starting value of any other
-length is rejected. Bounds are removed by the same reparametrization the
-other methods use (see
+length is rejected. Bounds are removed by the same reparametrization as
+in the other methods (see
 [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)).
 
 ## References
@@ -103,7 +120,7 @@ Prentice-Hall, Englewood Cliffs.
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
 for the derivative-free method in several dimensions,
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
-for the rule this method reads.
+for the default rule of this method.
 
 ## Examples
 

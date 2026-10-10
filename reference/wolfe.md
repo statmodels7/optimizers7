@@ -1,10 +1,11 @@
 # Line Search Satisfying the Strong Wolfe Conditions
 
-Finds a step satisfying both Wolfe conditions, sufficient decrease and
-curvature together: \$\$f(x + \alpha d) \leq f(x) + c_1 \alpha\\ g^\top
-d, \qquad \lvert g(x + \alpha d)^\top d \rvert \leq c_2 \lvert g^\top d
-\rvert .\$\$ Evaluates the gradient at trial points as well as the
-objective, which is what the second condition costs and what
+Searches for a step that satisfies both Wolfe conditions, sufficient
+decrease and curvature: \$\$f(x + \alpha d) \leq f(x) + c_1 \alpha\\
+g^\top d, \qquad \lvert g(x + \alpha d)^\top d \rvert \leq c_2 \lvert
+g^\top d \rvert .\$\$ It evaluates the gradient at trial points as well
+as the objective, which is the cost of the second condition, the one
+that
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
@@ -28,9 +29,9 @@ wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
   Curvature constant, with \\c_1 \< c_2 \< 1\\. Defaults to `0.9`, the
   usual choice for a quasi-Newton method;
   [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md)
-  defaults to `0.1`, wanting a more exact line search. A `c2` at or
-  below `c1` is refused, the two conditions being unsatisfiable together
-  then.
+  uses `0.1`, a more exact line search. A `c2` at or below `c1` is
+  rejected, because a step that satisfies both conditions is guaranteed
+  to exist only when \\c_1 \< c_2 \< 1\\.
 
 - max_step:
 
@@ -39,13 +40,13 @@ wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
 
 - resolution:
 
-  The smallest difference in the objective that means anything, in the
-  objective's own units, or a function of no arguments returning it
-  where it moves as the run goes. Defaults to `0`, which does not ask
-  the question; see
+  The smallest difference in the objective that the objective can
+  resolve, in the units of the objective, or a function of no arguments
+  that returns it when it changes during the run. Defaults to `0`, which
+  disables the test; see
   [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
-  for what it is for and why the question is put at the full step,
-  before the search begins.
+  for the purpose of the test and for the reason why it is applied at
+  the full step, before the search begins.
 
 ## Value
 
@@ -55,32 +56,37 @@ inheriting from
 [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md),
 to be passed as an optimizer's `line_search`.
 
-## What the curvature condition is for
+## The curvature condition
 
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
-cannot provide it, and a quasi-Newton method needs it to work at all.
-BFGS builds its approximation from the secant pair \\(s, y)\\ with \\s =
-\alpha d\\ and \\y = g\_{new} - g\_{old}\\, and a step so short that the
-gradient has barely moved gives a pair carrying no curvature: the update
-is then either skipped or it corrupts the matrix. Requiring the gradient
-along the direction to have shrunk by a factor \\c_2\\ is exactly the
-guarantee that this does not happen.
-
-In practice the guarantee is worth less than it sounds, and the honest
-measurement belongs here: over the eight problems of
+does not enforce it, and a quasi-Newton method relies on it. BFGS builds
+its approximation from the secant pair \\(s, y)\\ with \\s = \alpha d\\
+and \\y = g\_{new} - g\_{old}\\, and a step so short that the gradient
+has barely changed gives a pair with no usable curvature: the update is
+then skipped, or it degrades the approximation. Requiring the
+directional derivative to have shrunk by the factor \\c_2\\ rules this
+out. On the problems of
 [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md),
-BFGS under Armijo skips an update on three of them, once each. See
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-for the numbers.
+BFGS under
+[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
+skips an update on a few problems only; see
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
 
 ## The implementation
 
-Bracketing and zoom, with **bisection** inside the zoom instead of
-polynomial interpolation. That costs a few more evaluations and cannot
-be defeated by an awkwardly shaped interval.
+The search brackets a step, doubling the trial step until the bracket is
+found, and then bisects inside the bracket instead of interpolating a
+polynomial. Bisection costs a few more evaluations and does not depend
+on the shape of the function inside the bracket. Each phase is limited
+to `max_step` trials, and a search that exhausts them returns without a
+step. When the bracket collapses before the curvature condition holds,
+the end of the bracket that satisfies sufficient decrease is returned
+and the trace records `curvature condition not met`.
 
-Gradient evaluations at trial points are the price, so this is the
-dearer choice per iteration and usually the cheaper one per problem.
+The gradient evaluations at the trial points make this search more
+costly per iteration than
+[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md);
+the total cost of a run depends on the problem.
 
 ## References
 
@@ -107,14 +113,15 @@ wolfe()
 wolfe(c2 = 0.1)
 #> <line_search> strong Wolfe (c1 = 1e-04, c2 = 0.1)
 
-# Even gradient descent gets to the answer with it, given the budget.
+# Gradient descent with this search comes close to the minimum (1, 1) in
+# 2000 iterations.
 minimize(gd(line_search = wolfe(), maxit = 2000),
          function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2,
          c(-1.2, 1))@par
 #> [1] 1.001140 1.002291
 
-# The tighter constant matters to conjugate gradients, which has no
-# curvature approximation to repair a loose step with.
+# The smaller constant matters for conjugate gradients, which has no
+# curvature approximation to compensate for an inexact step.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
@@ -125,7 +132,7 @@ c(tight = minimize(cg(line_search = wolfe(c2 = 0.1)), f, c(-1.2, 1),
 #> tight loose 
 #>    25    28 
 
-# The two conditions have to be satisfiable together.
+# c2 must exceed c1.
 try(wolfe(c1 = 0.5, c2 = 0.4))
-#> Error : 'c2' must be greater than 'c1'; the conditions are unsatisfiable otherwise.
+#> Error : 'c2' must be greater than 'c1'; only then is a step that satisfies both conditions guaranteed to exist.
 ```

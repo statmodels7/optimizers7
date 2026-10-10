@@ -4,8 +4,8 @@ Validates the arguments and builds the combined criterion, so that
 [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
 and
 [`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md)
-reject the same nonsense in the same words: an empty call and an
-argument that is not a criterion.
+reject the same invalid input with the same messages: an empty call and
+an argument that is not a criterion.
 
 ## Usage
 

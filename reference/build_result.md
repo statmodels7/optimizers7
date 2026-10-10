@@ -1,9 +1,9 @@
 # Assemble the Result of a Run
 
-Turns the list the compiled loop returned into an
+Converts the list returned by the compiled loop into an
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md):
-fills in the point and the value, the counts and the trace, decides the
-verdict, and composes the message from whatever needs reporting.
+it fills in the point and the value, the counts and the trace, sets the
+verdict, and composes the message.
 
 ## Usage
 
@@ -42,8 +42,11 @@ An
 
 ## Details
 
-The one judgment here is the meaning of `converged`: it is taken
-straight from whether the stopping rule fired, and never inferred from
-the run having ended. An optimizer that exhausted its iterations has not
-converged, and saying otherwise turns a failure into a wrong answer that
-looks right.
+`converged` is the flag returned by the loop, and it is never inferred
+from the run having ended. The loop sets it when the stopping rule
+fires, when a line search with a declared resolution establishes that no
+step decreases the objective by more than that resolution, and, for
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
+when the bracket reaches the resolution of the iterate. `criterion_met`
+is the label of the rule in the first case and a label of its own in the
+others; a run that exhausted a budget reports the budget.

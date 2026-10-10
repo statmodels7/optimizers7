@@ -1,8 +1,8 @@
 # Run the Shared Descent Loop
 
-The body of every method that has a direction: prepares the objective,
-hands the compiled loop the optimizer's settings and the description of
-its direction, and assembles the result.
+The body of every method that has a direction: it prepares the
+objective, passes the settings of the optimizer and the description of
+its direction to the compiled loop, and assembles the result.
 
 ## Usage
 
@@ -37,8 +37,14 @@ An
 
 ## Details
 
-Newton, BFGS, L-BFGS and gradient descent differ only in the `method`
-list, which names the direction and carries its parameters. The line
-search, the stopping rule, the budgets, the trace and the reporting are
-the same code for all of them, so adding a fifth method is a `Direction`
-in C++ and a constructor in R.
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md),
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+[`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),
+[`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md),
+[`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md),
+[`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) and
+[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+differ only in the `method` list, which names the direction and carries
+its parameters. The line search, the stopping rule, the budgets, the
+trace and the reporting are the same code for all of them, so another
+method of this kind needs a `Direction` in C++ and a constructor in R.

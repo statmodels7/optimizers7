@@ -1,7 +1,7 @@
 # How Many Processes to Use
 
 Turns `ncores = NULL` into a number: as many processes as there are
-starts, but never more than the machine can spare.
+starts, but not more than the number of cores minus two.
 
 ## Usage
 
@@ -13,7 +13,7 @@ resolve_ncores(ncores, n)
 
 - ncores:
 
-  What the caller asked for, possibly `NULL`.
+  The value given by the caller, possibly `NULL`.
 
 - n:
 
@@ -25,12 +25,11 @@ A single integer, at least one.
 
 ## Details
 
-The rule is `min(n, max(1, detectCores() - 2))`. Two are held back and
-not one, since the session doing the asking is itself one of them, and a
-machine with nothing left over is a machine that stops responding.
-Asking for more processes than there are starts wastes the cost of
-starting them, which on Windows costs seconds where a fork costs
-microseconds.
+The rule is `min(n, max(1, detectCores() - 2))`. Two cores are left
+free, one for the calling session and one for the rest of the machine,
+which otherwise stops responding. Starting more processes than there are
+starts costs the start-up time of the extra processes, which on Windows
+is seconds, whereas a fork takes microseconds.
 
 It is capped at two under `R CMD check`, which sets
 `_R_CHECK_LIMIT_CORES_` and fails a package that ignores it, and it

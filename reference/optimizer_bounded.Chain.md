@@ -1,8 +1,8 @@
 # Whether a Chain Takes Box Bounds
 
 `TRUE` when every stage takes bounds, `FALSE` otherwise. The bounds are
-passed to all of them, so a single stage that would ignore them leaves
-the chain unable to promise the box.
+passed to all of them, so a single stage that does not take them makes
+the whole chain unable to take them.
 
 ## Arguments
 
@@ -17,10 +17,10 @@ A single logical.
 ## Details
 
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
-is the one shipped method that answers `FALSE`: it takes its constraint
-inside the proximal operator, where the constraint composes with the
-penalty already there. A chain containing it is therefore unbounded
-whatever else is in it.
+is the only shipped method that returns `FALSE`: it takes its constraint
+inside the proximal operator, where the constraint combines with the
+penalty. A chain that contains it therefore does not take bounds,
+whatever its other stages.
 
 ## Examples
 

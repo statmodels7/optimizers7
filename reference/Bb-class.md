@@ -1,13 +1,13 @@
 # S7 Class for the Barzilai-Borwein Method
 
 An optimizer holding which of the two Rayleigh quotients gives the step
-length, the bounds that quotient is clamped to, the curvature threshold
-a secant pair must meet, and the usual step multiplier and line search.
-Built by
+length, the bounds to which that quotient is clamped, the curvature
+threshold that a secant pair must meet, and the step multiplier and the
+line search. Built by
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md). Its
 line search defaults to
-[`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
-the only shipped method for which it does.
+[`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md);
+it is the only shipped method with that default.
 
 ## Usage
 
@@ -42,7 +42,7 @@ Bb(
 
 - alpha_min, alpha_max:
 
-  Bounds the step length is clamped to.
+  The bounds to which the step length is clamped.
 
 - curv_tol:
 
@@ -63,10 +63,10 @@ with the seven properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `Bb` carries seven of
+Beyond the seven properties of every optimizer, a `Bb` carries seven of
 its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curv_tol`
-for the step-length estimate, and `step` and `line_search` for what is
-done with it.
+for the step-length estimate, and `step` and `line_search` for the
+search along the direction.
 
 ## See also
 

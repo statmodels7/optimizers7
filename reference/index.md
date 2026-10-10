@@ -2,8 +2,10 @@
 
 ## Running an optimization
 
-One generic for every algorithm. Which of the three shapes the objective
-arrived in is settled separately, so an algorithm is written once.
+One generic for every algorithm. The kind of objective is handled
+separately, by
+[`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md),
+so an algorithm is written once.
 
 - [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
   : Minimize a Function
@@ -14,8 +16,8 @@ arrived in is settled separately, so an algorithm is written once.
 
 ## Smooth problems
 
-Methods that build a model of the surface from derivatives. Fast when
-the objective is smooth, and misled when it is not.
+Methods that use derivatives of the objective. They are fast when the
+objective is smooth, and they cannot certify a solution at a kink.
 
 - [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
   : Newton's Method with a Modified Hessian
@@ -36,15 +38,24 @@ the objective is smooth, and misled when it is not.
 
 Adam, which tolerates a gradient that points downhill only on average.
 It draws no minibatches of its own: an objective that resamples is a
-closure, written by the caller, who knows what an observation is.
+closure written by the caller, who defines what an observation is.
 
 - [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
   : Adaptive Moment Estimation
 
 ## Problems with a kink
 
-Where a descent method arrives at the answer and cannot certify it,
-because the subgradient it evaluates never becomes small.
+Methods for objectives with kinks, at which a descent method reaches the
+solution without being able to certify it, because the subgradient that
+it evaluates does not become small.
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
+tests whether zero lies in the convex hull of its subgradients,
+[`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
+handles the kink through a proximal operator, and
+[`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
+and
+[`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
+use no derivative.
 
 - [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
   : The Proximal Bundle Method
@@ -65,19 +76,19 @@ the minimum and reducing the bracket.
 
 ## Searching before descending
 
-A global search for the problems where the answer depends on which basin
-the run began in. It is meant to hand its result to a local method
-rather than to finish the job itself.
+A global search for problems on which the answer depends on the basin in
+which the run begins. Its result is meant to be passed to a local
+method, which finds the minimum.
 
 - [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) :
   Simulated Annealing With an Adaptive Step
 
 ## Wrapping an optimizer
 
-Both are themselves optimizers, so they compose with everything above
-and with each other. Multi-start reports what a single run cannot, the
-number of distinct optima; a chain runs its stages in order, each
-starting where the previous finished.
+Both are themselves optimizers, so they combine with every method above
+and with each other. A multi-start reports the number of distinct
+optimal values reached from its starts; a chain runs its stages in
+order, each starting where the previous one finished.
 
 - [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
   : Run an Optimizer From Many Starting Points
@@ -86,9 +97,9 @@ starting where the previous finished.
 
 ## Stopping rules
 
-A criterion is an object implementing one generic, so a user-defined
-rule is treated like a shipped one. An optimizer rejects a rule it
-cannot evaluate rather than accepting one that never fires.
+A criterion is an object that implements one generic, so a user-defined
+rule is treated like a shipped one. An optimizer rejects a rule that it
+cannot evaluate instead of accepting one that never fires.
 
 - [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
   : S7 Class for Convergence Criteria
@@ -109,7 +120,7 @@ cannot evaluate rather than accepting one that never fires.
 - [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
   : Stop When the Method's Own Measure of Progress Is Small
 - [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md)
-  : Never Stop Early
+  : The Rule That Never Fires
 - [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
   : Stop When Any of Several Rules Fires
 - [`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md)
@@ -118,9 +129,9 @@ cannot evaluate rather than accepting one that never fires.
 ## Line searches
 
 How far to go along a direction, once the direction is chosen. The
-non-monotone rule is not an exotic option: a method whose step length is
-itself the method, as Barzilai-Borwein’s is, needs a search that does
-not reshape it.
+nonmonotone search is the default of the Barzilai-Borwein method, whose
+step length is the method itself and which relies on steps that increase
+the objective.
 
 - [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
   : S7 Class for Line Searches
@@ -133,10 +144,10 @@ not reshape it.
 
 ## Starting values
 
-A starter stands in for the vector of starting values, and is resolved
-on the unconstrained scale, so a single constant means something
-sensible for every kind of parameter and no draw can land outside its
-bounds.
+A starter takes the place of the vector of starting values and is
+resolved on the unconstrained scale, so a single constant gives a
+sensible value for every kind of parameter and every draw lies inside
+its bounds.
 
 - [`starter()`](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
   : S7 Class for a Starting-Value Generator
@@ -152,20 +163,21 @@ bounds.
 ## The objective
 
 A function of the parameter vector. The generic is the extension point:
-a caller with its own kind of objective registers one method and every
-algorithm accepts it.
+a caller with another kind of objective registers one method and every
+algorithm accepts that objective.
 
 - [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md)
   : Normalize an Objective for the Optimizers
 
-## Writing an optimizer of your own
+## Writing a new optimizer
 
-What a
+The requirements on a new
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-method of your own has to promise, and the pieces that let it.
+method, and the functions that help to meet them.
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-tests the contract; the battery under it reports the power; they are
-separate because they are different questions.
+runs twelve checks on what an optimizer reports, and reports separately
+the gaps that it reaches on the test problems, since performance and
+correctness are different questions.
 
 - [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
   : S7 Class for Optimization Algorithms
@@ -182,6 +194,6 @@ separate because they are different questions.
 - [`bounded_forward()`](https://statmodels7.github.io/optimizers7/reference/bounded_forward.md)
   : The Forward Bound Transform
 - [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-  : Check That an Optimizer Keeps Its Promises
+  : Check What an Optimizer Reports
 - [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
   : The Standard Test Problems

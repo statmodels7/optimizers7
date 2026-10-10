@@ -3,9 +3,10 @@
 An optimizer holding the learning rate, the two moment decay rates and
 the three safeguards of the Adam iteration. Built by
 [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md).
-It is the one shipped method whose default stopping rule is
+It is the only shipped method whose default stopping rule is
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
-so a run ends on its iteration budget and reports `converged = FALSE`.
+so a run with the defaults ends on its iteration budget and reports
+`converged = FALSE`.
 
 ## Usage
 
@@ -57,9 +58,10 @@ with the six properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, an `Adam` carries six
-of its own: `alpha`, `beta1` and `beta2` for the iteration as Kingma and
-Ba published it, and `eps`, `decay` and `amsgrad` for the three repairs.
+Beyond the seven properties of every optimizer, an `Adam` carries six of
+its own: `alpha`, `beta1`, `beta2` and `eps` for the iteration as Kingma
+and Ba published it, and `decay` and `amsgrad` for the two additions to
+it.
 
 ## See also
 

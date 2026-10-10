@@ -1,10 +1,9 @@
 # Stop When the Gradient Is Small
 
 Builds the rule \\\lVert \nabla f \rVert \< \texttt{tol}\\, the test for
-a stationary point and the one a maximum likelihood fit should ask for.
-Usable only by a method that computes a gradient; a derivative-free
-optimizer refuses it when the run starts instead of accepting a rule
-that can never fire.
+a stationary point and the rule for a maximum likelihood fit. Only a
+method that computes a gradient can use it; a derivative-free optimizer
+rejects it when the run starts.
 
 ## Usage
 
@@ -17,12 +16,13 @@ crit_grad(tol = 1e-06, norm = c("max", "2"))
 - tol:
 
   Numeric tolerance, a single positive number. Defaults to `1e-6`; see
-  below for why that rather than something smaller.
+  Details for the reason.
 
 - norm:
 
-  `"max"` (default) or `"2"`. Partial matching applies and any other
-  string is refused, naming both.
+  `"max"` (default) or `"2"`. Partial matching applies, and any other
+  string is rejected by
+  [`match.arg()`](https://rdrr.io/r/base/match.arg.html).
 
 ## Value
 
@@ -33,40 +33,34 @@ inheriting from
 
 ## Details
 
-The max-norm is the default because it does not grow with the dimension
-the way the 2-norm does: the same tolerance then means the same thing
-for a two-parameter problem and a two-hundred-parameter one, whereas
-`1e-6` in the 2-norm is a far stricter demand in high dimension. Both
-are available, so the choice is only a default.
+The max-norm is the default because it does not grow with the dimension,
+as the 2-norm does: the same tolerance then has the same meaning for a
+problem with two parameters and for one with two hundred, whereas `1e-6`
+in the 2-norm is a much stricter condition in high dimension.
 
-How small a gradient a run can actually reach is set by the objective,
+The smallest gradient that a run can reach is set by the objective and
 not by the method. A line search accepts a step only when the objective
 decreases by a definite amount, and near a minimum that decrease is
 about \\\lVert \nabla f \rVert^{2} / (2\lambda)\\ for a curvature
-\\\lambda\\. Once it drops below the rounding of the objective itself,
-about \\\varepsilon \lvert f \rvert\\, no step in any direction can be
-verified and the search stops, so the smallest attainable gradient is
-around \\\sqrt{2 \lambda \varepsilon \lvert f^{\*} \rvert}\\ and grows
-with the value at the solution. On conjugate gradients applied to
-Rosenbrock, adding a constant to the objective (which moves neither the
-minimizer nor the gradient) takes the attainable gradient from `1.9e-9`
-at \\f^{\*} = 0\\ to `4.4e-8` at \\f^{\*} = 1\\ and `6.5e-5` at \\f^{\*}
-= 10^{6}\\. The default suits an objective of order one at its solution,
-as a log-likelihood per observation is; an objective that lands in the
-millions needs a correspondingly looser tolerance, and one that lands at
-zero can be asked for much more.
-
-Only usable by a method that computes a gradient; a derivative-free
-optimizer rejects it rather than accepting a rule that can never fire.
+\\\lambda\\. Once it falls below the rounding error of the objective,
+about \\\varepsilon \lvert f \rvert\\, no step can be verified and the
+search stops, so the smallest attainable gradient is about \\\sqrt{2
+\lambda \varepsilon \lvert f^{\*} \rvert}\\ and grows with the value at
+the solution. Adding a constant to the objective moves neither the
+minimizer nor the gradient, but it changes this bound (the last example
+below). The default suits an objective of order one at its solution,
+such as a log-likelihood divided by the number of observations; an
+objective whose minimum is of the order of millions needs a larger
+tolerance, and one whose minimum is zero admits a much smaller one.
 
 ## See also
 
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
-for what a derivative-free method reads,
+for the rule of a derivative-free method,
 [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
-for the disjunction the gradient methods default to,
+for the disjunction that the gradient methods use by default,
 [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
-for the battery the attainable-gradient figures come from.
+for the problems of the examples.
 
 ## Examples
 

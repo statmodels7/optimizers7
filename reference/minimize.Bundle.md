@@ -24,6 +24,6 @@ acceptance test that turns each trial into a serious step or a null one.
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-whose `gradient` is the **aggregate** subgradient, the one quantity of
-that shape which goes to zero at a solution, and whose `message` reports
-the serious and null step counts.
+whose `gradient` is the **aggregate** subgradient, which tends to zero
+at a solution, and whose `message` reports the numbers of serious and
+null steps.

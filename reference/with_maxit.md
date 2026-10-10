@@ -3,9 +3,9 @@
 Returns a copy of the optimizer with `maxit` replaced, keeping its class
 and every other setting.
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-needs it for check 3, which starves an optimizer of iterations to see
-whether it still claims convergence, and it cannot name the class it was
-handed.
+uses it for check 3, which gives an optimizer a single iteration and
+tests that it does not report convergence, and which receives an
+optimizer of any class.
 
 ## Usage
 
@@ -33,8 +33,10 @@ An optimizer of the same class as `optimizer`.
 
 The default method sets the property with
 [`S7::set_props()`](https://rconsortium.github.io/S7/reference/props.html),
-which is right for any optimizer whose own budget is the one the run
-obeys. A wrapper needs a method of its own so that the change reaches
-the optimizer inside;
+which is correct for an optimizer whose own budget governs the run. A
+wrapper needs a method of its own so that the change reaches the
+optimizer inside;
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-has one.
+and
+[`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
+have one.

@@ -1,10 +1,10 @@
 # Backtracking Line Search with the Armijo Condition
 
-Halves the step until the objective decreases by enough: \$\$f(x +
-\alpha d) \leq f(x) + c_1 \alpha\\ g^\top d .\$\$ Evaluates the
-objective at each trial point and never the gradient, which makes it the
-cheap line search and the one a method with no curvature approximation
-to protect should use.
+Multiplies the step by `shrink` until the objective decreases by enough:
+\$\$f(x + \alpha d) \leq f(x) + c_1 \alpha\\ g^\top d .\$\$ It evaluates
+the objective at each trial point and never the gradient, which makes it
+the cheaper line search, suited to a method that keeps no curvature
+approximation.
 
 ## Usage
 
@@ -17,9 +17,8 @@ armijo(c1 = 1e-04, shrink = 0.5, max_step = 30, resolution = 0)
 - c1:
 
   Sufficient-decrease constant, strictly inside \\(0, 1)\\. Defaults to
-  `1e-4`, the conventional value: it demands a decrease, but only a tiny
-  fraction of what the linear model predicts, so it almost never rejects
-  a sensible step.
+  `1e-4`, the conventional value: it requires a decrease, but only a
+  small fraction of the decrease that the linear model predicts.
 
 - shrink:
 
@@ -28,16 +27,16 @@ armijo(c1 = 1e-04, shrink = 0.5, max_step = 30, resolution = 0)
 
 - max_step:
 
-  Maximum **backtracks** before the search gives up, a positive whole
-  number. Defaults to 30. The name says step and the quantity is a
-  count.
+  Maximum number of **trial points**, the full step included, before the
+  search gives up; a positive whole number. Defaults to 30. The name
+  suggests a length, but the quantity is a count.
 
 - resolution:
 
-  The smallest difference in the objective that means anything, in the
-  objective's own units, or a function of no arguments returning it
-  where it moves as the run goes. Defaults to `0`, which does not ask
-  the question. See the section below.
+  The smallest difference in the objective that the objective can
+  resolve, in the units of the objective, or a function of no arguments
+  that returns it when it changes during the run. Defaults to `0`, which
+  disables the test. See the section below.
 
 ## Value
 
@@ -49,60 +48,58 @@ to be passed as an optimizer's `line_search`.
 
 ## Details
 
-The \\c_1 \alpha\\ g^\top d\\ term is essential, and dropping it to test
-merely \\f\_{new} \le f\\ is a real defect. On a quadratic with unit
-step the gradient update reflects the iterate through the minimum,
-leaving the objective *exactly* unchanged; the weak test accepts that
-step, the iterate oscillates for ever, and a stopping rule watching the
-objective sees no change and reports convergence at a point that is not
-a minimum.
+The term \\c_1 \alpha\\ g^\top d\\ is required. A test of \\f\_{new} \le
+f\\ alone accepts steps that leave the objective unchanged: on \\f(x) =
+\lVert x \rVert^2\\, whose Hessian is \\2I\\, a unit step along \\-g\\
+reflects the iterate through the minimum and leaves the objective
+*exactly* unchanged. The weaker test accepts that step, the iterate
+oscillates indefinitely, and a stopping rule that reads the objective
+sees no change and reports convergence at a point that is not a minimum.
 
-The search evaluates the objective at trial points and never the
-gradient. That is enough for a method that has only to make progress. A
-quasi-Newton method needs more, and
+A quasi-Newton method also needs the curvature condition, which
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
-supplies it.
+enforces.
 
 ## What the objective can resolve
 
-An objective computed by a procedure instead of by a formula returns
+An objective computed by a procedure, and not by a formula, can return
 slightly different values for the same argument: a fit warm-started from
-wherever the last evaluation ended, a quadrature whose panels move, a
-simulation. Below that spread its values carry no information, and a
-search asked to verify a smaller decrease backtracks to exhaustion.
+the point where the last evaluation ended, a quadrature whose panels
+move, a simulation. Differences below that spread carry no information,
+and a search that has to verify a smaller decrease backtracks until it
+has used `max_step` trial points.
 
-The test is made **once**, before any trial is paid for, on the
-improvement the method's own linear model predicts over the full step,
-\\\alpha_0 \lvert g^\top d\rvert\\. Where that is below `resolution` the
-search returns immediately, and the run reports that the point is
-optimal to the accuracy the objective has. That is a weaker statement
-than a stopping rule being met, and it is reported in different words.
+The test is made **once**, before the first trial point, on the decrease
+that the linear model of the method predicts over the full step,
+\\\alpha_0 \lvert g^\top d\rvert\\. When that decrease is below
+`resolution` the search returns at once, and the run reports that the
+point is optimal to the accuracy of the objective. That is a weaker
+statement than a stopping rule being met, and the result reports it with
+a different label.
 
-**It is not asked inside the backtracking loop, and that restriction is
-what keeps it safe.** There the two situations cannot be told apart,
-since \\x + \alpha d \to x\\ as the step shrinks and the objective stops
-resolving the change whether the point is optimal or the direction is
-wrong. Tested at the full step they separate: a bad direction predicts a
-large improvement, does not obtain it, and is still reported as the
-failure it is. Measured, with the test inside the loop a mis-stated
-gradient at a point nowhere near stationary was promoted to a converged
-run.
+**The test is not applied inside the backtracking loop.** There the two
+situations cannot be distinguished, since \\x + \alpha d \to x\\ as the
+step shrinks and the objective stops resolving the change whether the
+point is optimal or the direction is wrong. At the full step they
+differ: a wrong direction predicts a large decrease, does not obtain it,
+and the search reports a failure. Inside the loop the test would report
+an incorrect gradient at a point far from stationarity as convergence.
 
-The quantity is the predicted decrease and not the Armijo demand \\c_1
-\alpha_0 \lvert g^\top d\rvert\\, which is four orders smaller and would
-fire where the method still had real progress to make.
+The quantity is the predicted decrease and not the Armijo threshold
+\\c_1 \alpha_0 \lvert g^\top d\rvert\\, which at the default \\c_1 =
+10^{-4}\\ is four orders of magnitude smaller and would fire while the
+method can still make progress.
 
-### A resolution that moves
+### A resolution that changes during the run
 
-Where the objective settles as the run goes, a fit warm-started from the
-previous evaluation locating its own answer better each time, the
-resolution at the start is the reading from the worst point of the whole
-run. Passing a **function** of no arguments instead of a number has it
-asked again at every iteration, once per invocation of the search rather
-than once per trial, so it costs one call an iteration. What the
-function returns is the resolution in force for the step about to be
-taken; a value that is not finite and positive is read as `0`, which
-asks nothing.
+When the objective becomes more precise as the run proceeds (for example
+a fit warm-started from the previous evaluation), the resolution
+measured at the start is the worst value of the whole run. A
+**function** of no arguments passed instead of a number is called at
+every iteration, once per invocation of the search and not once per
+trial, so it costs one call per iteration. Its value is the resolution
+for the step about to be taken; a value that is not finite and positive
+is read as `0`, which disables the test.
 
 ## References
 
@@ -120,7 +117,7 @@ for the curvature condition,
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
 for the relaxed reference value,
 [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
-for the shared contract.
+for the parent class.
 
 ## Examples
 
@@ -134,10 +131,9 @@ minimize(gd(line_search = armijo(shrink = 0.2)),
          function(p) sum((p - 1:2)^2), c(0, 0))@par
 #> [1] 0.9999972 1.9999943
 
-# The cheapness shows where the method has to backtrack often. Under
-# Barzilai-Borwein, which relies on steps that go uphill, an Armijo
-# condition rejects exactly those and the run costs more than twice as
-# much.
+# Barzilai-Borwein relies on steps that go uphill. An Armijo condition
+# rejects every such step, and the run costs more than twice as many
+# evaluations as under the default nonmonotone search.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
@@ -147,7 +143,8 @@ c(armijo      = minimize(bb(line_search = armijo()), f, c(-1.2, 1),
 #>      armijo nonmonotone 
 #>         154          67 
 
-# Constants outside their intervals are refused by name.
+# Constants outside their intervals are rejected, and the error names
+# the argument.
 try(armijo(c1 = 1))
 #> Error : 'c1' must be a single number strictly between 0 and 1.
 try(armijo(shrink = 1.5))

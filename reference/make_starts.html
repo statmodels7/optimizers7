@@ -9,7 +9,7 @@ unconstrained scale so that any bounds are respected by construction."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ unconstrained scale so that any bounds are respected by construction.</p>
 
 
 <dl><dt id="arg-par">par<a class="anchor" aria-label="anchor" href="#arg-par"></a></dt>
-<dd><p>The user's starting value.</p></dd>
+<dd><p>The starting value of the caller.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
@@ -62,7 +62,9 @@ unconstrained scale so that any bounds are respected by construction.</p>
 
 
 <dt id="arg-spread">spread<a class="anchor" aria-label="anchor" href="#arg-spread"></a></dt>
-<dd><p>Half-width of the sampling range, in unconstrained units.</p></dd>
+<dd><p>Scale of the half-width of the sampling range in
+unconstrained units: the half-width is
+\(3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)\).</p></dd>
 
 
 <dt id="arg-bounds">bounds<a class="anchor" aria-label="anchor" href="#arg-bounds"></a></dt>
@@ -76,12 +78,15 @@ returns, possibly empty.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Each coordinate's range is cut into <code>n - 1</code> strata, each used exactly
-once, so the starts cannot all fall in one corner the way independent draws
-can. The range is <code>par</code> plus or minus <code>3 * spread</code> on the
-unconstrained scale, which for an unbounded parameter is the parameter itself
-and for a bounded one is its log or logit. A start for a variance is
-therefore drawn as a log and comes back positive with no rejected draw.</p>
+    <p>The range of each coordinate is cut into <code>n - 1</code> strata, each used
+exactly once, so the starts cannot all fall in one corner, as independent
+draws can. On the unconstrained scale the range is the starting value
+\(\eta_0\) plus or minus
+\(3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)\). The
+unconstrained scale is the parameter itself for an unbounded coordinate
+and its shifted log or scaled logit for a bounded one, so a start for a
+variance is drawn on the log scale and comes back positive, without a
+rejected draw.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

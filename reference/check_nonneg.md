@@ -7,9 +7,10 @@ and
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),
 which is compared as \\s'y \> \mathrm{curv\\tol} \\ \lVert s \rVert
 \lVert y \rVert\\. Zero is admitted and is the textbook curvature
-condition \\s'y \> 0\\; a negative value is refused because it makes the
-comparison hold for every pair, which turns the skip protection off
-without saying so.
+condition \\s'y \> 0\\. A negative value is rejected because it admits
+pairs with \\s'y \le 0\\, which weakens the protection given by the
+skipped updates; by the Cauchy-Schwarz inequality a value below \\-1\\
+admits every pair.
 
 ## Usage
 

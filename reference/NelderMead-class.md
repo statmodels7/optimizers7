@@ -58,10 +58,10 @@ with the five properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `NelderMead` carries
-five of its own: `step` and `simplex` describe where the run begins,
-`adaptive` which coefficients it uses, and `max_restarts` with
-`degenerate_tol` the safeguard.
+Beyond the seven properties of every optimizer, a `NelderMead` carries
+five of its own: `step` and `simplex` describe the starting simplex,
+`adaptive` selects the coefficients, and `max_restarts` and
+`degenerate_tol` control the safeguard.
 
 ## See also
 

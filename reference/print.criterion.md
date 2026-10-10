@@ -1,8 +1,8 @@
 # Print Method for Criteria
 
-Shows a criterion in one line, as `<criterion>` and its label. The label
-is what the result reports in `criterion_met`, so printing a rule shows
-exactly the string a converged run will carry.
+Shows a criterion in one line, as `<criterion>` followed by its label.
+When the rule ends a run, the result reports the same label in
+`criterion_met`.
 
 ## Arguments
 
@@ -34,7 +34,7 @@ crit_any(crit_grad(), crit_rel_obj())
 crit_any(crit_all(crit_grad(), crit_abs_par()), crit_never())
 #> <criterion> gradient (max-norm) < 1e-06 and |dx| < 1e-08 or iteration budget
 
-# And it is the string the result reports.
+# The result of a run that ends on the rule reports the same string.
 r <- minimize(bfgs(criterion = crit_grad()), function(p) sum(p^2), c(1, 1),
               gr = function(p) 2 * p)
 r@criterion_met

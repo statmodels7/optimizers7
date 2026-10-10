@@ -4,8 +4,8 @@ Runs
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
 on the objective: a backtracked gradient step on the smooth part, the
 proximal operator applied to the result, and the momentum extrapolation
-with its restart. Box bounds are refused here, with a message naming
-`prox` as where the constraint belongs.
+with its restart. Box bounds are rejected here, with a message that
+names `prox` as the place for the constraint.
 
 ## Arguments
 

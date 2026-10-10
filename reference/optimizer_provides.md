@@ -1,9 +1,9 @@
 # What an Optimizer Can Offer a Stopping Rule
 
-The names of the `state` components an optimizer is able to fill in, so
-that
+Returns the names of the `state` components that an optimizer supplies,
+so that
 [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-can reject a rule it could never satisfy.
+can reject a rule that the optimizer cannot evaluate.
 
 ## Usage
 
@@ -25,29 +25,39 @@ criteria read are `"gradient"` and `"stationarity"`.
 
 ## Details
 
-The gradient-based methods provide `"gradient"`. The derivative-free
-ones provide `"stationarity"` instead, no single derivative they could
-report going to zero at a solution:
+The gradient-based methods provide `"gradient"`.
+[`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
+[`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md),
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
+[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) and
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
+provide `"stationarity"` instead:
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
-offers the simplex diameter,
+offers the largest distance from the best vertex to another vertex of
+the simplex,
 [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
 the poll size,
+[`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+the half-width of its bracket,
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md)
 Corana's termination measure and
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 its optimality estimate.
+[`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
+evaluates subgradients but does not provide `"gradient"`, since a
+subgradient does not vanish at a kink.
 
-Every optimizer evaluates the objective, so there is no token for that
-and a rule reading the objective is never rejected.
+Every optimizer evaluates the objective, so there is no name for it, and
+a rule that reads the objective is accepted by every method.
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
-answers `"gradient"` and means the proximal gradient mapping, which
-vanishes at a stationary point of the whole objective.
+returns `"gradient"`, and its gradient is the proximal gradient mapping,
+which vanishes at a stationary point of the whole objective.
 
-The **default method** answers `"gradient"`, so an optimizer written
-outside the package claims one unless it says otherwise. Say otherwise
-if it is untrue: the rejection machinery relies on this declaration
-being accurate, and a method that claims a gradient it does not compute
-will accept a rule that can never fire.
+The **default method** returns `"gradient"`, so an optimizer written
+outside the package declares a gradient unless it has a method of its
+own. The rejection relies on this declaration being accurate: a method
+that declares a gradient that it does not compute accepts a rule that
+can never fire.
 
 ## See also
 
@@ -69,7 +79,7 @@ vapply(list(nelder_mead(), compass(), sa(), bundle()),
        optimizer_provides, "")
 #> [1] "stationarity" "stationarity" "stationarity" "stationarity"
 
-# A wrapper answers for whichever run reports the result.
+# A wrapper returns the answer of the run that reports the result.
 optimizer_provides(chain(sa(), bfgs()))
 #> [1] "gradient"
 optimizer_provides(multistart(nelder_mead()))

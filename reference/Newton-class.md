@@ -1,9 +1,12 @@
 # S7 Class for Newton's Method
 
-An optimizer holding the initial step length, the line search, and the
-two settings that decide how an indefinite Hessian is repaired. Built by
+An optimizer holding the initial step length, the line search, the two
+settings that decide how an indefinite Hessian is repaired, and the two
+settings that bound and scale a step. Built by
 [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
-It is the only shipped method that reads the `he` argument of
+Among the shipped methods, only this one and
+[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),
+which inherits from it, read the `he` argument of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 
 ## Usage
@@ -41,7 +44,8 @@ Newton(
 
 - floor:
 
-  The smallest eigenvalue the repaired Hessian may have.
+  The lower bound of the repair; see
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - max_length:
 
@@ -49,8 +53,8 @@ Newton(
 
 - typical:
 
-  `NULL`, or the typical size of each parameter, in whose units the step
-  lengths are read.
+  `NULL`, or the typical size of each parameter, in the units of which
+  the step lengths are measured.
 
 ## Value
 
@@ -60,10 +64,9 @@ with the six properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `Newton` carries
-five: `step` and `line_search`, shared with the other line-search
-methods, and `hessian_mod`, `floor`, `max_length` and `typical`, which
-are its own.
+Beyond the seven properties of every optimizer, a `Newton` carries six:
+`step` and `line_search`, shared with the other line-search methods, and
+`hessian_mod`, `floor`, `max_length` and `typical`, which are its own.
 
 ## See also
 

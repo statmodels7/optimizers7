@@ -30,11 +30,12 @@ error, the check belonging to
 
 ## Details
 
-Strictly inside. A value **on** a bound maps to an infinite \\\eta\\, so
-a run started there begins at infinity and fails far from its cause.
-That is why
+The values must lie strictly inside. A value **on** a bound maps to an
+infinite \\\eta\\, so a run started there would begin at infinity and
+fail far from its cause. For this reason
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-rejects such a starting value by name, before anything is evaluated.
+rejects such a starting value, with an error that names the coordinate,
+before anything is evaluated.
 
 ## See also
 
@@ -52,7 +53,7 @@ bounded_forward(c(0, 1), 0.5)
 #> [1] 0
 
 # A value on a bound has no finite image, so such a starting point is
-# unusable and minimize() refuses it.
+# unusable and minimize() rejects it.
 bounded_forward(c(0, 1), c(0, 1))
 #> [1] -Inf  Inf
 

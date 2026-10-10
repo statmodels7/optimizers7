@@ -1,11 +1,11 @@
 # S7 Class for the Relative Objective Criterion
 
-The rule
-[`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
-builds. It fires when \\\lvert f\_{new} - f\_{old}\rvert \<
-\texttt{tol}\\ (\lvert f\_{old}\rvert + \texttt{tol})\\, so the
-comparison is against the objective's own scale and one tolerance serves
-whatever units the problem is in. It declares nothing through
+The class of the rule built by
+[`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md).
+The rule fires when \\\lvert f\_{new} - f\_{old}\rvert \< \texttt{tol}\\
+(\lvert f\_{old}\rvert + \texttt{tol})\\, so the change is compared with
+the size of the objective and one tolerance serves for any units. It
+declares nothing through
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md).
 
 ## Usage
@@ -29,19 +29,18 @@ carrying `label` and `tol`.
 ## Details
 
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
-returns `FALSE` when `f_old` is `NULL` or not finite, as at the first
-iteration.
+returns `FALSE` when `f_old` is `NULL` or not finite.
 
-The `+ tol` in the denominator is a floor and is load-bearing: an
-objective whose optimum sits at zero would otherwise be compared against
-a vanishing scale, and the rule would either never fire or fire at once.
+The term `+ tol` is a floor on the scale. Without it the threshold would
+be zero at an objective value of zero, and since the comparison is
+strict the rule could never fire at an optimum of zero.
 
 ## See also
 
 [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
 for the constructor,
 [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)
-for the version in the objective's own units.
+for the version in the units of the objective.
 
 ## Examples
 
@@ -49,7 +48,7 @@ for the version in the objective's own units.
 crit_met(crit_rel_obj(1e-6), list(f_new = 1.0000001, f_old = 1.0000002))
 #> [1] TRUE
 
-# The floor is what keeps an optimum at zero usable.
+# With the floor, the rule can fire at an optimum of zero.
 crit_met(crit_rel_obj(), list(f_new = 1e-30, f_old = 0))
 #> [1] TRUE
 ```

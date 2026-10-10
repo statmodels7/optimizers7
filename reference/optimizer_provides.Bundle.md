@@ -1,12 +1,11 @@
 # What the Bundle Method Can Offer a Stopping Rule
 
-Reports `"stationarity"` and withholds `"gradient"`, though the method
-evaluates subgradients and reports their aggregate. The omission is
-deliberate:
+Reports `"stationarity"` and not `"gradient"`, although the method
+evaluates subgradients and reports their aggregate. A rule built on
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-would test a quantity that never goes to zero, since at the minimum of
-\\\lvert x \rvert\\ every subgradient has norm 1, so the rule would sit
-on the answer without firing.
+would test the subgradient at the iterate, which does not tend to zero:
+near the minimum of \\\lvert x \rvert\\ every evaluated subgradient has
+norm 1, so the run would end at the minimizer without the rule firing.
 
 ## Arguments
 
@@ -22,10 +21,11 @@ The character vector `"stationarity"`.
 
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
 reads the optimality estimate \\\lVert p \rVert^{2} + \alpha\\ instead,
-which does go to zero, and is this method's default rule.
+which tends to zero, and is the default rule of this method.
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-also consults this function before its second check, so a bundle run is
-not asked to prove that what it reports as `gradient` is one.
+also reads this declaration before its second check, which therefore
+does not require the `gradient` reported by a bundle run to equal the
+gradient of the objective.
 
 ## Examples
 
@@ -33,7 +33,7 @@ not asked to prove that what it reports as `gradient` is one.
 optimizer_provides(bundle())
 #> [1] "stationarity"
 
-# So a gradient rule is refused when the run starts.
+# A gradient rule is therefore rejected when the run starts.
 f <- function(p) sum(abs(p - c(1, -2)))
 try(minimize(bundle(criterion = crit_grad()), f, c(0, 0),
              gr = function(p) sign(p - c(1, -2))))

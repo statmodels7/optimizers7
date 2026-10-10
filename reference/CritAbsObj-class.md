@@ -1,11 +1,12 @@
 # S7 Class for the Absolute Objective Criterion
 
-The rule
-[`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)
-builds. It reads `state$f_new` and `state$f_old` and fires when they
+The class of the rule built by
+[`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md).
+The rule reads `state$f_new` and `state$f_old` and fires when they
 differ by less than `tol`. It declares nothing through
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
-every optimizer evaluating the objective, so no method refuses it.
+because every optimizer evaluates the objective, so every method accepts
+it.
 
 ## Usage
 
@@ -28,12 +29,11 @@ carrying `label` and `tol`.
 ## Details
 
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
-returns `FALSE` when `f_old` is `NULL` or not finite, which is the state
-at the first iteration, so the rule cannot fire before there are two
-values to compare.
+returns `FALSE` when `f_old` is `NULL` or not finite, so the rule cannot
+fire without two values to compare.
 
-The tolerance is in the objective's own units, so this rule carries the
-scale of the problem with it: `1e-10` means something different for a
+The tolerance is in the units of the objective, so the rule depends on
+the scale of the problem: `1e-10` has a different meaning for a
 log-likelihood of order one and for one of order \\10^{5}\\.
 
 ## See also
@@ -52,7 +52,7 @@ crit_met(crit_abs_obj(1e-6),
          list(f_new = 1.0000001, f_old = 1.0000002))
 #> [1] TRUE
 
-# Nothing to compare against at the first iteration.
+# Without a previous value there is nothing to compare.
 crit_met(crit_abs_obj(), list(f_new = 1, f_old = NULL))
 #> [1] FALSE
 ```

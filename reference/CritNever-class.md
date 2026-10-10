@@ -1,14 +1,14 @@
 # S7 Class for the Empty Criterion
 
-The rule
-[`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md)
-builds. Its
+The class of the rule built by
+[`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md).
+Its
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
-returns `FALSE` at every state without reading anything, so a run
-carrying it ends only when a budget runs out and reports
-`converged = FALSE`. It declares nothing through
+returns `FALSE` at every state without reading it, so a run with this
+rule ends when a budget runs out or when the method stops for a reason
+of its own. It declares nothing through
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
-so no optimizer refuses it.
+so every optimizer accepts it.
 
 ## Usage
 
@@ -24,10 +24,10 @@ carrying `label` alone.
 
 ## Details
 
-It carries no `tol`, having nothing to compare, and is the only
-criterion class with no property beyond `label`.
+It has no `tol`, since it compares nothing, and it is the only criterion
+class with no property beyond `label`.
 [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
-is the one shipped method that defaults to it.
+is the only shipped method that uses it by default.
 
 ## See also
 

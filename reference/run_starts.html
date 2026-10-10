@@ -9,7 +9,7 @@ processes, and cleans up after itself."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,8 @@ processes, and cleans up after itself.</p>
 
 
 <dl><dt id="arg-one">one<a class="anchor" aria-label="anchor" href="#arg-one"></a></dt>
-<dd><p>A function of the start's index, returning a result or a message.</p></dd>
+<dd><p>A function of the index of the start, returning a result or a
+message.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
@@ -79,25 +80,25 @@ processes, and cleans up after itself.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Three routes, chosen here so that the caller need not.</p>
-<p>One process is the sequential loop, and it is the only route that can report
-progress as it goes, a worker having nowhere to print to that the caller
-would see.</p>
-<p>On a Unix-alike the workers are <strong>forks</strong>, through
-<code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>. A fork starts in microseconds and inherits this
-session entire, so there is nothing to load and nothing to export. That
-includes a package loaded with <span class="pkg">pkgload</span>, so this route works during
-development where a socket cluster does not.</p>
-<p>On Windows there is no <code>fork</code>, so a <strong>socket cluster</strong> is started
-here and stopped on exit. Its workers are fresh sessions that know nothing, so
-<span class="pkg">optimizers7</span> has to be loaded on them; when it cannot be, because it is
-not installed anywhere they can see, this warns and runs sequentially rather
-than failing. A slower answer beats an error about <code>checkForRemoteErrors</code>
-for someone who only asked for several starting points.</p>
-<p>Both parallel routes seed their workers from this session's stream, so
-<code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproduces the run and reproduces it identically whatever
-<code>ncores</code> was. The generator is set to <code>"L'Ecuyer-CMRG"</code> for the
-duration and put back afterwards, that being the only kind <span style="R">R</span> can split into
+    <p>There are three routes, chosen here so that the caller need not choose.</p>
+<p>One process is the sequential loop, and it is the only route that reports
+progress during the run, since a worker has no output that the caller
+would see. When <span class="pkg">optimizers7</span> was loaded with <span class="pkg">pkgload</span>, this
+route is used whatever <code>ncores</code> is.</p>
+<p>On a Unix-alike the workers are <strong>forks</strong>, through <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code>.
+A fork starts in microseconds and inherits the whole session, so nothing
+has to be loaded or exported.</p>
+<p>On Windows there is no <code>fork</code>, so a <strong>socket cluster</strong> is started here and
+stopped on exit. Its workers are new sessions, so <span class="pkg">optimizers7</span> has to
+be loaded on them; when that is not possible, because the package is not
+installed in a library that they can see, the function gives a warning
+and runs the starts sequentially instead of failing.</p>
+<p>Both parallel routes seed their workers from the stream of this session,
+so <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproduces the run. For a deterministic inner optimizer
+the result is the same for every <code>ncores</code>; for one that draws random
+numbers, such as <code><a href="sa.html">sa()</a></code>, it depends on the assignment of the streams to
+the workers. The generator is set to <code>"L'Ecuyer-CMRG"</code> for the duration
+and restored afterwards, since it is the only kind that <span style="R">R</span> can split into
 independent streams.</p>
     </div>
 

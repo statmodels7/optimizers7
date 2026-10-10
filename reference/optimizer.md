@@ -1,11 +1,11 @@
 # S7 Class for Optimization Algorithms
 
 The abstract parent of every algorithm in the package. An optimizer
-object carries the algorithm and every setting the algorithm obeys: its
-stopping rule, its two budgets, what it reports as it goes and what it
-keeps. It is built once and can be reused, printed, stored beside a
-result and passed around, so nothing about a run is hidden inside the
-call that started it.
+object carries the algorithm and every setting that the algorithm uses:
+its stopping rule, its two budgets, what it reports during the run and
+what it keeps. It is built once and can be reused, printed, stored
+beside a result and passed around, so that all the settings of a run are
+stored in the object and not in the call that started it.
 
 ## Usage
 
@@ -26,8 +26,7 @@ optimizer(
 - name:
 
   A short character name, shown when the object is printed and carried
-  into the result. Set by each constructor; a caller has no reason to
-  supply it.
+  into the result. Set by each constructor; a caller does not supply it.
 
 - criterion:
 
@@ -42,20 +41,20 @@ optimizer(
 - maxit:
 
   Maximum iterations, a single number at least 1 and **finite**. `Inf`
-  is refused: a run with no last resort can hang on an objective that
-  never satisfies its rule.
+  is rejected, because a run without a last resort can run forever on an
+  objective that never satisfies its rule.
 
 - max_eval:
 
   Maximum evaluations of the objective, a single number at least 1.
-  `Inf` is the default and is allowed, so the budget is off unless it is
-  asked for. A run stopped here reports `converged = FALSE`, the budget
-  having ended it rather than the rule.
+  `Inf` is the default and is allowed, so the budget is off unless a
+  finite value is given. A run stopped here reports `converged = FALSE`,
+  because the budget ended it and not the rule.
 
 - verbose:
 
-  `TRUE` or `FALSE`; whether to report progress as the run goes. `NA` is
-  refused.
+  `TRUE` or `FALSE`; whether to report progress during the run. `NA` is
+  rejected.
 
 - refresh:
 
@@ -65,8 +64,9 @@ optimizer(
 
 - keep_trace:
 
-  `TRUE` or `FALSE`; whether to store the iteration path in the result's
-  `trace` field. Off by default, the path costing one row per iteration.
+  `TRUE` or `FALSE`; whether to store the iteration path in the `trace`
+  field of the result. Off by default, since the path costs one row per
+  iteration.
 
 ## Value
 
@@ -77,29 +77,30 @@ An S7 object of class `optimizer`, with properties `name` (character),
 `keep_trace` (logical). The class is abstract, so it is never returned
 directly: every value is an object of one of its subclasses.
 
-## The seven properties every algorithm has
+## The seven properties of every algorithm
 
-Each algorithm is a subclass adding the settings that are its own:
-[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
-a Hessian repair,
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-a curvature tolerance,
-[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
-its three decay rates. The seven below are common to all of them, so a
-caller can replace one optimizer with another and leave every other line
-alone. [`print()`](https://rdrr.io/r/base/print.html) shows the shared
-settings first and the algorithm's own on a `settings` line.
+Each algorithm is a subclass that adds its own settings: a Hessian
+repair for
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md),
+a curvature tolerance for
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+the two moment decay rates for
+[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md).
+The seven properties below are common to all of them, so a caller can
+replace one optimizer with another and leave the rest of the call
+unchanged. [`print()`](https://rdrr.io/r/base/print.html) shows the
+stopping rule and the two budgets, and then the settings of the
+algorithm on a `settings` line; `verbose`, `refresh` and `keep_trace`
+are not shown.
 
-## The two budgets are different budgets
+## The iteration and evaluation budgets
 
-`maxit` bounds progress and `max_eval` bounds work, and they diverge
-whenever a line search is expensive: one iteration may spend many
-evaluations, and a search that backtracks thirty times is invisible to
-`maxit`. On Rosenbrock from the customary start,
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
-with no cap takes 35 iterations and 210 evaluations; capped at
-`max_eval = 40` it stops after 7 iterations and 42 evaluations,
-reporting `converged = FALSE` and `evaluation budget exhausted`.
+`maxit` bounds the iterations and `max_eval` bounds the evaluations of
+the objective, and the two differ whenever a line search is expensive:
+one iteration may spend many evaluations, and the number of backtracks
+does not count towards `maxit`. A run stopped by `max_eval` reports
+`converged = FALSE`, with `criterion_met` equal to
+`evaluation budget reached` (see the examples).
 
 `maxit` must be finite, because it is the stop of last resort;
 `max_eval` may be `Inf`, which is its default.
@@ -111,7 +112,7 @@ for the run,
 [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
 for the stopping rule,
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-for what a subclass of your own has to promise.
+for the checks that a new subclass has to pass.
 
 ## Examples
 
@@ -121,7 +122,8 @@ try(optimizer(name = "mine"))
 #> Error in new_object(S7_object(), name = name, criterion = criterion, maxit = maxit,  : 
 #>   Can't construct an object from abstract class <optimizer>
 
-# The same seven properties on every algorithm, plus each one's own.
+# The same seven properties on every algorithm, and the properties of
+# each one.
 shared <- c("name", "criterion", "maxit", "max_eval", "verbose",
             "refresh", "keep_trace")
 stopifnot(all(shared %in% names(S7::props(nelder_mead()))))
@@ -131,7 +133,8 @@ setdiff(names(S7::props(newton())), shared)
 setdiff(names(S7::props(adam())), shared)
 #> [1] "alpha"   "beta1"   "beta2"   "eps"     "decay"   "amsgrad"
 
-# Printing shows the rule and the budgets before anything algorithm-specific.
+# Printing shows the rule and the budgets before the settings of the
+# algorithm.
 bfgs()
 #> <optimizer> BFGS
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08

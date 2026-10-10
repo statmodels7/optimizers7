@@ -2,22 +2,21 @@
 
 Almost every R package that fits a model carries its own optimizer,
 written inside the function that needs it: a loop, a
-`while (!converged)`, a tolerance compared against whatever quantity the
-author had to hand. Nothing outside can reuse it, extend it, or ask it
-for anything its author did not happen to need. The stopping rule, which
-decides what the whole procedure means by *finished*, is usually a
-number buried three levels down.
+`while (!converged)`, a tolerance compared with a quantity chosen by the
+author. Such an optimizer cannot be reused or extended outside the
+package, and it provides only the quantities that its author needed. The
+stopping rule, which defines what the procedure means by *finished*, is
+usually a constant deep inside the code.
 
-[optimizers7](https://statmodels7.github.io/optimizers7/) writes them
-once, as objects. An optimizer carries its algorithm and every setting
-that algorithm obeys; a stopping rule is a separate object that can be
-replaced, combined, or written from scratch; and every algorithm is
-written once against one objective interface.
+[optimizers7](https://statmodels7.github.io/optimizers7/) writes
+optimizers once, as objects. An optimizer carries its algorithm and
+every setting of that algorithm; a stopping rule is a separate object
+that can be replaced, combined, or written by the user; and every
+algorithm is written once against one interface for the objective.
 
-The package is deliberately narrow. An optimizer here minimizes the
-function it is given, with no notion of an observation, of where the
-data came from, or of what the parameters mean. Everything that needs
-that knowledge belongs to the caller that has it.
+The package minimizes the function that it is given, with no notion of
+an observation, of the origin of the data, or of the meaning of the
+parameters. Those belong to the calling package.
 
 It is the optimization layer of
 [statmodels7](https://statmodels7.github.io), alongside
@@ -32,17 +31,17 @@ It is the optimization layer of
 pak::pak("statmodels7/optimizers7")
 ```
 
-Or the whole toolkit at once, which also installs the six sibling
-packages:
+Or the whole toolkit at once, which also installs the other packages of
+the toolkit:
 
 ``` r
 
 pak::pak("statmodels7/statmodels7")
 ```
 
-## The shape of it
+## Minimizing a function
 
-Everything minimizes, always, through one generic:
+Every algorithm minimizes, through one generic:
 
 ``` r
 
@@ -55,12 +54,12 @@ minimize(bfgs(), f, par = c(-1.2, 1), gr = gr)
 #>   value      : 3.21085e-13
 #>   par        : 1 1
 #>   iterations : 35   evaluations: f 49, g 39
-#>   elapsed    : 10 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```
 
-Swapping the algorithm changes one word, because every optimizer carries
-the same settings:
+Changing the algorithm changes one word, because every optimizer carries
+the same shared settings:
 
 ``` r
 
@@ -72,11 +71,10 @@ minimize(nelder_mead(), f, c(-1.2, 1))@par
 #> [1] 1 1
 ```
 
-## The stopping rule is an object
+## Stopping rules
 
-A rule buried inside an algorithm fixes, at the moment the package is
-written, what everyone downstream is allowed to mean by convergence.
-Here it is a value:
+A rule written inside an algorithm fixes the meaning of convergence when
+the package is written. Here a rule is an object:
 
 ``` r
 
@@ -98,8 +96,9 @@ minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
 #> [1] "f < 1e-8"
 ```
 
-A rule an optimizer cannot evaluate is **rejected**, by name, rather
-than accepted and left never to fire:
+A rule that an optimizer cannot evaluate is **rejected** when the run
+starts, with an error that names the missing quantity, instead of being
+accepted and never firing:
 
 ``` r
 
@@ -109,12 +108,15 @@ minimize(nelder_mead(criterion = crit_grad()), f, c(-1.2, 1))
 #>   Choose a criterion this optimizer can evaluate, or a method that provides it.
 ```
 
-## Bounds are removed, not enforced
+## Bounds by reparametrization
 
 Each bounded coordinate is reparametrized onto the whole real line, so
-every point proposed is admissible by construction: there is no
-rejection step, no boundary for a line search to trip over, and any
-method gets bounds without knowing they exist:
+every proposed point is admissible by construction: there is no
+rejection step and no boundary for a line search to cross, and a method
+needs no code of its own for bounds. The exception is
+[`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md),
+which takes its constraint through its proximal operator and rejects
+`lower` and `upper`:
 
 ``` r
 
@@ -129,11 +131,11 @@ sqrt(mean(y^2))
 
 ## Starting values that need not be written out
 
-`par` may be a starter rather than a vector. Both starters work on the
-*unconstrained* scale and are mapped back through the bounds. Working on
-that scale makes one constant sensible for every kind of parameter,
-since zero becomes one for a variance and one half for a probability,
-and it makes it impossible for a draw to land outside its box:
+`par` may be a starter instead of a vector. Both starters work on the
+*unconstrained* scale and are mapped back through the bounds. On that
+scale one constant suits every kind of parameter, since zero becomes one
+for a variance and one half for a probability, and every draw lies
+inside its box:
 
 ``` r
 
@@ -147,23 +149,23 @@ minimize(bfgs(), rss, start_runif(-2, 2))@par   # or drawn, on that scale
 #> [1]  0.5175641 -1.0649279  1.9870314
 ```
 
-The number of parameters is settled by whichever of three things the
-caller supplies: `start_zeros(npar = 3)`, bounds with one element per
-parameter, or, as above, the objective itself, probed once before the
-run. `X %*% p` of the wrong length is an error rather than a number, so
-a model of any kind answers the question on its own. A vectorized toy
-that accepts every length cannot, and the rejection names the problem
-rather than guessing.
+The number of parameters is given by `start_zeros(npar = 3)`, by bounds
+with one element per parameter, or, as above, by the objective itself,
+probed once before the run. `X %*% p` with a parameter of the wrong
+length is an error and not a number, so an objective written as a matrix
+product determines the length. A vectorized expression that accepts
+several lengths does not, and the probe then raises an error that names
+the lengths accepted.
 
-## When the derivative does not exist
+## Objectives without a derivative at the minimum
 
-A descent method walks to the minimum of a sum of absolute deviations
-and then reports that it did not converge. The report is correct,
-because the subgradient it evaluates there has norm 1 and never becomes
-small.
+A descent method reaches the minimum of a sum of absolute deviations and
+then reports that it did not converge. The report is correct, because
+the subgradient that it evaluates near the minimum has norm 1 and does
+not become small.
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 keeps a *collection* of subgradients and tests whether zero lies in
-their convex hull, which is the statement that holds at the minimizer:
+their convex hull, which is the condition that holds at the minimizer:
 
 ``` r
 
@@ -178,7 +180,7 @@ c(bfgs   = minimize(bfgs(), sad, par = 0, gr = sub)@converged,
 
 c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 #>     bundle     median 
-#> 0.06462704 0.06462703
+#> 0.06462703 0.06462703
 ```
 
 ## What is here
@@ -186,37 +188,45 @@ c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 |  |  |
 |----|----|
 | second order | [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md), [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md), [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md) |
+| third order | [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md) |
 | first order | [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md), [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md), [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md) |
 | noisy objectives, and long parameter vectors | [`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md) |
-| no derivative at all | [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md), [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md) |
+| no derivative | [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md), [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md) |
+| one parameter | [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md) |
+| global search | [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) |
 | non-smooth, with subgradients | [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md) |
-| wrapping any of them | [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md), parallel by default |
+| non-smooth, with a proximal operator | [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md) |
+| wrappers | [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md), parallel by default, and [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md) |
 | line searches | [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md), [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md), [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md) |
 | starting values | [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md), [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md) |
 | stopping rules | [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md), [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md), [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md), [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md), [`crit_rel_par()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_par.md), [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md), [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md), and [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md) / [`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md) to combine them |
 
-Every method reports which safeguards fired, counts its own evaluations,
-and sets `converged` only when the stopping rule was satisfied, never
-because the iteration budget ran out.
+Every method counts its own evaluations, records in its trace the
+safeguards that fired, and sets `converged` only when the run ended on
+its stopping rule (or on the resolution of the objective), never because
+a budget ran out.
 
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-runs its starts in parallel and there is nothing to set up: `ncores` is
-a number, defaulting to as many processes as there are starts and never
-more than the machine can spare. Starting the workers, loading the
-package on them, giving each an independent stream and shutting them
-down again all happen inside and are undone before it returns. The
-implementation uses forks on Linux and macOS and a socket cluster on
-Windows, and [`set.seed()`](https://rdrr.io/r/base/Random.html)
-reproduces the run identically on either, however many cores were used.
+runs its starts in parallel without any setup: `ncores` is a number, by
+default as many processes as there are starts and at most the number of
+cores minus two. Starting the workers, loading the package on them,
+giving each an independent random stream and shutting them down happen
+inside the call. The implementation uses forks on Linux and macOS and a
+socket cluster on Windows. For a deterministic optimizer such as
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+[`set.seed()`](https://rdrr.io/r/base/Random.html) reproduces the run
+identically however many cores were used; for a stochastic one such as
+[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) the
+result depends on `ncores`.
 
 ## Validating an optimizer
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-verifies the contract: that `value` is the objective at `par`, that a
-reported gradient is the gradient there, that bounds hold *strictly*,
-and that a run repeats. It then reports how the method did on the
-standard test problems, separately, because performance and correctness
-are different questions:
+runs twelve checks on what an optimizer reports: that `value` is the
+objective at `par`, that a reported gradient is the gradient there, that
+bounds hold *strictly*, that a run repeats, and others. It then reports,
+separately, the gaps that the method reached on the standard test
+problems, because performance and correctness are different questions:
 
 ``` r
 
@@ -250,9 +260,9 @@ check_optimizer(bfgs())
 
 ## Related
 
-- [linkfunctions7](https://statmodels7.github.io/linkfunctions7/) — link
-  functions with exact derivatives to fourth order
-- [distributions7](https://statmodels7.github.io/distributions7/) —
-  distributions carrying exact derivatives of the log-likelihood
-- [the book](https://statmodels7.github.io/book/) — the mathematics
-  behind the toolkit
+- [linkfunctions7](https://statmodels7.github.io/linkfunctions7/): link
+  functions with exact derivatives to fifth order
+- [distributions7](https://statmodels7.github.io/distributions7/):
+  distributions with exact derivatives of the log-likelihood
+- [the book](https://statmodels7.github.io/book/): the mathematics of
+  the toolkit

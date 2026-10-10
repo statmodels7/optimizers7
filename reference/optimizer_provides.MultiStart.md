@@ -1,7 +1,7 @@
 # What Multi-Start Can Offer a Stopping Rule
 
-Whatever the inner optimizer offers, since it is the inner optimizer
-that evaluates the rule.
+The answer of the inner optimizer, since the inner optimizer evaluates
+the rule.
 
 ## Arguments
 

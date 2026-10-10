@@ -3,8 +3,8 @@
 Runs
 [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
 on the objective: poll the directions around the current point at the
-current radius, move to an improvement if one is found and expand, and
-shrink the radius when the poll fails everywhere.
+current radius, move to an improvement if one is found and expand the
+radius, and shrink the radius when the poll fails in every direction.
 
 ## Arguments
 
@@ -23,7 +23,7 @@ shrink the radius when the poll fails everywhere.
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-whose `gradient` is `NULL` and whose trace carries a `stationarity`
-column holding the poll size. With `directions = "mads"` the `seed` is
-recorded, the poll drawing from R's generator; with `"coordinate"` it is
-`NULL` and the run repeats without one.
+whose `gradient` is `NULL` and whose trace has a `stationarity` column
+holding the poll size. With `directions = "mads"` the `seed` is
+recorded, since the poll draws from the generator of R; with
+`"coordinate"` it is `NULL` and the run repeats without a seed.

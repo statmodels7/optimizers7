@@ -1,12 +1,12 @@
 # S7 Class for the Gradient Criterion
 
-The rule
-[`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-builds, and the two methods it implements. It reads `state$gradient`,
-takes its max-norm or its 2-norm, and fires when that falls below `tol`.
-It declares `"gradient"` through
+The class of the rule built by
+[`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md),
+and its two methods. The rule reads `state$gradient`, takes its max-norm
+or its 2-norm, and fires when that norm falls below `tol`. It declares
+`"gradient"` through
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
-so a derivative-free optimizer refuses it when the run starts.
+so a derivative-free optimizer rejects it when the run starts.
 
 ## Usage
 
@@ -33,11 +33,10 @@ carrying `label`, `tol` and `norm`.
 ## Details
 
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
-returns `FALSE` when the gradient is `NULL`, empty or carries an `NA`,
-so a state that has not yet filled it in never accidentally satisfies
-the rule. Which norm is used is the `norm` property: on a gradient of
-\\(3, 4)\\, `crit_grad(4.5, "max")` fires and `crit_grad(4.5, "2")` does
-not.
+returns `FALSE` when the gradient is `NULL`, empty or contains an `NA`,
+so a state without a gradient never satisfies the rule. The `norm`
+property selects the norm: on a gradient of \\(3, 4)\\,
+`crit_grad(4.5, "max")` fires and `crit_grad(4.5, "2")` does not.
 
 ## See also
 

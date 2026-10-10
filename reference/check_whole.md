@@ -1,19 +1,22 @@
 # Validate a Non-Negative Whole Number
 
-Checks that the value is a single whole number, zero included. Used
-where a count says how many of something to tolerate, so that zero says
-*tolerate none* and is a legitimate setting:
-[`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)'s
-`memory`, where zero makes the reference the current value and the
-search is
-[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
-exactly, and
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)'s
-`max_skip`, where zero resets the approximation on the first skipped
-update.
+Checks that the value is a single whole number, zero included, no larger
+than `.Machine$integer.max`. Used where a count says how many of
+something to tolerate, so that zero means that none is tolerated: the
+`memory` of
+[`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
+where zero makes the reference the current value and the search
+identical to
+[`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md),
+and the `max_skip` of
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+where zero resets the approximation on the first skipped update.
 
-A negative value is refused because the kernel compares against it with
-`>=`, so any negative setting behaves as zero without saying so.
+A negative value is rejected because the compiled code treats it as
+zero: it compares `max_skip` with `>=` and tests `memory > 0`. An
+infinite value is rejected because
+[`as.integer()`](https://rdrr.io/r/base/integer.html) would turn it into
+`NA`.
 
 ## Usage
 

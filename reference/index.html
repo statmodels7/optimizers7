@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@
     <div class="section level2">
       <h2 id="running-an-optimization">Running an optimization<a class="anchor" aria-label="anchor" href="#running-an-optimization"></a></h2>
 
-      <div class="section-desc"><p>One generic for every algorithm. Which of the three shapes the objective arrived in is settled separately, so an algorithm is written once.</p></div>
+      <div class="section-desc"><p>One generic for every algorithm. The kind of objective is handled separately, by <code><a href="../reference/as_objective.html">as_objective()</a></code>, so an algorithm is written once.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -68,7 +68,7 @@
       </dl></div><div class="section level2">
       <h2 id="smooth-problems">Smooth problems<a class="anchor" aria-label="anchor" href="#smooth-problems"></a></h2>
 
-      <div class="section-desc"><p>Methods that build a model of the surface from derivatives. Fast when the objective is smooth, and misled when it is not.</p></div>
+      <div class="section-desc"><p>Methods that use derivatives of the objective. They are fast when the objective is smooth, and they cannot certify a solution at a kink.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -126,7 +126,7 @@
       </dl></div><div class="section level2">
       <h2 id="noisy-and-large-problems">Noisy and large problems<a class="anchor" aria-label="anchor" href="#noisy-and-large-problems"></a></h2>
 
-      <div class="section-desc"><p>Adam, which tolerates a gradient that points downhill only on average. It draws no minibatches of its own: an objective that resamples is a closure, written by the caller, who knows what an observation is.</p></div>
+      <div class="section-desc"><p>Adam, which tolerates a gradient that points downhill only on average. It draws no minibatches of its own: an objective that resamples is a closure written by the caller, who defines what an observation is.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -142,7 +142,7 @@
       </dl></div><div class="section level2">
       <h2 id="problems-with-a-kink">Problems with a kink<a class="anchor" aria-label="anchor" href="#problems-with-a-kink"></a></h2>
 
-      <div class="section-desc"><p>Where a descent method arrives at the answer and cannot certify it, because the subgradient it evaluates never becomes small.</p></div>
+      <div class="section-desc"><p>Methods for objectives with kinks, at which a descent method reaches the solution without being able to certify it, because the subgradient that it evaluates does not become small. <code><a href="../reference/bundle.html">bundle()</a></code> tests whether zero lies in the convex hull of its subgradients, <code><a href="../reference/prox_grad.html">prox_grad()</a></code> handles the kink through a proximal operator, and <code><a href="../reference/nelder_mead.html">nelder_mead()</a></code> and <code><a href="../reference/compass.html">compass()</a></code> use no derivative.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -195,7 +195,7 @@
       </dl></div><div class="section level2">
       <h2 id="searching-before-descending">Searching before descending<a class="anchor" aria-label="anchor" href="#searching-before-descending"></a></h2>
 
-      <div class="section-desc"><p>A global search for the problems where the answer depends on which basin the run began in. It is meant to hand its result to a local method rather than to finish the job itself.</p></div>
+      <div class="section-desc"><p>A global search for problems on which the answer depends on the basin in which the run begins. Its result is meant to be passed to a local method, which finds the minimum.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -211,7 +211,7 @@
       </dl></div><div class="section level2">
       <h2 id="wrapping-an-optimizer">Wrapping an optimizer<a class="anchor" aria-label="anchor" href="#wrapping-an-optimizer"></a></h2>
 
-      <div class="section-desc"><p>Both are themselves optimizers, so they compose with everything above and with each other. Multi-start reports what a single run cannot, the number of distinct optima; a chain runs its stages in order, each starting where the previous finished.</p></div>
+      <div class="section-desc"><p>Both are themselves optimizers, so they combine with every method above and with each other. A multi-start reports the number of distinct optimal values reached from its starts; a chain runs its stages in order, each starting where the previous one finished.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -234,7 +234,7 @@
       </dl></div><div class="section level2">
       <h2 id="stopping-rules">Stopping rules<a class="anchor" aria-label="anchor" href="#stopping-rules"></a></h2>
 
-      <div class="section-desc"><p>A criterion is an object implementing one generic, so a user-defined rule is treated like a shipped one. An optimizer rejects a rule it cannot evaluate rather than accepting one that never fires.</p></div>
+      <div class="section-desc"><p>A criterion is an object that implements one generic, so a user-defined rule is treated like a shipped one. An optimizer rejects a rule that it cannot evaluate instead of accepting one that never fires.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -309,7 +309,7 @@
           <code><a href="crit_never.html">crit_never()</a></code>
 
         </dt>
-        <dd>Never Stop Early</dd>
+        <dd>The Rule That Never Fires</dd>
 
         <dt>
 
@@ -327,7 +327,7 @@
       </dl></div><div class="section level2">
       <h2 id="line-searches">Line searches<a class="anchor" aria-label="anchor" href="#line-searches"></a></h2>
 
-      <div class="section-desc"><p>How far to go along a direction, once the direction is chosen. The non-monotone rule is not an exotic option: a method whose step length is itself the method, as Barzilai-Borwein’s is, needs a search that does not reshape it.</p></div>
+      <div class="section-desc"><p>How far to go along a direction, once the direction is chosen. The nonmonotone search is the default of the Barzilai-Borwein method, whose step length is the method itself and which relies on steps that increase the objective.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -364,7 +364,7 @@
       </dl></div><div class="section level2">
       <h2 id="starting-values">Starting values<a class="anchor" aria-label="anchor" href="#starting-values"></a></h2>
 
-      <div class="section-desc"><p>A starter stands in for the vector of starting values, and is resolved on the unconstrained scale, so a single constant means something sensible for every kind of parameter and no draw can land outside its bounds.</p></div>
+      <div class="section-desc"><p>A starter takes the place of the vector of starting values and is resolved on the unconstrained scale, so a single constant gives a sensible value for every kind of parameter and every draw lies inside its bounds.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -408,7 +408,7 @@
       </dl></div><div class="section level2">
       <h2 id="the-objective">The objective<a class="anchor" aria-label="anchor" href="#the-objective"></a></h2>
 
-      <div class="section-desc"><p>A function of the parameter vector. The generic is the extension point: a caller with its own kind of objective registers one method and every algorithm accepts it.</p></div>
+      <div class="section-desc"><p>A function of the parameter vector. The generic is the extension point: a caller with another kind of objective registers one method and every algorithm accepts that objective.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -422,9 +422,9 @@
         </dt>
         <dd>Normalize an Objective for the Optimizers</dd>
       </dl></div><div class="section level2">
-      <h2 id="writing-an-optimizer-of-your-own">Writing an optimizer of your own<a class="anchor" aria-label="anchor" href="#writing-an-optimizer-of-your-own"></a></h2>
+      <h2 id="writing-a-new-optimizer">Writing a new optimizer<a class="anchor" aria-label="anchor" href="#writing-a-new-optimizer"></a></h2>
 
-      <div class="section-desc"><p>What a <code><a href="../reference/minimize.html">minimize()</a></code> method of your own has to promise, and the pieces that let it. <code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> tests the contract; the battery under it reports the power; they are separate because they are different questions.</p></div>
+      <div class="section-desc"><p>The requirements on a new <code><a href="../reference/minimize.html">minimize()</a></code> method, and the functions that help to meet them. <code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> runs twelve checks on what an optimizer reports, and reports separately the gaps that it reaches on the test problems, since performance and correctness are different questions.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -485,7 +485,7 @@
           <code><a href="check_optimizer.html">check_optimizer()</a></code>
 
         </dt>
-        <dd>Check That an Optimizer Keeps Its Promises</dd>
+        <dd>Check What an Optimizer Reports</dd>
 
         <dt>
 

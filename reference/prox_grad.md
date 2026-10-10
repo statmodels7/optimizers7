@@ -2,9 +2,10 @@
 
 Minimizes \\f(x) + g(x)\\ where \\f\\ is smooth and \\g\\ is handled
 entirely through its proximal operator, so that a non-differentiable
-term is minimized without ever differencing it. With `accelerate = TRUE`
-the method is the accelerated one of Beck and Teboulle, whose objective
-gap falls as \\O(1/k^2)\\ against the \\O(1/k)\\ of the plain iteration.
+term is minimized without being differenced. With `accelerate = TRUE`
+the method is an accelerated iteration of the kind of Beck and Teboulle,
+with momentum weight \\(k-1)/(k+2)\\, whose objective gap falls as
+\\O(1/k^2)\\ against the \\O(1/k)\\ of the plain iteration.
 
 ## Usage
 
@@ -57,9 +58,8 @@ prox_grad(
 - restart:
 
   Reset the momentum when the objective increases by more than the
-  objective's own rounding? Defaults to `TRUE`, and is ignored when
-  `accelerate` is `FALSE`. See the measured cost at a tight tolerance
-  above.
+  allowance for its rounding error? Defaults to `TRUE`, and is ignored
+  when `accelerate` is `FALSE`. See the details about a tight tolerance.
 
 - criterion:
 
@@ -97,8 +97,8 @@ inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
 to be handed to
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-Box bounds are refused: pass the constraint through `prox` instead,
-composing the projection onto the box into it.
+Box bounds are rejected: pass the constraint through `prox` instead,
+composing the projection onto the box with the operator.
 
 ## Details
 
@@ -107,81 +107,60 @@ proximal operator to the result, \$\$x\_{k+1} = \mathrm{prox}\_{t
 g}\big(y_k - t\nabla f(y_k)\big),\$\$ with \\y_k = x_k\\ for the plain
 method and \\y_k = x_k + \frac{k-1}{k+2}(x_k - x\_{k-1})\\ for the
 accelerated one. The step length is found by backtracking: \\t\\ is
-halved until the quadratic model built at \\y_k\\ dominates \\f\\ at the
-new point, which is the condition the convergence proof uses and which
-needs no knowledge of the Lipschitz constant.
+multiplied by `shrink` (one half by default) until the quadratic model
+built at \\y_k\\ dominates \\f\\ at the new point, which is the
+condition used by the convergence proof and needs no knowledge of the
+Lipschitz constant. The step length is not increased again during the
+run.
 
 ## What the stopping rule reads
 
-The gradient of \\f + g\\ does not vanish at the solution, \\g\\ being
-non-differentiable there, so this method reports the **proximal gradient
-mapping** \$\$G_t(x) = \frac{x - \mathrm{prox}\_{tg}(x - t\nabla
-f(x))}{t}\$\$ as its gradient, read at the iterate. It vanishes exactly
-at a stationary point of \\f + g\\ and reduces to \\\nabla f\\ when
-\\g\\ is absent, so
+The gradient of \\f + g\\ does not vanish at the solution, since \\g\\
+is not differentiable there, so this method reports the **proximal
+gradient mapping** \$\$G_t(x) = \frac{x - \mathrm{prox}\_{tg}(x -
+t\nabla f(x))}{t}\$\$ as its gradient, read at the iterate \\x\\, the
+point that is reported. It vanishes exactly at a stationary point of
+\\f + g\\ and reduces to \\\nabla f\\ when \\g\\ is absent, so
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-keeps its meaning and its default tolerance. Measured on the lasso of
-the examples below, the mapping agrees with the KKT violation: at the
-reported point the active coordinates satisfy \\\lvert \nabla f +
-\lambda \operatorname{sign}(\beta) \rvert \le\\ `4.5e-07` and the
-inactive ones have \\\lvert \nabla f \rvert \le 0.129\\ against a
-\\\lambda\\ of 0.4.
+keeps its meaning and its default tolerance. On the lasso of the
+examples the mapping agrees with the KKT conditions, which the last
+example checks.
 
-Acceleration pays 2.1 gradient evaluations per iteration against the
-plain method's 1.0, the extrapolated point at which it takes its step
-not being the point it reports.
+Without momentum, the next iteration starts at the iterate, so the
+gradient read there serves as the gradient of the next step, and the
+plain method evaluates the gradient once per iteration. The accelerated
+method takes its step at the extrapolated point, which is not the point
+that it reports, and evaluates the gradient about twice per iteration.
 
-## Acceleration, and where it earns its keep
+## Acceleration
 
-On an ill-conditioned problem the difference is the one the theory
-predicts. Measured on a smooth quadratic in eight unknowns at
-`crit_grad(1e-8)`, plain against accelerated: 64 iterations against 31
-at a condition number near 3, 1154 against 100 at 55, and 9321 against
-268 at 480.
-
-On a well-conditioned problem asked for a tight tolerance the plain
-iteration is still the better one. The lasso below converges in 12
-iterations at `crit_grad(1e-9)` with `accelerate = FALSE`, in 89 with
-`restart = FALSE`, and in 782 with the defaults, all three reaching the
-same support, the same objective to the last bit and the same
-coefficients to `8e-09`. What costs the iterations is the restart, not
-the momentum: near the solution the objective moves at the rounding
-level, and each spurious reset discards the momentum built since the
-last one. At the default `crit_grad(1e-6)` none of this appears, both
-settings taking about ten iterations.
+On an ill-conditioned problem the accelerated iteration needs far fewer
+iterations than the plain one, as the \\O(1/k^2)\\ and \\O(1/k)\\ rates
+indicate. On a well-conditioned problem with a tight tolerance the plain
+iteration can need fewer: near the solution the objective changes at the
+level of its rounding error, and each restart triggered there discards
+the momentum built since the previous one. At the default
+`crit_grad(1e-6)` this does not occur on the lasso of the examples.
 
 ## Restarting
 
 Momentum makes the objective non-monotone, and an increase far from the
-solution is a symptom of momentum built in the wrong direction. With
+solution indicates momentum built in the wrong direction. With
 `restart = TRUE` an increase resets the extrapolation to the current
-point. This is the adaptive restart of O'Donoghue and Candes and costs
-one comparison per iteration. It is worth a great deal where the problem
-is badly conditioned: on a smooth quadratic in eight unknowns at
-`crit_grad(1e-8)`, with the restart against without, 150 iterations
-against 858 at a condition number of 55, 573 against 5418 at 480, and
-1042 against 15104 at 2400.
+point. This is the adaptive restart of O'Donoghue and Candes, and it
+costs one comparison per iteration. On a badly conditioned problem it
+reduces the number of iterations substantially.
 
-An increase is measured against the objective's own rounding, not
-against zero. The objective is a sum, so its error grows with the number
-of terms, and a test reading a bare `>` fires on that error once the
-iteration is near enough to the solution: the lasso below took 21646
-iterations at `crit_grad(1e-9)` before the allowance and takes 782 after
-it, at the same answer. The allowance is eight units in the last place
-of the current objective, measured to give the same run anywhere between
-one and thirty-two while 256 begins costing iterations on the
-ill-conditioned quadratic, where it suppresses restarts that are real.
-What it costs there is about a tenth: 149, 571 and 934 iterations at the
-three condition numbers before, against the 150, 573 and 1042 above.
-
-On an ill-conditioned lasso that tenth is a median and not a bound. Over
-twelve draws of one such problem the allowance costs a median of 1.01
-and a worst of 14, the accelerated count going from 111 to 1560 on the
-draw that moves furthest, so a cost quoted from a single problem
-understates the spread. The allowance is kept, and is conservative
-rather than generous: the error of a sum of `n` terms is bounded by
-about `n/2` units in the last place, which for the four hundred
-observations of that lasso is far above the eight allowed.
+An increase is measured against an allowance for the rounding error of
+the objective, \\8\\\varepsilon\\\max(1, \lvert f \rvert)\\, where \\f\\
+is the current total objective, and not against zero. The objective is a
+sum, so its rounding error grows with the number of terms, and a bare
+`>` test fires on that error once the iteration is close enough to the
+solution, restarting the momentum at nearly every iteration. A larger
+allowance would suppress real restarts on an ill-conditioned problem.
+The error of a sum of \\n\\ terms can reach about \\n/2\\ units in the
+last place, so for a large sum the allowance is smaller than the
+possible error.
 
 ## References
 
@@ -224,8 +203,8 @@ sum(fit@par != 0)          # the operator sets coefficients exactly to zero
 #> [1] 3
 
 # The KKT conditions confirm the answer, and share no arithmetic with the
-# iteration: stationary where a coefficient survives, and inside the
-# interval the kink opens where one does not.
+# iteration: stationarity where a coefficient is not zero, and a gradient
+# inside the interval opened by the kink where it is.
 gr_at <- gf(fit@par)
 active <- fit@par != 0
 max(abs(gr_at[active] + lambda * sign(fit@par[active])))
@@ -233,7 +212,8 @@ max(abs(gr_at[active] + lambda * sign(fit@par[active])))
 max(abs(gr_at[!active])) < lambda
 #> [1] TRUE
 
-# Box bounds are refused, and the message says where the constraint goes.
+# Box bounds are rejected, and the message names the argument that takes
+# the constraint.
 try(minimize(prox_grad(prox = function(v, t) v, g = function(b) 0),
              f, rep(0, 8), gr = gf, lower = 0))
 #> Error : prox_grad() takes its constraint through the proximal operator, not through box bounds:

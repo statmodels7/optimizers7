@@ -31,7 +31,7 @@ cg(
 
 - beta:
 
-  Which formula for the bend: `"pr"` (Polak-Ribière, the default),
+  Which formula for \\\beta\\: `"pr"` (Polak-Ribière, the default),
   `"fr"` (Fletcher-Reeves), `"hs"` (Hestenes-Stiefel) or `"dy"`
   (Dai-Yuan). See Details.
 
@@ -48,7 +48,7 @@ cg(
 - line_search:
 
   Defaults to `wolfe(c2 = 0.1)`; the convergence theory of the method
-  assumes a strong Wolfe step, see Details.
+  assumes a Wolfe step, see Details.
 
 - maxit:
 
@@ -89,57 +89,48 @@ against
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)'s
 \\p \times p\\ matrix.
 
-## What conjugacy buys, and what it needs
+## Conjugate directions and the line search
 
-On a quadratic **with an exact line search** the directions come out
-conjugate with respect to the Hessian, and the method then terminates in
-\\p\\ steps without ever forming that Hessian. The line search here is
-inexact, so that guarantee does not transfer: measured on dense
-quadratics at `crit_grad(1e-12)`, the run takes 16, 34 and 70 iterations
-at \\p = 3, 8, 20\\. The saving is still real, since each iteration
-costs two vectors.
+On a quadratic **with an exact line search** the directions are
+conjugate with respect to the Hessian, and the method terminates in
+\\p\\ steps without forming that Hessian. The line search here is
+inexact, so that guarantee does not hold, and the number of iterations
+on a quadratic depends on its conditioning. Each iteration still stores
+only two vectors.
 
 ## Choice of beta
 
-All four agree on a quadratic under an exact line search and differ
-everywhere else. `"fr"` has the cleanest convergence theory and the
-well-known practical fault of stalling for many iterations after a poor
-step. `"pr"` recovers from a poor step immediately, a small \\y = g_k -
-g\_{k-1}\\ sending \\\beta\\ towards zero and the method back to
-steepest descent; its known theoretical non-convergence is repaired by
-clamping \\\beta\\ at zero, which restarts the method and appears in the
-trace as `cg restart`. `"hs"` and `"dy"` are the other two standard
-choices.
-
-Measured on Rosenbrock from the customary start, iterations and
-objective evaluations: `pr` 25 and 249 with twelve clamps, `fr` 59 and
-743, `hs` 17 and 166, `dy` 50 and 667. `pr` is the default as the safest
-of the four on a general objective, and `hs` was the fastest here; on
-another problem the order will differ.
+All four formulas agree on a quadratic under an exact line search and
+differ elsewhere. `"fr"` has the simplest convergence theory and is
+known to stall for many iterations after a poor step. `"pr"` recovers
+from a poor step at once, since a small \\y = g_k - g\_{k-1}\\ makes
+\\\beta\\ small and the direction close to steepest descent; its known
+theoretical non-convergence is removed by clamping \\\beta\\ at zero,
+which restarts the method and appears in the trace as `cg restart`.
+`"hs"` and `"dy"` are the other two standard choices. `"pr"` is the
+default as the safest of the four on a general objective; which formula
+needs the fewest iterations depends on the problem (see the examples).
 
 ## Line search
 
-The theory behind every one of these formulas assumes a step satisfying
-the **strong** Wolfe conditions, and uses it to prove that the direction
-produced is a descent direction at all. Backtracking gives no such
-guarantee, so
+The convergence results for these formulas assume a step that satisfies
+the Wolfe conditions (the strong ones for `"fr"` and `"pr"`) and use
+them to show that the direction produced is a descent direction.
+Backtracking gives no such guarantee, so
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
-is the default and departing from it departs from the theory.
+is the default.
 
-The constant matters too.
+The constant also matters.
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
-defaults to \\c_2 = 0.9\\, which is right for
+defaults to \\c_2 = 0.9\\, which suits
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
-where the curvature approximation repairs a loose step. Conjugate
-gradients has nothing to repair with: the accumulated conjugacy is only
-as good as the line search that produced it. The default here is
-therefore `wolfe(c2 = 0.1)`, and the cost of loosening it is modest on
-Rosenbrock, 28 iterations against 25, with the value reached `3.3e-08`
-against `7.4e-10`.
+because its curvature update compensates for an inexact step. The
+conjugacy accumulated by conjugate gradients depends directly on the
+accuracy of the line search, so the default here is `wolfe(c2 = 0.1)`.
 
-A direction that comes out non-descent is replaced by \\-g\\ and the
-substitution is reported in the trace, as a safeguard against the cases
-the theory misses.
+A direction that is not a descent direction is replaced by \\-g\\, and
+the trace records the replacement as `cg not descent`. A periodic
+restart set by `restart_every` is recorded as `cg restart`.
 
 ## References
 
@@ -158,9 +149,10 @@ Optimization* **10**, 177–182.
 ## See also
 
 [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md) for
-the direction this one bends,
+steepest descent,
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
-for a method with the same storage order and more curvature,
+for a method with storage of the same order and more curvature
+information,
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) for
 the scalar estimate.
 
@@ -184,8 +176,8 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 minimize(cg(), f, c(-1.2, 1), gr = gr)@par
 #> [1] 0.9999728 0.9999455
 
-# The four formulas on the same problem. They agree on a quadratic under an
-# exact line search and differ here, and which is best is a property of the
+# The four formulas on the same problem. They agree on a quadratic under
+# an exact line search and differ here; which is best depends on the
 # problem.
 vapply(c("pr", "fr", "hs", "dy"),
        function(b) minimize(cg(beta = b), f, c(-1.2, 1), gr = gr)@iterations,
@@ -193,8 +185,8 @@ vapply(c("pr", "fr", "hs", "dy"),
 #> pr fr hs dy 
 #> 25 59 17 50 
 
-# Polak-Ribiere clamps beta at zero when a step goes badly, which restarts
-# the method; the trace counts those.
+# Polak-Ribiere clamps beta at zero after a poor step, which restarts the
+# method; the trace counts the restarts.
 r <- minimize(cg(keep_trace = TRUE), f, c(-1.2, 1), gr = gr)
 table(r@trace$safeguard)
 #> 

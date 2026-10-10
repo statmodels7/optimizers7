@@ -1,7 +1,7 @@
 # Check a Line Search's Resolution
 
-A single non-negative finite number, zero meaning the question is not
-asked, or a function of no arguments returning one.
+Checks that `resolution` is a single non-negative finite number, where
+zero disables the test, or a function of no arguments that returns one.
 
 ## Usage
 
@@ -21,11 +21,11 @@ check_resolution(x)
 
 ## Details
 
-The function form is for an objective whose resolution moves. It is
-asked once per invocation of the search rather than per trial, so it
-costs one call an iteration. A caller whose objective settles as the run
-goes can then report the resolution of the current point instead of the
-reading from the worst-located point of the run.
+The function form is for an objective whose resolution changes during
+the run. It is called once per invocation of the search and not once per
+trial, so it costs one call per iteration. A caller whose objective
+becomes more precise during the run can then return the resolution at
+the current point instead of the value measured at the start.
 
 ## See also
 

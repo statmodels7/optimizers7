@@ -1,9 +1,12 @@
 # Run an Optimizer From Many Starting Points
 
 Wraps any optimizer and runs it from several starting points, returning
-the best result together with the number of **distinct optima** found.
-That count is evidence about the objective that no single run can
-supply: it says whether the surface has one minimum or several.
+the best result together with the number of **distinct optimal values**
+reached. Two runs count as reaching the same optimum when their
+objective values differ by at most `distinct_tol`. A count above one
+shows that the surface has more than one local minimum; a count of one
+does not exclude other minima with the same value or minima that no
+start reached.
 
 ## Usage
 
@@ -35,15 +38,16 @@ multistart(
 - n:
 
   How many starts, the caller's own `par` among them. Defaults to `10`.
-  It becomes the wrapper's `maxit`, so `n = 0` is refused with a message
-  naming `maxit`.
+  It becomes the `maxit` of the wrapper, so `n = 0` is rejected with an
+  error that names `maxit`.
 
 - starts:
 
   An optional matrix of starting points, one per row, used verbatim; `n`
   and `spread` are then ignored and `n` is taken from the number of
-  rows. A matrix whose column count does not match the parameter vector
-  is refused when the run starts, naming both.
+  rows. A matrix whose number of columns differs from the length of
+  `par` is rejected when the run starts, with an error that states the
+  required number of columns.
 
 - spread:
 
@@ -54,7 +58,10 @@ multistart(
 
   How many processes to spread the starts over. Defaults to `NULL`,
   meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass `1` for a
-  sequential run; the answer does not depend on the value.
+  sequential run. For a deterministic inner optimizer the answer does
+  not depend on the value; for a stochastic one, such as
+  [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md),
+  it does.
 
 - distinct_tol:
 
@@ -63,7 +70,8 @@ multistart(
 
 - verbose:
 
-  Report each start as it finishes? Defaults to `FALSE`.
+  Report each start as it finishes? Defaults to `FALSE`. Only a
+  sequential run reports; a run over several processes prints nothing.
 
 - refresh:
 
@@ -86,11 +94,14 @@ to be handed to
 
 ## What the result reports
 
-The result is the best run, with everything that run carried. The
-per-start summary is in `trace`, one row each with the columns `start`,
+The result has the `par`, `value`, `gradient`, `converged` and
+`criterion_met` of the best run. Its `counts` are the sums over all
+successful starts, its `iterations` is the number of starts, and its
+`message` and `trace` are those of the wrapper. The summary of the
+starts is in `trace`, one row for each start, with the columns `start`,
 `value`, `converged` and `iterations`. The `message` counts the starts
-that succeeded, the ones that converged, the distinct optima found and
-how often the best was reached, as in
+that succeeded and those that converged, the distinct optimal values
+found and how often the best was reached, as in
 
     12 starts, 12 succeeded, 12 converged, 2 distinct optima;
     the best was found 6 times.
@@ -100,37 +111,50 @@ consecutive ones differ by more than `distinct_tol`.
 
 ## Starting points
 
-The first starting point is always `par`. The remaining \\n - 1\\ form a
-Latin hypercube: each coordinate's range is divided into equal strata
-and each stratum is used exactly once, which spreads the starts more
-evenly than independent draws would. They are generated on the
-**unconstrained** scale and mapped back through the bounds, so every
-start is admissible by construction however tight the box.
+Unless `starts` is given, the first starting point is `par`, and the
+remaining \\n - 1\\ form a Latin hypercube: the range of each coordinate
+is divided into equal strata and each stratum is used exactly once,
+which spreads the starts more evenly than independent draws. They are
+generated on the **unconstrained** scale and mapped back through the
+bounds, so every start is admissible by construction, however tight the
+box. The rows of a matrix given in `starts` are not checked against the
+bounds in advance: a row outside the box fails in its own run and is
+recorded as a failed start.
 
 ## Parallel execution
 
-The starts are independent and are run over `ncores` processes. Worker
-creation, package loading, random-stream assignment and shutdown are
-handled internally: on Unix-alikes the workers are forks, on Windows a
-socket cluster. If the workers cannot load the package the run warns and
-proceeds sequentially. That is what happens under `pkgload`, the workers
-being separate sessions that do not inherit this one's loaded packages.
+The starts are independent and are run over `ncores` processes. The
+creation of the workers, the loading of the package, the assignment of
+random streams and the shutdown are handled internally: on Unix-alikes
+the workers are forks, on Windows they form a socket cluster. If the
+workers cannot load optimizers7, the run gives a warning and proceeds
+sequentially. If optimizers7 was loaded from source with pkgload, the
+starts are run sequentially on every platform, without a warning,
+because a worker would load an installed copy of the package instead of
+the copy in this session.
 
-Processes are used because the stopping rule is an R object consulted at
+Processes are used because the stopping rule is an R object evaluated at
 every iteration, and R cannot be called from several threads.
 
 The starting points are drawn in the calling session before dispatch,
-and each worker receives a random stream derived from the session's
-seed, so [`set.seed()`](https://rdrr.io/r/base/Random.html) reproduces
-the run identically at any `ncores`: measured on the example below,
-`ncores` of 1, 2 and 4 give `-0.3054284837` and the same distinct count.
+and each worker receives a random stream derived from the seed of the
+session, so [`set.seed()`](https://rdrr.io/r/base/Random.html)
+reproduces the run. When the inner optimizer is deterministic, such as
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+or
+[`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
+the result is the same for every value of `ncores`. When the inner
+optimizer draws random numbers, such as
+[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md), the
+result depends on the assignment of the streams to the workers, and
+therefore on `ncores`.
 
 ## Failed starts
 
 A start where the objective is undefined is recorded as failed and the
-rest proceed; the `message` then reports how many succeeded and quotes
+others proceed; the `message` then reports how many succeeded and quotes
 the first failure. An error is raised only when **every** start fails,
-and it quotes the first message.
+and it quotes the first error.
 
 ## References
 
@@ -141,11 +165,11 @@ output from a computer code. *Technometrics* **21**, 239–245.
 ## See also
 
 [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
-for running optimizers in sequence rather than in parallel,
+for running optimizers in sequence instead of in parallel,
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) for
 a global search that needs no restarts,
 [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)
-for the other way of generating starting points.
+for another way of generating starting points.
 
 ## Examples
 
@@ -156,9 +180,8 @@ multistart(bfgs())
 #>   budgets   : maxit 10, evaluations Inf
 #>   settings  : optimizer = BFGS, n = 10, starts = <NULL>, spread = 1, ncores = <NULL>, distinct_tol = 1e-06
 
-# A surface with two minima, one of them better. A single run from the
-# origin happens to find the good one; the count is what says there is
-# another.
+# A surface with two minima, one of them lower. A single run from the
+# origin finds the lower one; the count shows that there is another.
 f <- function(p) (p[1]^2 - 1)^2 + p[2]^2 + 0.3 * p[1]
 set.seed(1)
 r <- minimize(multistart(bfgs(), n = 12), f, c(0, 0))
@@ -171,7 +194,8 @@ table(round(r@trace$value, 6))
 r@par
 #> [1] -1.035579  0.000000
 
-# The answer does not depend on how many processes ran it.
+# With a deterministic inner optimizer the answer does not depend on the
+# number of processes.
 set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, ncores = 1), f, c(0, 0))
 set.seed(11); many <- minimize(multistart(bfgs(), n = 8, ncores = 2), f, c(0, 0))
 identical(one@value, many@value)
@@ -183,10 +207,11 @@ set.seed(3)
 minimize(multistart(bfgs(), n = 8, ncores = 1), g, c(0, 0))@message
 #> [1] "8 starts, 5 succeeded, 5 converged, 1 distinct optimum; the best was found 5 times. First failure: undefined here. Best run: gradient obtained by finite differences"
 
-# Every start failing is fatal, and the message says why.
+# If every start fails, the run raises an error that quotes the first
+# failure.
 try(minimize(multistart(bfgs(), n = 4, ncores = 1),
              function(p) stop("never works"), c(0, 0)))
-#> Error : Every start failed. The first said: never works
+#> Error : Every start failed. The first error was: never works
 
 # Starting points may be given outright, and then n is the row count.
 S <- rbind(c(-2, 0), c(2, 0), c(0, 3))

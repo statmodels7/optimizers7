@@ -17,14 +17,17 @@ repeated.
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `gr` and `he` are accepted and ignored, the method using no
-  derivative; refusing them would force calling code to branch on the
-  algorithm. Bounds are taken and removed by reparametrization like any
-  other method's.
+  `gr` and `he` are accepted and ignored, since the method uses no
+  derivative; rejecting them would force calling code to branch on the
+  algorithm. Bounds are taken and removed by reparametrization, as in
+  the other methods except
+  [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md).
 
 ## Value
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
 holding the best point seen, with `seed` filled in and `converged`
-`TRUE` only when Corana's rule fired.
+`TRUE` only when the stopping rule fired (by default, Corana's rule
+through
+[`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)).

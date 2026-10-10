@@ -13,7 +13,7 @@ and golden-section steps."><meta property="og:image" content="https://statmodels
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.13.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,9 +70,10 @@ and golden-section steps.</p>
 
 <dl><dt id="arg-criterion">criterion<a class="anchor" aria-label="anchor" href="#arg-criterion"></a></dt>
 <dd><p>The stopping rule, a <code><a href="criterion.html">criterion()</a></code> object. Defaults to
-<code>crit_stationary(1e-5)</code>, read on the half-width of the bracket, so the
-tolerance is on the parameter's scale. A gradient rule is refused when
-the run starts.</p></dd>
+<code>crit_stationary(1e-5)</code>, which reads the half-width of the bracket, so
+the tolerance is on the scale of the parameter, or on the unconstrained
+scale when <code>lower</code> or <code>upper</code> is given. A rule that needs a gradient is
+rejected when the run starts.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
@@ -82,8 +83,9 @@ single positive number, default <code>1</code>.</p></dd>
 
 <dt id="arg-max-expand">max_expand<a class="anchor" aria-label="anchor" href="#arg-max-expand"></a></dt>
 <dd><p>How many golden expansions the bracketing phase may
-take, a single positive number, default <code>50</code>. A run that has not
-bracketed the minimum by then continues from the best point it has.</p></dd>
+take, a single number of at least 1, default <code>50</code>. If no minimum has
+been bracketed by then, the run stops at the lowest point evaluated and
+reports <code>converged = FALSE</code>.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
@@ -116,9 +118,13 @@ be handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     <p>The bracketing phase evaluates the starting value \(x_0\) and
 \(x_0 + h\), turns round if the second is the higher, and steps on in
 the descending direction, each step \(1.618\) times the last, until the
-value rises. The three points then satisfy \(f(b) &lt; f(a)\) and
-\(f(b) &lt; f(c)\) with \(b\) between \(a\) and \(c\), so a minimum
-lies inside \((a, c)\).</p>
+value no longer falls. The three points then satisfy
+\(f(b) \le f(a)\) and \(f(b) \le f(c)\) with \(b\) between \(a\)
+and \(c\), so a minimum lies in \([a, c]\). If the value is still
+falling when <code>max_expand</code> expansions have been taken, or when the
+evaluation budget runs out, no minimum has been bracketed: the run stops
+at the lowest point evaluated, reports <code>converged = FALSE</code> and records the
+reason in <code>message</code>.</p>
 <p>The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 iteration the parabola through the three best points is tried first; its
 vertex is accepted when it lies inside the bracket and the step is less
@@ -127,9 +133,18 @@ part of the bracket is taken otherwise. Parabolic steps converge
 superlinearly on a smooth minimum, and the golden steps bound the number
 of evaluations when the function is not well modeled by a parabola. The
 stationarity measure is the half-width of the bracket.</p>
+<p>The rule receives <code>iter</code>, <code>f_new</code>, <code>f_old</code>, <code>x_new</code>, <code>x_old</code> and
+<code>stationarity</code>; <code>f_old</code> and <code>x_old</code> are those of the previous iteration
+and are <code>NULL</code> at the first. Besides the rule, the reduction stops on
+Brent's own test, when the bracket has shrunk to about
+\(\sqrt{\varepsilon}\,\lvert x \rvert + 10^{-12}\) around the best point
+\(x\), below which no further point can be distinguished from \(x\).
+That stop reports <code>converged = TRUE</code> with <code>criterion_met</code> equal to
+<code>bracket at machine resolution</code>, so a rule with a smaller tolerance than
+this resolution, or <code><a href="crit_never.html">crit_never()</a></code>, ends there.</p>
 <p>The method is for one parameter only; a starting value of any other
-length is rejected. Bounds are removed by the same reparametrization the
-other methods use (see <code><a href="bounded_transform.html">bounded_transform()</a></code>).</p>
+length is rejected. Bounds are removed by the same reparametrization as in
+the other methods (see <code><a href="bounded_transform.html">bounded_transform()</a></code>).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -139,7 +154,7 @@ Prentice-Hall, Englewood Cliffs.</p>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="nelder_mead.html">nelder_mead()</a></code> for the derivative-free method in several
-dimensions, <code><a href="crit_stationary.html">crit_stationary()</a></code> for the rule this method reads.</p></div>
+dimensions, <code><a href="crit_stationary.html">crit_stationary()</a></code> for the default rule of this method.</p></div>
     </div>
 
     <div class="section level2">

@@ -1,10 +1,10 @@
 # The Proximal Gradient Method Does Not Take Box Bounds
 
-Returns `FALSE`, the only shipped method that does. A box constraint is
-itself a non-smooth term, expressed by the projection onto the box, and
-this method already has a slot for such a term: `prox`. Offering bounds
-beside it would be a second and conflicting route to the same thing, and
-the two operators would have to be composed by somebody.
+Returns `FALSE`; it is the only shipped method that does. A box
+constraint is itself a non-smooth term, expressed by the projection onto
+the box, and this method already receives such a term through `prox`.
+Bounds beside it would be a second, conflicting way of imposing a
+constraint, and the two operators would have to be composed.
 
 ## Arguments
 
@@ -19,11 +19,13 @@ the two operators would have to be composed by somebody.
 ## Details
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
-consults this before running its bounds check, so a method that answers
-`FALSE` is not failed for refusing a box it never promised. The
-composition a caller writes instead is
-`prox(v, t) = pmin(pmax(prox_penalty(v, t), lower), upper)`, which
-imposes both terms exactly.
+reads this declaration before its bounds check, so a method that returns
+`FALSE` is not failed for rejecting bounds. For a penalty that is convex
+and separable coordinate by coordinate, such as the lasso or the ridge,
+the composition
+`prox(v, t) = pmin(pmax(prox_penalty(v, t), lower), upper)` is the
+proximal operator of the penalty plus the box. For a nonconvex or a
+non-separable penalty the composition is not the operator of the sum.
 
 ## Examples
 

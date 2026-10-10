@@ -1,10 +1,10 @@
 # S7 Class for Armijo Backtracking
 
-A line search that starts from the full step and halves it until the
-objective falls by enough. Built by
+A line search that starts from the full step and multiplies it by
+`shrink` until the objective decreases by enough. Built by
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md).
 It evaluates the objective at trial points and never the gradient, which
-makes it the cheap choice per iteration.
+makes it the cheaper search per iteration.
 
 ## Usage
 
@@ -26,16 +26,17 @@ ArmijoSearch(
 
 - shrink:
 
-  The factor the step is multiplied by on each backtrack.
+  The factor by which the step is multiplied on each backtrack.
 
 - max_step:
 
-  The most backtracks allowed. A **count**, not a length.
+  The most trial points allowed, the full step included. A **count**,
+  not a length.
 
 - resolution:
 
-  What the objective can tell apart, a number or a function of no
-  arguments.
+  The smallest difference in the objective that the objective can
+  resolve, a number or a function of no arguments.
 
 ## Value
 
@@ -45,12 +46,13 @@ with the four properties above beside `label`.
 
 ## Details
 
-Beyond the `label` every line search carries, an `ArmijoSearch` holds
-`c1`, `shrink`, `max_step` and `resolution`. It has no `c2`, having no
+Beyond the `label` of every line search, an `ArmijoSearch` holds `c1`,
+`shrink`, `max_step` and `resolution`. It has no `c2`, since it has no
 curvature condition;
 [`line_search_spec()`](https://statmodels7.github.io/optimizers7/reference/line_search_spec.md)
-fills that field with a value the compiled side ignores so that all
-three searches describe themselves in the same shape.
+fills that field with a value that the compiled code ignores, so that
+the three searches are passed to the compiled code as lists of the same
+shape.
 
 ## See also
 

@@ -39,12 +39,13 @@ with the property `stages` beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties every optimizer has, a `Chain` carries
-`stages`, the list of optimizers in running order. The seven it inherits
-describe the **last** stage: its `criterion`, `maxit` and `max_eval` are
-copied from there, because the last stage is the one whose rule ends the
-run and whose result is reported. `refresh` is fixed at 1, the chain's
-own progress being one line per stage.
+Beyond the seven properties of every optimizer, a `Chain` carries
+`stages`, the list of optimizers in running order. Three of the seven
+shared properties describe the **last** stage: `criterion`, `maxit` and
+`max_eval` are copied from it, because the rule of the last stage ends
+the run and its result is reported. `name` joins the names of all the
+stages, `verbose` and `keep_trace` belong to the chain, and `refresh` is
+fixed at 1, since the progress of the chain is one line per stage.
 
 ## See also
 
