@@ -79,8 +79,21 @@ reduced its bracket to the resolution of the iterate (\verb{bracket at machine r
 and puts \verb{iteration budget reached} or \verb{evaluation budget reached} into
 \code{criterion_met}; \code{message} then reads \verb{evaluation budget exhausted} for
 the second. A line search that finds no acceptable step also leaves it
-\code{FALSE}, with \code{criterion_met} equal to \verb{stopped without converging}. A
-run that ends on a budget is therefore reported as not converged, so
+\code{FALSE}, with \code{criterion_met} equal to \verb{stopped without converging}. In
+the methods with a line search, an accepted step that moves the iterate
+by no more than \eqn{4\epsilon\max(1, \lVert x\rVert_\infty)}, with
+\eqn{\epsilon} the machine precision, is treated in the same way: the
+stopping rule is then evaluated without the previous iterate, so only a
+rule on the gradient can report convergence, and otherwise \code{message}
+reads \verb{the step did not move the iterate beyond rounding} and the trace
+records \verb{step below rounding}. A change in the parameters or in the
+objective over such a step is rounding, and it is not read as
+convergence. For the same reason, when the stopping rule is met on a step
+\eqn{\Delta x} along which the first-order change at the new point,
+\eqn{\lvert g^\top \Delta x\rvert}, exceeds \eqn{\max(1, \lvert f\rvert)},
+the step is undone and the run is handled as above, with the message
+\verb{the step that met the stopping rule is not resolved by the objective}
+and the safeguard \verb{step not resolved}. A run that ends on a budget is therefore reported as not converged, so
 that code reading the result can distinguish it from a run that
 satisfied a rule.
 }

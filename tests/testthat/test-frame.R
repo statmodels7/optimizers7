@@ -139,6 +139,64 @@ test_that("converged is never TRUE merely because a budget ran out", {
 })
 
 
+test_that("a step that the objective does not resolve is not convergence", {
+  # The objective is rounding noise of amplitude 100 at the resolution of x,
+  # with a gradient of order 1e22 and a Hessian of order 1e42, the shape of a
+  # likelihood whose filter has exploded. The repaired Newton direction is
+  # 1e-14 long or less; such a step passed Armijo whenever the noise went
+  # down, and crit_abs_par() then reported convergence (13 of these 50
+  # starts before the repair).
+  f <- function(p) sum(p^2) + 100 * sin(1e20 * p[1])
+  g <- function(p) 2 * p + c(1e22 * cos(1e20 * p[1]), 0)
+  h <- function(p) diag(c(2 - 1e42 * sin(1e20 * p[1]), 2))
+  old <- options(optimizers7.check_gradient = FALSE)
+  set.seed(3)
+  runs <- lapply(1:50, function(i)
+    minimize(newton(keep_trace = TRUE), f, c(1, 1) + 1e-3 * rnorm(2),
+             gr = g, he = h))
+  options(old)
+  expect_false(any(vapply(runs, function(r) r@converged, logical(1))))
+  msg <- vapply(runs, function(r) r@message, character(1))
+  expect_true(all(msg %in% c(
+    "the line search found no acceptable step",
+    "the step did not move the iterate beyond rounding",
+    "the step that met the stopping rule is not resolved by the objective")))
+  expect_true(any(msg == "the step did not move the iterate beyond rounding"))
+  r <- runs[[which(msg == "the step did not move the iterate beyond rounding")[1L]]]
+  expect_identical(r@criterion_met, "stopped without converging")
+  expect_identical(tail(r@trace$safeguard, 1L), "step below rounding")
+  expect_gt(max(abs(r@gradient)), 1e6)
+})
+
+
+test_that("a change rule is not met on a step with a large first-order change", {
+  # f drops from 10 to 5 across a step 2e-9 to the left of 1, and the
+  # gradient and the Hessian supplied are 1e12 and 2e20 everywhere. The Newton
+  # step of 5e-9 crosses the drop, passes Armijo and is shorter than the
+  # tolerance of crit_abs_par(), while |g' dx| = 5e3 exceeds max(1, |f|).
+  f <- function(p) if (p < 1 - 2e-9) 5 else 10
+  old <- options(optimizers7.check_gradient = FALSE)
+  r <- minimize(newton(keep_trace = TRUE, criterion = crit_abs_par(1e-8)),
+                f, 1, gr = function(p) 1e12, he = function(p) matrix(2e20))
+  options(old)
+  expect_false(r@converged)
+  expect_identical(r@criterion_met, "stopped without converging")
+  expect_identical(r@message,
+                   "the step that met the stopping rule is not resolved by the objective")
+  expect_identical(tail(r@trace$safeguard, 1L), "step not resolved")
+  # the step is undone
+  expect_identical(r@par, 1)
+  expect_identical(r@value, 10)
+
+  # a smooth problem still converges on the same rule
+  q <- minimize(gd(criterion = crit_abs_par(1e-8)),
+                function(p) (p[1] - 1)^2 + 10 * (p[2] - 2)^2, c(0, 0),
+                gr = function(p) c(2 * (p[1] - 1), 20 * (p[2] - 2)))
+  expect_true(q@converged)
+  expect_identical(q@criterion_met, "|dx| < 1e-08")
+})
+
+
 test_that("a step to a non-finite objective is refused, not taken", {
   # Propagating one NaN contaminates every iterate after it, and the run then
   # fails somewhere far from the cause.

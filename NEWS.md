@@ -1,3 +1,25 @@
+# optimizers7 0.15.0
+
+## Repairs
+
+* In the methods with a line search (`newton()`, `chebyshev()`, `bfgs()`,
+  `lbfgs()`, `gd()`, `cg()`, `bb()`), an accepted step that moves the
+  iterate by no more than `4 * eps * max(1, max(abs(x)))` is treated as a
+  line search that found no acceptable step: the stopping rule is evaluated
+  without the previous iterate, and otherwise the run stops with
+  `converged = FALSE`, the message `the step did not move the iterate
+  beyond rounding` and the safeguard `step below rounding`. In the same
+  methods, when the stopping rule is met on a step `dx` with
+  `abs(sum(g * dx)) > max(1, abs(f))` at the new point, the step is undone
+  and handled in the same way, with the message `the step that met the
+  stopping rule is not resolved by the objective` and the safeguard `step
+  not resolved`. Where the objective is rounding noise, such steps passed
+  the Armijo condition when the noise went down, and `crit_abs_par()` or
+  `crit_abs_obj()` then reported convergence at a gradient of order 1e27
+  (the exploded score filter of a beta share fitted by statmodels7, where
+  the flag differed between platforms at the same point: 30 to 34 of 200
+  perturbed starts converged, none now).
+
 # optimizers7 0.14.0
 
 ## Repairs

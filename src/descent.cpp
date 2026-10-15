@@ -138,6 +138,30 @@ Rcpp::List descent_run(Rcpp::List spec,
     }
     if (guard == "none" && res.guard != "none") guard = res.guard;
 
+    // A step that moves the iterate by no more than rounding has not moved it,
+    // and is handled as the failed search above. Where the objective is
+    // rounding noise (a filter that has exploded: a gradient of 1e27 and a
+    // Hessian of 1e55, so that the repaired direction is 1e-20 long) such a
+    // step changes the objective by the noise and passes Armijo whenever the
+    // noise is downwards, and a rule reading the change in the parameters or
+    // in the objective then fired: converged at |g| = 4e27 on one platform,
+    // not on another, at the same point.
+    const double dx_max = arma::abs(res.x_new - x).max();
+    const double x_max = x.is_empty() ? 0.0 : arma::abs(x).max();
+    if (dx_max <= 4.0 * arma::datum::eps * std::max(1.0, x_max)) {
+      if (ask_criterion(crit_fn, criterion, it, f, f, x, x, g, true, false)) {
+        converged = true;
+        stopped_by = "criterion";
+        if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
+        break;
+      }
+      note = "the step did not move the iterate beyond rounding";
+      stopped_by = "failed";
+      guard = "step below rounding";
+      if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
+      break;
+    }
+
     const arma::vec x_old = x;
     const arma::vec g_old = g;
     const double f_old = f;
@@ -156,8 +180,6 @@ Rcpp::List descent_run(Rcpp::List spec,
     // lets a skipped update be reported at the iteration where it happened.
     dir->update(x - x_old, g - g_old, guard);
 
-    if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
-
     if (verbose && refresh > 0 && (it % refresh == 0)) {
       Rcpp::Rcout << std::setw(6) << it
                   << std::setw(17) << f
@@ -167,10 +189,39 @@ Rcpp::List descent_run(Rcpp::List spec,
     }
 
     if (ask_criterion(crit_fn, criterion, it, f, f_old, x, x_old, g, true, true)) {
+      // A rule on the change in the parameters or in the objective does not
+      // declare convergence on a step along which the first-order change at
+      // the new point, |g' dx|, exceeds max(1, |f|): the objective does not
+      // resolve such a step, which passed Armijo on noise. The step is undone
+      // and handled as the failed search above. Measured, the ratio
+      // |g' dx| / max(1, |f|) at a firing that the gradient rule alone would
+      // not make is at most 1.8e-5 over the suites of optimizers7,
+      // distributions7 and statmodels7, and at least 2e4 on objectives that
+      // are rounding noise (steps of up to 3e-11, past the test above).
+      const double moved = std::abs(arma::dot(g, x - x_old));
+      if (moved > std::max(1.0, std::abs(f))) {
+        x = x_old;
+        f = f_old;
+        g = g_old;
+        if (ask_criterion(crit_fn, criterion, it, f, f, x, x, g, true, false)) {
+          converged = true;
+          stopped_by = "criterion";
+          if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
+          break;
+        }
+        note = "the step that met the stopping rule is not resolved by the objective";
+        stopped_by = "failed";
+        guard = "step not resolved";
+        if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
+        break;
+      }
+      if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
       converged = true;
       stopped_by = "criterion";
       break;
     }
+
+    if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
 
     if (obj->n_value >= max_eval) {
       note = "evaluation budget exhausted";
