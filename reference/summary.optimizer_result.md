@@ -42,7 +42,7 @@ g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 # Newton on the curved valley: the line search shortens a few steps.
 summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 #> <optimizer_result> Newton
-#>   value      : 3.74527e-21
+#>   value      : 3.74523e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 106
 #>   elapsed    : 2 ms

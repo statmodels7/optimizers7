@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.14.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,13 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.15.0" id="optimizers7-0150">optimizers7 0.15.0<a class="anchor" aria-label="anchor" href="#optimizers7-0150"></a></h2>
+<div class="section level3">
+<h3 id="repairs-0-15-0">Repairs<a class="anchor" aria-label="anchor" href="#repairs-0-15-0"></a></h3>
+<ul><li>In the methods with a line search (<code><a href="../reference/newton.html">newton()</a></code>, <code><a href="../reference/chebyshev.html">chebyshev()</a></code>, <code><a href="../reference/bfgs.html">bfgs()</a></code>, <code><a href="../reference/lbfgs.html">lbfgs()</a></code>, <code><a href="../reference/gd.html">gd()</a></code>, <code><a href="../reference/cg.html">cg()</a></code>, <code><a href="../reference/bb.html">bb()</a></code>), an accepted step that moves the iterate by no more than <code>4 * eps * max(1, max(abs(x)))</code> is treated as a line search that found no acceptable step: the stopping rule is evaluated without the previous iterate, and otherwise the run stops with <code>converged = FALSE</code>, the message <code>the step did not move the iterate beyond rounding</code> and the safeguard <code>step below rounding</code>. In the same methods, when the stopping rule is met on a step <code>dx</code> with <code>abs(sum(g * dx)) &gt; max(1, abs(f))</code> at the new point, the step is undone and handled in the same way, with the message <code>the step that met the stopping rule is not resolved by the objective</code> and the safeguard <code>step not resolved</code>. Where the objective is rounding noise, such steps passed the Armijo condition when the noise went down, and <code><a href="../reference/crit_abs_par.html">crit_abs_par()</a></code> or <code><a href="../reference/crit_abs_obj.html">crit_abs_obj()</a></code> then reported convergence at a gradient of order 1e27 (the exploded score filter of a beta share fitted by statmodels7, where the flag differed between platforms at the same point: 30 to 34 of 200 perturbed starts converged, none now).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.14.0" id="optimizers7-0140">optimizers7 0.14.0<a class="anchor" aria-label="anchor" href="#optimizers7-0140"></a></h2>
 <div class="section level3">
