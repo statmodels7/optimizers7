@@ -40,10 +40,10 @@ An S7 object of class \code{ProxGrad} inheriting from \code{\link[=optimizer]{op
 with the six properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the two descriptions of the non-smooth part of an
-objective, its proximal operator and its value, together with the three
-settings of the accelerated iteration. Built by \code{\link[=prox_grad]{prox_grad()}}. It is the
-only shipped class whose \code{\link[=optimizer_bounded]{optimizer_bounded()}} is \code{FALSE}: its constraint
+This class is an optimizer that holds the two descriptions of the
+non-smooth part of an objective, its proximal operator and its value,
+together with the settings of the accelerated iteration. It is built by
+\code{\link[=prox_grad]{prox_grad()}}. It is the only shipped class whose \code{\link[=optimizer_bounded]{optimizer_bounded()}} is \code{FALSE}: its constraint
 is passed inside \code{prox}, so box bounds are rejected.
 }
 \details{

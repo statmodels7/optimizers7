@@ -14,8 +14,8 @@ Reports \code{"stationarity"} and not \code{"gradient"}, although the method
 evaluates subgradients and reports their aggregate. A rule built on
 \code{\link[=crit_grad]{crit_grad()}} would test the subgradient at the iterate, which does not
 tend to zero: near the minimum of \eqn{\lvert x \rvert} every evaluated
-subgradient has norm 1, so the run would end at the minimizer without the
-rule firing.
+subgradient has norm 1, so the rule would not fire when the run reached
+the minimizer.
 }
 \details{
 \code{\link[=crit_stationary]{crit_stationary()}} reads the optimality estimate

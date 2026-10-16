@@ -19,7 +19,7 @@ maximize(
 \item{optimizer}{An \code{\link[=optimizer]{optimizer()}} object carrying the algorithm and its
 settings.}
 
-\item{fn}{The objective, a \strong{plain function} of the parameter vector
+\item{fn}{The objective, a plain function of the parameter vector
 returning a single number, to be maximized. Unlike \code{\link[=minimize]{minimize()}}, an
 object of another class is rejected and not passed to
 \code{\link[=as_objective]{as_objective()}}; such an objective has to be negated by the caller and
@@ -32,8 +32,8 @@ as \code{\link[=start_zeros]{start_zeros()}}. With bounds it must lie strictly i
 vector, or \code{NULL} for a central difference. It is negated here, so a
 caller supplies the gradient of the function being maximized.}
 
-\item{he}{The Hessian of \code{fn} as written, or \code{NULL}. Negated here too, and
-read only by \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}.}
+\item{he}{The Hessian of \code{fn} as written, or \code{NULL}. It is negated here
+too, and only \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read it.}
 
 \item{lower, upper}{Box constraints, numeric of length 1 or of length \code{p},
 defaulting to \code{-Inf} and \code{Inf}. Passed through to \code{\link[=minimize]{minimize()}}
@@ -44,9 +44,9 @@ argument for \code{\link[=chebyshev]{chebyshev()}} is the contraction of the thi
 \code{fn} as written, and is negated here like \code{gr} and \code{he}.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}} with the same twelve properties
-\code{\link[=minimize]{minimize()}} returns, and with \code{value}, \code{gradient} and \code{trace$value}
-referring to \code{fn} as written.
+An \code{\link[=optimizer_result]{optimizer_result()}} with the same twelve properties that
+\code{\link[=minimize]{minimize()}} returns, in which \code{value}, \code{gradient} and \code{trace$value}
+refer to \code{fn} as written.
 }
 \description{
 Runs \code{\link[=minimize]{minimize()}} on the negated objective and hands back a result whose
@@ -64,7 +64,7 @@ and the \code{value} column of \code{trace} have their sign restored. The other
 properties of the result pass through unchanged: \code{counts}, \code{iterations},
 \code{converged}, \code{criterion_met} and the optimizer.
 
-The rule named in \code{criterion_met} was evaluated on the \strong{negated}
+The rule named in \code{criterion_met} was evaluated on the negated
 objective. Each shipped rule gives the same verdict on \eqn{f} and on
 \eqn{-f}, since each reads a gradient norm, an absolute change or a
 relative change.
@@ -75,7 +75,7 @@ this wrapper negates by composing a closure, and it cannot negate an
 object whose evaluation it does not perform.
 }
 \examples{
-# A log-likelihood: the normal mean, maximized directly.
+# A log-likelihood for the normal mean is maximized directly.
 set.seed(1)
 y <- rnorm(200, mean = 3)
 ll <- function(p) sum(dnorm(y, mean = p, log = TRUE))

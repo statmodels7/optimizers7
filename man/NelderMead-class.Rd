@@ -38,10 +38,10 @@ An S7 object of class \code{NelderMead} inheriting from \code{\link[=optimizer]{
 with the five properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the size and shape of the initial simplex, which set
-of reflection coefficients to use, and the safeguard against a simplex
-that has collapsed. Built by \code{\link[=nelder_mead]{nelder_mead()}}. The simplex itself moves
-inside the run; the \code{simplex} property is a starting one, or \code{NULL}.
+A \code{NelderMead} object holds the size and shape of the initial simplex, the
+set of reflection coefficients to use, and the safeguard against a simplex
+that has collapsed. It is built by \code{\link[=nelder_mead]{nelder_mead()}}. The simplex itself
+moves inside the run; the \code{simplex} property is a starting one, or \code{NULL}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{NelderMead} carries

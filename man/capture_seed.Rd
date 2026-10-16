@@ -15,11 +15,11 @@ numbers, so that the run can be repeated exactly.
 }
 \details{
 Assigning the recorded value back into the global environment reproduces
-the run. When no stream exists yet, one uniform is drawn to make \R create
-one, which costs a single discarded number on the first stochastic call of
-a session.
+the run. When \code{.Random.seed} does not exist yet, one uniform is drawn to
+make \R create it, which costs a single discarded number on the first
+stochastic call of a session.
 
-The stream is \strong{not} created with \code{set.seed(NULL)}, which reseeds from
+The stream is not created with \code{set.seed(NULL)}, which reseeds from
 the clock and discards the seed that the caller had set.
 }
 \keyword{internal}

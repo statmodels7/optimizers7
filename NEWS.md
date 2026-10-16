@@ -1,3 +1,17 @@
+# optimizers7 0.15.1
+
+* Documentation and messages: relative clauses without a relative pronoun,
+  stranded prepositions, absolute constructions, sentences without a verb
+  (example captions included), emphasis in bold and personified
+  descriptions of the code rewritten as plain clauses. Messages reworded:
+  `test_problems()` for an unknown name ("There is no test problem named
+  ..."), the bracketing failure of `brent()` ("the bracketing phase found no
+  minimum ..."), the length search of the starters ("every length ... failed
+  to give a single finite value ..."), and the errors of `check_criterion()`,
+  `prox_grad()`, `plot()` of a result and the starters. The label of check
+  10 of `check_optimizer()` reads "a rule that cannot be evaluated is
+  rejected". No change to the algorithms.
+
 # optimizers7 0.15.0
 
 ## Repairs

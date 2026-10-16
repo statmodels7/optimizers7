@@ -11,7 +11,7 @@ print_optimizer_check(optimizer, ok, battery)
 
 \item{ok}{The named logical vector of twelve checks.}
 
-\item{battery}{The data frame \code{\link[=run_battery]{run_battery()}} returned.}
+\item{battery}{The data frame that \code{\link[=run_battery]{run_battery()}} returned.}
 }
 \value{
 Invisibly \code{NULL}. Called for the output.

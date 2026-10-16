@@ -23,8 +23,8 @@ backtrack.}
 \item{memory}{The number of earlier values, besides the current one, over
 which the reference is taken.}
 
-\item{max_step}{The most trial points allowed, the full step included. A
-\strong{count}.}
+\item{max_step}{The most trial points allowed, including the full step.
+It is a count.}
 
 \item{resolution}{The smallest difference in the objective that the
 objective can resolve, a number or a function of no arguments.}
@@ -34,15 +34,15 @@ An S7 object of class \code{NonmonotoneSearch} inheriting from
 \code{\link[=line_search]{line_search()}}, with the five properties above beside \code{label}.
 }
 \description{
-Armijo backtracking whose reference value is the largest of the last
-\code{memory + 1} objective values, the current one included, so a step may
-increase the objective. Built by \code{\link[=nonmonotone]{nonmonotone()}}.
+This class is Armijo backtracking whose reference value is the largest of
+the last \code{memory + 1} objective values, including the current one, so a
+step may increase the objective. \code{\link[=nonmonotone]{nonmonotone()}} builds it.
 }
 \details{
 Beyond the \code{label} of every line search, a \code{NonmonotoneSearch} holds
-\code{c1}, \code{shrink}, \code{memory}, \code{max_step} and \code{resolution}. \code{memory} is the
-only property that no other line search has, and at \code{memory = 0} the
-object behaves exactly as an \link{ArmijoSearch} with the same constants.
+\code{c1}, \code{shrink}, \code{memory}, \code{max_step} and \code{resolution}. Only this class has
+the property \code{memory}, and at \code{memory = 0} the object behaves exactly as
+an \link{ArmijoSearch} with the same constants.
 }
 \seealso{
 \code{\link[=nonmonotone]{nonmonotone()}} for the constructor, \code{\link[=bb]{bb()}} for the method that

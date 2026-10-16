@@ -16,8 +16,8 @@ supplied or differenced.}
 
 \item{elapsed}{Seconds.}
 
-\item{seed}{The generator state the run began with, or \code{NULL} for a
-method that draws no random numbers.}
+\item{seed}{The generator state with which the run began, or \code{NULL} for a
+method that does not draw random numbers.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}}.
@@ -29,11 +29,12 @@ the trace, sets the verdict, and composes the message.
 }
 \details{
 \code{converged} is the flag returned by the loop, and it is never inferred
-from the run having ended. The loop sets it when the stopping rule fires,
-when a line search with a declared resolution establishes that no step
-decreases the objective by more than that resolution, and, for \code{\link[=brent]{brent()}},
-when the bracket reaches the resolution of the iterate. \code{criterion_met}
-is the label of the rule in the first case and a label of its own in the
-others; a run that exhausted a budget reports the budget.
+from the fact that the run ended. The loop sets it when the stopping rule
+fires, when a line search with a declared resolution establishes that
+every step fails to decrease the objective by more than that resolution,
+and, for \code{\link[=brent]{brent()}}, when the bracket reaches the resolution of the
+iterate. \code{criterion_met} is the label of the rule in the first case and a
+label of its own in the others; a run that exhausted a budget reports the
+budget.
 }
 \keyword{internal}

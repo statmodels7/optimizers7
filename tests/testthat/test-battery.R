@@ -83,7 +83,7 @@ test_that("a method that requires a Hessian is checked like the others", {
 test_that("test_problems() selects and refuses by name", {
   expect_named(test_problems("beale"), "beale")
   expect_length(test_problems(c("sphere", "booth")), 2L)
-  expect_error(test_problems("banana"), "No such test problem")
+  expect_error(test_problems("banana"), "no test problem named")
 })
 
 

@@ -16,8 +16,8 @@ Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
 Checks that the value is a single finite number that is not negative.
-Used for the curvature threshold \code{curv_tol} of \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}},
-which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
+It is used for the curvature threshold \code{curv_tol} of \code{\link[=bfgs]{bfgs()}} and
+\code{\link[=lbfgs]{lbfgs()}}, which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
 \lVert y \rVert}. Zero is admitted and is the textbook curvature
 condition \eqn{s'y > 0}. A negative value is rejected because it admits
 pairs with \eqn{s'y \le 0}, which weakens the protection given by the

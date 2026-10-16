@@ -18,9 +18,9 @@ A list of seven: \code{type} (\code{"armijo"} or \code{"wolfe"}), \code{c1}, \co
 }
 \description{
 Converts a \code{\link[=line_search]{line_search()}} object into the plain list that the compiled
-loop reads, so the C++ code needs no knowledge of S7. Every search
-produces the same seven fields, whatever its subclass. The compiled search
-branches on \code{type}, and the descent loop reads \code{memory} to form the
+loop reads, so the C++ code does not have to handle S7 objects. Every
+search produces the same seven fields, whatever its subclass. The compiled
+search branches on \code{type}, and the descent loop reads \code{memory} to form the
 reference value.
 }
 \details{
@@ -29,9 +29,10 @@ compiled code ignores: \code{c2 = 0.9} for the two backtracking searches,
 \code{shrink = 0.5} for Wolfe, \code{memory = 0} for the two monotone ones. The
 shape is fixed, so one C++ structure reads all three.
 
-There are only \strong{two} types. \code{\link[=nonmonotone]{nonmonotone()}} is passed as
-\code{type = "armijo"} with its \code{memory}, since it differs from \code{\link[=armijo]{armijo()}} in
-the reference value alone, so the compiled search needs no third branch.
+There are only two types. \code{\link[=nonmonotone]{nonmonotone()}} is passed as
+\code{type = "armijo"} with its \code{memory}, since it differs from \code{\link[=armijo]{armijo()}} only
+in the reference value, so the compiled search does not need a third
+branch.
 With \code{memory = 0} the two lists are identical.
 }
 \keyword{internal}

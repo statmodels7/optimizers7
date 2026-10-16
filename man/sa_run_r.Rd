@@ -27,7 +27,7 @@ sa_run_r(
 \item{cauchy}{\code{TRUE} for the Cauchy proposal, \code{FALSE} for the uniform one.}
 
 \item{t0}{The initial temperature, or a non-positive value to calibrate
-it. \code{-1} is what \code{\link[=minimize.Sa]{minimize.Sa()}} passes for \code{t0 = NULL}.}
+it. \code{\link[=minimize.Sa]{minimize.Sa()}} passes \code{-1} for \code{t0 = NULL}.}
 
 \item{cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit}{As in
 \code{\link[=sa]{sa()}}.}
@@ -35,12 +35,12 @@ it. \code{-1} is what \code{\link[=minimize.Sa]{minimize.Sa()}} passes for \code
 \value{
 A list with \code{par} (the best point seen), \code{value} (the objective
 there) and \code{n_value} (the evaluation count). It reports no trace and no
-stationarity measure, the comparison being of the walk alone.
+stationarity measure, because the comparison concerns only the walk.
 }
 \description{
-The annealing loop written in R, the twin of the compiled \code{sa_run()}. It
-gives the kernel a reference that shares none of its code, and it is used
-by the tests only.
+This function is the annealing loop written in R, the twin of the compiled
+\code{sa_run()}. It gives the kernel a reference that shares none of its code,
+and it is used by the tests only.
 }
 \details{
 It draws from the generator of \R in the same order as the kernel, so from

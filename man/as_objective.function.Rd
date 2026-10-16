@@ -10,7 +10,7 @@
 \code{NULL} for a central difference of \code{fn}.}
 
 \item{he}{A function of the parameter vector returning the Hessian, or
-\code{NULL}. Read by \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}.}
+\code{NULL}. It is read by \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}.}
 
 \item{...}{Unused.}
 }

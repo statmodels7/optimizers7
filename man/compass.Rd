@@ -28,25 +28,26 @@ locally Lipschitz objective the limit points of MADS are Clarke
 stationary (Audet and Dennis 2006).}
 
 \item{step}{Initial poll size: \code{step} times the larger of 1 and the
-largest absolute coordinate of the starting value. A single positive
-number, default \code{0.1}.}
+largest absolute coordinate of the starting value. The value is a
+single positive number and defaults to \code{0.1}.}
 
 \item{directions}{\code{"mads"} (default) or \code{"coordinate"}. Partial matching
 applies, and any other string is rejected by \code{\link[=match.arg]{match.arg()}}.}
 
 \item{opportunistic}{Move to the first improvement found instead of
-polling every direction? \code{TRUE} or \code{FALSE}, default \code{TRUE}.}
+polling every direction? The value is \code{TRUE} or \code{FALSE} and defaults to
+\code{TRUE}.}
 
-\item{expand}{Factor applied to the poll size after a success. A single
-number of at least 1, default \code{2}.}
+\item{expand}{Factor applied to the poll size after a success. The value
+is a single number of at least 1 and defaults to \code{2}.}
 
-\item{shrink}{Factor applied after a failure. A single number strictly
-inside \eqn{(0, 1)}, default \code{0.5}.}
+\item{shrink}{Factor applied after a failure. The value is a single number
+strictly inside \eqn{(0, 1)} and defaults to \code{0.5}.}
 
 \item{maxit}{Maximum iterations. Defaults to 2000.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
-no evaluation budget, so the run stops on the criterion or on
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}, which
+sets no evaluation budget, so the run stops on the criterion or on
 \code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
@@ -84,11 +85,11 @@ differentiable.}
 plus and minus.}
 }
 
-The choice decides the outcome on the problems for which the method is
+The choice determines the result on the problems for which the method is
 intended. Where \eqn{f} is only Lipschitz, a \emph{fixed} set of directions can
-fail: if a kink has a diagonal ridge, no coordinate direction descends
-it, so the poll fails at a point that is not stationary and the run stops
-there. On \eqn{\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2}, whose
+fail: if a kink has a diagonal ridge, all the coordinate directions fail to
+descend it, so the poll fails at a point that is not stationary and the run
+stops there. On \eqn{\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2}, whose
 minimum is 0, coordinate polling from \eqn{(1, 0.5)} stops at \code{0.05},
 whereas the random poll reaches values several orders of magnitude lower,
 which depend on the seed (see the examples).
@@ -117,7 +118,8 @@ two settings.
 \examples{
 compass()
 
-# A kink along a diagonal, which no coordinate direction descends. The
+# The kink lies along a diagonal, and every coordinate direction fails to
+# descend it. The
 # true minimum is 0. Coordinate polling stops at the same wrong point every
 # time; the random poll passes it.
 f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)

@@ -6,11 +6,12 @@ NULL
 #' @title S7 Class for Simulated Annealing
 #'
 #' @description
-#' An optimizer holding the annealing schedule and the step adaptation: which
-#' proposal the walk draws from, the temperature and how it cools, how much
-#' work is done at each level, and the acceptance rate the per-coordinate
-#' steps are tuned to. Built by [sa()]. Its result depends on the state of
-#' the random number generator, which the result records in `seed`.
+#' This class is an optimizer that holds the annealing schedule and the step
+#' adaptation: the proposal from which the walk draws, the temperature and how
+#' it cools, how much work is done at each level, and the acceptance rate to
+#' which the per-coordinate steps are tuned. It is built by [sa()]. Its result
+#' depends on the state of the random number generator, which the result
+#' records in `seed`.
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, an `Sa` carries nine of
@@ -18,16 +19,15 @@ NULL
 #' the schedule (`t0`, `cooling`, `cycles`, `steps`), and the adaptation and
 #' its stopping rule (`target_accept`, `adjust`, `n_eps`).
 #'
-#' @param visiting `"uniform"` or `"cauchy"`, which proposal the walk draws
-#'   its moves from.
+#' @param visiting `"uniform"` or `"cauchy"`, the proposal from which the
+#'   walk draws its moves.
 #' @param t0 The initial temperature, or `NULL` to calibrate it from the
 #'   objective.
 #' @param cooling The geometric cooling factor, in \eqn{(0, 1)}.
 #' @param cycles,steps The work done at each temperature level:
 #'   `cycles * steps * p` evaluations.
 #' @param step The initial step, relative to the starting value.
-#' @param target_accept The acceptance rate at which the step adaptation
-#'   aims.
+#' @param target_accept The target acceptance rate of the step adaptation.
 #' @param adjust How strongly the step is adjusted towards that rate.
 #' @param n_eps How many temperature levels the stationarity measure covers.
 #'
@@ -56,9 +56,10 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' @title Simulated Annealing With an Adaptive Step
 #'
 #' @description
-#' A global search that accepts uphill moves with a probability that falls as
-#' the run cools, with one step length per coordinate, adjusted during the
-#' run to hold the acceptance rate of that coordinate near a target.
+#' Creates an optimizer for a global search that accepts uphill moves with a
+#' probability that falls as the run cools, with one step length per
+#' coordinate that is adjusted during the run to hold the acceptance rate of
+#' that coordinate near a target.
 #'
 #' @details
 #' The method is intended for problems on which a local method depends on its
@@ -124,7 +125,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #'
 #' # The value returned and the meaning of convergence
 #'
-#' The result is the best point **seen**, not the last one, since the last
+#' The result is the best point seen, not the last one, since the last
 #' point of an annealing run is a random draw from the walk. The `value`
 #' column of the trace is correspondingly the best value so far, and is
 #' monotone non-increasing.
@@ -152,7 +153,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #'   (the default) to calibrate it from the objective at a cost of
 #'   \code{max(10, 10 * length(par))} evaluations.
 #' @param cooling The factor by which the temperature is multiplied at each
-#'   level, a single number **strictly** inside \eqn{(0, 1)}. Defaults to
+#'   level, a single number strictly inside \eqn{(0, 1)}. Defaults to
 #'   `0.85`. The value `1` would never cool and `0` would freeze at once, so
 #'   both endpoints are rejected.
 #' @param cycles How many step-adjustment cycles per temperature level, a
@@ -166,7 +167,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #'   times the larger of 1 and the absolute value of that coordinate of the
 #'   starting value. Defaults to `1`. The adaptation changes the step of each
 #'   coordinate within the first few cycles.
-#' @param target_accept The acceptance rate at which the adaptation aims,
+#' @param target_accept The target acceptance rate of the adaptation,
 #'   held inside a band of 0.1 on either side. A single number strictly
 #'   inside \eqn{(0.1, 0.9)}; a value outside is rejected, because the band
 #'   around it would reach 0 or 1. Defaults to `0.5`.
@@ -332,8 +333,8 @@ S7::method(optimizer_provides, Sa) <- function(optimizer) "stationarity"
 #'   taken and removed by reparametrization, as in the other methods except
 #'   [prox_grad()].
 #'
-#' @return An [optimizer_result()] holding the best point seen, with `seed`
-#'   filled in and `converged` `TRUE` only when the stopping rule fired (by
+#' @return An [optimizer_result()] holding the best point seen. Its `seed` is
+#'   filled in, and `converged` is `TRUE` only when the stopping rule fired (by
 #'   default, Corana's rule through [crit_stationary()]).
 #'
 #' @keywords internal
@@ -375,9 +376,9 @@ S7::method(minimize, Sa) <-
 #' The Annealing Loop in R
 #'
 #' @description
-#' The annealing loop written in R, the twin of the compiled `sa_run()`. It
-#' gives the kernel a reference that shares none of its code, and it is used
-#' by the tests only.
+#' This function is the annealing loop written in R, the twin of the compiled
+#' `sa_run()`. It gives the kernel a reference that shares none of its code,
+#' and it is used by the tests only.
 #'
 #' @details
 #' It draws from the generator of \R in the same order as the kernel, so from
@@ -392,13 +393,13 @@ S7::method(minimize, Sa) <-
 #' @param par The starting value, a numeric vector.
 #' @param cauchy `TRUE` for the Cauchy proposal, `FALSE` for the uniform one.
 #' @param t0 The initial temperature, or a non-positive value to calibrate
-#'   it. `-1` is what [minimize.Sa()] passes for `t0 = NULL`.
+#'   it. [minimize.Sa()] passes `-1` for `t0 = NULL`.
 #' @param cooling,cycles,steps,step,target_accept,adjust,n_eps,maxit As in
 #'   [sa()].
 #'
 #' @return A list with `par` (the best point seen), `value` (the objective
 #'   there) and `n_value` (the evaluation count). It reports no trace and no
-#'   stationarity measure, the comparison being of the walk alone.
+#'   stationarity measure, because the comparison concerns only the walk.
 #'
 #' @keywords internal
 sa_run_r <- function(fn, par, cauchy = FALSE, t0 = -1, cooling = 0.85,

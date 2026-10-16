@@ -7,12 +7,12 @@
 \item{optimizer}{A \code{Bundle} object.}
 
 \item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} should return
-a \strong{subgradient}, not a difference taken across a kink; \code{he} is
+a subgradient, not a difference taken across a kink; \code{he} is
 accepted and ignored. Bounds are taken and removed by
 reparametrization.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is the \strong{aggregate}
+An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is the aggregate
 subgradient, which tends to zero at a solution, and whose \code{message}
 reports the numbers of serious and null steps.
 }

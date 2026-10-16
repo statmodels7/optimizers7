@@ -14,7 +14,8 @@ A single integer.
 }
 \description{
 The compiled loops hold the budget as an integer, and the default budget is
-\code{Inf}: no cap at all. This maps \code{Inf} to the largest representable
-integer, which no run reaches, and any finite value to itself.
+\code{Inf}, which sets no cap at all. This maps \code{Inf} to the largest
+representable integer, which a run never reaches, and any finite value to
+itself.
 }
 \keyword{internal}

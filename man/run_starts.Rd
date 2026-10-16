@@ -26,18 +26,19 @@ Evaluates \code{one(i)} for \code{i} in \code{1:n}, over \code{ncores}
 processes, and cleans up after itself.
 }
 \details{
-There are three routes, chosen here so that the caller need not choose.
+The function selects one of three routes, so that the caller does not
+have to.
 
 One process is the sequential loop, and it is the only route that reports
 progress during the run, since a worker has no output that the caller
 would see. When \pkg{optimizers7} was loaded with \pkg{pkgload}, this
 route is used whatever \code{ncores} is.
 
-On a Unix-alike the workers are \strong{forks}, through \code{parallel::mclapply()}.
-A fork starts in microseconds and inherits the whole session, so nothing
-has to be loaded or exported.
+On a Unix-alike the workers are forks, through \code{parallel::mclapply()}.
+A fork starts in microseconds and inherits the whole session, so the
+function does not have to load the package or export objects.
 
-On Windows there is no \code{fork}, so a \strong{socket cluster} is started here and
+On Windows there is no \code{fork}, so a socket cluster is started here and
 stopped on exit. Its workers are new sessions, so \pkg{optimizers7} has to
 be loaded on them; when that is not possible, because the package is not
 installed in a library that they can see, the function gives a warning

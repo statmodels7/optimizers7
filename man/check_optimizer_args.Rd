@@ -2,7 +2,7 @@
 % Please edit documentation in R/optimizer_class.R
 \name{check_optimizer_args}
 \alias{check_optimizer_args}
-\title{Validate the Settings Every Optimizer Shares}
+\title{Validate the Settings That Every Optimizer Shares}
 \usage{
 check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
 }
@@ -28,7 +28,7 @@ specific to the algorithm.
 The rules are:
 \itemize{
 \item \code{criterion} must inherit from \code{\link[=criterion]{criterion()}}.
-\item \code{maxit} must be a single number at least 1 \strong{and finite}.
+\item \code{maxit} must be a single number at least 1 and finite.
 \item \code{max_eval} must be a single number at least 1; \code{Inf} passes.
 \item \code{refresh} must be a single number at least 0.
 \item \code{verbose} and \code{keep_trace} must each be \code{TRUE} or \code{FALSE}; \code{NA} is

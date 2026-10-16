@@ -7,7 +7,7 @@
 \item{optimizer}{A \code{Brent} object.}
 
 \item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{he} are
-accepted and ignored, the method using no derivative. Bounds are taken
+accepted and ignored, since the method uses no derivative. Bounds are taken
 and removed by reparametrization.}
 }
 \value{

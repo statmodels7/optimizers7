@@ -13,15 +13,15 @@ The character vector \code{"stationarity"}.
 }
 \description{
 \code{\link[=nelder_mead]{nelder_mead()}}, \code{\link[=compass]{compass()}} and \code{\link[=brent]{brent()}} report \code{"stationarity"} and no
-gradient, since they compute none. A rule that reads a gradient is
+gradient, since they do not compute a gradient. A rule that reads a gradient is
 rejected when the run starts; without this check it would test \code{NULL} at
 every iteration and never fire.
 }
 \details{
 The measure differs by method, and \code{\link[=crit_stationary]{crit_stationary()}} reads the measure
-of the method: for \code{\link[=nelder_mead]{nelder_mead()}} the \strong{size of the simplex}, the
+of the method: for \code{\link[=nelder_mead]{nelder_mead()}} the size of the simplex, the
 largest distance from the best vertex to another vertex, so the tolerance
-is on the parameter scale; for \code{\link[=compass]{compass()}} the \strong{poll size}
+is on the parameter scale; for \code{\link[=compass]{compass()}} the poll size
 \eqn{\Delta}, the quantity in which Torczon's theorem is stated; and for
 \code{\link[=brent]{brent()}} the half-width of the bracket.
 }

@@ -152,7 +152,7 @@ test_that("an objective that really takes any length is refused, by name", {
 test_that("an objective no length satisfies is refused too", {
   expect_error(infer_npar(function(p) stop("no"), NULL, function(k) numeric(k),
                           npar_max = 4),
-               "no length")
+               "failed to give a single finite value")
 })
 
 

@@ -42,6 +42,6 @@ crit_needs(crit_any(crit_grad(), crit_stationary()))
 }
 \seealso{
 \code{\link[=crit_met]{crit_met()}} for the rule itself, \code{\link[=check_criterion]{check_criterion()}} for the
-rejection this feeds, \code{\link[=optimizer_provides]{optimizer_provides()}} for the other half of the
+rejection that this generic feeds, \code{\link[=optimizer_provides]{optimizer_provides()}} for the other half of the
 comparison.
 }

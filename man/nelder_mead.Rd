@@ -26,15 +26,16 @@ the parameter scale. A gradient rule is rejected when the run starts.}
 
 \item{step}{Size of the initial simplex: the vertex that moves coordinate
 \eqn{j} is displaced by \code{step} times the larger of 1 and the absolute
-value of that coordinate of the starting value. A single positive
-number, default \code{0.1}.}
+value of that coordinate of the starting value. The value is a single
+positive number and defaults to \code{0.1}.}
 
 \item{adaptive}{Use Gao and Han's dimension-dependent coefficients?
-\code{TRUE} or \code{FALSE}, default \code{TRUE}; see below. At \eqn{p = 2} the two
-settings are identical.}
+The value is \code{TRUE} or \code{FALSE} and defaults to \code{TRUE}; see below. At
+\eqn{p = 2} the two settings are identical.}
 
-\item{max_restarts}{How many times a collapsed simplex may be rebuilt. A
-single non-negative number, default \code{3}; \code{0} turns the safeguard off.}
+\item{max_restarts}{How many times a collapsed simplex may be rebuilt. The
+value is a single non-negative number and defaults to \code{3}; \code{0} turns the
+safeguard off.}
 
 \item{degenerate_tol}{Rebuild the simplex when its conditioning falls
 below this, a single positive number, default \code{1e-6}. A value that is
@@ -46,8 +47,8 @@ one vertex per row. Defaults to \code{NULL}, meaning build one from \code{par} a
 
 \item{maxit}{Maximum iterations. Defaults to 2000.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
-no evaluation budget, so the run stops on the criterion or on
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}, which
+sets no evaluation budget, so the run stops on the criterion or on
 \code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
@@ -63,16 +64,17 @@ to be handed to \code{\link[=minimize]{minimize()}}.
 \description{
 The Nelder-Mead simplex method: \eqn{p+1} points are maintained and the
 worst is reflected, expanded, contracted or shrunk through the centroid of
-the others. Only objective values are used; no derivative is required.
+the others. The method uses objective values only and does not require a
+derivative.
 }
 \details{
 Reflect the worst vertex through the centroid of the rest; if that is the
 best point yet, try going further; if it is no better than the second
 worst, pull back; and if even that fails, shrink everything towards the
-best vertex. No model of the function is built and no derivative is
-assumed to exist, so the method works at a kink. It is slow because the
-ordering of \eqn{p+1} values carries little information about the
-surface; the first example compares its evaluation count with that of
+best vertex. The method does not build a model of the function and does
+not assume that a derivative exists, so it works at a kink. It is slow
+because the ordering of \eqn{p+1} values carries little information about
+the surface; the first example compares its evaluation count with that of
 \code{\link[=bfgs]{bfgs()}}.
 }
 \section{Degenerate simplices}{
@@ -81,8 +83,8 @@ Nelder-Mead can converge to a point that is not a minimizer. McKinnon
 which it performs inside contractions indefinitely: the simplex flattens
 onto a line through a point where the gradient is not zero, the vertices
 approach a common value, and every ordinary stopping rule reports success.
-The function values behave as they would at convergence, and only the
-shape of the simplex shows the failure.
+The function values behave as they would at convergence, so the failure is
+visible only in the shape of the simplex.
 
 The method therefore monitors the shape. The conditioning measured is
 \eqn{\lvert \det E \rvert} divided by the product of the edge lengths,
@@ -102,7 +104,7 @@ delay a genuine convergence. \code{max_restarts = 0} turns it off.
 The classical reflection, expansion, contraction and shrink factors are
 \eqn{1, 2, 1/2, 1/2}, chosen when the method was proposed for two or three
 parameters. In higher dimension a fixed expansion of 2 makes the simplex
-overshoot along whichever direction it happened to try. Gao and Han (2012)
+overshoot along any direction that it happens to try. Gao and Han (2012)
 replace them by \eqn{1,\ 1 + 2/p,\ 3/4 - 1/(2p),\ 1 - 1/p}, which at
 \eqn{p = 2} are \emph{exactly} the classical values, so \code{TRUE} is the default
 without changing the method on problems with two parameters. At
@@ -122,14 +124,14 @@ subgradients are unavailable. Where subgradients \emph{are} available,
 \examples{
 nelder_mead()
 
-# A smooth problem, to show the cost: BFGS reaches the same point in far
+# A smooth problem shows the cost: BFGS reaches the same point in far
 # fewer evaluations.
 q <- function(p) sum((p - c(1, 2))^2)
 minimize(nelder_mead(), q, c(0, 0))@counts[["f"]]
 minimize(bfgs(), q, c(0, 0), gr = function(p) 2 * (p - c(1, 2)))@counts[["f"]]
 
-# A sum of absolute deviations, whose minimizer is the median and whose
-# derivative does not exist there.
+# The objective is a sum of absolute deviations, whose minimizer is the
+# median and whose derivative does not exist there.
 set.seed(1)
 y <- rcauchy(101)
 r <- minimize(nelder_mead(), function(p) sum(abs(y - p)), par = 0)

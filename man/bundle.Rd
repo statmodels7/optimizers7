@@ -25,11 +25,11 @@ bundle(
 read on the optimality estimate \eqn{\lVert p \rVert^2 + \alpha}.}
 
 \item{t0}{Initial value of the proximal parameter \eqn{t}, expressed as a
-\strong{step length} on the parameter scale and not as a bare multiplier;
+step length on the parameter scale and not as a bare multiplier;
 see Details. Defaults to \code{1}.}
 
-\item{t_min, t_max}{Bounds on it, so that neither a run of null steps nor a
-run of serious ones can drive it to zero or to infinity. Default
+\item{t_min, t_max}{Bounds on it, so that a run of null steps or a run of
+serious ones cannot drive it to zero or to infinity. The defaults are
 \code{1e-10} and \code{1e10}.}
 
 \item{m_serious}{Fraction of the predicted decrease that a step must actually
@@ -41,12 +41,12 @@ would exceed it, the oldest are replaced by the aggregate. Defaults to
 
 \item{qp_iters, qp_tol}{Effort spent on the subproblem: at most this many
 accelerated projected-gradient steps, stopping when the weights move by
-less than \code{qp_tol}. Defaults \code{500} and \code{1e-12}.}
+less than \code{qp_tol}. The defaults are \code{500} and \code{1e-12}.}
 
 \item{maxit}{Maximum iterations. Defaults to 500.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
-no evaluation budget, so the run stops on the criterion or on
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}, which
+sets no evaluation budget, so the run stops on the criterion or on
 \code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
@@ -77,7 +77,7 @@ the median example below, \code{\link[=bfgs]{bfgs()}} reaches the median and rep
 \code{converged = FALSE}.
 
 The bundle method tests no single subgradient. It keeps a \emph{collection} of
-them, from the points it has visited, and builds the piecewise-linear
+them, from the points that it has visited, and builds the piecewise-linear
 model \eqn{\max_j \{ f_j + g_j'(x - x_j) \}}, the largest of the
 linearizations. Such a model represents a kink well, as the meeting point
 of two linearizations. At the minimum of \eqn{\lvert x \rvert} the bundle
@@ -174,7 +174,7 @@ correspond to any linearization of \eqn{f}.
 \examples{
 bundle()
 
-# The median, as the minimizer of a sum of absolute deviations: the
+# The median is the minimizer of a sum of absolute deviations: the
 # objective has a kink at every observation, and one of them is the answer.
 set.seed(1)
 y <- rnorm(101)
@@ -195,7 +195,7 @@ abs(g(r@par - 1e-9))
 d <- minimize(bfgs(criterion = crit_grad()), f, par = 0, gr = g)
 c(par = d@par, converged = d@converged)
 
-# A kink along a diagonal. The bundle method and the simplex reach the
+# The kink lies along a diagonal. The bundle method and the simplex reach the
 # minimum; the random-direction pattern search (the default of compass())
 # comes close, whereas a coordinate search stops at a wrong point.
 ff <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)

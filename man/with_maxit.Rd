@@ -18,8 +18,8 @@ with_maxit(optimizer, maxit)
 An optimizer of the same class as \code{optimizer}.
 }
 \description{
-Returns a copy of the optimizer with \code{maxit} replaced, keeping its class
-and every other setting. \code{\link[=check_optimizer]{check_optimizer()}} uses it for check 3, which
+Returns a copy of the optimizer in which \code{maxit} is replaced. The copy
+keeps the class and every other setting of the optimizer. \code{\link[=check_optimizer]{check_optimizer()}} uses it for check 3, which
 gives an optimizer a single iteration and tests that it does not report
 convergence, and which receives an optimizer of any class.
 }

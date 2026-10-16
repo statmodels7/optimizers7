@@ -19,7 +19,8 @@ Renders a time in seconds in a unit matched to its size: microseconds
 below a millisecond, milliseconds below a second and seconds below a
 minute, each to three significant figures, then whole minutes and seconds
 below an hour, and whole hours and minutes above. The unit is chosen on
-the rounded value, so that no field reaches its carry (\code{"59 min 60 s"}).
-Used by \code{\link[=print.optimizer_result]{print.optimizer_result()}} for the \code{elapsed} line.
+the rounded value, so that rounding cannot produce a field at its carry
+value (\code{"59 min 60 s"}). \code{\link[=print.optimizer_result]{print.optimizer_result()}} uses it for the
+\code{elapsed} line.
 }
 \keyword{internal}

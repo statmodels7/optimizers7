@@ -17,22 +17,23 @@ Chain(
 )
 }
 \arguments{
-\item{stages}{A list of \code{\link[=optimizer]{optimizer()}} objects, in the order they run.}
+\item{stages}{A list of \code{\link[=optimizer]{optimizer()}} objects, in the order in which they
+run.}
 }
 \value{
 An S7 object of class \code{Chain} inheriting from \code{\link[=optimizer]{optimizer()}}, with
 the property \code{stages} beside the seven shared ones.
 }
 \description{
-An optimizer holding a list of optimizers to be run in order, each from
-the point the previous one reached. Built by \code{\link[=chain]{chain()}}. Because it
-inherits from \code{\link[=optimizer]{optimizer()}} it is accepted anywhere a single method is,
-including inside \code{\link[=multistart]{multistart()}}.
+A \code{Chain} object is an optimizer that holds a list of optimizers to be run
+in order, each from the point that the previous one reached. It is built by
+\code{\link[=chain]{chain()}}. Because it inherits from \code{\link[=optimizer]{optimizer()}}, it is accepted anywhere
+a single method is, including inside \code{\link[=multistart]{multistart()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Chain} carries
 \code{stages}, the list of optimizers in running order. Three of the seven
-shared properties describe the \strong{last} stage: \code{criterion}, \code{maxit} and
+shared properties describe the last stage: \code{criterion}, \code{maxit} and
 \code{max_eval} are copied from it, because the rule of the last stage ends the
 run and its result is reported. \code{name} joins the names of all the stages,
 \code{verbose} and \code{keep_trace} belong to the chain, and \code{refresh} is fixed at

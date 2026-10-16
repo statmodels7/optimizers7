@@ -33,8 +33,8 @@ by the method. A line search accepts a step only when the objective
 decreases by a definite amount, and near a minimum that decrease is about
 \eqn{\lVert \nabla f \rVert^{2} / (2\lambda)} for a curvature
 \eqn{\lambda}. Once it falls below the rounding error of the objective,
-about \eqn{\varepsilon \lvert f \rvert}, no step can be verified and the
-search stops, so the smallest attainable gradient is about
+about \eqn{\varepsilon \lvert f \rvert}, the search cannot verify any step
+and stops, so the smallest attainable gradient is about
 \eqn{\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}} and grows with the
 value at the solution. Adding a constant to the objective moves neither
 the minimizer nor the gradient, but it changes this bound (the last
@@ -52,7 +52,8 @@ st <- list(f_new = 1, f_old = 2, x_new = 1, x_old = 0, gradient = c(3, 4))
 c(max = crit_met(crit_grad(4.5, "max"), st),
   two = crit_met(crit_grad(4.5, "2"), st))
 
-# Asking for the rule alone, where the shipped default is a disjunction.
+# The rule is used by itself here, where the shipped default is a
+# disjunction.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))

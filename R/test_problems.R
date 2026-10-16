@@ -18,12 +18,12 @@ NULL
 #' # The eight
 #'
 #' \tabular{llll}{
-#'   **name** \tab **p** \tab **start** \tab **what it tests** \cr
+#'   name \tab p \tab start \tab what it tests \cr
 #'   `sphere` \tab 3 \tab (1.3, -0.7, 0.8) \tab no difficulty; a method that fails here is defective \cr
 #'   `rosenbrock` \tab 2 \tab (-1.2, 1) \tab a curved valley, Hessian condition 2508 at the solution \cr
 #'   `booth` \tab 2 \tab (0, 0) \tab a well-conditioned quadratic written as a sum of squares \cr
 #'   `beale` \tab 2 \tab (1, 1) \tab a narrow valley, Hessian condition 162 \cr
-#'   `powell` \tab 4 \tab (3, -1, 0, 1) \tab a **singular** Hessian at the solution \cr
+#'   `powell` \tab 4 \tab (3, -1, 0, 1) \tab a singular Hessian at the solution \cr
 #'   `himmelblau` \tab 2 \tab (0, 0) \tab four minima, all of value zero \cr
 #'   `rastrigin` \tab 2 \tab (0.4, -0.4) \tab 121 local minima on the usual box \cr
 #'   `abs_sum` \tab 3 \tab (0, 0, 0) \tab a kink at the solution itself \cr
@@ -31,12 +31,11 @@ NULL
 #'
 #' The starting points are the customary ones, which for `rosenbrock` and
 #' `powell` are the difficult points for which those functions were
-#' designed. The two hardest problems are hard for opposite reasons. The
-#' Hessian of `powell` at the origin has eigenvalues 202, 20, 0 and 0, so a
-#' second-order method has no curvature in two of its four directions and
-#' converges linearly where it usually converges quadratically. `rastrigin`
-#' has 121 local minima on the usual box, so the answer depends on the point
-#' at which the run began.
+#' designed. The Hessian of `powell` at the origin has eigenvalues 202, 20, 0
+#' and 0, so a second-order method has no curvature in two of its four
+#' directions and converges linearly where it usually converges
+#' quadratically. `rastrigin`, by contrast, has 121 local minima on the usual
+#' box, so the answer depends on the point at which the run began.
 #'
 #' # The two flags
 #'
@@ -46,7 +45,7 @@ NULL
 #' none. [check_optimizer()] therefore scores every problem on the value
 #' reached and labels these two in its `note` column.
 #'
-#' `smooth` is `FALSE` for `abs_sum` alone. Its gradient at the solution is
+#' `smooth` is `FALSE` only for `abs_sum`. Its gradient at the solution is
 #' exactly zero, because `sign(0)` is zero, and at every neighboring point
 #' the subgradient has max-norm one. A method that tests \eqn{\nabla f}
 #' therefore reaches the solution without being able to certify it, unless
@@ -59,8 +58,8 @@ NULL
 #' definite amount, and near a minimum that decrease is about
 #' \eqn{\lVert g \rVert^{2} / (2\lambda)} for a curvature \eqn{\lambda}.
 #' Once it falls below the rounding error of the objective, about
-#' \eqn{\varepsilon \lvert f \rvert}, no step can be verified and the search
-#' rejects all of them. The smallest gradient that a run can reach is
+#' \eqn{\varepsilon \lvert f \rvert}, the search cannot verify a trial step
+#' and rejects every one. The smallest gradient that a run can reach is
 #' therefore of order
 #'
 #' \deqn{\lVert g \rVert_{\text{floor}} \approx
@@ -84,8 +83,8 @@ NULL
 #'   `test_problems(c("beale", "sphere"))` comes back beale first. A name
 #'   that is not one of the eight raises an error listing the eight.
 #'
-#' @return A named list, one element per problem, each itself a list of nine
-#'   components:
+#' @return A named list with one element per problem, and each element is a
+#'   list of nine components:
 #'   \describe{
 #'     \item{`name`}{character, the same as the element's name.}
 #'     \item{`fn`}{the objective, a function of a numeric vector of length
@@ -99,7 +98,7 @@ NULL
 #'     \item{`value`}{numeric, the minimum. Zero for all eight.}
 #'     \item{`multimodal`}{logical, `TRUE` for `himmelblau` and
 #'       `rastrigin`.}
-#'     \item{`smooth`}{logical, `FALSE` for `abs_sum` alone.}
+#'     \item{`smooth`}{logical, `FALSE` only for `abs_sum`.}
 #'   }
 #'
 #' @examples
@@ -269,8 +268,8 @@ test_problems <- function(which = NULL) {
   if (is.null(which)) return(P)
   missing <- setdiff(which, names(P))
   if (length(missing)) {
-    stop("No such test problem: ", paste(missing, collapse = ", "),
-         ". Available: ", paste(names(P), collapse = ", "), call. = FALSE)
+    stop("There is no test problem named ", paste(missing, collapse = ", "),
+         ". The available problems are ", paste(names(P), collapse = ", "), call. = FALSE)
   }
   P[which]
 }

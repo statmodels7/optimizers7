@@ -28,13 +28,13 @@ an error that names \code{maxit}.}
 \item{starts}{An optional matrix of starting points, one per row, used
 verbatim; \code{n} and \code{spread} are then ignored and \code{n} is taken from the
 number of rows. A matrix whose number of columns differs from the length
-of \code{par} is rejected when the run starts, with an error that states the
-required number of columns.}
+of \code{par} is rejected when the run starts, with an error whose message
+gives the required number of columns.}
 
 \item{spread}{How widely the random starts are scattered, in units of the
 unconstrained scale. Defaults to \code{1}.}
 
-\item{ncores}{How many processes to spread the starts over. Defaults to
+\item{ncores}{The number of processes over which to spread the starts. Defaults to
 \code{NULL}, meaning \code{min(n, max(1, parallel::detectCores() - 2))}. Pass \code{1}
 for a sequential run. For a deterministic inner optimizer the answer
 does not depend on the value; for a stochastic one, such as \code{\link[=sa]{sa()}}, it
@@ -50,7 +50,7 @@ nothing.}
 \item{refresh}{Report every this many starts. Defaults to \code{1}.}
 
 \item{keep_trace}{Keep the per-start summary? Defaults to \code{TRUE}, unlike
-every other optimizer, because here the trace is one row per \strong{start},
+every other optimizer, because here the trace is one row per start,
 not one per iteration.}
 }
 \value{
@@ -59,11 +59,11 @@ to be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
 Wraps any optimizer and runs it from several starting points, returning
-the best result together with the number of \strong{distinct optimal values}
+the best result together with the number of distinct optimal values
 reached. Two runs count as reaching the same optimum when their objective
 values differ by at most \code{distinct_tol}. A count above one shows that the
 surface has more than one local minimum; a count of one does not exclude
-other minima with the same value or minima that no start reached.
+other minima with the same value or minima that all the starts missed.
 }
 \section{What the result reports}{
 The result has the \code{par}, \code{value}, \code{gradient}, \code{converged} and
@@ -88,7 +88,7 @@ Unless \code{starts} is given, the first starting point is \code{par}, and the
 remaining \eqn{n - 1} form a Latin hypercube: the range of each coordinate
 is divided into equal strata and each stratum is used exactly once, which
 spreads the starts more evenly than independent draws. They are generated
-on the \strong{unconstrained} scale and mapped back through the bounds, so
+on the unconstrained scale and mapped back through the bounds, so
 every start is admissible by construction, however tight the box. The
 rows of a matrix given in \code{starts} are not checked against the bounds in
 advance: a row outside the box fails in its own run and is recorded as a
@@ -97,8 +97,8 @@ failed start.
 
 \section{Parallel execution}{
 The starts are independent and are run over \code{ncores} processes. The
-creation of the workers, the loading of the package, the assignment of
-random streams and the shutdown are handled internally: on Unix-alikes the
+function creates the workers, loads the package, assigns the random
+streams and shuts the workers down internally: on Unix-alikes the
 workers are forks, on Windows they form a socket cluster. If the workers
 cannot load \pkg{optimizers7}, the run gives a warning and proceeds
 sequentially. If \pkg{optimizers7} was loaded from source with
@@ -121,14 +121,14 @@ streams to the workers, and therefore on \code{ncores}.
 \section{Failed starts}{
 A start where the objective is undefined is recorded as failed and the
 others proceed; the \code{message} then reports how many succeeded and quotes
-the first failure. An error is raised only when \strong{every} start fails, and
+the first failure. An error is raised only when every start fails, and
 it quotes the first error.
 }
 
 \examples{
 multistart(bfgs())
 
-# A surface with two minima, one of them lower. A single run from the
+# The surface has two minima, and one of them is lower. A single run from the
 # origin finds the lower one; the count shows that there is another.
 f <- function(p) (p[1]^2 - 1)^2 + p[2]^2 + 0.3 * p[1]
 set.seed(1)

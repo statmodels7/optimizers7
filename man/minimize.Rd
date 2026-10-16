@@ -24,11 +24,11 @@ single number, to be minimized. An object of another class works
 whenever \code{\link[=as_objective]{as_objective()}} has a method for it.}
 
 \item{par}{A numeric vector of starting values, or a starter object; see
-Starters below. With bounds it must lie \strong{strictly} inside them.}
+Starters below. With bounds it must lie strictly inside them.}
 
 \item{gr}{The gradient, a function of the parameter vector. \code{NULL}, the
-default, has it differenced from \code{fn}. Ignored when \code{fn} is an objective
-carrying its own gradient.}
+default, has it differenced from \code{fn}. It is ignored when \code{fn} is an
+objective that carries its own gradient.}
 
 \item{he}{The Hessian, a function of the parameter vector. \code{NULL} is the
 default. \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read it; every other method
@@ -41,7 +41,7 @@ The defaults \code{-Inf} and \code{Inf} are no constraint, and a
 coordinate whose pair is infinite on both sides is left untransformed.
 \code{lower} must be strictly below \code{upper} in every coordinate.}
 
-\item{...}{Passed to the method dispatched on. Among the shipped
+\item{...}{Passed to the method selected by dispatch. Among the shipped
 methods, only the method for \code{\link[=chebyshev]{chebyshev()}} reads from it, its argument
 \code{t3}.}
 }
@@ -70,11 +70,11 @@ with \eqn{f} the objective, \eqn{l} and \eqn{u} the bounds, and the
 inequalities read coordinatewise. Every method reports the point where it
 stopped together with the rule that stopped it. \code{converged} is \code{TRUE}
 when the stopping rule is satisfied; it is also \code{TRUE} when a line search
-with a declared resolution establishes that no step decreases the
-objective by more than that resolution, and when \code{\link[=brent]{brent()}} reduces its
+with a declared resolution establishes that every step fails to decrease
+the objective by more than that resolution, and when \code{\link[=brent]{brent()}} reduces its
 bracket to the resolution of the iterate, and the result then reports
 that stop with its own label in \code{criterion_met}. It is never inferred from
-the run having ended, so a run that exhausts its budget comes back with
+the end of the run, so a run that exhausts its budget comes back with
 \code{converged = FALSE}.
 
 Dispatch is on \code{optimizer} alone, so each algorithm is written once. The
@@ -105,7 +105,7 @@ iteration, with no indication of its cause. Set
 }
 
 \section{Starters}{
-\code{par} may be a \strong{starter} object instead of a vector: \code{\link[=start_zeros]{start_zeros()}} for
+\code{par} may be a starter object instead of a vector: \code{\link[=start_zeros]{start_zeros()}} for
 all zeros, \code{\link[=start_runif]{start_runif()}} for a uniform draw from a chosen range. Both
 work on the unconstrained scale and are mapped back through the bounds, so
 one constant gives a sensible value for every kind of parameter (zero
@@ -140,15 +140,15 @@ its own for the bounds. \code{\link[=bounded_transform]{bounded_transform()}} is
 \code{\link[stats:nlminb]{stats::nlminb()}}, so \code{lower = 0} applies the lower bound zero to every
 parameter without one value per coefficient. A length that is neither 1
 nor \code{p} is rejected, and so is a \code{lower} that is at or above its \code{upper}.
-The
-\strong{starting value must lie strictly inside its bounds}: \code{par = 0} with
-\code{lower = 0} is an error, the transformed coordinate being infinite there.
+The starting value must lie strictly inside its bounds: \code{par = 0} with
+\code{lower = 0} is an error, because the transformed coordinate is infinite
+there.
 }
 
 \section{An optimum lying on a bound}{
 Reaching a bound exactly requires the transformed variable to run to
-infinity, so a solution on a bound is approached and not attained. What
-stops the run is the stopping rule, because the chain-rule factor
+infinity, so a solution on a bound is approached and not attained. The
+stopping rule ends the run, because the chain-rule factor
 \eqn{\partial x / \partial \eta} decays to zero as the bound is
 approached and takes the transformed gradient with it. The run therefore
 reports \code{converged = TRUE} at a point near the bound, and how near is set
@@ -170,24 +170,24 @@ more suitable.
 q <- function(p) sum((p - c(1, 2))^2)
 qg <- function(p) 2 * (p - c(1, 2))
 
-# With the gradient supplied, and without it, so that it is differenced.
+# The first run supplies the gradient, and the second differences it.
 # The two runs reach the same point and differ in the evaluation counts.
 a <- minimize(bfgs(), q, par = c(0, 0), gr = qg)
 b <- minimize(bfgs(), q, c(0, 0))
 all.equal(a@par, b@par, tolerance = 1e-6)
 rbind(supplied = unlist(a@counts), differenced = unlist(b@counts))
 
-# One bound for every parameter: a scale that must stay positive.
+# One bound applies to every parameter: a scale that must stay positive.
 minimize(bfgs(), q, c(0.5, 0.5), lower = 0)@par
 
-# Or one per parameter. The unconstrained minimum is at (1, 2), so the
+# Bounds may also be given per parameter. The unconstrained minimum is at (1, 2), so the
 # second coordinate approaches its upper bound of 1 and stops just short of
 # it, at a distance set by the tolerance.
 minimize(bfgs(), q, c(0.5, 0.5), lower = c(0, 0), upper = c(5, 1))@par
 minimize(bfgs(criterion = crit_grad(1e-12)), q, c(0.5, 0.5),
          lower = c(0, 0), upper = c(5, 1))@par
 
-# No starting value: the bounds give the number of parameters.
+# Without a starting value, the bounds give the number of parameters.
 minimize(bfgs(), q, start_zeros(), lower = c(0, 0), upper = c(5, 10))@par
 
 # A start on its own bound is rejected: the transform is infinite there.

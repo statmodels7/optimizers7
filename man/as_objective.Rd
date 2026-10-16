@@ -8,14 +8,13 @@ as_objective(fn, gr = NULL, he = NULL, ...)
 }
 \arguments{
 \item{fn}{The objective, a function of the parameter vector returning a
-single number to be \strong{minimized}. An object of some other class is
+single number to be minimized. An object of some other class is
 accepted whenever a method has been registered for it; without one,
-dispatch fails and reports the class it was handed.}
+dispatch fails and reports the class that it was handed.}
 
 \item{gr}{The gradient, a function of the parameter vector returning a
 numeric vector of the same length. \code{NULL}, the default, has the
-gradient differenced from \code{fn} as above. Anything that is neither a
-function nor \code{NULL} is an error.}
+gradient differenced from \code{fn} as above. Any other value is an error.}
 
 \item{he}{The Hessian, a function of the parameter vector returning a
 \verb{p x p} symmetric matrix. \code{NULL} is the default. \code{\link[=newton]{newton()}} and
@@ -23,8 +22,8 @@ function nor \code{NULL} is an error.}
 it, so calling code can pass whatever it has without branching on the
 method.}
 
-\item{...}{Passed to the method dispatched on. The shipped method for an
-ordinary function reads nothing from it.}
+\item{...}{Passed to the method that dispatch selects. The shipped method
+for an ordinary function does not read it.}
 }
 \value{
 A named list of six components describing the objective to the
@@ -39,14 +38,14 @@ compiled side:
 }
 }
 \description{
-Packs a function to be minimized, together with whichever of its gradient
-and Hessian the caller has, into the handle on which every algorithm in
+Packs a function to be minimized, together with its gradient and Hessian
+when the caller has them, into the handle on which every algorithm in
 the package operates. The result is a named list that contains the pieces
 and two flags recording which derivatives were supplied. \code{as_objective()}
 is a generic that dispatches on \code{fn}, so a caller with another kind of
 objective registers one method and every algorithm accepts that objective.
 }
-\section{Two generics, each dispatching once}{
+\section{Dispatch of the two generics}{
 \code{\link[=minimize]{minimize()}} dispatches on the optimizer, so an algorithm is written once
 for every kind of objective. \code{as_objective()} dispatches on the objective,
 so each kind of objective is converted once for every algorithm.
@@ -55,7 +54,7 @@ algorithm and a kind of objective. The package ships one method, for an
 ordinary R function.
 }
 
-\section{What happens when no gradient is supplied}{
+\section{A gradient obtained by differencing}{
 The compiled loop differences the objective, once per coordinate,
 \deqn{\hat{g}_j = \frac{f(x + h e_j) - f(x - h e_j)}{2h}, \qquad
       h = \varepsilon^{1/3} \max(1, \lvert x_j \rvert),}
@@ -69,8 +68,9 @@ of the result.
 }
 
 \section{A Hessian by differencing the gradient}{
-\code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read a Hessian, and when none is supplied it
-is obtained by differencing the gradient once. With an analytic gradient
+\code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read a Hessian, and the Hessian is obtained
+by differencing the gradient once when the caller does not supply one.
+With an analytic gradient
 this is a single differentiation and costs \eqn{2p} gradient evaluations.
 Without a gradient, the gradient is itself a difference and the Hessian is
 a difference of differences, which costs about \eqn{4p^2} evaluations of
@@ -92,7 +92,8 @@ starting value is an error.
 str(as_objective(function(p) sum(p^2)))
 str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 
-# The cost of the difference, on Rosenbrock from the origin. Both runs take
+# The example measures the cost of the difference on Rosenbrock from the
+# origin. Both runs take
 # 21 iterations and reach the same point; the evaluation counts differ.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),

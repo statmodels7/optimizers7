@@ -22,7 +22,7 @@ and it is one of the three terms of the default rule of the gradient
 methods.
 }
 \details{
-With box constraints the comparison is on the \strong{unconstrained} scale, on
+With box constraints the comparison is on the unconstrained scale, on
 which the optimizer moves. Near a bound a short distance in \eqn{\theta}
 corresponds to a long distance in \eqn{\eta}, so the rule fires later
 there than the change on the parameter scale suggests.

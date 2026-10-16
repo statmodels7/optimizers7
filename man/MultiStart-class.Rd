@@ -30,7 +30,7 @@ MultiStart(
 
 \item{spread}{How widely the random starts are scattered.}
 
-\item{ncores}{How many processes the starts are spread over.}
+\item{ncores}{The number of processes over which the starts are spread.}
 
 \item{distinct_tol}{Objective values closer than this count as one
 optimum.}
@@ -40,12 +40,12 @@ An S7 object of class \code{MultiStart} inheriting from \code{\link[=optimizer]{
 with the six properties above beside the seven shared ones.
 }
 \description{
-An optimizer that wraps another and runs it from several starting points.
-Built by \code{\link[=multistart]{multistart()}}. Its seven shared properties describe the wrapper:
-\code{criterion} and \code{max_eval} are copied from the inner optimizer, so that
-the printed stopping rule and evaluation budget are those in force;
-\code{verbose}, \code{refresh} and \code{keep_trace} are the arguments of \code{\link[=multistart]{multistart()}};
-and \code{maxit} counts \strong{starts}.
+A \code{MultiStart} object wraps another optimizer and runs it from several
+starting points. It is built by \code{\link[=multistart]{multistart()}}. Its seven shared
+properties describe the wrapper: \code{criterion} and \code{max_eval} are copied
+from the inner optimizer, so that the printed stopping rule and evaluation
+budget are those in force; \code{verbose}, \code{refresh} and \code{keep_trace} are the
+arguments of \code{\link[=multistart]{multistart()}}; and \code{maxit} counts starts.
 }
 \details{
 Beyond the seven shared properties a \code{MultiStart} carries six of its own:
@@ -55,7 +55,7 @@ and \code{distinct_tol} how close two values must be to count as one optimum.
 
 Because the rule that is evaluated belongs to the inner optimizer,
 \code{\link[=with_criterion]{with_criterion()}} has a method for this class that sets both; setting the
-outer property alone changes only the printing.
+outer property without the inner one changes only the printing.
 }
 \seealso{
 \code{\link[=multistart]{multistart()}} for the constructor, \code{\link[=chain]{chain()}} for the other

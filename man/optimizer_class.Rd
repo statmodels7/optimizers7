@@ -11,7 +11,7 @@ The \code{\link[=optimizer]{optimizer()}} class object, an \code{S7_class}.
 }
 \description{
 Returns the \code{\link[=optimizer]{optimizer()}} class itself, for the same reason as
-\code{\link[=criterion_class]{criterion_class()}}: the three functions that accept an arbitrary
+\code{\link[=criterion_class]{criterion_class()}}: the functions that accept an arbitrary
 optimizer and check their argument all take an argument named
 \code{optimizer}, which shadows the class inside their body.
 }

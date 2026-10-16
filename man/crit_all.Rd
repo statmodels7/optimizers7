@@ -16,12 +16,12 @@ An S7 object of class \link{CritCombine}, inheriting from
 }
 \description{
 Combines criteria conjunctively, for a run that should stop only when
-several rules hold at once. A conjunction can only become \strong{stronger} as
+several rules hold at once. A conjunction can only become stronger as
 terms are added, so a run that ends under it would have ended under any
 one of its terms alone at the same iteration or earlier.
 }
 \details{
-It is useful when one rule alone is known to fire early:
+It is useful when a single rule is known to fire early:
 \code{crit_all(crit_grad(), crit_abs_par())} requires a stationary point at
 which the iterate has also stopped moving, a condition that a run circling
 a flat optimum does not satisfy.

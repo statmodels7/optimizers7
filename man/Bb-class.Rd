@@ -42,11 +42,11 @@ An S7 object of class \code{Bb} inheriting from \code{\link[=optimizer]{optimize
 seven properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding which of the two Rayleigh quotients gives the step
+A \code{Bb} object holds which of the two Rayleigh quotients gives the step
 length, the bounds to which that quotient is clamped, the curvature
 threshold that a secant pair must meet, and the step multiplier and the
-line search. Built by \code{\link[=bb]{bb()}}. Its line search defaults to \code{\link[=nonmonotone]{nonmonotone()}};
-it is the only shipped method with that default.
+line search. It is built by \code{\link[=bb]{bb()}}. Its line search defaults to
+\code{\link[=nonmonotone]{nonmonotone()}}; it is the only shipped method with that default.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Bb} carries seven of
@@ -56,6 +56,6 @@ along the direction.
 }
 \seealso{
 \code{\link[=bb]{bb()}} for the constructor, \code{\link[=nonmonotone]{nonmonotone()}} for the acceptance
-test it defaults to.
+test that is its default.
 }
 \keyword{internal}

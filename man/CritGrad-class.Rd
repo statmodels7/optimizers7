@@ -19,9 +19,10 @@ An S7 object of class \code{CritGrad} inheriting from \code{\link[=criterion]{cr
 carrying \code{label}, \code{tol} and \code{norm}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_grad]{crit_grad()}}, and its two methods. The
-rule reads \code{state$gradient}, takes its max-norm or its 2-norm, and fires
-when that norm falls below \code{tol}. It declares \code{"gradient"} through
+This is the class of the rule built by \code{\link[=crit_grad]{crit_grad()}}, which has a method
+for \code{\link[=crit_met]{crit_met()}} and one for \code{\link[=crit_needs]{crit_needs()}}. The rule reads
+\code{state$gradient}, takes its max-norm or its 2-norm, and fires when that
+norm falls below \code{tol}. It declares \code{"gradient"} through
 \code{\link[=crit_needs]{crit_needs()}}, so a derivative-free optimizer rejects it when the run
 starts.
 }
@@ -43,7 +44,7 @@ crit_met(crit_grad(), list(f_new = 1, gradient = NULL))
 
 }
 \seealso{
-\code{\link[=crit_grad]{crit_grad()}} for the constructor and the tolerance it can
+\code{\link[=crit_grad]{crit_grad()}} for the constructor and the tolerance that it can
 attain, \code{\link[=crit_stationary]{crit_stationary()}} for what a derivative-free method reads.
 }
 \keyword{internal}

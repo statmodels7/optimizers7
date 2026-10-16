@@ -13,14 +13,14 @@ check_bounds(lower, upper, par)
 }
 \value{
 A list with one \code{c(lower, upper)} pair per parameter, or an
-empty list when no bound is finite. Call it at the top of a
+empty list when every bound is infinite. Call it at the top of a
 user-defined \code{\link[=minimize]{minimize()}} method, then hand each pair to
 \code{\link[=bounded_transform]{bounded_transform()}}; an empty list means there is no box and
 the whole reparametrization should be skipped.
 }
 \description{
 Recycles \code{lower} and \code{upper} to the length of \code{par}, checks
-them, and returns them in the shape the compiled loop reads.
+them, and returns them in the shape that the compiled loop reads.
 }
 \details{
 The interface is two numeric vectors and not a list of pairs, as in
@@ -43,7 +43,7 @@ error raised here names the coordinate.
 check_bounds(0, Inf, par = c(1, 2))
 check_bounds(c(0, -5), c(1, 5), par = c(0.5, 0))
 
-# no finite bound is no box at all
+# infinite bounds on every parameter give no box at all
 length(check_bounds(-Inf, Inf, par = c(1, 2)))
 
 # and a start on a bound is rejected, naming the coordinate

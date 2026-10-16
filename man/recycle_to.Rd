@@ -9,7 +9,7 @@ recycle_to(v, n, nm)
 \arguments{
 \item{v}{A numeric vector.}
 
-\item{n}{The length wanted.}
+\item{n}{The length of the result.}
 
 \item{nm}{The name of the argument, for the message.}
 }
@@ -20,8 +20,7 @@ A numeric vector of length \code{n}.
 Returns \code{v} at length \code{n}: a single value is repeated, a value already of
 length \code{n} is passed through as a double, and any other length raises an
 error that names the argument and both lengths. The recycling of \R is not
-used, since it is silent whenever the shorter length divides the longer,
-and a partial range is much more likely to be a mistake than a
-request.
+used, because it gives no warning whenever the shorter length divides the
+longer, and here a partial range is treated as a mistake.
 }
 \keyword{internal}

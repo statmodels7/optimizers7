@@ -24,8 +24,8 @@ optimizer_result(
 the starting point.}
 
 \item{value}{The objective at \code{par}, a single number. For a run started by
-\code{\link[=maximize]{maximize()}} this is the value of the original objective, with the sign
-already undone.}
+\code{\link[=maximize]{maximize()}} this is the value of the original objective, and its sign
+is already undone.}
 
 \item{gradient}{The gradient at \code{par}, a numeric vector, or \code{NULL} for a
 method that computes none. \code{\link[=prox_grad]{prox_grad()}} reports the proximal gradient
@@ -52,8 +52,8 @@ optimizer was built with \code{keep_trace = FALSE}, which is the default.}
 \item{optimizer}{The \code{\link[=optimizer]{optimizer()}} that produced the result, kept whole so
 the run can be repeated or restarted from where it stopped.}
 
-\item{elapsed}{Wall-clock seconds, a single number. Measured to the
-platform's clock resolution, so a fast run can read exactly \code{0}.}
+\item{elapsed}{Wall-clock seconds, a single number. The time is measured to
+the platform's clock resolution, so a fast run can read exactly \code{0}.}
 
 \item{seed}{The state of the random number generator when the run began,
 an integer vector, or \code{NULL} for a deterministic method.}
@@ -72,8 +72,8 @@ result.
 }
 \section{The meaning of \code{converged}}{
 \code{converged} is \code{TRUE} when the stopping rule was satisfied, and also when
-a line search with a declared resolution established that no step
-decreases the objective by more than that resolution (\code{criterion_met} is
+a line search with a declared resolution established that every step
+fails to decrease the objective by more than that resolution (\code{criterion_met} is
 then \verb{no decrease above the objective's resolution}) or when \code{\link[=brent]{brent()}}
 reduced its bracket to the resolution of the iterate (\verb{bracket at machine resolution}). Running out of iterations or evaluations leaves it \code{FALSE}
 and puts \verb{iteration budget reached} or \verb{evaluation budget reached} into

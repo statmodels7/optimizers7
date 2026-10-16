@@ -7,12 +7,13 @@
 chain(..., verbose = FALSE, keep_trace = FALSE)
 }
 \arguments{
-\item{...}{Optimizers, in the order they should run. At least one is
+\item{...}{Optimizers, in the order in which they should run. At least one is
 required; one is accepted. Anything that is not an \code{\link[=optimizer]{optimizer()}} raises
 an error naming \code{sa()} and \code{bfgs()} as examples.}
 
 \item{verbose}{\code{TRUE} or \code{FALSE}, default \code{FALSE}: report which stage is
-starting, one line each. Independent of the \code{verbose} of the stages.}
+starting, one line each. It does not depend on the \code{verbose} of the
+stages.}
 
 \item{keep_trace}{\code{TRUE} or \code{FALSE}, default \code{FALSE}: assemble a trace
 across the stages. The stages must also have been built with
@@ -24,13 +25,13 @@ An S7 object of class \link{Chain}, inheriting from \code{\link[=optimizer]{opti
 \code{maxit} and \code{max_eval} are copied from the last stage.
 }
 \description{
-Builds one optimizer out of several, run in order, each starting from the
-point that the previous one reached. This is the composition used with a
-global search: \code{chain(sa(), lbfgs())} explores and then descends from the
-point where the exploration stopped, and neither method needs code for
-the other. The result is itself an \code{\link[=optimizer]{optimizer()}}, so it can be used
-wherever a single method can, \code{multistart(chain(sa(), lbfgs()))}
-included.
+Builds one optimizer out of several optimizers that run in order, and each
+of them starts from the point that the previous one reached. This is the
+composition used with a global search: \code{chain(sa(), lbfgs())} explores and
+then descends from the point where the exploration stopped, and each method
+works without code written for the other. The result is itself an
+\code{\link[=optimizer]{optimizer()}}, so it can be used wherever a single method can, including
+\code{multistart(chain(sa(), lbfgs()))}.
 }
 \section{Each stage keeps its own settings}{
 A stage carries its own stopping rule and its own budgets, which is why a
@@ -45,17 +46,17 @@ stage, where the run ended. So is \code{converged}: a chain has converged when
 the method that finished it converged. An earlier stage that exhausts its
 budget, the ordinary end of a global search, does not affect the flag.
 
-The evaluation counts are \strong{summed over the stages}, so a chain can be
+The evaluation counts are summed over the stages, so a chain can be
 compared with a single optimizer on total work. \code{message} joins the
-messages of the stages, each prefixed with its stage number.
+messages of the stages, and each message is prefixed with its stage number.
 
 A trace is assembled when both the chain and the stage were built with
-\code{keep_trace = TRUE}: the flag of the chain decides whether a trace is kept
-at all, and the flag of each stage decides whether that stage contributes
-rows. It carries a \code{stage} column. Stages need not report the same
-columns, since a derivative-free method has a \code{stationarity} column where
-a descent has \code{gnorm}; when they differ, only the trace of the last stage
-is kept.
+\code{keep_trace = TRUE}: if the chain was built with \code{keep_trace = FALSE}, the
+result has no trace, and if a stage was built with \code{keep_trace = FALSE}, that
+stage contributes no rows. The trace carries a \code{stage} column. Stages need
+not report the same columns, since a derivative-free method has a
+\code{stationarity} column where a descent has \code{gnorm}; when they differ, only
+the trace of the last stage is kept.
 
 An error raised by a stage propagates, since a method that cannot run on
 the objective indicates a problem with the objective. A stage that runs

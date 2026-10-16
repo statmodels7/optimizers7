@@ -40,10 +40,10 @@ An S7 object of class \code{Newton} inheriting from \code{\link[=optimizer]{opti
 the six properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the initial step length, the line search, the two
-settings that decide how an indefinite Hessian is repaired, and the two
-settings that bound and scale a step. Built by \code{\link[=newton]{newton()}}. Among the
-shipped methods, only this one and \code{\link[=chebyshev]{chebyshev()}}, which inherits from it,
+This class is an optimizer that holds the initial step length, the line
+search, the two settings that determine how an indefinite Hessian is
+repaired, and the two settings that bound and scale a step. \code{\link[=newton]{newton()}}
+builds it. Among the shipped methods, only this one and \code{\link[=chebyshev]{chebyshev()}}, which inherits from it,
 read the \code{he} argument of \code{\link[=minimize]{minimize()}}.
 }
 \details{

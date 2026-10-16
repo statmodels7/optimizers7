@@ -11,10 +11,10 @@ NULL
 #' @title S7 Class for Newton's Method
 #'
 #' @description
-#' An optimizer holding the initial step length, the line search, the two
-#' settings that decide how an indefinite Hessian is repaired, and the two
-#' settings that bound and scale a step. Built by [newton()]. Among the
-#' shipped methods, only this one and [chebyshev()], which inherits from it,
+#' This class is an optimizer that holds the initial step length, the line
+#' search, the two settings that determine how an indefinite Hessian is
+#' repaired, and the two settings that bound and scale a step. [newton()]
+#' builds it. Among the shipped methods, only this one and [chebyshev()], which inherits from it,
 #' read the `he` argument of [minimize()].
 #'
 #' @details
@@ -109,7 +109,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'     direction in the rest. The repair costs a symmetric eigendecomposition
 #'     and gives the best-conditioned matrix. If the eigendecomposition
 #'     fails, the ridge repair is used.}
-#'   \item{`"ridge"`}{add \eqn{\tau I}, with \eqn{\tau} doubled until the
+#'   \item{`"ridge"`}{add \eqn{\tau I} and double \eqn{\tau} until the
 #'     factorization succeeds. This is Levenberg's idea: it interpolates
 #'     between the Newton step at \eqn{\tau = 0} and a scaled steepest-descent
 #'     step for large \eqn{\tau}. It costs less than the eigendecomposition and
@@ -192,7 +192,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'
 #' minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #'
-#' # A saddle, where the unrepaired step points the wrong way. The Hessian at
+#' # At a saddle the unrepaired step points the wrong way. The Hessian at
 #' # the start has eigenvalues 2 and -1.99; the repair is recorded in the
 #' # trace.
 #' sad <- function(p) p[1]^2 - p[2]^2 + 0.1 * p[2]^4
@@ -208,7 +208,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
 #'                  gr = rosen_gr, he = rosen_he))
 #'
-#' @seealso [bfgs()] and [lbfgs()] when no Hessian is available,
+#' @seealso [bfgs()] and [lbfgs()] when a Hessian is not available,
 #'   [armijo()] for the line search, [summary.optimizer_result()] for the
 #'   safeguard counts.
 #' @references
@@ -258,10 +258,10 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
 #' @title S7 Class for BFGS
 #'
 #' @description
-#' An optimizer holding the initial step length, the line search, and the two
-#' settings that apply when a secant pair has no usable curvature. Built by
-#' [bfgs()]. The inverse-Hessian approximation is not a property: it is built
-#' inside the run and discarded at its end.
+#' This class is an optimizer that holds the initial step length, the line
+#' search, and the two settings that apply when a secant pair has no usable
+#' curvature. [bfgs()] builds it. The inverse-Hessian approximation is not a
+#' property: it is built inside the run and discarded at its end.
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `Bfgs` carries four:
@@ -292,8 +292,8 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'
 #' @description
 #' Builds an approximation to the inverse Hessian from successive gradients,
-#' so the direction is a matrix-vector product and no second derivatives are
-#' ever required. It is the usual choice for a smooth problem of moderate
+#' so the direction is a matrix-vector product and the method never
+#' evaluates second derivatives. It is the usual choice for a smooth problem of moderate
 #' size.
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
@@ -316,10 +316,10 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' @details
 #' # Notation
 #'
-#' \eqn{s = x_{new} - x_{old}} is the **secant vector** and
+#' \eqn{s = x_{new} - x_{old}} is the secant vector and
 #' \eqn{y = g_{new} - g_{old}} the change in the gradient. The scalar step
-#' length a line search chooses is \eqn{\alpha}, a different quantity; the
-#' two are related by \eqn{s = \alpha d} for the direction \eqn{d}.
+#' length that a line search returns is \eqn{\alpha}, a different quantity;
+#' the two are related by \eqn{s = \alpha d} for the direction \eqn{d}.
 #'
 #' # Why the line search is the strong Wolfe one
 #'
@@ -337,7 +337,7 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'
 #' # Skipping and resetting
 #'
-#' When the curvature condition fails, the update is **skipped**. A small
+#' When the curvature condition fails, the update is skipped. A small
 #' \eqn{s^\top y} makes \eqn{\rho = 1/s^\top y} very large, and one such
 #' update can destroy the accumulated approximation; skipping it keeps the
 #' previous matrix, which is still positive definite. After `max_skip`
@@ -365,14 +365,14 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'                     200 * (p[2] - p[1]^2))
 #' minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
 #'
-#' # Armijo instead of Wolfe: the update is skipped once here, the trace
+#' # With Armijo instead of Wolfe, the update is skipped once here, the trace
 #' # records it, and the run converges.
 #' a <- minimize(bfgs(line_search = armijo(), keep_trace = TRUE), rosen,
 #'               c(-1.2, 1), gr = rg)
 #' c(iterations = a@iterations, skips = sum(a@trace$safeguard == "bfgs update skipped"))
 #'
-#' # A curvature threshold that no pair can meet forces every update to be
-#' # skipped; the run exhausts its budget, and the trace names both
+#' # A curvature threshold that every pair fails to meet forces every update
+#' # to be skipped; the run exhausts its budget, and the trace names both
 #' # safeguards.
 #' b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
 #'               gr = rg)
@@ -411,10 +411,10 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 #' @title S7 Class for Limited-Memory BFGS
 #'
 #' @description
-#' An optimizer holding the number of secant pairs to keep, the curvature
-#' threshold that a pair must meet to be stored, and the step length and the
-#' line search. Built by [lbfgs()]. The pairs themselves exist only inside
-#' the run.
+#' This class is an optimizer that holds the number of secant pairs to keep,
+#' the curvature threshold that a pair must meet to be stored, and the step
+#' length and the line search. [lbfgs()] builds it. The pairs themselves
+#' exist only inside the run.
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, an `Lbfgs` carries four:
@@ -446,9 +446,10 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' @title Limited-Memory BFGS
 #'
 #' @description
-#' BFGS without ever forming the matrix: only the last `memory` secant pairs
-#' are kept, and the direction comes from the two-loop recursion. Costs
-#' \eqn{O(mp)} in time and memory where [bfgs()] costs \eqn{O(p^2)}. The
+#' Applies the BFGS update without forming the matrix: only the last `memory`
+#' secant pairs are kept, and the direction comes from the two-loop
+#' recursion. It costs \eqn{O(mp)} in time and memory where [bfgs()] costs
+#' \eqn{O(p^2)}. The
 #' direction equals the one of the explicitly assembled inverse built from
 #' the same pairs and the same initial scaling. The two methods do not give
 #' the same directions in a run, because [bfgs()] keeps every pair and scales
@@ -479,7 +480,7 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #'
 #' The two-loop recursion returns exactly the product of the explicitly
 #' assembled inverse built from the same pairs and the same scaling (the
-#' last example). The difference is in the cost: one iteration costs
+#' last example). The methods differ in cost: one iteration costs
 #' \eqn{O(p^2)} for [bfgs()] and \eqn{O(mp)} for [lbfgs()], while the
 #' numbers of iterations of the two methods on a dense quadratic are close.
 #' The difference in time becomes large for a few hundred parameters, and

@@ -18,7 +18,8 @@ WolfeSearch(
 
 \item{c2}{The curvature constant.}
 
-\item{max_step}{The most trial steps allowed in each phase. A \strong{count}.}
+\item{max_step}{The most trial steps allowed in each phase. It is a
+count.}
 
 \item{resolution}{The smallest difference in the objective that the
 objective can resolve, a number or a function of no arguments.}
@@ -28,10 +29,11 @@ An S7 object of class \code{WolfeSearch} inheriting from
 \code{\link[=line_search]{line_search()}}, with the four properties above beside \code{label}.
 }
 \description{
-A line search that brackets a step satisfying both Wolfe conditions and
-then bisects inside the bracket. Built by \code{\link[=wolfe]{wolfe()}}. It evaluates the
-\strong{gradient} at trial points as well as the objective, which is the cost
-of the curvature condition that a quasi-Newton method needs.
+This class is a line search that brackets a step satisfying both Wolfe
+conditions and then bisects inside the bracket. \code{\link[=wolfe]{wolfe()}} builds it. The
+search evaluates the gradient at trial points as well as the objective,
+which is the cost of the curvature condition that a quasi-Newton method
+needs.
 }
 \details{
 Beyond the \code{label} of every line search, a \code{WolfeSearch} holds \code{c1},

@@ -10,15 +10,15 @@
 A single logical.
 }
 \description{
-\code{TRUE} when every stage takes bounds, \code{FALSE} otherwise. The bounds are
-passed to all of them, so a single stage that does not take them makes
-the whole chain unable to take them.
+Returns \code{TRUE} when every stage takes bounds and \code{FALSE} otherwise. The
+bounds are passed to all of them, so a single stage that does not take them
+makes the whole chain unable to take them.
 }
 \details{
 \code{\link[=prox_grad]{prox_grad()}} is the only shipped method that returns \code{FALSE}: it takes
 its constraint inside the proximal operator, where the constraint combines
 with the penalty. A chain that contains it therefore does not take bounds,
-whatever its other stages.
+whichever other stages it has.
 }
 \examples{
 optimizer_bounded(chain(bfgs(), newton()))

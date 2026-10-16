@@ -32,9 +32,9 @@ to \code{0.9}.}
 \item{beta2}{Decay rate of the second moment, the smoothed squared gradient.
 Defaults to \code{0.999}.}
 
-\item{eps}{Added to the square-rooted second moment before dividing, so that
-a coordinate whose gradient has been uniformly zero does not divide by it.
-Defaults to \code{1e-8}.}
+\item{eps}{Added to the square root of the second moment before dividing, so
+that a coordinate whose gradient has been uniformly zero does not divide
+by zero. Defaults to \code{1e-8}.}
 
 \item{decay}{Reduces the learning rate as \eqn{\alpha_t = \alpha/(1 + \delta
   (t - 1))} at iteration \eqn{t = 1, 2, \ldots}, so that the first step
@@ -47,8 +47,8 @@ uses \eqn{\alpha}. Defaults to \code{0}, a constant rate; see Details.}
 and quasi-Newton methods, because Adam takes many small steps where a
 second-order method takes few large ones.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
-no evaluation budget, so the run stops on the criterion or on
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}, which
+sets no evaluation budget, so the run stops on the criterion or on
 \code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
@@ -62,11 +62,11 @@ An S7 object of class \link{Adam}, inheriting from \code{\link[=optimizer]{optim
 handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-Adaptive moment estimation: a first-order method whose coordinate-wise step
-lengths come from exponentially weighted first and second moments of the
-gradient. It takes no line search and tolerates a gradient that is correct
-only on average, which makes it the method suited to a stochastic
-objective.
+Adaptive moment estimation (Adam) is a first-order method whose
+coordinate-wise step lengths come from exponentially weighted first and
+second moments of the gradient. It takes no line search and tolerates a
+gradient that is correct only on average, which makes it the method suited
+to a stochastic objective.
 }
 \details{
 Adam keeps an exponentially weighted average of the gradient,
@@ -86,10 +86,9 @@ which the first iterations would barely move.
 }
 \section{Relation to the descent methods}{
 Adam takes no line search and does not require the objective to decrease
-at every step. This is the main reason why it tolerates a gradient that
-is correct only on average, and it also means that there is no guarantee
-of monotone progress: the run may end at a point worse than one it passed
-through.
+at every step. Because of this, Adam tolerates a gradient that is correct
+only on average, and it provides no guarantee of monotone progress: the
+run may end at a point worse than a point through which it passed.
 
 Adam is therefore a poor choice for a small smooth problem where a Hessian
 is affordable: on a quadratic \code{\link[=bfgs]{bfgs()}} needs a few iterations and Adam
@@ -99,8 +98,8 @@ description.
 }
 
 \section{Stochastic objectives}{
-Adam draws no subsamples of its own. The optimizer has no notion of an
-observation, and a stochastic objective is an ordinary function of the
+Adam draws no subsamples of its own. The optimizer does not represent
+observations, and a stochastic objective is an ordinary function of the
 parameters, so a minibatch is drawn inside the objective, as in the
 following closure:
 
@@ -114,7 +113,7 @@ minimize(adam(), batch, par = 0, gr = batch_gr)
 Adam then behaves as on a minibatch of its own drawing, and \code{set.seed()}
 governs the run because the draws happen in the code of the caller.
 
-\strong{Resample inside the objective, not around the run.} Calling
+Resample inside the objective, not around the run. Calling
 \code{minimize(adam(maxit = 1), ...)} in a loop with a new batch each time does
 not work: \eqn{m} and \eqn{v} start at zero and the bias correction
 restarts at \eqn{t = 1}, so every call takes a first step of length
@@ -130,15 +129,15 @@ warning does not indicate an error. Set
 
 \section{Stopping}{
 The default criterion is \code{\link[=crit_never]{crit_never()}}, so the run ends when \code{maxit} is
-reached and reports \code{converged = FALSE}, because no stopping rule was
-tested. On a noisy objective Adam with a fixed \code{alpha} circles an optimum
-instead of settling on it, so a tolerance on the gradient seldom fires
-there.
+reached and reports \code{converged = FALSE}, because the run does not test any
+stopping rule. On a noisy objective Adam with a fixed \code{alpha} circles an
+optimum instead of settling on it, so a tolerance on the gradient seldom
+fires there.
 
 On an exact objective a stopping rule such as \code{\link[=crit_grad]{crit_grad()}} can be passed
 and fires. On a noisy objective the value and the gradient are both
-estimates, so a rule that reads either is unreliable, and the method
-cannot determine which kind of objective it receives. The rule is also
+estimates, so a rule that reads either is unreliable, and the method does
+not distinguish an exact objective from a noisy one. The rule is also
 tested at the point produced by the last iteration of the budget.
 }
 

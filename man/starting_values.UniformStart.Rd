@@ -6,7 +6,8 @@
 \arguments{
 \item{starter}{A \code{UniformStart} object, read for \code{min} and \code{max}.}
 
-\item{npar}{The number of parameters wanted, a positive whole number.}
+\item{npar}{The number of parameters in the vector to produce, a positive
+whole number.}
 }
 \value{
 A numeric vector of length \code{npar}, drawn with \code{stats::runif()}, so
@@ -22,11 +23,11 @@ range, and any other length raises an error that names both lengths.
 set.seed(1)
 starting_values(start_runif(-2, 2), 4)
 
-# A range per coordinate.
+# Each coordinate can have its own range.
 set.seed(1)
 starting_values(start_runif(c(-1, -10), c(1, 10)), 2)
 
-# A length that is neither 1 nor npar is a mistake, not a request.
+# A length that is neither 1 nor npar is rejected as a mistake.
 try(starting_values(start_runif(c(-1, -2, -3)), 2))
 
 }

@@ -56,12 +56,13 @@ The test suite compares them with \code{linkinv()}, \code{dlinkinv()} and
 }
 
 \examples{
-# A variance: the whole line maps onto the positive half-line, and every
+# For a variance, the whole line maps onto the positive half-line, and every
 # value of eta, however large, maps inside it.
 bounded_transform(c(0, Inf), c(-2, 0, 2))$h
 bounded_transform(c(0, Inf), c(-500, 500))$h > 0
 
-# A probability, with the derivative that carries a gradient across.
+# For a probability, the result also includes the derivative that carries a
+# gradient across.
 str(bounded_transform(c(0, 1), c(-1, 0, 1)))
 
 # Zero maps to the middle of the box, whatever the box. For this reason
@@ -83,5 +84,5 @@ bounded_transform(c(0, 1), 0.3)$d1
 }
 \seealso{
 \code{\link[=bounded_forward]{bounded_forward()}} for the inverse, \code{\link[=check_bounds]{check_bounds()}} for the
-shape \code{b} comes in, \code{\link[=minimize]{minimize()}} for the run that uses both.
+shape in which \code{b} is supplied, \code{\link[=minimize]{minimize()}} for the run that uses both.
 }

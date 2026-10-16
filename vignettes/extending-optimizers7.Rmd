@@ -24,8 +24,8 @@ change to the other two.
 
 The alternative to an object would be an argument that takes a string, with a
 `switch` inside every algorithm. That arrangement fixes the set of meanings
-of *finished* when the package is written, and the meaning of convergence
-determines what the reported answer is.
+of *finished* when the package is written. The meaning of convergence matters
+because it determines which point is reported as the answer.
 
 A criterion is one class and one method. The method receives the state of
 the iteration and returns a single logical:
@@ -98,7 +98,7 @@ This is the common case. Every evaluation is a callback into R.
 minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 ```
 
-With no gradient supplied, one is obtained by central differences, and the
+If the call supplies no gradient, central differences provide one, and the
 result records it:
 
 ```{r}
@@ -130,7 +130,7 @@ observations for `adam()` to subset. Such a class would require a second kind
 of objective, a rule for the stopping rules that it permits, a way of
 reporting which one is in force, and a branch in the compiled loop, for a
 task that the caller can do in one line, since the caller defines what an
-observation is. An optimizer with its own notion of an observation would not
+observation is. An optimizer that represented observations would not
 be a general optimizer, so the batch is drawn in the layer that defines
 observations.
 
@@ -238,7 +238,7 @@ S7::method(minimize, HeavyBall) <-
 The method sets `converged` itself: it is `TRUE` when the stopping rule fired
 and `FALSE` otherwise, including when the run ended on its iteration budget.
 
-On a quadratic:
+We run the method on a quadratic:
 
 ```{r}
 r <- minimize(heavy_ball(alpha = 0.05), f, c(0, 0), gr = gr)
@@ -248,9 +248,9 @@ c(par = r@par, iterations = r@iterations, converged = r@converged)
 ## Checking it
 
 `check_optimizer()` separates two questions: whether the optimizer satisfies
-the twelve numbered checks, and how **powerful** it is. A slow method is not a
-defective one: gradient descent does not solve Rosenbrock in five hundred
-iterations, and that is a property of the method.
+the twelve numbered checks, and how powerful it is. A slow method can satisfy
+every requirement: gradient descent does not solve Rosenbrock in five hundred
+iterations, which is a property of the method.
 
 The numbered checks are therefore statements that every optimizer must
 satisfy, whatever its performance, and the battery below them is a table of
@@ -264,16 +264,16 @@ The battery shows a limitation of the method: with the fixed step length of
 0.01 the iterate diverges on `rosenbrock` and `powell`, whose curvature varies
 by orders of magnitude, and the run does not converge on `rastrigin` and
 `abs_sum`. This is a property of heavy ball with a fixed step. `bb()`, which
-the package ships, has the same form with the step length estimated from the
-last secant pair, and it converges on all eight problems.
+the package ships, has the same form, but its step length is estimated from
+the last secant pair, and it converges on every problem of the battery.
 
 The two failed checks concern the method and not the algorithm: the method
 receives two arguments and does nothing with them, and it does not validate
 its stopping rule.
 
-**It ignores `lower` and `upper`.** The signature includes them, since S7
+The method ignores `lower` and `upper`. The signature includes them, since S7
 warns when the formals of a method omit a named argument of the generic, and
-an argument that the author did not plan for is easily left unused. A caller
+an argument for which the author did not plan is easily left unused. A caller
 then passes a box, gets no error, and receives an answer outside it.
 
 Removing the box is a few lines, because `check_bounds()` normalizes the two
@@ -310,9 +310,9 @@ S7::method(minimize, HeavyBall) <-
 )
 ```
 
-**It does not validate the stopping rule.** `check_criterion()` (marked (2))
-is the line that rejects a rule that the method cannot evaluate, instead of
-accepting one that would test `NULL` at every iteration. The quantities that
+The method does not validate the stopping rule. The line marked (2),
+`check_criterion()`, rejects a rule that the method cannot evaluate, instead
+of accepting one that would test `NULL` at every iteration. The quantities that
 a method supplies are declared by `optimizer_provides()`, whose default method
 returns `"gradient"`. This method computes the gradient, so the default is
 correct for it. A derivative-free method would need one line:
@@ -331,9 +331,9 @@ all(check_optimizer(heavy_ball(alpha = 0.01),
 ```
 
 The two repairs add the handling of bounds and the validation of the stopping
-rule, which the package requires of every optimizer. Neither omission affects
-a run without bounds and with a rule that the method can evaluate, and the
-numbered checks are written to detect both.
+rule, which the package requires of every optimizer. A run without bounds and
+with a rule that the method can evaluate is not affected by either omission,
+and the numbered checks are written to detect both.
 
 ## The test problems
 
@@ -348,9 +348,9 @@ minimize(bfgs(), p$fn, p$par, gr = p$gr)@par
 p$solution
 ```
 
-Two of them are marked `multimodal`: on them a local method that reaches a
-different minimum is behaving correctly. One is marked non-`smooth`: on it a
-method that assumes a derivative reaches the solution and cannot certify it:
+On the problems marked `multimodal`, a local method that reaches a different
+minimum is behaving correctly. On the problem marked non-`smooth`, a method
+that assumes a derivative reaches the solution and cannot certify it:
 
 ```{r}
 sapply(test_problems(), function(p) c(multimodal = p$multimodal,

@@ -15,8 +15,8 @@ check_optimizer(
 \item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to check. Anything else raises an error
 naming \code{bfgs()} as an example.}
 
-\item{problems}{A list of problems in the shape \code{\link[=test_problems]{test_problems()}} returns.
-Defaults to all eight. Pass a subset to keep the report short:
+\item{problems}{A list of problems in the shape that \code{\link[=test_problems]{test_problems()}}
+returns. Defaults to every problem of \code{\link[=test_problems]{test_problems()}}. Pass a subset to keep the report short:
 \code{test_problems("sphere")}.}
 
 \item{verbose}{\code{TRUE} (default) prints the twelve verdicts and the battery
@@ -52,9 +52,9 @@ run the battery, whose problems have more parameters.
 \section{Requirements and performance}{
 The twelve numbered checks are statements that an optimizer must satisfy
 whatever its performance. The performance comes afterwards, as a table of
-gaps without a verdict. The two are kept apart because a slow method is
-not a defective one: gradient descent does not solve Rosenbrock in five
-hundred iterations, and that is a documented property of the method.
+gaps without a verdict. The two are kept apart because a slow method can
+satisfy every requirement: gradient descent does not solve Rosenbrock in
+five hundred iterations, which is a documented property of the method.
 
 The only performance requirement among the numbered checks is check 12,
 the minimization of a quadratic, which every correct method passes.
@@ -63,25 +63,25 @@ the minimization of a quadratic, which every correct method passes.
 \section{The twelve checks}{
 \enumerate{
 \item \code{value} is the objective at \code{par}. A method that reports the value at a
-point that it has since left passes every test written in terms of the
-value alone.
-\item the reported gradient is the gradient at \code{par}. Checked only for an
-optimizer that declares \code{"gradient"} through \code{\link[=optimizer_provides]{optimizer_provides()}}.
+point that it has since left passes every test that uses only the value.
+\item the reported gradient is the gradient at \code{par}. The check is run only
+for an optimizer that declares \code{"gradient"} through
+\code{\link[=optimizer_provides]{optimizer_provides()}}.
 \code{\link[=bundle]{bundle()}} reports an aggregate subgradient and does not declare a
 gradient, so the check does not apply to it.
 \item \code{converged} follows the stopping rule and is never inferred from the
-run having ended. Checked by starving the optimizer of iterations: a
-run cut off after one must not report success.
+run having ended. The check starves the optimizer of iterations, and a
+run cut off after one iteration must not report success.
 \item budgets are respected: \code{iterations} never exceeds \code{maxit}.
 \item evaluations are counted: the reported number of evaluations is not
 zero.
 \item the trace, when kept, is a data frame whose key column (\code{iteration}, or
 \code{start} for a \code{\link[=multistart]{multistart()}} trace) starts at one and increases.
-\item bounds are respected \strong{strictly}. A probability of exactly 1 is not a
+\item bounds are respected strictly. A probability of exactly 1 is not a
 probability inside \eqn{(0, 1)}, and the next computation of the caller
 often divides by it.
 \item the run repeats. A deterministic method gives the same answer twice; a
-stochastic one gives it again from the seed it recorded, which tests
+stochastic one gives it again from the seed that it recorded, which tests
 the recording as well as the repeatability.
 \item \code{\link[=maximize]{maximize()}} is \code{\link[=minimize]{minimize()}} of the negative.
 \item a stopping rule that the optimizer cannot evaluate is rejected when

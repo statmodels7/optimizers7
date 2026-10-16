@@ -36,8 +36,8 @@ theory of the method assumes a Wolfe step, see Details.}
 
 \item{maxit}{Maximum iterations. Defaults to 1000.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
-no evaluation budget, so the run stops on the criterion or on
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}, which
+sets no evaluation budget, so the run stops on the criterion or on
 \code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
@@ -63,7 +63,7 @@ and the methods differ only in the choice of \eqn{\beta}. The storage is
 two vectors against \code{\link[=bfgs]{bfgs()}}'s \eqn{p \times p} matrix.
 }
 \section{Conjugate directions and the line search}{
-On a quadratic \strong{with an exact line search} the directions are conjugate
+On a quadratic with an exact line search the directions are conjugate
 with respect to the Hessian, and the method terminates in \eqn{p} steps
 without forming that Hessian. The line search here is inexact, so that
 guarantee does not hold, and the number of iterations on a quadratic
@@ -73,8 +73,8 @@ vectors.
 
 \section{Choice of beta}{
 All four formulas agree on a quadratic under an exact line search and
-differ elsewhere. \code{"fr"} has the simplest convergence theory and is known
-to stall for many iterations after a poor step. \code{"pr"} recovers from a
+differ elsewhere. \code{"fr"} has the simplest convergence theory and can
+stall for many iterations after a poor step. \code{"pr"} recovers from a
 poor step at once, since a small \eqn{y = g_k - g_{k-1}} makes \eqn{\beta}
 small and the direction close to steepest descent; its known theoretical
 non-convergence is removed by clamping \eqn{\beta} at zero, which restarts
@@ -90,11 +90,10 @@ the Wolfe conditions (the strong ones for \code{"fr"} and \code{"pr"}) and use t
 to show that the direction produced is a descent direction. Backtracking
 gives no such guarantee, so \code{\link[=wolfe]{wolfe()}} is the default.
 
-The constant also matters. \code{\link[=wolfe]{wolfe()}} defaults to \eqn{c_2 = 0.9}, which
-suits \code{\link[=bfgs]{bfgs()}}, because its curvature update compensates for an inexact
-step. The conjugacy accumulated by conjugate gradients depends directly on
-the accuracy of the line search, so the default here is
-\code{wolfe(c2 = 0.1)}.
+\code{\link[=wolfe]{wolfe()}} defaults to \eqn{c_2 = 0.9}, which suits \code{\link[=bfgs]{bfgs()}}, because its
+curvature update compensates for an inexact step. The conjugacy
+accumulated by conjugate gradients depends directly on the accuracy of the
+line search, so the default here is \code{wolfe(c2 = 0.1)}.
 
 A direction that is not a descent direction is replaced by \eqn{-g}, and
 the trace records the replacement as \verb{cg not descent}. A periodic restart
@@ -110,7 +109,7 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))
 minimize(cg(), f, c(-1.2, 1), gr = gr)@par
 
-# The four formulas on the same problem. They agree on a quadratic under
+# The four formulas are compared on the same problem. They agree on a quadratic under
 # an exact line search and differ here; which is best depends on the
 # problem.
 vapply(c("pr", "fr", "hs", "dy"),

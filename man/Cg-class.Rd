@@ -34,10 +34,10 @@ An S7 object of class \code{Cg} inheriting from \code{\link[=optimizer]{optimize
 four properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding which of the four \eqn{\beta} formulas combines the
+A \code{Cg} object holds which of the four \eqn{\beta} formulas combines the
 gradient with the previous direction, how often the method is restarted
-at steepest descent, and the step length and the line search. Built by
-\code{\link[=cg]{cg()}}.
+at steepest descent, and the step length and the line search. It is built
+by \code{\link[=cg]{cg()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Cg} carries four:

@@ -19,12 +19,12 @@ An S7 object of class \code{CritCombine} inheriting from \code{\link[=criterion]
 carrying \code{label}, \code{criteria} and \code{how}.
 }
 \description{
-The class built by both \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}}, and its two
-methods. Its \code{crit_met()} evaluates every rule that it contains and
-reduces the results with \code{any()} or \code{all()} according to \code{how}; its
-\code{crit_needs()} is the union of the needs of those rules, so a derivative-free
-method rejects a combination that contains a gradient rule, as it rejects
-the gradient rule alone.
+This is the class built by both \code{\link[=crit_any]{crit_any()}} and \code{\link[=crit_all]{crit_all()}}. Its
+\code{crit_met()} evaluates every rule that it contains and reduces the
+results with \code{any()} or \code{all()} according to \code{how}; its \code{crit_needs()} is
+the union of the needs of those rules, so a derivative-free method rejects
+a combination that contains a gradient rule, as it rejects the gradient
+rule by itself.
 }
 \details{
 A \code{CritCombine} is itself a \code{\link[=criterion]{criterion()}}, so combinations nest and the

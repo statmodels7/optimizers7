@@ -10,13 +10,13 @@ CritNever(label = character(0))
 }
 \value{
 An S7 object of class \code{CritNever} inheriting from \code{\link[=criterion]{criterion()}},
-carrying \code{label} alone.
+carrying only \code{label}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_never]{crit_never()}}. Its \code{crit_met()} returns
-\code{FALSE} at every state without reading it, so a run with this rule ends
-when a budget runs out or when the method stops for a reason of its own.
-It declares nothing through \code{\link[=crit_needs]{crit_needs()}}, so every optimizer accepts it.
+This is the class of the rule built by \code{\link[=crit_never]{crit_never()}}. Its \code{crit_met()}
+returns \code{FALSE} at every state without reading it, so a run with this rule
+ends when a budget runs out or when the method stops for a reason of its
+own. It declares nothing through \code{\link[=crit_needs]{crit_needs()}}, so every optimizer accepts it.
 }
 \details{
 It has no \code{tol}, since it compares nothing, and it is the only criterion

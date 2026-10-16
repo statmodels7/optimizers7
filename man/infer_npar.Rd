@@ -18,13 +18,13 @@ of that length, so that the objective is probed where it will be used.}
 \item{npar_max}{The largest length tried. Defaults to \code{50}.}
 }
 \value{
-A single integer, the one length accepted. Raises an error naming
-the two lengths it found when more than one is accepted, and an error
-when none is.
+A single integer, the one length that is accepted. Signals an error
+that names the first two lengths found when more than one length is
+accepted, and an error when the search accepts no length.
 }
 \description{
 Determines the length of the parameter vector by trying lengths and
-recording which ones the objective accepts. Called by \code{\link[=minimize]{minimize()}} when a
+recording which ones the objective accepts. \code{\link[=minimize]{minimize()}} calls it when a
 starter was given without \code{npar} and the bounds do not determine it.
 }
 \details{
@@ -39,8 +39,8 @@ regression model is settled at once. A gradient helps when it writes its
 components out, since such a gradient returns a fixed number of them,
 whatever its argument.
 
-A vectorized objective written in terms of the parameter alone behaves
-differently. Recycling warns only when the shorter length is not a
+A vectorized objective written only in terms of the parameter vector
+behaves differently. Recycling warns only when the shorter length is not a
 \emph{divisor} of the longer, so \code{sum((p - c(1, 2, 3))^2)} accepts a vector of
 length one without a warning and returns the finite value 14; and its
 gradient \code{2 * (p - c(1, 2, 3))} returns six components for an argument of
@@ -54,8 +54,8 @@ into them and rejects the others, with an error that names two lengths
 that were accepted. The caller then gives the count through \code{npar} or
 through a vector of bounds.
 
-The search stops as soon as a \emph{second} length is accepted, since the
-answer is then known to be ambiguous.
+The search stops as soon as a \emph{second} length is accepted, because the
+answer is then ambiguous.
 The cost is therefore two evaluations when the objective accepts any
 length, and \code{npar_max} when it accepts exactly one. Either way it happens
 once, before the run.

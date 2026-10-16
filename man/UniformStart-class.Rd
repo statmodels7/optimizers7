@@ -10,16 +10,17 @@ UniformStart(npar = NULL, min = integer(0), max = integer(0))
 \arguments{
 \item{npar}{The number of parameters, an integer, or \code{NULL}.}
 
-\item{min, max}{The range drawn from, in unconstrained units.}
+\item{min, max}{The range from which each coordinate is drawn, in
+unconstrained units.}
 }
 \value{
 An S7 object of class \code{UniformStart} inheriting from \link{starter}.
 }
 \description{
-A starter that draws each coordinate independently from a uniform on the
-unconstrained scale. Built by \code{\link[=start_runif]{start_runif()}}. It adds \code{min} and \code{max} to
-the \code{npar} the abstract \link{starter} class carries; either may be one number
-or one per parameter.
+A \code{UniformStart} object draws each coordinate independently from a uniform
+on the unconstrained scale. It is built by \code{\link[=start_runif]{start_runif()}}. It adds \code{min}
+and \code{max} to the \code{npar} that the abstract \link{starter} class carries; either
+may be one number or one per parameter.
 }
 \seealso{
 \code{\link[=start_runif]{start_runif()}} for the constructor,

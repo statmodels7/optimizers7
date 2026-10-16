@@ -15,7 +15,7 @@ fd_gradient(fn, x)
 A numeric vector.
 }
 \description{
-The finite-difference gradient that the proximal loop uses when the
-caller supplies none, with the step scaled to each coordinate.
+Computes the finite-difference gradient that the proximal loop uses when
+the caller supplies none. The step is scaled to each coordinate.
 }
 \keyword{internal}

@@ -6,10 +6,10 @@ NULL
 #' @title S7 Class for the Proximal Bundle Method
 #'
 #' @description
-#' An optimizer holding the proximal parameter \eqn{t} and its bounds, the
-#' acceptance fraction that separates a serious step from a null one, the
-#' size of the bundle of linearizations, and the effort spent on the
-#' subproblem. Built by [bundle()].
+#' This class is an optimizer that holds the proximal parameter \eqn{t} and
+#' its bounds, the acceptance fraction that separates a serious step from a
+#' null one, the size of the bundle of linearizations, and the effort spent on
+#' the subproblem. It is built by [bundle()].
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `Bundle` carries seven
@@ -20,8 +20,8 @@ NULL
 #' @param t0 Initial value of the proximal parameter \eqn{t}, as a step
 #'   length on the parameter scale.
 #' @param t_min,t_max Bounds on \eqn{t}.
-#' @param m_serious Fraction of the predicted decrease a serious step must
-#'   achieve.
+#' @param m_serious Fraction of the predicted decrease that a serious step
+#'   must achieve.
 #' @param bundle_size Largest number of linearizations kept.
 #' @param qp_iters,qp_tol Effort spent on the subproblem.
 #'
@@ -59,10 +59,10 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @param criterion The stopping rule. Defaults to `crit_stationary(1e-8)`,
 #'   read on the optimality estimate \eqn{\lVert p \rVert^2 + \alpha}.
 #' @param t0 Initial value of the proximal parameter \eqn{t}, expressed as a
-#'   **step length** on the parameter scale and not as a bare multiplier;
+#'   step length on the parameter scale and not as a bare multiplier;
 #'   see Details. Defaults to `1`.
-#' @param t_min,t_max Bounds on it, so that neither a run of null steps nor a
-#'   run of serious ones can drive it to zero or to infinity. Default
+#' @param t_min,t_max Bounds on it, so that a run of null steps or a run of
+#'   serious ones cannot drive it to zero or to infinity. The defaults are
 #'   `1e-10` and `1e10`.
 #' @param m_serious Fraction of the predicted decrease that a step must actually
 #'   deliver to be accepted, in \eqn{(0, 1)}. Defaults to `0.1`.
@@ -71,10 +71,10 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #'   `20`.
 #' @param qp_iters,qp_tol Effort spent on the subproblem: at most this many
 #'   accelerated projected-gradient steps, stopping when the weights move by
-#'   less than `qp_tol`. Defaults `500` and `1e-12`.
+#'   less than `qp_tol`. The defaults are `500` and `1e-12`.
 #' @param maxit Maximum iterations. Defaults to 500.
-#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
-#'   no evaluation budget, so the run stops on the criterion or on
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`, which
+#'   sets no evaluation budget, so the run stops on the criterion or on
 #'   `maxit`. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 10.
@@ -91,7 +91,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' `converged = FALSE`.
 #'
 #' The bundle method tests no single subgradient. It keeps a *collection* of
-#' them, from the points it has visited, and builds the piecewise-linear
+#' them, from the points that it has visited, and builds the piecewise-linear
 #' model \eqn{\max_j \{ f_j + g_j'(x - x_j) \}}, the largest of the
 #' linearizations. Such a model represents a kink well, as the meeting point
 #' of two linearizations. At the minimum of \eqn{\lvert x \rvert} the bundle
@@ -198,7 +198,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @examples
 #' bundle()
 #'
-#' # The median, as the minimizer of a sum of absolute deviations: the
+#' # The median is the minimizer of a sum of absolute deviations: the
 #' # objective has a kink at every observation, and one of them is the answer.
 #' set.seed(1)
 #' y <- rnorm(101)
@@ -219,7 +219,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' d <- minimize(bfgs(criterion = crit_grad()), f, par = 0, gr = g)
 #' c(par = d@par, converged = d@converged)
 #'
-#' # A kink along a diagonal. The bundle method and the simplex reach the
+#' # The kink lies along a diagonal. The bundle method and the simplex reach the
 #' # minimum; the random-direction pattern search (the default of compass())
 #' # comes close, whereas a coordinate search stops at a wrong point.
 #' ff <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
@@ -284,8 +284,8 @@ bundle <- function(criterion = crit_stationary(),
 #' evaluates subgradients and reports their aggregate. A rule built on
 #' [crit_grad()] would test the subgradient at the iterate, which does not
 #' tend to zero: near the minimum of \eqn{\lvert x \rvert} every evaluated
-#' subgradient has norm 1, so the run would end at the minimizer without the
-#' rule firing.
+#' subgradient has norm 1, so the rule would not fire when the run reached
+#' the minimizer.
 #'
 #' @details
 #' [crit_stationary()] reads the optimality estimate
@@ -323,11 +323,11 @@ S7::method(optimizer_provides, Bundle) <- function(optimizer)
 #'
 #' @param optimizer A `Bundle` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` should return
-#'   a **subgradient**, not a difference taken across a kink; `he` is
+#'   a subgradient, not a difference taken across a kink; `he` is
 #'   accepted and ignored. Bounds are taken and removed by
 #'   reparametrization.
 #'
-#' @return An [optimizer_result()] whose `gradient` is the **aggregate**
+#' @return An [optimizer_result()] whose `gradient` is the aggregate
 #'   subgradient, which tends to zero at a solution, and whose `message`
 #'   reports the numbers of serious and null steps.
 #'

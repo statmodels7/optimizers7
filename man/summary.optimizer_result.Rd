@@ -22,18 +22,18 @@ repairing an indefinite Hessian, and a Barzilai-Borwein run that reports
 \details{
 The safeguard table needs a trace, so the optimizer must have been built
 with \code{keep_trace = TRUE}. Without a trace the method prints what
-\code{\link[=print.optimizer_result]{print.optimizer_result()}} prints. With a trace in which no safeguard
-fired, the output reads \verb{safeguards : none fired}.
+\code{\link[=print.optimizer_result]{print.optimizer_result()}} prints. When every row of the trace has
+\code{safeguard} equal to \code{"none"}, the output reads \verb{safeguards : none fired}.
 }
 \examples{
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
 
-# Newton on the curved valley: the line search shortens a few steps.
+# On the curved valley the line search of newton() shortens a few steps.
 summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 
-# On a quadratic no safeguard fires.
+# On a quadratic the safeguards do not fire.
 summary(minimize(newton(keep_trace = TRUE),
                  function(p) sum((p - 1:2)^2), c(0, 0)))
 

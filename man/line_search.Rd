@@ -15,9 +15,9 @@ An S7 object of class \code{line_search}, carrying \code{label}. The class
 is abstract, so every value is an object of one of its three subclasses.
 }
 \description{
-The abstract parent of the three line searches. A line search decides how
-far to travel along a direction that the method has already chosen. It is
-an object, so the descent methods (\code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}},
+This class is the abstract parent of the three line searches. A line
+search determines how far to travel along a direction that the method has
+already computed. It is an object, so the descent methods (\code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}},
 \code{\link[=cg]{cg()}}, \code{\link[=gd]{gd()}}, \code{\link[=bb]{bb()}} and \code{\link[=chebyshev]{chebyshev()}}) share one implementation, and a
 caller can replace it without changing the method.
 }
@@ -50,13 +50,13 @@ package.
 
 \eqn{x} is the current point, \eqn{g = \nabla f(x)} the gradient there,
 \eqn{d} a direction satisfying \eqn{g^\top d < 0}, and \eqn{\alpha > 0}
-the \strong{step length} the search returns. The vector \eqn{\alpha d} is the
+the step length that the search returns. The vector \eqn{\alpha d} is the
 step taken; \eqn{s} elsewhere in this package is the secant vector
 \eqn{x^{+} - x} of a quasi-Newton update, a different quantity.
 }
 
 \examples{
-# Abstract: use one of the constructors.
+# The class is abstract: use one of the constructors.
 try(line_search(label = "mine"))
 
 armijo()
@@ -75,8 +75,8 @@ rbind(armijo = unlist(minimize(bfgs(line_search = armijo()), f,
       wolfe  = unlist(minimize(bfgs(line_search = wolfe()), f,
                                c(-1.2, 1), gr = g)@counts))
 
-# The non-smooth problem of the battery, on which BFGS converges with
-# Armijo and stops without converging with Wolfe.
+# On the non-smooth problem of the battery, BFGS converges with Armijo
+# and stops without converging with Wolfe.
 k <- test_problems("abs_sum")[[1]]
 rbind(armijo = c(value = minimize(bfgs(line_search = armijo()), k$fn,
                                   k$par, gr = k$gr)@value),

@@ -26,9 +26,9 @@ rejected when the run starts.}
 single positive number, default \code{1}.}
 
 \item{max_expand}{How many golden expansions the bracketing phase may
-take, a single number of at least 1, default \code{50}. If no minimum has
-been bracketed by then, the run stops at the lowest point evaluated and
-reports \code{converged = FALSE}.}
+take, a single number of at least 1, default \code{50}. If the phase has not
+bracketed a minimum by then, the run stops at the lowest point evaluated
+and reports \code{converged = FALSE}.}
 
 \item{maxit}{Maximum iterations of the reduction phase. Defaults to 100.}
 
@@ -53,14 +53,14 @@ and golden-section steps.
 \details{
 The bracketing phase evaluates the starting value \eqn{x_0} and
 \eqn{x_0 + h}, turns round if the second is the higher, and steps on in
-the descending direction, each step \eqn{1.618} times the last, until the
-value no longer falls. The three points then satisfy
+the descending direction, where each step is \eqn{1.618} times the previous
+one, until the value no longer falls. The three points then satisfy
 \eqn{f(b) \le f(a)} and \eqn{f(b) \le f(c)} with \eqn{b} between \eqn{a}
 and \eqn{c}, so a minimum lies in \eqn{[a, c]}. If the value is still
 falling when \code{max_expand} expansions have been taken, or when the
-evaluation budget runs out, no minimum has been bracketed: the run stops
-at the lowest point evaluated, reports \code{converged = FALSE} and records the
-reason in \code{message}.
+evaluation budget runs out, the phase has not bracketed a minimum, and the
+run stops at the lowest point evaluated, reports \code{converged = FALSE} and
+records the reason in \code{message}.
 
 The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 iteration the parabola through the three best points is tried first; its
@@ -76,7 +76,8 @@ The rule receives \code{iter}, \code{f_new}, \code{f_old}, \code{x_new}, \code{x
 and are \code{NULL} at the first. Besides the rule, the reduction stops on
 Brent's own test, when the bracket has shrunk to about
 \eqn{\sqrt{\varepsilon}\,\lvert x \rvert + 10^{-12}} around the best point
-\eqn{x}, below which no further point can be distinguished from \eqn{x}.
+\eqn{x}, because at that width a further point cannot be distinguished from
+\eqn{x}.
 That stop reports \code{converged = TRUE} with \code{criterion_met} equal to
 \verb{bracket at machine resolution}, so a rule with a smaller tolerance than
 this resolution, or \code{\link[=crit_never]{crit_never()}}, ends there.
@@ -88,12 +89,12 @@ the other methods (see \code{\link[=bounded_transform]{bounded_transform()}}).
 \examples{
 brent()
 
-# A smooth function of one variable.
+# The method minimizes a smooth function of one variable.
 f <- function(x) (x - 2)^2 + exp(-x)
 r <- minimize(brent(), f, par = 0)
 c(par = r@par, evaluations = r@counts[["f"]])
 
-# Against nelder_mead() on the same function.
+# nelder_mead() is run on the same function for comparison.
 minimize(nelder_mead(), f, par = 0)@counts[["f"]]
 
 }

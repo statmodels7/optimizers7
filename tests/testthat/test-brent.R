@@ -64,7 +64,7 @@ test_that("brent() passes the previous iterate and the iteration to the rule", {
 test_that("brent() does not reduce a bracket it never found", {
   r <- minimize(brent(max_expand = 3), function(x) (x - 1000)^2, par = 0)
   expect_false(r@converged)
-  expect_match(r@message, "no minimum was bracketed")
+  expect_match(r@message, "found no minimum")
   expect_identical(r@iterations, 0L)
   # the point returned is the lowest one evaluated
   expect_equal(r@value, (r@par - 1000)^2)

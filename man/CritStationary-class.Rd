@@ -17,11 +17,12 @@ An S7 object of class \code{CritStationary} inheriting from
 \code{\link[=criterion]{criterion()}}, carrying \code{label} and \code{tol}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_stationary]{crit_stationary()}}, and its two methods.
-The rule reads \code{state$stationarity}, the non-negative measure that a
-method without a gradient test reports instead, and fires when it falls
-below \code{tol}. It declares \code{"stationarity"} through \code{\link[=crit_needs]{crit_needs()}}, so a
-method that reports no such measure rejects it when the run starts.
+This is the class of the rule built by \code{\link[=crit_stationary]{crit_stationary()}}, which has a
+method for \code{\link[=crit_met]{crit_met()}} and one for \code{\link[=crit_needs]{crit_needs()}}. The rule reads
+\code{state$stationarity}, the non-negative measure that a method without a
+gradient test reports instead, and fires when it falls below \code{tol}. It
+declares \code{"stationarity"} through \code{\link[=crit_needs]{crit_needs()}}, so a method that does
+not report this measure rejects it when the run starts.
 }
 \details{
 \code{crit_met()} returns \code{FALSE} when the measure is \code{NULL}, empty or not

@@ -14,8 +14,8 @@ vector returns just those, in the order given, so
 that is not one of the eight raises an error listing the eight.}
 }
 \value{
-A named list, one element per problem, each itself a list of nine
-components:
+A named list with one element per problem, and each element is a
+list of nine components:
 \describe{
 \item{\code{name}}{character, the same as the element's name.}
 \item{\code{fn}}{the objective, a function of a numeric vector of length
@@ -29,7 +29,7 @@ components:
 \item{\code{value}}{numeric, the minimum. Zero for all eight.}
 \item{\code{multimodal}}{logical, \code{TRUE} for \code{himmelblau} and
 \code{rastrigin}.}
-\item{\code{smooth}}{logical, \code{FALSE} for \code{abs_sum} alone.}
+\item{\code{smooth}}{logical, \code{FALSE} only for \code{abs_sum}.}
 }
 }
 \description{
@@ -45,12 +45,12 @@ others.
 }
 \section{The eight}{
 \tabular{llll}{
-\strong{name} \tab \strong{p} \tab \strong{start} \tab \strong{what it tests} \cr
+name \tab p \tab start \tab what it tests \cr
 \code{sphere} \tab 3 \tab (1.3, -0.7, 0.8) \tab no difficulty; a method that fails here is defective \cr
 \code{rosenbrock} \tab 2 \tab (-1.2, 1) \tab a curved valley, Hessian condition 2508 at the solution \cr
 \code{booth} \tab 2 \tab (0, 0) \tab a well-conditioned quadratic written as a sum of squares \cr
 \code{beale} \tab 2 \tab (1, 1) \tab a narrow valley, Hessian condition 162 \cr
-\code{powell} \tab 4 \tab (3, -1, 0, 1) \tab a \strong{singular} Hessian at the solution \cr
+\code{powell} \tab 4 \tab (3, -1, 0, 1) \tab a singular Hessian at the solution \cr
 \code{himmelblau} \tab 2 \tab (0, 0) \tab four minima, all of value zero \cr
 \code{rastrigin} \tab 2 \tab (0.4, -0.4) \tab 121 local minima on the usual box \cr
 \code{abs_sum} \tab 3 \tab (0, 0, 0) \tab a kink at the solution itself \cr
@@ -58,12 +58,11 @@ others.
 
 The starting points are the customary ones, which for \code{rosenbrock} and
 \code{powell} are the difficult points for which those functions were
-designed. The two hardest problems are hard for opposite reasons. The
-Hessian of \code{powell} at the origin has eigenvalues 202, 20, 0 and 0, so a
-second-order method has no curvature in two of its four directions and
-converges linearly where it usually converges quadratically. \code{rastrigin}
-has 121 local minima on the usual box, so the answer depends on the point
-at which the run began.
+designed. The Hessian of \code{powell} at the origin has eigenvalues 202, 20, 0
+and 0, so a second-order method has no curvature in two of its four
+directions and converges linearly where it usually converges
+quadratically. \code{rastrigin}, by contrast, has 121 local minima on the usual
+box, so the answer depends on the point at which the run began.
 }
 
 \section{The two flags}{
@@ -73,7 +72,7 @@ comparing its point with \code{solution} would report a failure where there is
 none. \code{\link[=check_optimizer]{check_optimizer()}} therefore scores every problem on the value
 reached and labels these two in its \code{note} column.
 
-\code{smooth} is \code{FALSE} for \code{abs_sum} alone. Its gradient at the solution is
+\code{smooth} is \code{FALSE} only for \code{abs_sum}. Its gradient at the solution is
 exactly zero, because \code{sign(0)} is zero, and at every neighboring point
 the subgradient has max-norm one. A method that tests \eqn{\nabla f}
 therefore reaches the solution without being able to certify it, unless
@@ -86,8 +85,8 @@ A line search accepts a step only when the objective decreases by a
 definite amount, and near a minimum that decrease is about
 \eqn{\lVert g \rVert^{2} / (2\lambda)} for a curvature \eqn{\lambda}.
 Once it falls below the rounding error of the objective, about
-\eqn{\varepsilon \lvert f \rvert}, no step can be verified and the search
-rejects all of them. The smallest gradient that a run can reach is
+\eqn{\varepsilon \lvert f \rvert}, the search cannot verify a trial step
+and rejects every one. The smallest gradient that a run can reach is
 therefore of order
 
 \deqn{\lVert g \rVert_{\text{floor}} \approx

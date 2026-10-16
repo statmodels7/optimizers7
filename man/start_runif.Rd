@@ -7,9 +7,9 @@
 start_runif(min = -1, max = 1, npar = NULL)
 }
 \arguments{
-\item{min, max}{The range to draw from, in unconstrained units. Both default
-to a width of one either side of zero, and both may be given per parameter
-rather than as a single number.}
+\item{min, max}{The range from which to draw, in unconstrained units. Both
+default to a width of one either side of zero, and both may be given per
+parameter rather than as a single number.}
 
 \item{npar}{The number of parameters. Defaults to \code{NULL}, meaning work
 it out from the bounds or from the objective; see \code{\link[=minimize]{minimize()}}.}
@@ -36,7 +36,7 @@ spans \code{0.0067} to \code{148} for a positive parameter, four orders of
 magnitude, and every draw still lies inside the box.
 
 The draw uses the ordinary generator of \R, so \code{\link[=set.seed]{set.seed()}} reproduces
-it. The draw is made before the optimizer starts, so the \code{seed} that a
+it. The starter draws the values before the optimizer starts, so the \code{seed} that a
 stochastic optimizer records does not reproduce the draw, and a
 deterministic optimizer records no \code{seed}.
 }
@@ -45,11 +45,12 @@ f <- function(p) sum((p - c(1, 2, 3))^2)
 set.seed(1)
 minimize(bfgs(), f, start_runif(npar = 3))@par
 
-# What the range means on the parameter scale, for a positive parameter.
+# The example shows what the range means on the parameter scale for a
+# positive parameter.
 range(bounded_transform(c(0, Inf), c(-1, 1))$h)
 range(bounded_transform(c(0, Inf), c(-5, 5))$h)
 
-# A wider net on a positive parameter whose scale is unknown.
+# A wider net suits a positive parameter whose scale is unknown.
 set.seed(1)
 minimize(bfgs(), function(p) (log(p) - 1)^2, start_runif(-5, 5, npar = 1),
          lower = 0)@par

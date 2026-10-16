@@ -9,7 +9,7 @@
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly. Called for the output.
+\code{x}, invisibly. The function is called for its printed output.
 }
 \description{
 Shows a criterion in one line, as \verb{<criterion>} followed by its label.

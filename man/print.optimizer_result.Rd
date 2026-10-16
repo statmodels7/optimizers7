@@ -6,8 +6,9 @@
 \arguments{
 \item{x}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 
-\item{digits}{Decimal places the parameters are rounded to. A single
-non-negative whole number, default 4. Anything else raises an error.
+\item{digits}{Number of decimal places to which the parameters are rounded.
+It must be a single non-negative whole number, and the default is 4. Any
+other value raises an error.
 The objective value is not affected: it always prints to six
 significant figures.}
 

@@ -36,7 +36,7 @@ applies, and any other string is rejected by \code{\link[=match.arg]{match.arg()
 \code{max(10, 10 * length(par))} evaluations.}
 
 \item{cooling}{The factor by which the temperature is multiplied at each
-level, a single number \strong{strictly} inside \eqn{(0, 1)}. Defaults to
+level, a single number strictly inside \eqn{(0, 1)}. Defaults to
 \code{0.85}. The value \code{1} would never cool and \code{0} would freeze at once, so
 both endpoints are rejected.}
 
@@ -54,7 +54,7 @@ times the larger of 1 and the absolute value of that coordinate of the
 starting value. Defaults to \code{1}. The adaptation changes the step of each
 coordinate within the first few cycles.}
 
-\item{target_accept}{The acceptance rate at which the adaptation aims,
+\item{target_accept}{The target acceptance rate of the adaptation,
 held inside a band of 0.1 on either side. A single number strictly
 inside \eqn{(0.1, 0.9)}; a value outside is rejected, because the band
 around it would reach 0 or 1. Defaults to \code{0.5}.}
@@ -84,9 +84,10 @@ An S7 object of class \link{Sa}, inheriting from \code{\link[=optimizer]{optimiz
 handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-A global search that accepts uphill moves with a probability that falls as
-the run cools, with one step length per coordinate, adjusted during the
-run to hold the acceptance rate of that coordinate near a target.
+Creates an optimizer for a global search that accepts uphill moves with a
+probability that falls as the run cools, with one step length per
+coordinate that is adjusted during the run to hold the acceptance rate of
+that coordinate near a target.
 }
 \details{
 The method is intended for problems on which a local method depends on its
@@ -151,7 +152,7 @@ minimizer than a fixed \code{t0 = 1} within the same budget.
 }
 
 \section{The value returned and the meaning of convergence}{
-The result is the best point \strong{seen}, not the last one, since the last
+The result is the best point seen, not the last one, since the last
 point of an annealing run is a random draw from the walk. The \code{value}
 column of the trace is correspondingly the best value so far, and is
 monotone non-increasing.

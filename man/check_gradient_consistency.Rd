@@ -28,12 +28,12 @@ cause.
 }
 \details{
 The check costs one call to \code{gr} and two to \code{fn}, runs once per call of
-\code{\link[=minimize]{minimize()}}, and is skipped when it cannot decide: for an objective that
-is not a function, a gradient that is not finite at \code{par}, an objective
-that is not finite at the probe points, and a gradient too small to be
-distinguished from the truncation error of the difference. The last case
-arises when a caller starts at the optimum, where a warning would be
-wrong.
+\code{\link[=minimize]{minimize()}}, and is skipped when the comparison cannot be made: for an
+objective that is not a function, a gradient that is not finite at \code{par},
+an objective that is not finite at the probe points, and a gradient too
+small to be distinguished from the truncation error of the difference.
+The last case arises when a caller starts at the optimum, where a warning
+would be wrong.
 
 The tolerance is loose, a relative disagreement above one half, so that
 the error of the difference or a subgradient of a non-smooth objective

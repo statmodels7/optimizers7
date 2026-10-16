@@ -10,8 +10,8 @@
 A single logical.
 }
 \description{
-The answer of the inner optimizer, since every start is a run of that
-optimizer with the same bounds. A multistart over \code{\link[=prox_grad]{prox_grad()}} therefore
+Returns the answer of the inner optimizer, since every start is a run of
+that optimizer with the same bounds. A multistart over \code{\link[=prox_grad]{prox_grad()}} therefore
 does not accept box bounds.
 }
 \keyword{internal}

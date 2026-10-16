@@ -28,8 +28,8 @@ length on the parameter scale.}
 
 \item{t_min, t_max}{Bounds on \eqn{t}.}
 
-\item{m_serious}{Fraction of the predicted decrease a serious step must
-achieve.}
+\item{m_serious}{Fraction of the predicted decrease that a serious step
+must achieve.}
 
 \item{bundle_size}{Largest number of linearizations kept.}
 
@@ -40,10 +40,10 @@ An S7 object of class \code{Bundle} inheriting from \code{\link[=optimizer]{opti
 the seven properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the proximal parameter \eqn{t} and its bounds, the
-acceptance fraction that separates a serious step from a null one, the
-size of the bundle of linearizations, and the effort spent on the
-subproblem. Built by \code{\link[=bundle]{bundle()}}.
+This class is an optimizer that holds the proximal parameter \eqn{t} and
+its bounds, the acceptance fraction that separates a serious step from a
+null one, the size of the bundle of linearizations, and the effort spent on
+the subproblem. It is built by \code{\link[=bundle]{bundle()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Bundle} carries seven

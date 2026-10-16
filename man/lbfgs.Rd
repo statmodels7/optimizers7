@@ -39,9 +39,10 @@ An S7 object of class \link{Lbfgs}, inheriting from \code{\link[=optimizer]{opti
 be handed to \code{\link[=minimize]{minimize()}}.
 }
 \description{
-BFGS without ever forming the matrix: only the last \code{memory} secant pairs
-are kept, and the direction comes from the two-loop recursion. Costs
-\eqn{O(mp)} in time and memory where \code{\link[=bfgs]{bfgs()}} costs \eqn{O(p^2)}. The
+Applies the BFGS update without forming the matrix: only the last \code{memory}
+secant pairs are kept, and the direction comes from the two-loop
+recursion. It costs \eqn{O(mp)} in time and memory where \code{\link[=bfgs]{bfgs()}} costs
+\eqn{O(p^2)}. The
 direction equals the one of the explicitly assembled inverse built from
 the same pairs and the same initial scaling. The two methods do not give
 the same directions in a run, because \code{\link[=bfgs]{bfgs()}} keeps every pair and scales
@@ -57,7 +58,7 @@ length is \eqn{\alpha}, a different quantity.
 \section{The saving}{
 The two-loop recursion returns exactly the product of the explicitly
 assembled inverse built from the same pairs and the same scaling (the
-last example). The difference is in the cost: one iteration costs
+last example). The methods differ in cost: one iteration costs
 \eqn{O(p^2)} for \code{\link[=bfgs]{bfgs()}} and \eqn{O(mp)} for \code{\link[=lbfgs]{lbfgs()}}, while the
 numbers of iterations of the two methods on a dense quadratic are close.
 The difference in time becomes large for a few hundred parameters, and

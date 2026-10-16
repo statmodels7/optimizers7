@@ -27,9 +27,9 @@ An S7 object of class \code{Brent} inheriting from \code{\link[=optimizer]{optim
 the two properties above beside the seven shared ones.
 }
 \description{
-An optimizer for a function of one variable, holding the length of the
-first step of the bracketing phase and how many times that phase may
-expand. Built by \code{\link[=brent]{brent()}}.
+A \code{Brent} object is an optimizer for a function of one variable. It holds
+the length of the first step of the bracketing phase and the number of times
+that phase may expand, and it is built by \code{\link[=brent]{brent()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Brent} carries two of

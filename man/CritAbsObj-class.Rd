@@ -16,7 +16,7 @@ An S7 object of class \code{CritAbsObj} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_abs_obj]{crit_abs_obj()}}. The rule reads
+This is the class of the rule built by \code{\link[=crit_abs_obj]{crit_abs_obj()}}. The rule reads
 \code{state$f_new} and \code{state$f_old} and fires when they differ by less than
 \code{tol}. It declares nothing through \code{\link[=crit_needs]{crit_needs()}}, because every optimizer
 evaluates the objective, so every method accepts it.
@@ -34,7 +34,7 @@ crit_needs(crit_abs_obj())
 crit_met(crit_abs_obj(1e-6),
          list(f_new = 1.0000001, f_old = 1.0000002))
 
-# Without a previous value there is nothing to compare.
+# Without a previous value the rule cannot compare anything.
 crit_met(crit_abs_obj(), list(f_new = 1, f_old = NULL))
 
 }

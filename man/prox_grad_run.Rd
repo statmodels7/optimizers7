@@ -14,22 +14,22 @@ prox_grad_run(optimizer, spec, par)
 \item{par}{The starting point, a numeric vector.}
 }
 \value{
-A list in the shape \code{\link[=build_result]{build_result()}} consumes: the point, the
+A list in the shape that \code{\link[=build_result]{build_result()}} consumes: the point, the
 total objective there, the mapping, the counts, the iteration count, the
 verdict and the trace.
 }
 \description{
 The iteration behind \code{\link[=prox_grad]{prox_grad()}}: a backtracked gradient step on the
 smooth part, the proximal operator applied to its result, and the momentum
-extrapolation with its restart. It counts its own evaluations, those of a
-gradient obtained by differences included.
+extrapolation with its restart. It counts its own evaluations, including
+those of a gradient obtained by differences.
 }
 \details{
 The loop is written in R, as that of \code{\link[=brent]{brent()}}. Every iteration calls
 three R functions supplied by the caller: the objective, its gradient and
 the proximal operator.
 
-The proximal gradient mapping is read \strong{at the iterate}, the point that
+The proximal gradient mapping is read at the iterate, the point that
 is reported, and not at the extrapolated point. The trace records
 \verb{step shortened} at an iteration whose step was backtracked and
 \verb{momentum restart} at one whose momentum was reset.

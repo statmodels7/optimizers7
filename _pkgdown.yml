@@ -92,8 +92,8 @@ reference:
   desc: >
     Both are themselves optimizers, so they combine with every method above
     and with each other. A multi-start reports the number of distinct optimal
-    values reached from its starts; a chain runs its stages in order, each
-    starting where the previous one finished.
+    values reached from its starts; a chain runs its stages in order, and
+    each stage starts where the previous one finished.
   contents:
   - multistart
   - chain
@@ -155,7 +155,7 @@ reference:
     The requirements on a new `minimize()` method, and the functions that help
     to meet them. `check_optimizer()` runs twelve checks on what an optimizer
     reports, and reports separately the gaps that it reaches on the test
-    problems, since performance and correctness are different questions.
+    problems, and these gaps do not enter the verdicts.
   contents:
   - optimizer
   - check_criterion

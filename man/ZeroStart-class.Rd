@@ -14,9 +14,9 @@ ZeroStart(npar = NULL)
 An S7 object of class \code{ZeroStart} inheriting from \link{starter}.
 }
 \description{
-A starter that produces a vector of zeros on the unconstrained scale.
-Built by \code{\link[=start_zeros]{start_zeros()}}. It carries \code{npar} alone, adding no property of
-its own to the abstract \link{starter} class.
+A \code{ZeroStart} object produces a vector of zeros on the unconstrained scale.
+It is built by \code{\link[=start_zeros]{start_zeros()}}. It carries only \code{npar} and adds no property
+of its own to the abstract \link{starter} class.
 }
 \seealso{
 \code{\link[=start_zeros]{start_zeros()}} for the constructor,

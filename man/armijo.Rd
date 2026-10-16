@@ -14,9 +14,9 @@ only a small fraction of the decrease that the linear model predicts.}
 \item{shrink}{Factor applied on each backtrack, strictly inside
 \eqn{(0, 1)}. Defaults to \code{0.5}.}
 
-\item{max_step}{Maximum number of \strong{trial points}, the full step
-included, before the search gives up; a positive whole number. Defaults
-to 30. The name suggests a length, but the quantity is a count.}
+\item{max_step}{Maximum number of trial points, including the full step,
+before the search returns without a step; a positive whole number.
+Defaults to 30. The name suggests a length, but the quantity is a count.}
 
 \item{resolution}{The smallest difference in the objective that the
 objective can resolve, in the units of the objective, or a function of
@@ -35,8 +35,8 @@ which makes it the cheaper line search, suited to a method that keeps no
 curvature approximation.
 }
 \details{
-The term \eqn{c_1 \alpha\, g^\top d} is required. A test of
-\eqn{f_{new} \le f} alone accepts steps that leave the objective
+The term \eqn{c_1 \alpha\, g^\top d} is required. A test that requires
+only \eqn{f_{new} \le f} accepts steps that leave the objective
 unchanged: on \eqn{f(x) = \lVert x \rVert^2}, whose Hessian is \eqn{2I},
 a unit step along \eqn{-g} reflects the iterate through the minimum and
 leaves the objective \emph{exactly} unchanged. The weaker test accepts that
@@ -56,15 +56,15 @@ a simulation. Differences below that spread carry no information, and a
 search that has to verify a smaller decrease backtracks until it has used
 \code{max_step} trial points.
 
-The test is made \strong{once}, before the first trial point, on the decrease
+The test is made once, before the first trial point, on the decrease
 that the linear model of the method predicts over the full step,
 \eqn{\alpha_0 \lvert g^\top d\rvert}. When that decrease is below
 \code{resolution} the search returns at once, and the run reports that the
 point is optimal to the accuracy of the objective. That is a weaker
-statement than a stopping rule being met, and the result reports it with
-a different label.
+statement than the one made when a stopping rule is met, and the result
+reports it with a different label.
 
-\strong{The test is not applied inside the backtracking loop.} There the two
+The test is not applied inside the backtracking loop. There the two
 situations cannot be distinguished, since \eqn{x + \alpha d \to x} as the
 step shrinks and the objective stops resolving the change whether the
 point is optimal or the direction is wrong. At the full step they differ:
@@ -80,7 +80,7 @@ while the method can still make progress.
 
 When the objective becomes more precise as the run proceeds (for example
 a fit warm-started from the previous evaluation), the resolution measured
-at the start is the worst value of the whole run. A \strong{function} of no
+at the start is the worst value of the whole run. A function of no
 arguments passed instead of a number is called at every iteration, once
 per invocation of the search and not once per trial, so it costs one call
 per iteration. Its value is the resolution for the step about to be

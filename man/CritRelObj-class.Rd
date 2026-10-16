@@ -16,8 +16,8 @@ An S7 object of class \code{CritRelObj} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_rel_obj]{crit_rel_obj()}}. The rule fires when
-\eqn{\lvert f_{new} - f_{old}\rvert < \texttt{tol}\,
+This is the class of the rule built by \code{\link[=crit_rel_obj]{crit_rel_obj()}}. The rule fires
+when \eqn{\lvert f_{new} - f_{old}\rvert < \texttt{tol}\,
 (\lvert f_{old}\rvert + \texttt{tol})}, so the change is compared with the
 size of the objective and one tolerance serves for any units. It declares
 nothing through \code{\link[=crit_needs]{crit_needs()}}.

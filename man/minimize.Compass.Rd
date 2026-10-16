@@ -7,8 +7,8 @@
 \item{optimizer}{A \code{Compass} object.}
 
 \item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{he} are
-accepted and ignored, the method using no derivative. Bounds are taken
-and removed by reparametrization.}
+accepted and ignored, since the method uses no derivative. Bounds are
+taken and removed by reparametrization.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{gradient} is \code{NULL} and whose trace

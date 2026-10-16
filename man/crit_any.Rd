@@ -17,15 +17,14 @@ Combines criteria disjunctively: the run ends as soon as any of the rules
 is satisfied.
 }
 \details{
-\strong{The default rule of the gradient methods.} \code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}},
-\code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}} and \code{\link[=chebyshev]{chebyshev()}} default to
-\code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}: the point is
-stationary, or the objective has stopped moving, or the parameters have.
-A disjunction can only become weaker as terms are added, so a run that
-ends under this rule would have ended under the gradient rule alone at
-the same iteration or later, never earlier.
+\code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}}, \code{\link[=newton]{newton()}}, \code{\link[=bfgs]{bfgs()}}, \code{\link[=lbfgs]{lbfgs()}} and \code{\link[=chebyshev]{chebyshev()}}
+default to \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}: the
+point is stationary, or the objective has stopped moving, or the
+parameters have. A disjunction can only become weaker as terms are added,
+so a run that ends under this rule would have ended under the gradient
+rule alone at the same iteration or later, never earlier.
 
-On the package's \code{\link[=test_problems]{test_problems()}}, with the six methods other than
+On the package's \code{\link[=test_problems]{test_problems()}}, with the methods above other than
 \code{\link[=chebyshev]{chebyshev()}}, this rule converges on every run on which the gradient rule
 alone converges, and on three more (\code{cg} and \code{bb} on \code{abs_sum}, \code{gd} on
 \code{beale}), and it needs fewer evaluations of the objective and the gradient

@@ -14,15 +14,15 @@ bounded_forward(b, theta)
 \value{
 A numeric vector on the unconstrained scale, as long as \code{theta}.
 A value on or outside a bound gives an infinite or \code{NaN} entry rather
-than an error, the check belonging to \code{\link[=check_bounds]{check_bounds()}}.
+than an error; the check belongs to \code{\link[=check_bounds]{check_bounds()}}.
 }
 \description{
 Maps a parameter from inside its bounds to the unconstrained scale: the
-inverse of \code{\link[=bounded_transform]{bounded_transform()}}'s \code{h}, and what a starting
-value goes through before an unconstrained run.
+inverse of \code{\link[=bounded_transform]{bounded_transform()}}'s \code{h}, and the map applied to a starting
+value before an unconstrained run.
 }
 \details{
-The values must lie strictly inside. A value \strong{on} a bound maps to an
+The values must lie strictly inside. A value on a bound maps to an
 infinite \eqn{\eta}, so a run started there would begin at infinity and
 fail far from its cause. For this reason \code{\link[=minimize]{minimize()}} rejects such a
 starting value, with an error that names the coordinate, before anything
@@ -36,7 +36,7 @@ bounded_forward(c(0, 1), 0.5)
 # unusable and minimize() rejects it.
 bounded_forward(c(0, 1), c(0, 1))
 
-# Round trip, in this direction too.
+# The round trip also holds in this direction.
 eta <- c(-2, 0, 3)
 all.equal(bounded_forward(c(0, Inf), bounded_transform(c(0, Inf), eta)$h),
           eta)

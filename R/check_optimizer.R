@@ -18,9 +18,9 @@ NULL
 #'
 #' The twelve numbered checks are statements that an optimizer must satisfy
 #' whatever its performance. The performance comes afterwards, as a table of
-#' gaps without a verdict. The two are kept apart because a slow method is
-#' not a defective one: gradient descent does not solve Rosenbrock in five
-#' hundred iterations, and that is a documented property of the method.
+#' gaps without a verdict. The two are kept apart because a slow method can
+#' satisfy every requirement: gradient descent does not solve Rosenbrock in
+#' five hundred iterations, which is a documented property of the method.
 #'
 #' The only performance requirement among the numbered checks is check 12,
 #' the minimization of a quadratic, which every correct method passes.
@@ -28,25 +28,25 @@ NULL
 #' # The twelve checks
 #'
 #' 1. `value` is the objective at `par`. A method that reports the value at a
-#'    point that it has since left passes every test written in terms of the
-#'    value alone.
-#' 2. the reported gradient is the gradient at `par`. Checked only for an
-#'    optimizer that declares `"gradient"` through [optimizer_provides()].
+#'    point that it has since left passes every test that uses only the value.
+#' 2. the reported gradient is the gradient at `par`. The check is run only
+#'    for an optimizer that declares `"gradient"` through
+#'    [optimizer_provides()].
 #'    [bundle()] reports an aggregate subgradient and does not declare a
 #'    gradient, so the check does not apply to it.
 #' 3. `converged` follows the stopping rule and is never inferred from the
-#'    run having ended. Checked by starving the optimizer of iterations: a
-#'    run cut off after one must not report success.
+#'    run having ended. The check starves the optimizer of iterations, and a
+#'    run cut off after one iteration must not report success.
 #' 4. budgets are respected: `iterations` never exceeds `maxit`.
 #' 5. evaluations are counted: the reported number of evaluations is not
 #'    zero.
 #' 6. the trace, when kept, is a data frame whose key column (`iteration`, or
 #'    `start` for a [multistart()] trace) starts at one and increases.
-#' 7. bounds are respected **strictly**. A probability of exactly 1 is not a
+#' 7. bounds are respected strictly. A probability of exactly 1 is not a
 #'    probability inside \eqn{(0, 1)}, and the next computation of the caller
 #'    often divides by it.
 #' 8. the run repeats. A deterministic method gives the same answer twice; a
-#'    stochastic one gives it again from the seed it recorded, which tests
+#'    stochastic one gives it again from the seed that it recorded, which tests
 #'    the recording as well as the repeatability.
 #' 9. [maximize()] is [minimize()] of the negative.
 #' 10. a stopping rule that the optimizer cannot evaluate is rejected when
@@ -70,8 +70,8 @@ NULL
 #'
 #' @param optimizer The [optimizer()] to check. Anything else raises an error
 #'   naming `bfgs()` as an example.
-#' @param problems A list of problems in the shape [test_problems()] returns.
-#'   Defaults to all eight. Pass a subset to keep the report short:
+#' @param problems A list of problems in the shape that [test_problems()]
+#'   returns. Defaults to every problem of [test_problems()]. Pass a subset to keep the report short:
 #'   `test_problems("sphere")`.
 #' @param verbose `TRUE` (default) prints the twelve verdicts and the battery
 #'   table; `FALSE` returns the same information silently.
@@ -128,7 +128,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
     "convergence is not assumed", "budgets are respected",
     "evaluations are counted", "trace is well formed",
     "bounds are respected strictly", "the run repeats",
-    "maximize mirrors minimize", "an unevaluable rule is rejected",
+    "maximize mirrors minimize", "a rule that cannot be evaluated is rejected",
     "a bad starting point is an error", "it minimizes a quadratic"))
 
   base <- run(optimizer, sph)
@@ -253,7 +253,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
 #' @description
 #' Runs the optimizer on each problem from that problem's own starting point
 #' and records the gap between the value reached and the known minimum. The
-#' result is information: no row is a pass or a failure.
+#' result is information: a row is neither a pass nor a failure.
 #'
 #' @details
 #' An error on a problem is caught and reported in the `note` column, so
@@ -262,7 +262,7 @@ check_optimizer <- function(optimizer, problems = test_problems(),
 #' logical columns.
 #'
 #' @param optimizer The [optimizer()] to run.
-#' @param problems A list in the shape [test_problems()] returns.
+#' @param problems A list in the shape that [test_problems()] returns.
 #'
 #' @return A data frame with one row per problem and the columns `problem`
 #'   (character), `value` and `gap` (numeric), `converged` (logical),
@@ -303,7 +303,7 @@ run_battery <- function(optimizer, problems) {
 #'
 #' @param optimizer The [optimizer()] checked, read for its name.
 #' @param ok The named logical vector of twelve checks.
-#' @param battery The data frame [run_battery()] returned.
+#' @param battery The data frame that [run_battery()] returned.
 #'
 #' @return Invisibly `NULL`. Called for the output.
 #'
@@ -343,8 +343,8 @@ print_optimizer_check <- function(optimizer, ok, battery) {
 #' Rebuild an Optimizer With a Different Iteration Budget
 #'
 #' @description
-#' Returns a copy of the optimizer with `maxit` replaced, keeping its class
-#' and every other setting. [check_optimizer()] uses it for check 3, which
+#' Returns a copy of the optimizer in which `maxit` is replaced. The copy
+#' keeps the class and every other setting of the optimizer. [check_optimizer()] uses it for check 3, which
 #' gives an optimizer a single iteration and tests that it does not report
 #' convergence, and which receives an optimizer of any class.
 #'
@@ -400,15 +400,15 @@ S7::method(with_trace, optimizer) <- function(optimizer)
 #' Rebuild an Optimizer With a Different Stopping Rule
 #'
 #' @description
-#' Returns a copy of the optimizer with its criterion replaced, keeping its
-#' class and every other setting. For a wrapper it replaces the rule that is
+#' Returns a copy of the optimizer in which the criterion is replaced. The
+#' copy keeps the class and every other setting of the optimizer. For a wrapper it replaces the rule that is
 #' actually consulted, which is not always the one on the outside.
 #'
 #' @details
 #' [multistart()] carries a criterion property that is used for printing;
 #' the rule that the run evaluates belongs to the optimizer inside. Setting
-#' the outer one alone changes only the printing, and a check that relied on
-#' it would test the default rule:
+#' the outer one without the inner one changes only the printing, and a check
+#' that relied on it would test the default rule:
 #'
 #' ```r
 #' ms <- multistart(bfgs(), n = 3)

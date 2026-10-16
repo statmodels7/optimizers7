@@ -27,15 +27,15 @@ bb(
 see Details.}
 
 \item{alpha0}{The step length used on the first iteration, before there is a
-secant pair to estimate one from. Defaults to \code{1e-2}.}
+secant pair from which to estimate one. Defaults to \code{1e-2}.}
 
-\item{alpha_min, alpha_max}{Bounds on the step length. Defaults \code{1e-10}
-and \code{1e10}.}
+\item{alpha_min, alpha_max}{Bounds on the step length. The defaults are
+\code{1e-10} and \code{1e10}.}
 
 \item{curv_tol}{The relative curvature threshold: a secant pair is rejected
 when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
 for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
-the same relative test \code{\link[=bfgs]{bfgs()}} applies to the same quantity.}
+the same relative test that \code{\link[=bfgs]{bfgs()}} applies to the same quantity.}
 
 \item{step}{Initial multiplier offered to the line search. Defaults to
 \code{1}, so the Barzilai-Borwein step is tried unaltered first.}
@@ -45,8 +45,8 @@ the same relative test \code{\link[=bfgs]{bfgs()}} applies to the same quantity.
 
 \item{maxit}{Maximum iterations. Defaults to 1000.}
 
-\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}:
-no evaluation budget, so the run stops on the criterion or on
+\item{max_eval}{Maximum objective evaluations. Defaults to \code{Inf}, which
+sets no evaluation budget, so the run stops on the criterion or on
 \code{maxit}. Set a finite value to cap the cost of a run.}
 
 \item{verbose}{Report progress? Defaults to \code{FALSE}.}
@@ -73,12 +73,11 @@ the two Rayleigh quotients of the secant pair \eqn{s = x_k - x_{k-1}},
 direction just traveled, so the method is a quasi-Newton method that keeps
 a single scalar. When the Hessian is a multiple of the identity, the
 curvature is the same in every direction, the estimate from one secant
-pair is exact, and the method converges in \strong{two} iterations. Otherwise
+pair is exact, and the method converges in two iterations. Otherwise
 the scalar is the curvature along the last step only, and the number of
 iterations grows with the spread of the curvatures. On a general smooth
 objective the method usually needs more iterations and more evaluations
-than
-\code{\link[=bfgs]{bfgs()}}, and it stores one scalar instead of a matrix.
+than \code{\link[=bfgs]{bfgs()}}, and it stores one scalar instead of a matrix.
 }
 \section{Variants}{
 \code{"bb1"} and \code{"bb2"} are the two quotients above, and \code{"alternate"}, the
@@ -94,8 +93,8 @@ unaltered, and backtracking occurs only when it fails the acceptance test.
 The method makes progress through steps that may increase the objective
 temporarily, so the default acceptance test is \code{\link[=nonmonotone]{nonmonotone()}}, which
 requires an improvement over the largest of the last \code{memory + 1}
-objective values, the current one included, and not over the current value
-alone. A plain Armijo condition rejects every step that increases the
+objective values, which include the current one, and not only over the
+current value. A plain Armijo condition rejects every step that increases the
 objective, and with it the steps on which the method relies, so the run
 needs more than twice as many evaluations (see the examples).
 
@@ -106,16 +105,16 @@ of the two isolates the effect of the memory.
 \section{Rejected secant pairs}{
 A pair is used only if it reports positive curvature by a relative margin,
 \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
-\eqn{c} the \code{curv_tol} argument, the same test \code{\link[=bfgs]{bfgs()}} applies. When a
+\eqn{c} the \code{curv_tol} argument, the same test that \code{\link[=bfgs]{bfgs()}} applies. When a
 pair is rejected the step length is reset to
 \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, a trial displacement of order one
 in the parameters. The reset reads the current gradient and not the step
-length being replaced or a fixed constant, so it can neither freeze the
-iteration at a too-short step nor produce one the backtracking cannot
-rescale. Steps outside \verb{[alpha_min, alpha_max]} are clamped. The reset and
-the clamp appear in the trace as \verb{bb curvature reset} and
-\verb{bb step clamped}, and a step shortened by the line search as
-\verb{step shortened}.
+length being replaced or a fixed constant, so it cannot freeze the
+iteration at a too-short step and cannot produce a step that the
+backtracking is unable to rescale. Steps outside \verb{[alpha_min, alpha_max]}
+are clamped. The reset and the clamp appear in the trace as
+\verb{bb curvature reset} and \verb{bb step clamped}, and a step shortened by the
+line search as \verb{step shortened}.
 }
 
 \examples{

@@ -15,7 +15,7 @@ An S7 object of class \link{CritRelPar}, inheriting from
 \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The rule
+The rule is
 \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert / (\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}.
 }
 \details{
@@ -26,7 +26,7 @@ number therefore serves as the floor and as the threshold.
 \examples{
 crit_rel_par()
 
-# The same relative change at two very different scales.
+# The same relative change is tested at two very different scales.
 c(large = crit_met(crit_rel_par(1e-6), list(x_new = 1000,
                                             x_old = 1000.0001)),
   small = crit_met(crit_rel_par(1e-6), list(x_new = 1e-3,

@@ -25,14 +25,13 @@ points, runs the inner optimizer from each, and assembles the result from
 the best run.
 }
 \details{
-Three things happen before the first start runs. The objective, the
-bounds and \code{par} are validated \strong{once}, so a bad criterion or a \code{par}
-outside its box is rejected before the \eqn{n} runs are launched; a row of
-a user-supplied \code{starts} matrix is not checked in advance, and a row
-outside the box fails in its own run. The state of the generator is
-recorded for the \code{seed} of the result. And the gradient check is switched
-off for the inner runs, since the generic has already made it at the \code{par}
-of the caller; without that the same warning would be printed once per
-start.
+Before the first start runs, the objective, the bounds and \code{par} are
+validated once, so a bad criterion or a \code{par} outside its box is rejected
+before the \eqn{n} runs are launched; a row of a user-supplied \code{starts}
+matrix is not checked in advance, and a row outside the box fails in its
+own run. The state of the generator is recorded for the \code{seed} of the
+result. The gradient check is switched off for the inner runs, since the
+generic has already made it at the \code{par} of the caller; without that the
+same warning would be printed once per start.
 }
 \keyword{internal}

@@ -26,7 +26,7 @@ Compass(
 \item{directions}{Either \code{"mads"} or \code{"coordinate"}.}
 
 \item{opportunistic}{Logical; whether the poll stops at the first
-improvement it finds.}
+improvement that it finds.}
 
 \item{expand, shrink}{Factors applied to the poll size after a success and
 after a failure. After a success the poll size is capped at \eqn{10^4}
@@ -37,16 +37,16 @@ An S7 object of class \code{Compass} inheriting from \code{\link[=optimizer]{opt
 with the five properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the poll size and how it changes, which set of poll
-directions is used, and whether the poll stops at the first improvement.
-Built by \code{\link[=compass]{compass()}}. With \code{directions = "mads"} a run draws from \R's
-generator and records its seed; with \code{"coordinate"} it is deterministic
-and records none.
+A \code{Compass} object holds the poll size and how it changes, the set of poll
+directions that is used, and whether the poll stops at the first
+improvement. It is built by \code{\link[=compass]{compass()}}. With \code{directions = "mads"} a run
+draws from \R's generator and records its seed; with \code{"coordinate"} it is
+deterministic and records none.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Compass} carries five
 of its own: \code{step}, \code{expand} and \code{shrink} govern the poll radius,
-\code{directions} selects the set that is polled, and \code{opportunistic} decides
+\code{directions} selects the set that is polled, and \code{opportunistic} controls
 when the poll stops.
 }
 \seealso{

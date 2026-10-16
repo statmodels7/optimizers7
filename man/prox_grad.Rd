@@ -27,9 +27,9 @@ minimizer of \eqn{\lVert b - v \rVert^2/(2\,\mathrm{step}) + g(b)}.
 that has it.}
 
 \item{g}{The value of the non-smooth part, a function of the point.
-Required alongside \code{prox}: the two describe the same term, and
-without \code{g} the reported objective would be the smooth part
-alone.}
+It is required alongside \code{prox}, because the two describe the same
+term, and without \code{g} the reported objective would include only the
+smooth part.}
 
 \item{accelerate}{Apply the momentum extrapolation? Defaults to
 \code{TRUE}.}
@@ -88,8 +88,8 @@ The step length is not increased again during the run.
 }
 \section{What the stopping rule reads}{
 The gradient of \eqn{f + g} does not vanish at the solution, since \eqn{g}
-is not differentiable there, so this method reports the \strong{proximal
-gradient mapping}
+is not differentiable there, so this method reports the proximal
+gradient mapping
 \deqn{G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}}
 as its gradient, read at the iterate \eqn{x}, the point that is reported.
 It vanishes exactly at a stationary point of \eqn{f + g} and reduces to
@@ -135,7 +135,7 @@ is smaller than the possible error.
 }
 
 \examples{
-# A lasso-penalized least squares problem, solved through the operator.
+# A lasso-penalized least squares problem is solved through the operator.
 # Three of the eight coefficients are non-zero in the truth.
 set.seed(1)
 X <- matrix(rnorm(200 * 8), 200, 8)

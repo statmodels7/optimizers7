@@ -89,7 +89,7 @@ subspace where the curvature is positive, and close to the gradient
 direction in the rest. The repair costs a symmetric eigendecomposition
 and gives the best-conditioned matrix. If the eigendecomposition
 fails, the ridge repair is used.}
-\item{\code{"ridge"}}{add \eqn{\tau I}, with \eqn{\tau} doubled until the
+\item{\code{"ridge"}}{add \eqn{\tau I} and double \eqn{\tau} until the
 factorization succeeds. This is Levenberg's idea: it interpolates
 between the Newton step at \eqn{\tau = 0} and a scaled steepest-descent
 step for large \eqn{\tau}. It costs less than the eigendecomposition and
@@ -170,7 +170,7 @@ rosen_he <- function(p) matrix(
 
 minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 
-# A saddle, where the unrepaired step points the wrong way. The Hessian at
+# At a saddle the unrepaired step points the wrong way. The Hessian at
 # the start has eigenvalues 2 and -1.99; the repair is recorded in the
 # trace.
 sad <- function(p) p[1]^2 - p[2]^2 + 0.1 * p[2]^4
@@ -199,7 +199,7 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
-\code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} when no Hessian is available,
+\code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} when a Hessian is not available,
 \code{\link[=armijo]{armijo()}} for the line search, \code{\link[=summary.optimizer_result]{summary.optimizer_result()}} for the
 safeguard counts.
 }

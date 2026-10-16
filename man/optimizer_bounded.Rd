@@ -14,9 +14,9 @@ optimizer_bounded(optimizer)
 A single logical.
 }
 \description{
-\code{TRUE} when the optimizer honors the \code{lower} and \code{upper} arguments of
-\code{\link[=minimize]{minimize()}}, so that \code{\link[=check_optimizer]{check_optimizer()}} tests them, and \code{FALSE} for a
-method that takes its constraint in another way.
+Returns \code{TRUE} when the optimizer applies the \code{lower} and \code{upper}
+arguments of \code{\link[=minimize]{minimize()}}, so that \code{\link[=check_optimizer]{check_optimizer()}} tests them, and
+\code{FALSE} for a method that takes its constraint in another way.
 }
 \details{
 Every method in the package except \code{\link[=prox_grad]{prox_grad()}} removes bounds by
@@ -26,7 +26,7 @@ with the non-smooth term, so bounds beside the objective would be a
 second, conflicting way of imposing the same constraint.
 
 A wrapper returns the answer of what it contains. \code{\link[=chain]{chain()}} is bounded
-only when \strong{every} stage is, since the bounds are passed to all of them,
+only when every stage is, since the bounds are passed to all of them,
 and \code{\link[=multistart]{multistart()}} returns the answer of its inner optimizer.
 
 \code{\link[=check_optimizer]{check_optimizer()}} reads the declaration before its seventh check, so a
@@ -45,6 +45,6 @@ c(optimizer_bounded(chain(bfgs(), newton())),
 }
 \seealso{
 \code{\link[=optimizer_provides]{optimizer_provides()}} for the other declaration generic,
-\code{\link[=check_bounds]{check_bounds()}} for what a method that answers \code{TRUE} receives,
-\code{\link[=prox_grad]{prox_grad()}} for the one that answers \code{FALSE}.
+\code{\link[=check_bounds]{check_bounds()}} for what a method that returns \code{TRUE} receives,
+\code{\link[=prox_grad]{prox_grad()}} for the one that returns \code{FALSE}.
 }

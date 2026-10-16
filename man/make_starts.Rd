@@ -15,7 +15,7 @@ make_starts(par, n, spread, bounds)
 unconstrained units: the half-width is
 \eqn{3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)}.}
 
-\item{bounds}{Box constraints in the shape \code{\link[=check_bounds]{check_bounds()}}
+\item{bounds}{Box constraints in the shape that \code{\link[=check_bounds]{check_bounds()}}
 returns, possibly empty.}
 }
 \value{
@@ -26,8 +26,8 @@ Scatters \code{n - 1} starting points around \code{par}, generated on the
 unconstrained scale so that any bounds are respected by construction.
 }
 \details{
-The range of each coordinate is cut into \code{n - 1} strata, each used
-exactly once, so the starts cannot all fall in one corner, as independent
+The range of each coordinate is cut into \code{n - 1} strata, and each stratum
+is used exactly once, so the starts cannot all fall in one corner, as independent
 draws can. On the unconstrained scale the range is the starting value
 \eqn{\eta_0} plus or minus
 \eqn{3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)}. The

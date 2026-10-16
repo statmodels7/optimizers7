@@ -28,8 +28,9 @@ An S7 object of class \code{GradientDescent} inheriting from
 properties.
 }
 \description{
-An optimizer holding the initial step length and the line search only,
-since steepest descent keeps no model of the surface. Built by \code{\link[=gd]{gd()}}.
+A \code{GradientDescent} object holds the initial step length and the line
+search only, since steepest descent does not keep a model of the surface.
+It is built by \code{\link[=gd]{gd()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{GradientDescent}

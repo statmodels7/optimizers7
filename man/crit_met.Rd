@@ -36,8 +36,8 @@ supplied in place of a gradient by \code{\link[=nelder_mead]{nelder_mead()}}, \c
 }
 The shipped methods supply \code{f_old} and \code{x_old} from the first call on,
 except \code{\link[=brent]{brent()}}, which supplies them from its second iteration. A descent
-method calls the rule with \code{f_old} and \code{x_old} set to \code{NULL} only after a
-line search that accepted no step, so that only the state at \code{x_new} can
+method sets \code{f_old} and \code{x_old} to \code{NULL} in the call only after a line
+search that accepted no step, so that only the state at \code{x_new} can
 end the run there. With box constraints, \code{x_new},
 \code{x_old} and \code{gradient} are on the unconstrained scale on which the
 optimizer moves.

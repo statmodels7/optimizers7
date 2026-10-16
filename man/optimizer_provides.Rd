@@ -11,8 +11,8 @@ optimizer_provides(optimizer)
 \item{optimizer}{An \code{\link[=optimizer]{optimizer()}}.}
 }
 \value{
-A character vector of \code{state} component names. The two the shipped
-criteria read are \code{"gradient"} and \code{"stationarity"}.
+A character vector of \code{state} component names. The two that the
+shipped criteria read are \code{"gradient"} and \code{"stationarity"}.
 }
 \description{
 Returns the names of the \code{state} components that an optimizer supplies,
@@ -34,14 +34,14 @@ rule that reads the objective is accepted by every method. \code{\link[=prox_gra
 returns \code{"gradient"}, and its gradient is the proximal gradient mapping,
 which vanishes at a stationary point of the whole objective.
 
-The \strong{default method} returns \code{"gradient"}, so an optimizer written
+The default method returns \code{"gradient"}, so an optimizer written
 outside the package declares a gradient unless it has a method of its
-own. The rejection relies on this declaration being accurate: a method
+own. The rejection works only if the declaration is accurate: a method
 that declares a gradient that it does not compute accepts a rule that can
 never fire.
 }
 \examples{
-# The two answers, across the shipped methods.
+# The shipped methods give both answers.
 vapply(list(bfgs(), newton(), cg(), bb(), gd(), adam()),
        optimizer_provides, "")
 vapply(list(nelder_mead(), compass(), sa(), bundle()),
@@ -53,7 +53,7 @@ optimizer_provides(multistart(nelder_mead()))
 
 }
 \seealso{
-\code{\link[=check_criterion]{check_criterion()}} for the rejection this feeds, \code{\link[=crit_needs]{crit_needs()}}
-for the other half of the comparison, \code{\link[=optimizer_bounded]{optimizer_bounded()}} for the
-package's other declaration generic.
+\code{\link[=check_criterion]{check_criterion()}} for the rejection that this generic feeds,
+\code{\link[=crit_needs]{crit_needs()}} for the other half of the comparison,
+\code{\link[=optimizer_bounded]{optimizer_bounded()}} for the package's other declaration generic.
 }

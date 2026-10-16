@@ -10,14 +10,14 @@ starting_values(starter, npar)
 \item{starter}{A \code{\link[=start_zeros]{start_zeros()}} or \code{\link[=start_runif]{start_runif()}}
 object, or a user-defined starter.}
 
-\item{npar}{The number of parameters wanted.}
+\item{npar}{The number of parameters in the vector to produce.}
 }
 \value{
 A numeric vector of length \code{npar}, on the unconstrained scale.
 }
 \description{
 Turns a starter into an actual numeric vector of length \code{npar}, on the
-\strong{unconstrained} scale.
+unconstrained scale.
 }
 \details{
 The unconstrained scale is the scale on which the optimizer works when
@@ -34,8 +34,8 @@ the argument, not \code{starter@npar}.
 The two shipped starters are \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A
 starter of a third kind is a subclass of the abstract \link{starter} class with
 a method for this generic and nothing else, and \code{\link[=minimize]{minimize()}} then accepts
-it as \code{par} like either shipped one. The parent class matters:
-\code{minimize()} accepts as \code{par} a numeric vector or an object that inherits
+it as \code{par} like either shipped one. The new class has to inherit from
+\link{starter}, because \code{minimize()} accepts as \code{par} a numeric vector or an object that inherits
 from \link{starter}, so a class that has a method for this generic but does
 not inherit from \link{starter} is rejected with the error \verb{'par' must be a numeric vector of starting values}.
 }
@@ -56,5 +56,5 @@ identical(a@par, b@par)
 \seealso{
 \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}} for the two shipped starters,
 \code{\link[=minimize]{minimize()}} for where the resolution happens, \code{\link[=infer_npar]{infer_npar()}} for how
-\code{npar} is worked out when nothing declares it.
+\code{npar} is determined when it is not declared.
 }

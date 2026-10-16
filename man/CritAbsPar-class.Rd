@@ -16,15 +16,15 @@ An S7 object of class \code{CritAbsPar} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_abs_par]{crit_abs_par()}}. The rule fires when the
-largest change of a coordinate,
+This is the class of the rule built by \code{\link[=crit_abs_par]{crit_abs_par()}}. The rule fires
+when the largest change of a coordinate,
 \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert}, falls below \code{tol}, so the
 tolerance is in the units of the parameters. It declares nothing through
 \code{\link[=crit_needs]{crit_needs()}}.
 }
 \details{
 \code{crit_met()} returns \code{FALSE} when \code{x_old} is \code{NULL}. With box constraints
-the comparison is on the \strong{unconstrained} scale, on which the optimizer
+the comparison is on the unconstrained scale, on which the optimizer
 moves, so the same tolerance has different meanings for a variance near
 zero and for one near a thousand.
 }

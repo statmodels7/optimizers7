@@ -13,8 +13,8 @@ taken and removed by reparametrization, as in the other methods except
 \code{\link[=prox_grad]{prox_grad()}}.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}} holding the best point seen, with \code{seed}
-filled in and \code{converged} \code{TRUE} only when the stopping rule fired (by
+An \code{\link[=optimizer_result]{optimizer_result()}} holding the best point seen. Its \code{seed} is
+filled in, and \code{converged} is \code{TRUE} only when the stopping rule fired (by
 default, Corana's rule through \code{\link[=crit_stationary]{crit_stationary()}}).
 }
 \description{

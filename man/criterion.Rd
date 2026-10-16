@@ -16,8 +16,9 @@ abstract, so every value is an object of one of its subclasses or of a
 subclass written by the caller.
 }
 \description{
-The abstract parent of every stopping rule. An optimizer carries one, and
-a caller may replace it, combine several, or write a new kind: a class
+A criterion is the abstract parent of every stopping rule. An optimizer
+carries one, and a caller may replace it, combine several, or write a new
+kind: a class
 that inherits from this one and has a method for \code{\link[=crit_met]{crit_met()}} is a
 stopping rule, and every algorithm in the package consults it.
 }
@@ -28,7 +29,7 @@ compiled code, whereas a new algorithm or a new kind of line search needs
 a branch in the compiled loop.
 }
 \section{The two generics}{
-\code{\link[=crit_met]{crit_met()}} answers whether the run should stop, given the state of the
+\code{\link[=crit_met]{crit_met()}} returns whether the run should stop, given the state of the
 iteration just completed. \code{\link[=crit_needs]{crit_needs()}} names the \code{state} components that
 the rule reads, so that an optimizer unable to supply one of them rejects
 the rule when the run starts. The base method for \code{crit_needs()} returns

@@ -6,9 +6,9 @@ NULL
 #' @title S7 Class for Adam
 #'
 #' @description
-#' An optimizer holding the learning rate, the two moment decay rates and the
-#' three safeguards of the Adam iteration. Built by [adam()]. It is the only
-#' shipped method whose default stopping rule is [crit_never()], so a run
+#' An `Adam` object holds the learning rate, the two moment decay rates and the
+#' three safeguards of the Adam iteration. It is built by [adam()] and is the
+#' only shipped method whose default stopping rule is [crit_never()], so a run
 #' with the defaults ends on its iteration budget and reports
 #' `converged = FALSE`.
 #'
@@ -21,7 +21,7 @@ NULL
 #' @param alpha The learning rate, the size of a step when the gradient is
 #'   steady.
 #' @param beta1,beta2 Decay rates for the first and second moment estimates.
-#' @param eps Added to the square-rooted second moment before dividing.
+#' @param eps Added to the square root of the second moment before dividing.
 #' @param decay Rate at which the learning rate is reduced.
 #' @param amsgrad Logical; whether the second moment is held at its running
 #'   maximum.
@@ -48,11 +48,11 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' @title Adaptive Moment Estimation
 #'
 #' @description
-#' Adaptive moment estimation: a first-order method whose coordinate-wise step
-#' lengths come from exponentially weighted first and second moments of the
-#' gradient. It takes no line search and tolerates a gradient that is correct
-#' only on average, which makes it the method suited to a stochastic
-#' objective.
+#' Adaptive moment estimation (Adam) is a first-order method whose
+#' coordinate-wise step lengths come from exponentially weighted first and
+#' second moments of the gradient. It takes no line search and tolerates a
+#' gradient that is correct only on average, which makes it the method suited
+#' to a stochastic objective.
 #'
 #' @param criterion The stopping rule. Defaults to [crit_never()], so
 #'   the run is governed by `maxit`; see Details.
@@ -62,9 +62,9 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'   to `0.9`.
 #' @param beta2 Decay rate of the second moment, the smoothed squared gradient.
 #'   Defaults to `0.999`.
-#' @param eps Added to the square-rooted second moment before dividing, so that
-#'   a coordinate whose gradient has been uniformly zero does not divide by it.
-#'   Defaults to `1e-8`.
+#' @param eps Added to the square root of the second moment before dividing, so
+#'   that a coordinate whose gradient has been uniformly zero does not divide
+#'   by zero. Defaults to `1e-8`.
 #' @param decay Reduces the learning rate as \eqn{\alpha_t = \alpha/(1 + \delta
 #'   (t - 1))} at iteration \eqn{t = 1, 2, \ldots}, so that the first step
 #'   uses \eqn{\alpha}. Defaults to `0`, a constant rate; see Details.
@@ -73,8 +73,8 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' @param maxit Maximum iterations. Defaults to 1000, more than the Newton
 #'   and quasi-Newton methods, because Adam takes many small steps where a
 #'   second-order method takes few large ones.
-#' @param max_eval Maximum objective evaluations. Defaults to `Inf`:
-#'   no evaluation budget, so the run stops on the criterion or on
+#' @param max_eval Maximum objective evaluations. Defaults to `Inf`, which
+#'   sets no evaluation budget, so the run stops on the criterion or on
 #'   `maxit`. Set a finite value to cap the cost of a run.
 #' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 100.
@@ -99,10 +99,9 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' # Relation to the descent methods
 #'
 #' Adam takes no line search and does not require the objective to decrease
-#' at every step. This is the main reason why it tolerates a gradient that
-#' is correct only on average, and it also means that there is no guarantee
-#' of monotone progress: the run may end at a point worse than one it passed
-#' through.
+#' at every step. Because of this, Adam tolerates a gradient that is correct
+#' only on average, and it provides no guarantee of monotone progress: the
+#' run may end at a point worse than a point through which it passed.
 #'
 #' Adam is therefore a poor choice for a small smooth problem where a Hessian
 #' is affordable: on a quadratic [bfgs()] needs a few iterations and Adam
@@ -112,8 +111,8 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #'
 #' # Stochastic objectives
 #'
-#' Adam draws no subsamples of its own. The optimizer has no notion of an
-#' observation, and a stochastic objective is an ordinary function of the
+#' Adam draws no subsamples of its own. The optimizer does not represent
+#' observations, and a stochastic objective is an ordinary function of the
 #' parameters, so a minibatch is drawn inside the objective, as in the
 #' following closure:
 #'
@@ -128,7 +127,7 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' Adam then behaves as on a minibatch of its own drawing, and `set.seed()`
 #' governs the run because the draws happen in the code of the caller.
 #'
-#' **Resample inside the objective, not around the run.** Calling
+#' Resample inside the objective, not around the run. Calling
 #' `minimize(adam(maxit = 1), ...)` in a loop with a new batch each time does
 #' not work: \eqn{m} and \eqn{v} start at zero and the bias correction
 #' restarts at \eqn{t = 1}, so every call takes a first step of length
@@ -144,15 +143,15 @@ Adam <- S7::new_class("Adam", parent = optimizer,
 #' # Stopping
 #'
 #' The default criterion is [crit_never()], so the run ends when `maxit` is
-#' reached and reports `converged = FALSE`, because no stopping rule was
-#' tested. On a noisy objective Adam with a fixed `alpha` circles an optimum
-#' instead of settling on it, so a tolerance on the gradient seldom fires
-#' there.
+#' reached and reports `converged = FALSE`, because the run does not test any
+#' stopping rule. On a noisy objective Adam with a fixed `alpha` circles an
+#' optimum instead of settling on it, so a tolerance on the gradient seldom
+#' fires there.
 #'
 #' On an exact objective a stopping rule such as [crit_grad()] can be passed
 #' and fires. On a noisy objective the value and the gradient are both
-#' estimates, so a rule that reads either is unreliable, and the method
-#' cannot determine which kind of objective it receives. The rule is also
+#' estimates, so a rule that reads either is unreliable, and the method does
+#' not distinguish an exact objective from a noisy one. The rule is also
 #' tested at the point produced by the last iteration of the budget.
 #'
 #' # The safeguards

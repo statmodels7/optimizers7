@@ -14,8 +14,8 @@ NULL
 #' # The meaning of `converged`
 #'
 #' `converged` is `TRUE` when the stopping rule was satisfied, and also when
-#' a line search with a declared resolution established that no step
-#' decreases the objective by more than that resolution (`criterion_met` is
+#' a line search with a declared resolution established that every step
+#' fails to decrease the objective by more than that resolution (`criterion_met` is
 #' then `no decrease above the objective's resolution`) or when [brent()]
 #' reduced its bracket to the resolution of the iterate (`bracket at machine
 #' resolution`). Running out of iterations or evaluations leaves it `FALSE`
@@ -82,8 +82,8 @@ NULL
 #' @param par The minimizer reached, a numeric vector of the same length as
 #'   the starting point.
 #' @param value The objective at `par`, a single number. For a run started by
-#'   [maximize()] this is the value of the original objective, with the sign
-#'   already undone.
+#'   [maximize()] this is the value of the original objective, and its sign
+#'   is already undone.
 #' @param gradient The gradient at `par`, a numeric vector, or `NULL` for a
 #'   method that computes none. [prox_grad()] reports the proximal gradient
 #'   mapping here.
@@ -104,8 +104,8 @@ NULL
 #'   optimizer was built with `keep_trace = FALSE`, which is the default.
 #' @param optimizer The [optimizer()] that produced the result, kept whole so
 #'   the run can be repeated or restarted from where it stopped.
-#' @param elapsed Wall-clock seconds, a single number. Measured to the
-#'   platform's clock resolution, so a fast run can read exactly `0`.
+#' @param elapsed Wall-clock seconds, a single number. The time is measured to
+#'   the platform's clock resolution, so a fast run can read exactly `0`.
 #' @param seed The state of the random number generator when the run began,
 #'   an integer vector, or `NULL` for a deterministic method.
 #'
@@ -168,8 +168,9 @@ optimizer_result <- S7::new_class(
 #' below a millisecond, milliseconds below a second and seconds below a
 #' minute, each to three significant figures, then whole minutes and seconds
 #' below an hour, and whole hours and minutes above. The unit is chosen on
-#' the rounded value, so that no field reaches its carry (`"59 min 60 s"`).
-#' Used by [print.optimizer_result()] for the `elapsed` line.
+#' the rounded value, so that rounding cannot produce a field at its carry
+#' value (`"59 min 60 s"`). [print.optimizer_result()] uses it for the
+#' `elapsed` line.
 #'
 #' @param sec A single number of seconds.
 #'
@@ -204,8 +205,9 @@ format_elapsed <- function(sec) {
 #' capitals.
 #'
 #' @param x An [optimizer_result()].
-#' @param digits Decimal places the parameters are rounded to. A single
-#'   non-negative whole number, default 4. Anything else raises an error.
+#' @param digits Number of decimal places to which the parameters are rounded.
+#'   It must be a single non-negative whole number, and the default is 4. Any
+#'   other value raises an error.
 #'   The objective value is not affected: it always prints to six
 #'   significant figures.
 #' @param max_par How many parameters to show. A single positive whole
@@ -274,8 +276,8 @@ S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
 #' @details
 #' The safeguard table needs a trace, so the optimizer must have been built
 #' with `keep_trace = TRUE`. Without a trace the method prints what
-#' [print.optimizer_result()] prints. With a trace in which no safeguard
-#' fired, the output reads `safeguards : none fired`.
+#' [print.optimizer_result()] prints. When every row of the trace has
+#' `safeguard` equal to `"none"`, the output reads `safeguards : none fired`.
 #'
 #' @param object An [optimizer_result()].
 #' @param ... Unused.
@@ -287,10 +289,10 @@ S7::method(print, optimizer_result) <- function(x, digits = 4, max_par = 6,
 #' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 #'                    200 * (p[2] - p[1]^2))
 #'
-#' # Newton on the curved valley: the line search shortens a few steps.
+#' # On the curved valley the line search of newton() shortens a few steps.
 #' summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 #'
-#' # On a quadratic no safeguard fires.
+#' # On a quadratic the safeguards do not fire.
 #' summary(minimize(newton(keep_trace = TRUE),
 #'                  function(p) sum((p - 1:2)^2), c(0, 0)))
 #'
@@ -358,7 +360,7 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 S7::method(plot, optimizer_result) <- function(x, ...) {
   tr <- x@trace
   if (is.null(tr) || !nrow(tr)) {
-    stop("No trace to plot; build the optimizer with keep_trace = TRUE.",
+    stop("Plotting needs a trace; build the optimizer with keep_trace = TRUE.",
          call. = FALSE)
   }
   graphics::plot(tr$iteration, tr$value, type = "l", lwd = 2, las = 1,

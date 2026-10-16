@@ -16,7 +16,7 @@ An S7 object of class \link{CritRelObj}, inheriting from
 \code{\link[=criterion]{criterion()}}.
 }
 \description{
-The rule
+The rule is
 \eqn{\lvert f_{new} - f_{old} \rvert < \texttt{tol}\,(\lvert f_{old} \rvert + \texttt{tol})}.
 }
 \details{
@@ -33,7 +33,7 @@ hard to set.
 \examples{
 crit_rel_obj()
 
-# The same absolute change, at two objective scales.
+# The same absolute change is tested at two objective scales.
 c(small = crit_met(crit_rel_obj(1e-6), list(f_new = 1, f_old = 1 + 1e-7)),
   large = crit_met(crit_rel_obj(1e-6),
                    list(f_new = 1e6, f_old = 1e6 + 1e-7)))

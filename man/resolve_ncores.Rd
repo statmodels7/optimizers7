@@ -27,6 +27,6 @@ seconds, whereas a fork takes microseconds.
 
 It is capped at two under \verb{R CMD check}, which sets
 \verb{_R_CHECK_LIMIT_CORES_} and fails a package that ignores it, and it
-falls back to one process where \code{detectCores()} cannot tell.
+falls back to one process where \code{detectCores()} returns \code{NA}.
 }
 \keyword{internal}

@@ -27,7 +27,7 @@ The number of parameters is looked for in three places, in order. The
 length greater than one determines it, since bounds are one per
 parameter. Otherwise \code{\link[=infer_npar]{infer_npar()}} probes the objective.
 
-A numeric \code{par} passes through unchanged, so the ordinary call pays
-nothing for this.
+A numeric \code{par} passes through unchanged, so the ordinary call has no
+added cost.
 }
 \keyword{internal}

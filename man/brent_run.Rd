@@ -16,10 +16,11 @@ brent_run(optimizer, spec, par, bounds)
 \item{bounds}{What \code{\link[=check_bounds]{check_bounds()}} returned.}
 }
 \value{
-A list in the shape \code{\link[=build_result]{build_result()}} consumes.
+A list in the shape that \code{\link[=build_result]{build_result()}} consumes.
 }
 \description{
-The body of \code{\link[=minimize]{minimize()}} for a \link{Brent} optimizer: the bracketing phase and
-the reduction phase, on the unconstrained scale where bounds are given.
+This is the body of \code{\link[=minimize]{minimize()}} for a \link{Brent} optimizer: the bracketing
+phase and the reduction phase, on the unconstrained scale where bounds are
+given.
 }
 \keyword{internal}

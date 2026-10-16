@@ -27,7 +27,7 @@ steady.}
 
 \item{beta1, beta2}{Decay rates for the first and second moment estimates.}
 
-\item{eps}{Added to the square-rooted second moment before dividing.}
+\item{eps}{Added to the square root of the second moment before dividing.}
 
 \item{decay}{Rate at which the learning rate is reduced.}
 
@@ -39,9 +39,9 @@ An S7 object of class \code{Adam} inheriting from \code{\link[=optimizer]{optimi
 the six properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the learning rate, the two moment decay rates and the
-three safeguards of the Adam iteration. Built by \code{\link[=adam]{adam()}}. It is the only
-shipped method whose default stopping rule is \code{\link[=crit_never]{crit_never()}}, so a run
+An \code{Adam} object holds the learning rate, the two moment decay rates and the
+three safeguards of the Adam iteration. It is built by \code{\link[=adam]{adam()}} and is the
+only shipped method whose default stopping rule is \code{\link[=crit_never]{crit_never()}}, so a run
 with the defaults ends on its iteration budget and reports
 \code{converged = FALSE}.
 }

@@ -7,13 +7,14 @@
 build_multistart_result(res, S, optimizer, seed, elapsed)
 }
 \arguments{
-\item{res}{The list of results, entries that failed being character messages.}
+\item{res}{The list of results, in which the entry of a failed start is a
+character message.}
 
 \item{S}{The matrix of starting points.}
 
 \item{optimizer}{The \code{MultiStart} object.}
 
-\item{seed}{The generator state the run began with.}
+\item{seed}{The generator state with which the run began.}
 
 \item{elapsed}{Seconds.}
 }

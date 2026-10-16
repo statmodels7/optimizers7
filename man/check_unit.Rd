@@ -15,7 +15,7 @@ check_unit(v, nm)
 Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
-Checks that the value is a single number \strong{strictly} inside
+Checks that the value is a single number strictly inside
 \eqn{(0, 1)}. Both endpoints are rejected: \code{c1 = 0} requires no decrease
 at all, and \code{c1 = 1} requires the whole decrease that the linear model
 predicts, which a strictly convex objective cannot supply.

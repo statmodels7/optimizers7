@@ -7,21 +7,22 @@ NULL
 #' @title S7 Class for a Sequence of Optimizers
 #'
 #' @description
-#' An optimizer holding a list of optimizers to be run in order, each from
-#' the point the previous one reached. Built by [chain()]. Because it
-#' inherits from [optimizer()] it is accepted anywhere a single method is,
-#' including inside [multistart()].
+#' A `Chain` object is an optimizer that holds a list of optimizers to be run
+#' in order, each from the point that the previous one reached. It is built by
+#' [chain()]. Because it inherits from [optimizer()], it is accepted anywhere
+#' a single method is, including inside [multistart()].
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `Chain` carries
 #' `stages`, the list of optimizers in running order. Three of the seven
-#' shared properties describe the **last** stage: `criterion`, `maxit` and
+#' shared properties describe the last stage: `criterion`, `maxit` and
 #' `max_eval` are copied from it, because the rule of the last stage ends the
 #' run and its result is reported. `name` joins the names of all the stages,
 #' `verbose` and `keep_trace` belong to the chain, and `refresh` is fixed at
 #' 1, since the progress of the chain is one line per stage.
 #'
-#' @param stages A list of [optimizer()] objects, in the order they run.
+#' @param stages A list of [optimizer()] objects, in the order in which they
+#'   run.
 #'
 #' @return An S7 object of class `Chain` inheriting from [optimizer()], with
 #'   the property `stages` beside the seven shared ones.
@@ -37,13 +38,13 @@ Chain <- S7::new_class("Chain", parent = optimizer,
 #' @title Run Optimizers One After Another
 #'
 #' @description
-#' Builds one optimizer out of several, run in order, each starting from the
-#' point that the previous one reached. This is the composition used with a
-#' global search: `chain(sa(), lbfgs())` explores and then descends from the
-#' point where the exploration stopped, and neither method needs code for
-#' the other. The result is itself an [optimizer()], so it can be used
-#' wherever a single method can, `multistart(chain(sa(), lbfgs()))`
-#' included.
+#' Builds one optimizer out of several optimizers that run in order, and each
+#' of them starts from the point that the previous one reached. This is the
+#' composition used with a global search: `chain(sa(), lbfgs())` explores and
+#' then descends from the point where the exploration stopped, and each method
+#' works without code written for the other. The result is itself an
+#' [optimizer()], so it can be used wherever a single method can, including
+#' `multistart(chain(sa(), lbfgs()))`.
 #'
 #' @details
 #' # Each stage keeps its own settings
@@ -60,17 +61,17 @@ Chain <- S7::new_class("Chain", parent = optimizer,
 #' the method that finished it converged. An earlier stage that exhausts its
 #' budget, the ordinary end of a global search, does not affect the flag.
 #'
-#' The evaluation counts are **summed over the stages**, so a chain can be
+#' The evaluation counts are summed over the stages, so a chain can be
 #' compared with a single optimizer on total work. `message` joins the
-#' messages of the stages, each prefixed with its stage number.
+#' messages of the stages, and each message is prefixed with its stage number.
 #'
 #' A trace is assembled when both the chain and the stage were built with
-#' `keep_trace = TRUE`: the flag of the chain decides whether a trace is kept
-#' at all, and the flag of each stage decides whether that stage contributes
-#' rows. It carries a `stage` column. Stages need not report the same
-#' columns, since a derivative-free method has a `stationarity` column where
-#' a descent has `gnorm`; when they differ, only the trace of the last stage
-#' is kept.
+#' `keep_trace = TRUE`: if the chain was built with `keep_trace = FALSE`, the
+#' result has no trace, and if a stage was built with `keep_trace = FALSE`, that
+#' stage contributes no rows. The trace carries a `stage` column. Stages need
+#' not report the same columns, since a derivative-free method has a
+#' `stationarity` column where a descent has `gnorm`; when they differ, only
+#' the trace of the last stage is kept.
 #'
 #' An error raised by a stage propagates, since a method that cannot run on
 #' the objective indicates a problem with the objective. A stage that runs
@@ -84,11 +85,12 @@ Chain <- S7::new_class("Chain", parent = optimizer,
 #' The `message` carries the prefix `stage 1: `, and `optimizer` is the
 #' chain.
 #'
-#' @param ... Optimizers, in the order they should run. At least one is
+#' @param ... Optimizers, in the order in which they should run. At least one is
 #'   required; one is accepted. Anything that is not an [optimizer()] raises
 #'   an error naming `sa()` and `bfgs()` as examples.
 #' @param verbose `TRUE` or `FALSE`, default `FALSE`: report which stage is
-#'   starting, one line each. Independent of the `verbose` of the stages.
+#'   starting, one line each. It does not depend on the `verbose` of the
+#'   stages.
 #' @param keep_trace `TRUE` or `FALSE`, default `FALSE`: assemble a trace
 #'   across the stages. The stages must also have been built with
 #'   `keep_trace = TRUE` to contribute anything.
@@ -194,15 +196,15 @@ S7::method(optimizer_provides, Chain) <- function(optimizer)
 #' @name optimizer_bounded.Chain
 #'
 #' @description
-#' `TRUE` when every stage takes bounds, `FALSE` otherwise. The bounds are
-#' passed to all of them, so a single stage that does not take them makes
-#' the whole chain unable to take them.
+#' Returns `TRUE` when every stage takes bounds and `FALSE` otherwise. The
+#' bounds are passed to all of them, so a single stage that does not take them
+#' makes the whole chain unable to take them.
 #'
 #' @details
 #' [prox_grad()] is the only shipped method that returns `FALSE`: it takes
 #' its constraint inside the proximal operator, where the constraint combines
 #' with the penalty. A chain that contains it therefore does not take bounds,
-#' whatever its other stages.
+#' whichever other stages it has.
 #'
 #' @param optimizer A `Chain` object.
 #'
@@ -261,22 +263,21 @@ S7::method(with_maxit, Chain) <- function(optimizer, maxit) {
 #' starting point changes.
 #'
 #' @details
-#' Two things happen before the first stage runs. The stopping rule of every
-#' stage is checked by [check_criterion()], so a chain whose last stage
-#' cannot evaluate its own rule fails without running the earlier ones. And
-#' the gradient check is switched off for the stages, since the generic has
-#' already made it at the `par` of the caller; without that, the same warning
-#' would be printed once per stage.
+#' Before the first stage runs, [check_criterion()] checks the stopping rule
+#' of every stage, so a chain whose last stage cannot evaluate its own rule
+#' fails without running the earlier ones. The gradient check is also switched
+#' off for the stages, since the generic has already made it at the `par` of
+#' the caller; without that, the same warning would be printed once per stage.
 #'
 #' @param optimizer A `Chain` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. Passed to every
-#'   stage as given, with `par` replaced by the answer of the previous
-#'   stage.
+#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. They are passed to
+#'   every stage as given, except that `par` is replaced by the answer of the
+#'   previous stage.
 #'
 #' @return An [optimizer_result()] with the point, value, gradient,
 #'   iteration count and verdict of the last stage, the summed evaluation
 #'   counts, the stacked trace and the elapsed time of the whole chain. `seed`
-#'   is that of the **first** stage, since a repeat of the chain has to start
+#'   is that of the first stage, since a repeat of the chain has to start
 #'   from that state.
 #'
 #' @keywords internal

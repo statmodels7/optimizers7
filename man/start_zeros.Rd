@@ -15,16 +15,16 @@ An S7 object of class \link{ZeroStart}, inheriting from \link{starter}, to be
 passed as \code{par}.
 }
 \description{
-A starting point of all zeros, which after the bound transform is the
-middle of the domain of every parameter: one for a positive parameter,
-one half for a probability, zero for an unbounded one.
+Creates a starter whose starting point is all zeros, which after the bound
+transform is the middle of the domain of every parameter: one for a
+positive parameter, one half for a probability, zero for an unbounded one.
 }
 \details{
 Zero is a suitable constant because it is applied on the unconstrained
 scale. Its image after the bound transform depends on the box:
 
 \tabular{ll}{
-\strong{bounds} \tab \strong{starting value} \cr
+bounds \tab starting value \cr
 \eqn{(-\infty, \infty)} \tab 0 \cr
 \eqn{(0, \infty)} \tab 1 \cr
 \eqn{(0, 1)} \tab 0.5 \cr

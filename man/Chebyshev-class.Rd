@@ -43,8 +43,8 @@ which the corrected direction \eqn{d} is used.}
 An S7 object of class \code{Chebyshev} inheriting from \link{Newton}.
 }
 \description{
-A \link{Newton} optimizer whose direction carries Chebyshev's third-order
-correction. Built by \code{\link[=chebyshev]{chebyshev()}}.
+This class is a \link{Newton} optimizer whose direction carries Chebyshev's
+third-order correction. \code{\link[=chebyshev]{chebyshev()}} builds it.
 }
 \details{
 Beyond the properties of \link{Newton}, a \code{Chebyshev} carries \code{ratio}, the

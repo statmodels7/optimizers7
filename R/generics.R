@@ -25,11 +25,11 @@ NULL
 #' inequalities read coordinatewise. Every method reports the point where it
 #' stopped together with the rule that stopped it. `converged` is `TRUE`
 #' when the stopping rule is satisfied; it is also `TRUE` when a line search
-#' with a declared resolution establishes that no step decreases the
-#' objective by more than that resolution, and when [brent()] reduces its
+#' with a declared resolution establishes that every step fails to decrease
+#' the objective by more than that resolution, and when [brent()] reduces its
 #' bracket to the resolution of the iterate, and the result then reports
 #' that stop with its own label in `criterion_met`. It is never inferred from
-#' the run having ended, so a run that exhausts its budget comes back with
+#' the end of the run, so a run that exhausts its budget comes back with
 #' `converged = FALSE`.
 #'
 #' Dispatch is on `optimizer` alone, so each algorithm is written once. The
@@ -62,7 +62,7 @@ NULL
 #'
 #' # Starters
 #'
-#' `par` may be a **starter** object instead of a vector: [start_zeros()] for
+#' `par` may be a starter object instead of a vector: [start_zeros()] for
 #' all zeros, [start_runif()] for a uniform draw from a chosen range. Both
 #' work on the unconstrained scale and are mapped back through the bounds, so
 #' one constant gives a sensible value for every kind of parameter (zero
@@ -97,15 +97,15 @@ NULL
 #' [stats::nlminb()], so `lower = 0` applies the lower bound zero to every
 #' parameter without one value per coefficient. A length that is neither 1
 #' nor `p` is rejected, and so is a `lower` that is at or above its `upper`.
-#' The
-#' **starting value must lie strictly inside its bounds**: `par = 0` with
-#' `lower = 0` is an error, the transformed coordinate being infinite there.
+#' The starting value must lie strictly inside its bounds: `par = 0` with
+#' `lower = 0` is an error, because the transformed coordinate is infinite
+#' there.
 #'
 #' # An optimum lying on a bound
 #'
 #' Reaching a bound exactly requires the transformed variable to run to
-#' infinity, so a solution on a bound is approached and not attained. What
-#' stops the run is the stopping rule, because the chain-rule factor
+#' infinity, so a solution on a bound is approached and not attained. The
+#' stopping rule ends the run, because the chain-rule factor
 #' \eqn{\partial x / \partial \eta} decays to zero as the bound is
 #' approached and takes the transformed gradient with it. The run therefore
 #' reports `converged = TRUE` at a point near the bound, and how near is set
@@ -128,10 +128,10 @@ NULL
 #'   single number, to be minimized. An object of another class works
 #'   whenever [as_objective()] has a method for it.
 #' @param par A numeric vector of starting values, or a starter object; see
-#'   Starters below. With bounds it must lie **strictly** inside them.
+#'   Starters below. With bounds it must lie strictly inside them.
 #' @param gr The gradient, a function of the parameter vector. `NULL`, the
-#'   default, has it differenced from `fn`. Ignored when `fn` is an objective
-#'   carrying its own gradient.
+#'   default, has it differenced from `fn`. It is ignored when `fn` is an
+#'   objective that carries its own gradient.
 #' @param he The Hessian, a function of the parameter vector. `NULL` is the
 #'   default. [newton()] and [chebyshev()] read it; every other method
 #'   accepts it and does not use it, so calling code need not branch on the
@@ -141,7 +141,7 @@ NULL
 #'   The defaults `-Inf` and `Inf` are no constraint, and a
 #'   coordinate whose pair is infinite on both sides is left untransformed.
 #'   `lower` must be strictly below `upper` in every coordinate.
-#' @param ... Passed to the method dispatched on. Among the shipped
+#' @param ... Passed to the method selected by dispatch. Among the shipped
 #'   methods, only the method for [chebyshev()] reads from it, its argument
 #'   `t3`.
 #'
@@ -153,24 +153,24 @@ NULL
 #' q <- function(p) sum((p - c(1, 2))^2)
 #' qg <- function(p) 2 * (p - c(1, 2))
 #'
-#' # With the gradient supplied, and without it, so that it is differenced.
+#' # The first run supplies the gradient, and the second differences it.
 #' # The two runs reach the same point and differ in the evaluation counts.
 #' a <- minimize(bfgs(), q, par = c(0, 0), gr = qg)
 #' b <- minimize(bfgs(), q, c(0, 0))
 #' all.equal(a@par, b@par, tolerance = 1e-6)
 #' rbind(supplied = unlist(a@counts), differenced = unlist(b@counts))
 #'
-#' # One bound for every parameter: a scale that must stay positive.
+#' # One bound applies to every parameter: a scale that must stay positive.
 #' minimize(bfgs(), q, c(0.5, 0.5), lower = 0)@par
 #'
-#' # Or one per parameter. The unconstrained minimum is at (1, 2), so the
+#' # Bounds may also be given per parameter. The unconstrained minimum is at (1, 2), so the
 #' # second coordinate approaches its upper bound of 1 and stops just short of
 #' # it, at a distance set by the tolerance.
 #' minimize(bfgs(), q, c(0.5, 0.5), lower = c(0, 0), upper = c(5, 1))@par
 #' minimize(bfgs(criterion = crit_grad(1e-12)), q, c(0.5, 0.5),
 #'          lower = c(0, 0), upper = c(5, 1))@par
 #'
-#' # No starting value: the bounds give the number of parameters.
+#' # Without a starting value, the bounds give the number of parameters.
 #' minimize(bfgs(), q, start_zeros(), lower = c(0, 0), upper = c(5, 10))@par
 #'
 #' # A start on its own bound is rejected: the transform is infinite there.
@@ -218,7 +218,7 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' properties of the result pass through unchanged: `counts`, `iterations`,
 #' `converged`, `criterion_met` and the optimizer.
 #'
-#' The rule named in `criterion_met` was evaluated on the **negated**
+#' The rule named in `criterion_met` was evaluated on the negated
 #' objective. Each shipped rule gives the same verdict on \eqn{f} and on
 #' \eqn{-f}, since each reads a gradient norm, an absolute change or a
 #' relative change.
@@ -230,7 +230,7 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #'
 #' @param optimizer An [optimizer()] object carrying the algorithm and its
 #'   settings.
-#' @param fn The objective, a **plain function** of the parameter vector
+#' @param fn The objective, a plain function of the parameter vector
 #'   returning a single number, to be maximized. Unlike [minimize()], an
 #'   object of another class is rejected and not passed to
 #'   [as_objective()]; such an objective has to be negated by the caller and
@@ -240,8 +240,8 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' @param gr The gradient of `fn` as written, a function of the parameter
 #'   vector, or `NULL` for a central difference. It is negated here, so a
 #'   caller supplies the gradient of the function being maximized.
-#' @param he The Hessian of `fn` as written, or `NULL`. Negated here too, and
-#'   read only by [newton()] and [chebyshev()].
+#' @param he The Hessian of `fn` as written, or `NULL`. It is negated here
+#'   too, and only [newton()] and [chebyshev()] read it.
 #' @param lower,upper Box constraints, numeric of length 1 or of length `p`,
 #'   defaulting to `-Inf` and `Inf`. Passed through to [minimize()]
 #'   unchanged; the sign convention does not touch them.
@@ -249,12 +249,12 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #'   argument for [chebyshev()] is the contraction of the third derivative of
 #'   `fn` as written, and is negated here like `gr` and `he`.
 #'
-#' @return An [optimizer_result()] with the same twelve properties
-#'   [minimize()] returns, and with `value`, `gradient` and `trace$value`
-#'   referring to `fn` as written.
+#' @return An [optimizer_result()] with the same twelve properties that
+#'   [minimize()] returns, in which `value`, `gradient` and `trace$value`
+#'   refer to `fn` as written.
 #'
 #' @examples
-#' # A log-likelihood: the normal mean, maximized directly.
+#' # A log-likelihood for the normal mean is maximized directly.
 #' set.seed(1)
 #' y <- rnorm(200, mean = 3)
 #' ll <- function(p) sum(dnorm(y, mean = p, log = TRUE))

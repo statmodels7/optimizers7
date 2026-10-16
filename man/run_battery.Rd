@@ -9,7 +9,7 @@ run_battery(optimizer, problems)
 \arguments{
 \item{optimizer}{The \code{\link[=optimizer]{optimizer()}} to run.}
 
-\item{problems}{A list in the shape \code{\link[=test_problems]{test_problems()}} returns.}
+\item{problems}{A list in the shape that \code{\link[=test_problems]{test_problems()}} returns.}
 }
 \value{
 A data frame with one row per problem and the columns \code{problem}
@@ -20,7 +20,7 @@ A data frame with one row per problem and the columns \code{problem}
 \description{
 Runs the optimizer on each problem from that problem's own starting point
 and records the gap between the value reached and the known minimum. The
-result is information: no row is a pass or a failure.
+result is information: a row is neither a pass nor a failure.
 }
 \details{
 An error on a problem is caught and reported in the \code{note} column, so

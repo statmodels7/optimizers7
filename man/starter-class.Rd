@@ -16,18 +16,18 @@ An S7 object. The class is abstract, so every value is an object of
 one of its subclasses.
 }
 \description{
-The abstract parent of \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A starter
-takes the place of the vector of starting values: it specifies how the
-values are produced and how many there are, and \code{\link[=minimize]{minimize()}} turns it into
-a vector before dispatch. Every optimizer therefore accepts one, including
-an optimizer written outside the package, and no method needs code of its
-own for starters.
+This class is the abstract parent of \code{\link[=start_zeros]{start_zeros()}} and \code{\link[=start_runif]{start_runif()}}. A
+starter takes the place of the vector of starting values: it specifies how
+the values are produced and how many there are, and \code{\link[=minimize]{minimize()}} turns it
+into a vector before dispatch. Every optimizer therefore accepts one,
+including an optimizer written outside the package, and the methods do not
+need code of their own for starters.
 }
 \details{
 The class is abstract and carries one property, \code{npar}, an integer or
 \code{NULL}. A subclass needs a method for \code{\link[=starting_values]{starting_values()}} and nothing
-else. \code{\link[=minimize]{minimize()}} decides whether \code{par} is a vector to use as given or an
-object to resolve by testing inheritance from this class, so a new starter
+else. \code{\link[=minimize]{minimize()}} tests inheritance from this class to determine whether
+\code{par} is a vector to use as given or an object to resolve, so a new starter
 has to inherit from it; a class that has a \code{starting_values()} method but
 inherits from another class is rejected with the error \verb{'par' must be a numeric vector of starting values}.
 

@@ -33,10 +33,10 @@ An S7 object of class \code{Bfgs} inheriting from \code{\link[=optimizer]{optimi
 the four properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the initial step length, the line search, and the two
-settings that apply when a secant pair has no usable curvature. Built by
-\code{\link[=bfgs]{bfgs()}}. The inverse-Hessian approximation is not a property: it is built
-inside the run and discarded at its end.
+This class is an optimizer that holds the initial step length, the line
+search, and the two settings that apply when a secant pair has no usable
+curvature. \code{\link[=bfgs]{bfgs()}} builds it. The inverse-Hessian approximation is not a
+property: it is built inside the run and discarded at its end.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Bfgs} carries four:

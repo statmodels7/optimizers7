@@ -25,8 +25,8 @@ Sa(
 )
 }
 \arguments{
-\item{visiting}{\code{"uniform"} or \code{"cauchy"}, which proposal the walk draws
-its moves from.}
+\item{visiting}{\code{"uniform"} or \code{"cauchy"}, the proposal from which the
+walk draws its moves.}
 
 \item{t0}{The initial temperature, or \code{NULL} to calibrate it from the
 objective.}
@@ -38,8 +38,7 @@ objective.}
 
 \item{step}{The initial step, relative to the starting value.}
 
-\item{target_accept}{The acceptance rate at which the step adaptation
-aims.}
+\item{target_accept}{The target acceptance rate of the step adaptation.}
 
 \item{adjust}{How strongly the step is adjusted towards that rate.}
 
@@ -50,11 +49,12 @@ An S7 object of class \code{Sa} inheriting from \code{\link[=optimizer]{optimize
 nine properties above beside the seven shared ones.
 }
 \description{
-An optimizer holding the annealing schedule and the step adaptation: which
-proposal the walk draws from, the temperature and how it cools, how much
-work is done at each level, and the acceptance rate the per-coordinate
-steps are tuned to. Built by \code{\link[=sa]{sa()}}. Its result depends on the state of
-the random number generator, which the result records in \code{seed}.
+This class is an optimizer that holds the annealing schedule and the step
+adaptation: the proposal from which the walk draws, the temperature and how
+it cools, how much work is done at each level, and the acceptance rate to
+which the per-coordinate steps are tuned. It is built by \code{\link[=sa]{sa()}}. Its result
+depends on the state of the random number generator, which the result
+records in \code{seed}.
 }
 \details{
 Beyond the seven properties of every optimizer, an \code{Sa} carries nine of

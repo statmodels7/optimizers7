@@ -17,9 +17,9 @@ An S7 object of class \code{CritRelPar} inheriting from \code{\link[=criterion]{
 carrying \code{label} and \code{tol}.
 }
 \description{
-The class of the rule built by \code{\link[=crit_rel_par]{crit_rel_par()}}. The rule fires when the
-change of every coordinate, divided by the size of that coordinate, falls
-below \code{tol}, so a parameter of order \eqn{10^{3}} and one of order
+This is the class of the rule built by \code{\link[=crit_rel_par]{crit_rel_par()}}. The rule fires
+when the change of every coordinate, divided by the size of that
+coordinate, falls below \code{tol}, so a parameter of order \eqn{10^{3}} and one of order
 \eqn{10^{-3}} are held to the same number of digits. It declares nothing
 through \code{\link[=crit_needs]{crit_needs()}}.
 }
@@ -31,7 +31,7 @@ The test is
 zero. \code{crit_met()} returns \code{FALSE} when \code{x_old} is \code{NULL}.
 }
 \examples{
-# The same relative change at two very different scales.
+# The same relative change is tested at two very different scales.
 crit_met(crit_rel_par(1e-6), list(x_new = 1000, x_old = 1000.0001))
 crit_met(crit_rel_par(1e-6), list(x_new = 1e-3, x_old = 1e-3 + 1e-10))
 

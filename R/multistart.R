@@ -7,12 +7,12 @@ NULL
 #' @title S7 Class for Multi-Start
 #'
 #' @description
-#' An optimizer that wraps another and runs it from several starting points.
-#' Built by [multistart()]. Its seven shared properties describe the wrapper:
-#' `criterion` and `max_eval` are copied from the inner optimizer, so that
-#' the printed stopping rule and evaluation budget are those in force;
-#' `verbose`, `refresh` and `keep_trace` are the arguments of [multistart()];
-#' and `maxit` counts **starts**.
+#' A `MultiStart` object wraps another optimizer and runs it from several
+#' starting points. It is built by [multistart()]. Its seven shared
+#' properties describe the wrapper: `criterion` and `max_eval` are copied
+#' from the inner optimizer, so that the printed stopping rule and evaluation
+#' budget are those in force; `verbose`, `refresh` and `keep_trace` are the
+#' arguments of [multistart()]; and `maxit` counts starts.
 #'
 #' @details
 #' Beyond the seven shared properties a `MultiStart` carries six of its own:
@@ -22,13 +22,13 @@ NULL
 #'
 #' Because the rule that is evaluated belongs to the inner optimizer,
 #' [with_criterion()] has a method for this class that sets both; setting the
-#' outer property alone changes only the printing.
+#' outer property without the inner one changes only the printing.
 #'
 #' @param optimizer The inner [optimizer()], run from each starting point.
 #' @param n How many starts.
 #' @param starts An optional matrix of starting points, one per row.
 #' @param spread How widely the random starts are scattered.
-#' @param ncores How many processes the starts are spread over.
+#' @param ncores The number of processes over which the starts are spread.
 #' @param distinct_tol Objective values closer than this count as one
 #'   optimum.
 #'
@@ -56,11 +56,11 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'
 #' @description
 #' Wraps any optimizer and runs it from several starting points, returning
-#' the best result together with the number of **distinct optimal values**
+#' the best result together with the number of distinct optimal values
 #' reached. Two runs count as reaching the same optimum when their objective
 #' values differ by at most `distinct_tol`. A count above one shows that the
 #' surface has more than one local minimum; a count of one does not exclude
-#' other minima with the same value or minima that no start reached.
+#' other minima with the same value or minima that all the starts missed.
 #'
 #' @param optimizer The [optimizer()] to run, any of them, including another
 #'   `multistart()`. Anything else raises an error naming `bfgs()` as an
@@ -71,11 +71,11 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' @param starts An optional matrix of starting points, one per row, used
 #'   verbatim; `n` and `spread` are then ignored and `n` is taken from the
 #'   number of rows. A matrix whose number of columns differs from the length
-#'   of `par` is rejected when the run starts, with an error that states the
-#'   required number of columns.
+#'   of `par` is rejected when the run starts, with an error whose message
+#'   gives the required number of columns.
 #' @param spread How widely the random starts are scattered, in units of the
 #'   unconstrained scale. Defaults to `1`.
-#' @param ncores How many processes to spread the starts over. Defaults to
+#' @param ncores The number of processes over which to spread the starts. Defaults to
 #'   `NULL`, meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass `1`
 #'   for a sequential run. For a deterministic inner optimizer the answer
 #'   does not depend on the value; for a stochastic one, such as [sa()], it
@@ -87,7 +87,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'   nothing.
 #' @param refresh Report every this many starts. Defaults to `1`.
 #' @param keep_trace Keep the per-start summary? Defaults to `TRUE`, unlike
-#'   every other optimizer, because here the trace is one row per **start**,
+#'   every other optimizer, because here the trace is one row per start,
 #'   not one per iteration.
 #'
 #' @details
@@ -116,7 +116,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' remaining \eqn{n - 1} form a Latin hypercube: the range of each coordinate
 #' is divided into equal strata and each stratum is used exactly once, which
 #' spreads the starts more evenly than independent draws. They are generated
-#' on the **unconstrained** scale and mapped back through the bounds, so
+#' on the unconstrained scale and mapped back through the bounds, so
 #' every start is admissible by construction, however tight the box. The
 #' rows of a matrix given in `starts` are not checked against the bounds in
 #' advance: a row outside the box fails in its own run and is recorded as a
@@ -125,8 +125,8 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' # Parallel execution
 #'
 #' The starts are independent and are run over `ncores` processes. The
-#' creation of the workers, the loading of the package, the assignment of
-#' random streams and the shutdown are handled internally: on Unix-alikes the
+#' function creates the workers, loads the package, assigns the random
+#' streams and shuts the workers down internally: on Unix-alikes the
 #' workers are forks, on Windows they form a socket cluster. If the workers
 #' cannot load \pkg{optimizers7}, the run gives a warning and proceeds
 #' sequentially. If \pkg{optimizers7} was loaded from source with
@@ -149,7 +149,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'
 #' A start where the objective is undefined is recorded as failed and the
 #' others proceed; the `message` then reports how many succeeded and quotes
-#' the first failure. An error is raised only when **every** start fails, and
+#' the first failure. An error is raised only when every start fails, and
 #' it quotes the first error.
 #'
 #' @return An S7 object of class [MultiStart], inheriting from [optimizer()],
@@ -158,7 +158,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' @examples
 #' multistart(bfgs())
 #'
-#' # A surface with two minima, one of them lower. A single run from the
+#' # The surface has two minima, and one of them is lower. A single run from the
 #' # origin finds the lower one; the count shows that there is another.
 #' f <- function(p) (p[1]^2 - 1)^2 + p[2]^2 + 0.3 * p[1]
 #' set.seed(1)
@@ -237,8 +237,8 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
 #' @title What Multi-Start Can Offer a Stopping Rule
 #' @name optimizer_provides.MultiStart
 #' @description
-#' The answer of the inner optimizer, since the inner optimizer evaluates the
-#' rule.
+#' Returns the answer of the inner optimizer, since the inner optimizer
+#' evaluates the rule.
 #' @param optimizer A `MultiStart` object.
 #' @return A character vector.
 #' @keywords internal
@@ -250,8 +250,8 @@ S7::method(optimizer_provides, MultiStart) <- function(optimizer)
 #'
 #' @name optimizer_bounded.MultiStart
 #' @description
-#' The answer of the inner optimizer, since every start is a run of that
-#' optimizer with the same bounds. A multistart over [prox_grad()] therefore
+#' Returns the answer of the inner optimizer, since every start is a run of
+#' that optimizer with the same bounds. A multistart over [prox_grad()] therefore
 #' does not accept box bounds.
 #' @param optimizer A `MultiStart` object.
 #' @return A single logical.
@@ -290,8 +290,8 @@ S7::method(with_maxit, MultiStart) <- function(optimizer, maxit) {
 #' unconstrained scale so that any bounds are respected by construction.
 #'
 #' @details
-#' The range of each coordinate is cut into `n - 1` strata, each used
-#' exactly once, so the starts cannot all fall in one corner, as independent
+#' The range of each coordinate is cut into `n - 1` strata, and each stratum
+#' is used exactly once, so the starts cannot all fall in one corner, as independent
 #' draws can. On the unconstrained scale the range is the starting value
 #' \eqn{\eta_0} plus or minus
 #' \eqn{3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)}. The
@@ -305,7 +305,7 @@ S7::method(with_maxit, MultiStart) <- function(optimizer, maxit) {
 #' @param spread Scale of the half-width of the sampling range in
 #'   unconstrained units: the half-width is
 #'   \eqn{3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)}.
-#' @param bounds Box constraints in the shape [check_bounds()]
+#' @param bounds Box constraints in the shape that [check_bounds()]
 #'   returns, possibly empty.
 #'
 #' @return A matrix with `n` rows, the first of which is `par`.
@@ -340,15 +340,14 @@ make_starts <- function(par, n, spread, bounds) {
 #' the best run.
 #'
 #' @details
-#' Three things happen before the first start runs. The objective, the
-#' bounds and `par` are validated **once**, so a bad criterion or a `par`
-#' outside its box is rejected before the \eqn{n} runs are launched; a row of
-#' a user-supplied `starts` matrix is not checked in advance, and a row
-#' outside the box fails in its own run. The state of the generator is
-#' recorded for the `seed` of the result. And the gradient check is switched
-#' off for the inner runs, since the generic has already made it at the `par`
-#' of the caller; without that the same warning would be printed once per
-#' start.
+#' Before the first start runs, the objective, the bounds and `par` are
+#' validated once, so a bad criterion or a `par` outside its box is rejected
+#' before the \eqn{n} runs are launched; a row of a user-supplied `starts`
+#' matrix is not checked in advance, and a row outside the box fails in its
+#' own run. The state of the generator is recorded for the `seed` of the
+#' result. The gradient check is switched off for the inner runs, since the
+#' generic has already made it at the `par` of the caller; without that the
+#' same warning would be printed once per start.
 #'
 #' @param optimizer A `MultiStart` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. Unless `starts`
@@ -411,11 +410,11 @@ S7::method(minimize, MultiStart) <-
 #'
 #' @details
 #' Assigning the recorded value back into the global environment reproduces
-#' the run. When no stream exists yet, one uniform is drawn to make \R create
-#' one, which costs a single discarded number on the first stochastic call of
-#' a session.
+#' the run. When `.Random.seed` does not exist yet, one uniform is drawn to
+#' make \R create it, which costs a single discarded number on the first
+#' stochastic call of a session.
 #'
-#' The stream is **not** created with `set.seed(NULL)`, which reseeds from
+#' The stream is not created with `set.seed(NULL)`, which reseeds from
 #' the clock and discards the seed that the caller had set.
 #'
 #' @return An integer vector, the value of `.Random.seed`.
@@ -444,7 +443,7 @@ capture_seed <- function() {
 #'
 #' It is capped at two under `R CMD check`, which sets
 #' `_R_CHECK_LIMIT_CORES_` and fails a package that ignores it, and it
-#' falls back to one process where `detectCores()` cannot tell.
+#' falls back to one process where `detectCores()` returns `NA`.
 #'
 #' @param ncores The value given by the caller, possibly `NULL`.
 #' @param n The number of starts.
@@ -471,18 +470,19 @@ resolve_ncores <- function(ncores, n) {
 #' processes, and cleans up after itself.
 #'
 #' @details
-#' There are three routes, chosen here so that the caller need not choose.
+#' The function selects one of three routes, so that the caller does not
+#' have to.
 #'
 #' One process is the sequential loop, and it is the only route that reports
 #' progress during the run, since a worker has no output that the caller
 #' would see. When \pkg{optimizers7} was loaded with \pkg{pkgload}, this
 #' route is used whatever `ncores` is.
 #'
-#' On a Unix-alike the workers are **forks**, through `parallel::mclapply()`.
-#' A fork starts in microseconds and inherits the whole session, so nothing
-#' has to be loaded or exported.
+#' On a Unix-alike the workers are forks, through `parallel::mclapply()`.
+#' A fork starts in microseconds and inherits the whole session, so the
+#' function does not have to load the package or export objects.
 #'
-#' On Windows there is no `fork`, so a **socket cluster** is started here and
+#' On Windows there is no `fork`, so a socket cluster is started here and
 #' stopped on exit. Its workers are new sessions, so \pkg{optimizers7} has to
 #' be loaded on them; when that is not possible, because the package is not
 #' installed in a library that they can see, the function gives a warning
@@ -582,10 +582,11 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
 #' `distinct_tol`. It describes the objective and not the optimizer, and a
 #' single run cannot provide it.
 #'
-#' @param res The list of results, entries that failed being character messages.
+#' @param res The list of results, in which the entry of a failed start is a
+#'   character message.
 #' @param S The matrix of starting points.
 #' @param optimizer The `MultiStart` object.
-#' @param seed The generator state the run began with.
+#' @param seed The generator state with which the run began.
 #' @param elapsed Seconds.
 #'
 #' @return An [optimizer_result()].

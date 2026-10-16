@@ -6,9 +6,9 @@ NULL
 #' @title S7 Class for Brent's Method
 #'
 #' @description
-#' An optimizer for a function of one variable, holding the length of the
-#' first step of the bracketing phase and how many times that phase may
-#' expand. Built by [brent()].
+#' A `Brent` object is an optimizer for a function of one variable. It holds
+#' the length of the first step of the bracketing phase and the number of times
+#' that phase may expand, and it is built by [brent()].
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `Brent` carries two of
@@ -48,9 +48,9 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' @param step The length of the first trial step of the bracketing phase, a
 #'   single positive number, default `1`.
 #' @param max_expand How many golden expansions the bracketing phase may
-#'   take, a single number of at least 1, default `50`. If no minimum has
-#'   been bracketed by then, the run stops at the lowest point evaluated and
-#'   reports `converged = FALSE`.
+#'   take, a single number of at least 1, default `50`. If the phase has not
+#'   bracketed a minimum by then, the run stops at the lowest point evaluated
+#'   and reports `converged = FALSE`.
 #' @param maxit Maximum iterations of the reduction phase. Defaults to 100.
 #' @param max_eval Maximum objective evaluations. Defaults to `Inf`.
 #' @param verbose Report progress? Defaults to `FALSE`.
@@ -60,14 +60,14 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' @details
 #' The bracketing phase evaluates the starting value \eqn{x_0} and
 #' \eqn{x_0 + h}, turns round if the second is the higher, and steps on in
-#' the descending direction, each step \eqn{1.618} times the last, until the
-#' value no longer falls. The three points then satisfy
+#' the descending direction, where each step is \eqn{1.618} times the previous
+#' one, until the value no longer falls. The three points then satisfy
 #' \eqn{f(b) \le f(a)} and \eqn{f(b) \le f(c)} with \eqn{b} between \eqn{a}
 #' and \eqn{c}, so a minimum lies in \eqn{[a, c]}. If the value is still
 #' falling when `max_expand` expansions have been taken, or when the
-#' evaluation budget runs out, no minimum has been bracketed: the run stops
-#' at the lowest point evaluated, reports `converged = FALSE` and records the
-#' reason in `message`.
+#' evaluation budget runs out, the phase has not bracketed a minimum, and the
+#' run stops at the lowest point evaluated, reports `converged = FALSE` and
+#' records the reason in `message`.
 #'
 #' The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 #' iteration the parabola through the three best points is tried first; its
@@ -83,7 +83,8 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' and are `NULL` at the first. Besides the rule, the reduction stops on
 #' Brent's own test, when the bracket has shrunk to about
 #' \eqn{\sqrt{\varepsilon}\,\lvert x \rvert + 10^{-12}} around the best point
-#' \eqn{x}, below which no further point can be distinguished from \eqn{x}.
+#' \eqn{x}, because at that width a further point cannot be distinguished from
+#' \eqn{x}.
 #' That stop reports `converged = TRUE` with `criterion_met` equal to
 #' `bracket at machine resolution`, so a rule with a smaller tolerance than
 #' this resolution, or [crit_never()], ends there.
@@ -102,12 +103,12 @@ Brent <- S7::new_class("Brent", parent = optimizer,
 #' @examples
 #' brent()
 #'
-#' # A smooth function of one variable.
+#' # The method minimizes a smooth function of one variable.
 #' f <- function(x) (x - 2)^2 + exp(-x)
 #' r <- minimize(brent(), f, par = 0)
 #' c(par = r@par, evaluations = r@counts[["f"]])
 #'
-#' # Against nelder_mead() on the same function.
+#' # nelder_mead() is run on the same function for comparison.
 #' minimize(nelder_mead(), f, par = 0)@counts[["f"]]
 #'
 #' @seealso [nelder_mead()] for the derivative-free method in several
@@ -151,7 +152,7 @@ S7::method(optimizer_provides, Brent) <- function(optimizer) "stationarity"
 #'
 #' @param optimizer A `Brent` object.
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
-#'   accepted and ignored, the method using no derivative. Bounds are taken
+#'   accepted and ignored, since the method uses no derivative. Bounds are taken
 #'   and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose `gradient` is `NULL` and whose trace
@@ -178,15 +179,16 @@ S7::method(minimize, Brent) <-
 #' The Two Phases of Brent's Method
 #'
 #' @description
-#' The body of [minimize()] for a [Brent] optimizer: the bracketing phase and
-#' the reduction phase, on the unconstrained scale where bounds are given.
+#' This is the body of [minimize()] for a [Brent] optimizer: the bracketing
+#' phase and the reduction phase, on the unconstrained scale where bounds are
+#' given.
 #'
 #' @param optimizer A `Brent` object.
 #' @param spec The objective handle from [as_objective()].
 #' @param par The starting value, a single number.
 #' @param bounds What [check_bounds()] returned.
 #'
-#' @return A list in the shape [build_result()] consumes.
+#' @return A list in the shape that [build_result()] consumes.
 #'
 #' @keywords internal
 brent_run <- function(optimizer, spec, par, bounds) {
@@ -236,7 +238,7 @@ brent_run <- function(optimizer, spec, par, bounds) {
       stopped_by = if (out_budget) "max_eval" else "failed",
       message = if (out_budget)
         "the evaluation budget ran out before a minimum was bracketed" else
-        paste0("no minimum was bracketed in max_expand = ",
+        paste0("the bracketing phase found no minimum in max_expand = ",
                optimizer@max_expand, " expansions"),
       trace = NULL))
   }

@@ -8,8 +8,8 @@ NULL
 #' @title S7 Class for Chebyshev's Method
 #'
 #' @description
-#' A [Newton] optimizer whose direction carries Chebyshev's third-order
-#' correction. Built by [chebyshev()].
+#' This class is a [Newton] optimizer whose direction carries Chebyshev's
+#' third-order correction. [chebyshev()] builds it.
 #'
 #' @details
 #' Beyond the properties of [Newton], a `Chebyshev` carries `ratio`, the
@@ -104,7 +104,7 @@ Chebyshev <- S7::new_class("Chebyshev", parent = Newton,
 #' rosen_he <- function(p) matrix(
 #'   c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
 #'     -400 * p[1], 200), 2, 2)
-#' # T[d, d] of Rosenbrock: the only third derivatives are
+#' # The example computes T[d, d] of Rosenbrock: the only third derivatives are
 #' # f_111 = 2400 p1 and f_112 = -400
 #' rosen_t3 <- function(p, d) c(2400 * p[1] * d[1]^2 - 800 * d[1] * d[2],
 #'                              -400 * d[1]^2)

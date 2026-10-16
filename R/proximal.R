@@ -4,10 +4,10 @@ NULL
 #' @title S7 Class for the Proximal Gradient Method
 #'
 #' @description
-#' An optimizer holding the two descriptions of the non-smooth part of an
-#' objective, its proximal operator and its value, together with the three
-#' settings of the accelerated iteration. Built by [prox_grad()]. It is the
-#' only shipped class whose [optimizer_bounded()] is `FALSE`: its constraint
+#' This class is an optimizer that holds the two descriptions of the
+#' non-smooth part of an objective, its proximal operator and its value,
+#' together with the settings of the accelerated iteration. It is built by
+#' [prox_grad()]. It is the only shipped class whose [optimizer_bounded()] is `FALSE`: its constraint
 #' is passed inside `prox`, so box bounds are rejected.
 #'
 #' @details
@@ -69,8 +69,8 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #' # What the stopping rule reads
 #'
 #' The gradient of \eqn{f + g} does not vanish at the solution, since \eqn{g}
-#' is not differentiable there, so this method reports the **proximal
-#' gradient mapping**
+#' is not differentiable there, so this method reports the proximal
+#' gradient mapping
 #' \deqn{G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}}
 #' as its gradient, read at the iterate \eqn{x}, the point that is reported.
 #' It vanishes exactly at a stationary point of \eqn{f + g} and reduces to
@@ -120,9 +120,9 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #'   [penalties7::penalty_prox()] supplies one for every penalty
 #'   that has it.
 #' @param g The value of the non-smooth part, a function of the point.
-#'   Required alongside `prox`: the two describe the same term, and
-#'   without `g` the reported objective would be the smooth part
-#'   alone.
+#'   It is required alongside `prox`, because the two describe the same
+#'   term, and without `g` the reported objective would include only the
+#'   smooth part.
 #' @param accelerate Apply the momentum extrapolation? Defaults to
 #'   `TRUE`.
 #' @param step The initial step length offered to the backtracking search.
@@ -160,7 +160,7 @@ ProxGrad <- S7::new_class("ProxGrad", parent = optimizer,
 #'   proximal operator, [gd()] for the smooth case.
 #'
 #' @examples
-#' # A lasso-penalized least squares problem, solved through the operator.
+#' # A lasso-penalized least squares problem is solved through the operator.
 #' # Three of the eight coefficients are non-zero in the truth.
 #' set.seed(1)
 #' X <- matrix(rnorm(200 * 8), 200, 8)
@@ -206,8 +206,8 @@ prox_grad <- function(prox, g,
   }
   if (missing(g) || !is.function(g)) {
     stop(paste0("'g' must be a function giving the value of the non-smooth ",
-                "part.\n  Without it the reported objective would be the ",
-                "smooth part alone."), call. = FALSE)
+                "part.\n  Without it the reported objective would include ",
+                "only the smooth part."), call. = FALSE)
   }
   for (nm in c("accelerate", "restart")) {
     v <- get(nm)
@@ -275,7 +275,7 @@ S7::method(optimizer_bounded, ProxGrad) <- function(optimizer) FALSE
 #' @param fn,par,gr,he,lower,upper,... As in [minimize()]. A finite `lower`
 #'   or `upper` raises an error; `he` is accepted and ignored.
 #'
-#' @return An [optimizer_result()] whose `value` is the **total** objective
+#' @return An [optimizer_result()] whose `value` is the total objective
 #'   \eqn{f(x) + g(x)}, which is why `g` is required alongside `prox`, and
 #'   whose `gradient` is the proximal gradient mapping at `par` rather than
 #'   \eqn{\nabla f}.
@@ -301,15 +301,15 @@ S7::method(minimize, ProxGrad) <-
 #' @description
 #' The iteration behind [prox_grad()]: a backtracked gradient step on the
 #' smooth part, the proximal operator applied to its result, and the momentum
-#' extrapolation with its restart. It counts its own evaluations, those of a
-#' gradient obtained by differences included.
+#' extrapolation with its restart. It counts its own evaluations, including
+#' those of a gradient obtained by differences.
 #'
 #' @details
 #' The loop is written in R, as that of [brent()]. Every iteration calls
 #' three R functions supplied by the caller: the objective, its gradient and
 #' the proximal operator.
 #'
-#' The proximal gradient mapping is read **at the iterate**, the point that
+#' The proximal gradient mapping is read at the iterate, the point that
 #' is reported, and not at the extrapolated point. The trace records
 #' `step shortened` at an iteration whose step was backtracked and
 #' `momentum restart` at one whose momentum was reset.
@@ -318,7 +318,7 @@ S7::method(minimize, ProxGrad) <-
 #' @param spec The objective handle from [as_objective()].
 #' @param par The starting point, a numeric vector.
 #'
-#' @return A list in the shape [build_result()] consumes: the point, the
+#' @return A list in the shape that [build_result()] consumes: the point, the
 #'   total objective there, the mapping, the counts, the iteration count, the
 #'   verdict and the trace.
 #'
@@ -481,8 +481,8 @@ prox_grad_run <- function(optimizer, spec, par) {
 #' A Central-Difference Gradient
 #'
 #' @description
-#' The finite-difference gradient that the proximal loop uses when the
-#' caller supplies none, with the step scaled to each coordinate.
+#' Computes the finite-difference gradient that the proximal loop uses when
+#' the caller supplies none. The step is scaled to each coordinate.
 #'
 #' @param fn A function of the parameter vector.
 #' @param x The point.

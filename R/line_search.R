@@ -4,16 +4,16 @@ NULL
 #' @title S7 Class for Line Searches
 #'
 #' @description
-#' The abstract parent of the three line searches. A line search decides how
-#' far to travel along a direction that the method has already chosen. It is
-#' an object, so the descent methods ([newton()], [bfgs()], [lbfgs()],
+#' This class is the abstract parent of the three line searches. A line
+#' search determines how far to travel along a direction that the method has
+#' already computed. It is an object, so the descent methods ([newton()], [bfgs()], [lbfgs()],
 #' [cg()], [gd()], [bb()] and [chebyshev()]) share one implementation, and a
 #' caller can replace it without changing the method.
 #'
 #' @section Notation:
 #' \eqn{x} is the current point, \eqn{g = \nabla f(x)} the gradient there,
 #' \eqn{d} a direction satisfying \eqn{g^\top d < 0}, and \eqn{\alpha > 0}
-#' the **step length** the search returns. The vector \eqn{\alpha d} is the
+#' the step length that the search returns. The vector \eqn{\alpha d} is the
 #' step taken; \eqn{s} elsewhere in this package is the secant vector
 #' \eqn{x^{+} - x} of a quasi-Newton update, a different quantity.
 #'
@@ -49,7 +49,7 @@ NULL
 #'   is abstract, so every value is an object of one of its three subclasses.
 #'
 #' @examples
-#' # Abstract: use one of the constructors.
+#' # The class is abstract: use one of the constructors.
 #' try(line_search(label = "mine"))
 #'
 #' armijo()
@@ -68,8 +68,8 @@ NULL
 #'       wolfe  = unlist(minimize(bfgs(line_search = wolfe()), f,
 #'                                c(-1.2, 1), gr = g)@counts))
 #'
-#' # The non-smooth problem of the battery, on which BFGS converges with
-#' # Armijo and stops without converging with Wolfe.
+#' # On the non-smooth problem of the battery, BFGS converges with Armijo
+#' # and stops without converging with Wolfe.
 #' k <- test_problems("abs_sum")[[1]]
 #' rbind(armijo = c(value = minimize(bfgs(line_search = armijo()), k$fn,
 #'                                   k$par, gr = k$gr)@value),
@@ -88,10 +88,10 @@ line_search <- S7::new_class(
 #' @title S7 Class for Armijo Backtracking
 #'
 #' @description
-#' A line search that starts from the full step and multiplies it by
-#' `shrink` until the objective decreases by enough. Built by [armijo()]. It
-#' evaluates the objective at trial points and never the gradient, which
-#' makes it the cheaper search per iteration.
+#' This class is a line search that starts from the full step and multiplies
+#' it by `shrink` until the objective decreases by enough. [armijo()] builds
+#' it. The search evaluates the objective at trial points and never the
+#' gradient, which makes it the cheaper search per iteration.
 #'
 #' @details
 #' Beyond the `label` of every line search, an `ArmijoSearch` holds `c1`,
@@ -103,8 +103,8 @@ line_search <- S7::new_class(
 #' @param c1 The sufficient-decrease constant.
 #' @param shrink The factor by which the step is multiplied on each
 #'   backtrack.
-#' @param max_step The most trial points allowed, the full step included. A
-#'   **count**, not a length.
+#' @param max_step The most trial points allowed, including the full step.
+#'   It is a count, not a length.
 #' @param resolution The smallest difference in the objective that the
 #'   objective can resolve, a number or a function of no arguments.
 #'
@@ -136,9 +136,9 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #'   only a small fraction of the decrease that the linear model predicts.
 #' @param shrink Factor applied on each backtrack, strictly inside
 #'   \eqn{(0, 1)}. Defaults to `0.5`.
-#' @param max_step Maximum number of **trial points**, the full step
-#'   included, before the search gives up; a positive whole number. Defaults
-#'   to 30. The name suggests a length, but the quantity is a count.
+#' @param max_step Maximum number of trial points, including the full step,
+#'   before the search returns without a step; a positive whole number.
+#'   Defaults to 30. The name suggests a length, but the quantity is a count.
 #' @param resolution The smallest difference in the objective that the
 #'   objective can resolve, in the units of the objective, or a function of
 #'   no arguments that returns it when it changes during the run. Defaults to
@@ -152,15 +152,15 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' search that has to verify a smaller decrease backtracks until it has used
 #' `max_step` trial points.
 #'
-#' The test is made **once**, before the first trial point, on the decrease
+#' The test is made once, before the first trial point, on the decrease
 #' that the linear model of the method predicts over the full step,
 #' \eqn{\alpha_0 \lvert g^\top d\rvert}. When that decrease is below
 #' `resolution` the search returns at once, and the run reports that the
 #' point is optimal to the accuracy of the objective. That is a weaker
-#' statement than a stopping rule being met, and the result reports it with
-#' a different label.
+#' statement than the one made when a stopping rule is met, and the result
+#' reports it with a different label.
 #'
-#' **The test is not applied inside the backtracking loop.** There the two
+#' The test is not applied inside the backtracking loop. There the two
 #' situations cannot be distinguished, since \eqn{x + \alpha d \to x} as the
 #' step shrinks and the objective stops resolving the change whether the
 #' point is optimal or the direction is wrong. At the full step they differ:
@@ -177,7 +177,7 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #'
 #' When the objective becomes more precise as the run proceeds (for example
 #' a fit warm-started from the previous evaluation), the resolution measured
-#' at the start is the worst value of the whole run. A **function** of no
+#' at the start is the worst value of the whole run. A function of no
 #' arguments passed instead of a number is called at every iteration, once
 #' per invocation of the search and not once per trial, so it costs one call
 #' per iteration. Its value is the resolution for the step about to be
@@ -185,8 +185,8 @@ ArmijoSearch <- S7::new_class("ArmijoSearch", parent = line_search,
 #' disables the test.
 #'
 #' @details
-#' The term \eqn{c_1 \alpha\, g^\top d} is required. A test of
-#' \eqn{f_{new} \le f} alone accepts steps that leave the objective
+#' The term \eqn{c_1 \alpha\, g^\top d} is required. A test that requires
+#' only \eqn{f_{new} \le f} accepts steps that leave the objective
 #' unchanged: on \eqn{f(x) = \lVert x \rVert^2}, whose Hessian is \eqn{2I},
 #' a unit step along \eqn{-g} reflects the iterate through the minimum and
 #' leaves the objective *exactly* unchanged. The weaker test accepts that
@@ -288,10 +288,11 @@ check_resolution <- function(x) {
 #' @title S7 Class for the Strong Wolfe Line Search
 #'
 #' @description
-#' A line search that brackets a step satisfying both Wolfe conditions and
-#' then bisects inside the bracket. Built by [wolfe()]. It evaluates the
-#' **gradient** at trial points as well as the objective, which is the cost
-#' of the curvature condition that a quasi-Newton method needs.
+#' This class is a line search that brackets a step satisfying both Wolfe
+#' conditions and then bisects inside the bracket. [wolfe()] builds it. The
+#' search evaluates the gradient at trial points as well as the objective,
+#' which is the cost of the curvature condition that a quasi-Newton method
+#' needs.
 #'
 #' @details
 #' Beyond the `label` of every line search, a `WolfeSearch` holds `c1`,
@@ -301,7 +302,8 @@ check_resolution <- function(x) {
 #'
 #' @param c1 The sufficient-decrease constant.
 #' @param c2 The curvature constant.
-#' @param max_step The most trial steps allowed in each phase. A **count**.
+#' @param max_step The most trial steps allowed in each phase. It is a
+#'   count.
 #' @param resolution The smallest difference in the objective that the
 #'   objective can resolve, a number or a function of no arguments.
 #'
@@ -337,7 +339,7 @@ WolfeSearch <- S7::new_class("WolfeSearch", parent = line_search,
 #'   exact line search. A `c2` at or below `c1` is rejected, because a step
 #'   that satisfies both conditions is guaranteed to exist only when
 #'   \eqn{c_1 < c_2 < 1}.
-#' @param max_step Maximum trial steps in **each** of the bracketing and zoom
+#' @param max_step Maximum trial steps in each of the bracketing and zoom
 #'   phases, a positive whole number. Defaults to 30.
 #' @param resolution The smallest difference in the objective that the
 #'   objective can resolve, in the units of the objective, or a function of
@@ -429,9 +431,9 @@ wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30, resolution = 0) {
 #'
 #' @description
 #' Converts a [line_search()] object into the plain list that the compiled
-#' loop reads, so the C++ code needs no knowledge of S7. Every search
-#' produces the same seven fields, whatever its subclass. The compiled search
-#' branches on `type`, and the descent loop reads `memory` to form the
+#' loop reads, so the C++ code does not have to handle S7 objects. Every
+#' search produces the same seven fields, whatever its subclass. The compiled
+#' search branches on `type`, and the descent loop reads `memory` to form the
 #' reference value.
 #'
 #' @details
@@ -440,9 +442,10 @@ wolfe <- function(c1 = 1e-4, c2 = 0.9, max_step = 30, resolution = 0) {
 #' `shrink = 0.5` for Wolfe, `memory = 0` for the two monotone ones. The
 #' shape is fixed, so one C++ structure reads all three.
 #'
-#' There are only **two** types. [nonmonotone()] is passed as
-#' `type = "armijo"` with its `memory`, since it differs from [armijo()] in
-#' the reference value alone, so the compiled search needs no third branch.
+#' There are only two types. [nonmonotone()] is passed as
+#' `type = "armijo"` with its `memory`, since it differs from [armijo()] only
+#' in the reference value, so the compiled search does not need a third
+#' branch.
 #' With `memory = 0` the two lists are identical.
 #'
 #' @param x A [line_search()] object.
@@ -471,23 +474,23 @@ S7::method(line_search_spec, WolfeSearch) <- function(x) {
 #' @title S7 Class for the Nonmonotone Line Search
 #'
 #' @description
-#' Armijo backtracking whose reference value is the largest of the last
-#' `memory + 1` objective values, the current one included, so a step may
-#' increase the objective. Built by [nonmonotone()].
+#' This class is Armijo backtracking whose reference value is the largest of
+#' the last `memory + 1` objective values, including the current one, so a
+#' step may increase the objective. [nonmonotone()] builds it.
 #'
 #' @details
 #' Beyond the `label` of every line search, a `NonmonotoneSearch` holds
-#' `c1`, `shrink`, `memory`, `max_step` and `resolution`. `memory` is the
-#' only property that no other line search has, and at `memory = 0` the
-#' object behaves exactly as an [ArmijoSearch] with the same constants.
+#' `c1`, `shrink`, `memory`, `max_step` and `resolution`. Only this class has
+#' the property `memory`, and at `memory = 0` the object behaves exactly as
+#' an [ArmijoSearch] with the same constants.
 #'
 #' @param c1 The sufficient-decrease constant.
 #' @param shrink The factor by which the step is multiplied on each
 #'   backtrack.
 #' @param memory The number of earlier values, besides the current one, over
 #'   which the reference is taken.
-#' @param max_step The most trial points allowed, the full step included. A
-#'   **count**.
+#' @param max_step The most trial points allowed, including the full step.
+#'   It is a count.
 #' @param resolution The smallest difference in the objective that the
 #'   objective can resolve, a number or a function of no arguments.
 #'
@@ -512,9 +515,9 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' @title Nonmonotone Backtracking
 #'
 #' @description
-#' Armijo backtracking that compares the trial value with the largest of the
-#' last few objective values and not with the current one, so a step may
-#' increase the objective.
+#' Performs Armijo backtracking that compares the trial value with the
+#' largest of the last few objective values and not with the current one, so
+#' a step may increase the objective.
 #'
 #' @param c1 Sufficient-decrease constant. Defaults to `1e-4`.
 #' @param shrink Factor applied to the step on each backtrack. Defaults to
@@ -522,8 +525,8 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' @param memory The number of earlier values, besides the current one, over
 #'   which the reference is taken. Defaults to `10`; `0` makes the search
 #'   identical to [armijo()].
-#' @param max_step Maximum number of trial points, the full step included,
-#'   before the search gives up. Defaults to `30`.
+#' @param max_step Maximum number of trial points, including the full step,
+#'   before the search returns without a step. Defaults to `30`.
 #' @param resolution The smallest difference in the objective that the
 #'   objective can resolve, in the units of the objective, or a function of
 #'   no arguments that returns it when it changes during the run. Defaults to
@@ -585,7 +588,8 @@ NonmonotoneSearch <- S7::new_class("NonmonotoneSearch", parent = line_search,
 #' nonmonotone()
 #' nonmonotone(memory = 5)
 #'
-#' # The effect on bb(), the method that uses it by default.
+#' # The example shows the effect on bb(), the method that uses this search
+#' # by default.
 #' f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 #' gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 #'                     200 * (p[2] - p[1]^2))
@@ -640,7 +644,7 @@ S7::method(print, line_search) <- function(x, ...) {
 #' Validate a Constant in the Unit Interval
 #'
 #' @description
-#' Checks that the value is a single number **strictly** inside
+#' Checks that the value is a single number strictly inside
 #' \eqn{(0, 1)}. Both endpoints are rejected: `c1 = 0` requires no decrease
 #' at all, and `c1 = 1` requires the whole decrease that the linear model
 #' predicts, which a strictly convex objective cannot supply.
@@ -663,9 +667,9 @@ check_unit <- function(v, nm) {
 #'
 #' @description
 #' Checks that the value is a single positive whole number no larger than
-#' `.Machine$integer.max`. Used for `max_step`, which counts trial points,
-#' and for the `memory` of [lbfgs()], which counts secant pairs. The count is
-#' passed to the compiled code as an integer, so a fractional value is
+#' `.Machine$integer.max`. It is used for `max_step`, which counts trial
+#' points, and for the `memory` of [lbfgs()], which counts secant pairs. The
+#' count is passed to the compiled code as an integer, so a fractional value is
 #' rejected (`memory = 2.5` would otherwise run at a memory of 2), and so is
 #' an infinite one, which `as.integer()` would turn into `NA`.
 #'
@@ -687,12 +691,13 @@ check_count <- function(v, nm) {
 #' Validate a Non-Negative Whole Number
 #'
 #' @description
-#' Checks that the value is a single whole number, zero included, no larger
-#' than `.Machine$integer.max`. Used where a count says how many of something
-#' to tolerate, so that zero means that none is tolerated: the `memory` of
-#' [nonmonotone()], where zero makes the reference the current value and the
-#' search identical to [armijo()], and the `max_skip` of [bfgs()], where zero
-#' resets the approximation on the first skipped update.
+#' Checks that the value is a single whole number, including zero, no larger
+#' than `.Machine$integer.max`. It is used where a count gives how many of
+#' something are tolerated, so that zero means that every one is rejected:
+#' the `memory` of [nonmonotone()], where zero makes the reference the
+#' current value and the search identical to [armijo()], and the `max_skip`
+#' of [bfgs()], where zero resets the approximation on the first skipped
+#' update.
 #'
 #' A negative value is rejected because the compiled code treats it as zero:
 #' it compares `max_skip` with `>=` and tests `memory > 0`. An infinite value
@@ -718,8 +723,8 @@ check_whole <- function(v, nm) {
 #'
 #' @description
 #' Checks that the value is a single finite number that is not negative.
-#' Used for the curvature threshold `curv_tol` of [bfgs()] and [lbfgs()],
-#' which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
+#' It is used for the curvature threshold `curv_tol` of [bfgs()] and
+#' [lbfgs()], which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
 #' \lVert y \rVert}. Zero is admitted and is the textbook curvature
 #' condition \eqn{s'y > 0}. A negative value is rejected because it admits
 #' pairs with \eqn{s'y \le 0}, which weakens the protection given by the
@@ -747,7 +752,7 @@ check_nonneg <- function(v, nm) {
 #'
 #' @description
 #' Returns the class object from the namespace at the time of the call, so
-#' that a class check does not depend on the class object being the one
+#' that a class check does not depend on whether the class object is the one
 #' created when the package was loaded.
 #'
 #' @details

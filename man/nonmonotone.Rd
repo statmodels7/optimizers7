@@ -22,8 +22,8 @@ nonmonotone(
 which the reference is taken. Defaults to \code{10}; \code{0} makes the search
 identical to \code{\link[=armijo]{armijo()}}.}
 
-\item{max_step}{Maximum number of trial points, the full step included,
-before the search gives up. Defaults to \code{30}.}
+\item{max_step}{Maximum number of trial points, including the full step,
+before the search returns without a step. Defaults to \code{30}.}
 
 \item{resolution}{The smallest difference in the objective that the
 objective can resolve, in the units of the objective, or a function of
@@ -36,9 +36,9 @@ begins.}
 A \code{\link[=line_search]{line_search()}} object.
 }
 \description{
-Armijo backtracking that compares the trial value with the largest of the
-last few objective values and not with the current one, so a step may
-increase the objective.
+Performs Armijo backtracking that compares the trial value with the
+largest of the last few objective values and not with the current one, so
+a step may increase the objective.
 }
 \details{
 The condition is that of Grippo, Lampariello and Lucidi:
@@ -83,7 +83,8 @@ option of this one, and the package does not provide one.
 nonmonotone()
 nonmonotone(memory = 5)
 
-# The effect on bb(), the method that uses it by default.
+# The example shows the effect on bb(), the method that uses this search
+# by default.
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                     200 * (p[2] - p[1]^2))

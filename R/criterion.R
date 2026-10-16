@@ -2,8 +2,9 @@
 #'
 #' @import S7
 #' @description
-#' The abstract parent of every stopping rule. An optimizer carries one, and
-#' a caller may replace it, combine several, or write a new kind: a class
+#' A criterion is the abstract parent of every stopping rule. An optimizer
+#' carries one, and a caller may replace it, combine several, or write a new
+#' kind: a class
 #' that inherits from this one and has a method for [crit_met()] is a
 #' stopping rule, and every algorithm in the package consults it.
 #'
@@ -15,7 +16,7 @@
 #'
 #' # The two generics
 #'
-#' [crit_met()] answers whether the run should stop, given the state of the
+#' [crit_met()] returns whether the run should stop, given the state of the
 #' iteration just completed. [crit_needs()] names the `state` components that
 #' the rule reads, so that an optimizer unable to supply one of them rejects
 #' the rule when the run starts. The base method for `crit_needs()` returns
@@ -84,8 +85,8 @@ criterion <- S7::new_class(
 #' }
 #' The shipped methods supply `f_old` and `x_old` from the first call on,
 #' except [brent()], which supplies them from its second iteration. A descent
-#' method calls the rule with `f_old` and `x_old` set to `NULL` only after a
-#' line search that accepted no step, so that only the state at `x_new` can
+#' method sets `f_old` and `x_old` to `NULL` in the call only after a line
+#' search that accepted no step, so that only the state at `x_new` can
 #' end the run there. With box constraints, `x_new`,
 #' `x_old` and `gradient` are on the unconstrained scale on which the
 #' optimizer moves.
@@ -142,7 +143,7 @@ crit_met <- S7::new_generic("crit_met", "criterion",
 #' crit_needs(crit_any(crit_grad(), crit_stationary()))
 #'
 #' @seealso [crit_met()] for the rule itself, [check_criterion()] for the
-#'   rejection this feeds, [optimizer_provides()] for the other half of the
+#'   rejection that this generic feeds, [optimizer_provides()] for the other half of the
 #'   comparison.
 #' @export
 #' @aliases crit_needs.criterion
@@ -157,9 +158,10 @@ S7::method(crit_needs, criterion) <- function(criterion) character()
 #' @title S7 Class for the Gradient Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_grad()], and its two methods. The
-#' rule reads `state$gradient`, takes its max-norm or its 2-norm, and fires
-#' when that norm falls below `tol`. It declares `"gradient"` through
+#' This is the class of the rule built by [crit_grad()], which has a method
+#' for [crit_met()] and one for [crit_needs()]. The rule reads
+#' `state$gradient`, takes its max-norm or its 2-norm, and fires when that
+#' norm falls below `tol`. It declares `"gradient"` through
 #' [crit_needs()], so a derivative-free optimizer rejects it when the run
 #' starts.
 #'
@@ -185,7 +187,7 @@ S7::method(crit_needs, criterion) <- function(criterion) character()
 #' # A gradient that is not there is not a small gradient.
 #' crit_met(crit_grad(), list(f_new = 1, gradient = NULL))
 #'
-#' @seealso [crit_grad()] for the constructor and the tolerance it can
+#' @seealso [crit_grad()] for the constructor and the tolerance that it can
 #'   attain, [crit_stationary()] for what a derivative-free method reads.
 #' @name CritGrad-class
 #' @aliases CritGrad crit_met.CritGrad crit_needs.CritGrad
@@ -226,8 +228,8 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' decreases by a definite amount, and near a minimum that decrease is about
 #' \eqn{\lVert \nabla f \rVert^{2} / (2\lambda)} for a curvature
 #' \eqn{\lambda}. Once it falls below the rounding error of the objective,
-#' about \eqn{\varepsilon \lvert f \rvert}, no step can be verified and the
-#' search stops, so the smallest attainable gradient is about
+#' about \eqn{\varepsilon \lvert f \rvert}, the search cannot verify any step
+#' and stops, so the smallest attainable gradient is about
 #' \eqn{\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}} and grows with the
 #' value at the solution. Adding a constant to the objective moves neither
 #' the minimizer nor the gradient, but it changes this bound (the last
@@ -247,7 +249,8 @@ S7::method(crit_met, CritGrad) <- function(criterion, state) {
 #' c(max = crit_met(crit_grad(4.5, "max"), st),
 #'   two = crit_met(crit_grad(4.5, "2"), st))
 #'
-#' # Asking for the rule alone, where the shipped default is a disjunction.
+#' # The rule is used by itself here, where the shipped default is a
+#' # disjunction.
 #' f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 #' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 #'                    200 * (p[2] - p[1]^2))
@@ -278,7 +281,7 @@ crit_grad <- function(tol = 1e-6, norm = c("max", "2")) {
 #' @title S7 Class for the Absolute Objective Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_abs_obj()]. The rule reads
+#' This is the class of the rule built by [crit_abs_obj()]. The rule reads
 #' `state$f_new` and `state$f_old` and fires when they differ by less than
 #' `tol`. It declares nothing through [crit_needs()], because every optimizer
 #' evaluates the objective, so every method accepts it.
@@ -301,7 +304,7 @@ crit_grad <- function(tol = 1e-6, norm = c("max", "2")) {
 #' crit_met(crit_abs_obj(1e-6),
 #'          list(f_new = 1.0000001, f_old = 1.0000002))
 #'
-#' # Without a previous value there is nothing to compare.
+#' # Without a previous value the rule cannot compare anything.
 #' crit_met(crit_abs_obj(), list(f_new = 1, f_old = NULL))
 #'
 #' @seealso [crit_abs_obj()] for the constructor, [crit_rel_obj()] for the
@@ -359,8 +362,8 @@ crit_abs_obj <- function(tol = 1e-10) {
 #' @title S7 Class for the Relative Objective Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_rel_obj()]. The rule fires when
-#' \eqn{\lvert f_{new} - f_{old}\rvert < \texttt{tol}\,
+#' This is the class of the rule built by [crit_rel_obj()]. The rule fires
+#' when \eqn{\lvert f_{new} - f_{old}\rvert < \texttt{tol}\,
 #' (\lvert f_{old}\rvert + \texttt{tol})}, so the change is compared with the
 #' size of the objective and one tolerance serves for any units. It declares
 #' nothing through [crit_needs()].
@@ -402,7 +405,7 @@ S7::method(crit_met, CritRelObj) <- function(criterion, state) {
 #' @title Stop When the Objective Stops Moving (Relative)
 #'
 #' @description
-#' The rule
+#' The rule is
 #' \eqn{\lvert f_{new} - f_{old} \rvert < \texttt{tol}\,(\lvert f_{old} \rvert + \texttt{tol})}.
 #'
 #' @details
@@ -426,7 +429,7 @@ S7::method(crit_met, CritRelObj) <- function(criterion, state) {
 #' @examples
 #' crit_rel_obj()
 #'
-#' # The same absolute change, at two objective scales.
+#' # The same absolute change is tested at two objective scales.
 #' c(small = crit_met(crit_rel_obj(1e-6), list(f_new = 1, f_old = 1 + 1e-7)),
 #'   large = crit_met(crit_rel_obj(1e-6),
 #'                    list(f_new = 1e6, f_old = 1e6 + 1e-7)))
@@ -448,15 +451,15 @@ crit_rel_obj <- function(tol = 1e-12) {
 #' @title S7 Class for the Absolute Parameter Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_abs_par()]. The rule fires when the
-#' largest change of a coordinate,
+#' This is the class of the rule built by [crit_abs_par()]. The rule fires
+#' when the largest change of a coordinate,
 #' \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert}, falls below `tol`, so the
 #' tolerance is in the units of the parameters. It declares nothing through
 #' [crit_needs()].
 #'
 #' @details
 #' `crit_met()` returns `FALSE` when `x_old` is `NULL`. With box constraints
-#' the comparison is on the **unconstrained** scale, on which the optimizer
+#' the comparison is on the unconstrained scale, on which the optimizer
 #' moves, so the same tolerance has different meanings for a variance near
 #' zero and for one near a thousand.
 #'
@@ -493,7 +496,7 @@ S7::method(crit_met, CritAbsPar) <- function(criterion, state) {
 #' methods.
 #'
 #' @details
-#' With box constraints the comparison is on the **unconstrained** scale, on
+#' With box constraints the comparison is on the unconstrained scale, on
 #' which the optimizer moves. Near a bound a short distance in \eqn{\theta}
 #' corresponds to a long distance in \eqn{\eta}, so the rule fires later
 #' there than the change on the parameter scale suggests.
@@ -524,9 +527,9 @@ crit_abs_par <- function(tol = 1e-8) {
 #' @title S7 Class for the Relative Parameter Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_rel_par()]. The rule fires when the
-#' change of every coordinate, divided by the size of that coordinate, falls
-#' below `tol`, so a parameter of order \eqn{10^{3}} and one of order
+#' This is the class of the rule built by [crit_rel_par()]. The rule fires
+#' when the change of every coordinate, divided by the size of that
+#' coordinate, falls below `tol`, so a parameter of order \eqn{10^{3}} and one of order
 #' \eqn{10^{-3}} are held to the same number of digits. It declares nothing
 #' through [crit_needs()].
 #'
@@ -544,7 +547,7 @@ crit_abs_par <- function(tol = 1e-8) {
 #'   carrying `label` and `tol`.
 #'
 #' @examples
-#' # The same relative change at two very different scales.
+#' # The same relative change is tested at two very different scales.
 #' crit_met(crit_rel_par(1e-6), list(x_new = 1000, x_old = 1000.0001))
 #' crit_met(crit_rel_par(1e-6), list(x_new = 1e-3, x_old = 1e-3 + 1e-10))
 #'
@@ -565,7 +568,7 @@ S7::method(crit_met, CritRelPar) <- function(criterion, state) {
 #' @title Stop When the Parameters Stop Moving (Relative)
 #'
 #' @description
-#' The rule
+#' The rule is
 #' \eqn{\max_j \lvert x_j^{new} - x_j^{old}\rvert / (\lvert x_j^{old}\rvert + \texttt{tol}) < \texttt{tol}}.
 #'
 #' @details
@@ -582,7 +585,7 @@ S7::method(crit_met, CritRelPar) <- function(criterion, state) {
 #' @examples
 #' crit_rel_par()
 #'
-#' # The same relative change at two very different scales.
+#' # The same relative change is tested at two very different scales.
 #' c(large = crit_met(crit_rel_par(1e-6), list(x_new = 1000,
 #'                                             x_old = 1000.0001)),
 #'   small = crit_met(crit_rel_par(1e-6), list(x_new = 1e-3,
@@ -601,11 +604,12 @@ crit_rel_par <- function(tol = 1e-8) {
 #' @title S7 Class for the Stationarity Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_stationary()], and its two methods.
-#' The rule reads `state$stationarity`, the non-negative measure that a
-#' method without a gradient test reports instead, and fires when it falls
-#' below `tol`. It declares `"stationarity"` through [crit_needs()], so a
-#' method that reports no such measure rejects it when the run starts.
+#' This is the class of the rule built by [crit_stationary()], which has a
+#' method for [crit_met()] and one for [crit_needs()]. The rule reads
+#' `state$stationarity`, the non-negative measure that a method without a
+#' gradient test reports instead, and fires when it falls below `tol`. It
+#' declares `"stationarity"` through [crit_needs()], so a method that does
+#' not report this measure rejects it when the run starts.
 #'
 #' @details
 #' `crit_met()` returns `FALSE` when the measure is `NULL`, empty or not
@@ -715,10 +719,10 @@ crit_stationary <- function(tol = 1e-8) {
 #' @title S7 Class for the Empty Criterion
 #'
 #' @description
-#' The class of the rule built by [crit_never()]. Its `crit_met()` returns
-#' `FALSE` at every state without reading it, so a run with this rule ends
-#' when a budget runs out or when the method stops for a reason of its own.
-#' It declares nothing through [crit_needs()], so every optimizer accepts it.
+#' This is the class of the rule built by [crit_never()]. Its `crit_met()`
+#' returns `FALSE` at every state without reading it, so a run with this rule
+#' ends when a budget runs out or when the method stops for a reason of its
+#' own. It declares nothing through [crit_needs()], so every optimizer accepts it.
 #'
 #' @details
 #' It has no `tol`, since it compares nothing, and it is the only criterion
@@ -726,7 +730,7 @@ crit_stationary <- function(tol = 1e-8) {
 #' method that uses it by default.
 #'
 #' @return An S7 object of class `CritNever` inheriting from [criterion()],
-#'   carrying `label` alone.
+#'   carrying only `label`.
 #'
 #' @examples
 #' crit_needs(crit_never())
@@ -753,14 +757,15 @@ S7::method(crit_met, CritNever) <- function(criterion, state) FALSE
 #' On a stochastic objective the value and the gradient are noisy estimates
 #' computed from the observations that were sampled, and a tolerance applied
 #' to one of them tests the noise. Such a run is governed by its budget, and
-#' this rule states that explicitly.
+#' this rule makes that explicit.
 #'
-#' A run that ends on its budget reports `converged = FALSE`, because no rule
-#' tested the answer. A descent method can also stop before its budget, when
+#' A run that ends on its budget reports `converged = FALSE`, because the run
+#' did not test the answer with any rule. A descent method can also stop before its budget, when
 #' its line search accepts no step, and it then reports `converged = FALSE`
 #' as well. In the package `converged` is `TRUE` only when a stopping rule
-#' fired, when a line search with a declared resolution established that no
-#' step decreases the objective by more than that resolution, or when
+#' fired, when a line search with a declared resolution established that
+#' every step fails to decrease the objective by more than that resolution,
+#' or when
 #' [brent()] reduced its bracket to the resolution of the iterate.
 #'
 #' @return An S7 object of class [CritNever], inheriting from [criterion()].
@@ -788,12 +793,12 @@ crit_never <- function() CritNever(label = "iteration budget")
 #' @title S7 Class for a Combination of Criteria
 #'
 #' @description
-#' The class built by both [crit_any()] and [crit_all()], and its two
-#' methods. Its `crit_met()` evaluates every rule that it contains and
-#' reduces the results with `any()` or `all()` according to `how`; its
-#' `crit_needs()` is the union of the needs of those rules, so a derivative-free
-#' method rejects a combination that contains a gradient rule, as it rejects
-#' the gradient rule alone.
+#' This is the class built by both [crit_any()] and [crit_all()]. Its
+#' `crit_met()` evaluates every rule that it contains and reduces the
+#' results with `any()` or `all()` according to `how`; its `crit_needs()` is
+#' the union of the needs of those rules, so a derivative-free method rejects
+#' a combination that contains a gradient rule, as it rejects the gradient
+#' rule by itself.
 #'
 #' @details
 #' A `CritCombine` is itself a [criterion()], so combinations nest and the
@@ -876,15 +881,14 @@ combine_criteria <- function(dots, how) {
 #' is satisfied.
 #'
 #' @details
-#' **The default rule of the gradient methods.** [gd()], [cg()], [bb()],
-#' [newton()], [bfgs()], [lbfgs()] and [chebyshev()] default to
-#' `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`: the point is
-#' stationary, or the objective has stopped moving, or the parameters have.
-#' A disjunction can only become weaker as terms are added, so a run that
-#' ends under this rule would have ended under the gradient rule alone at
-#' the same iteration or later, never earlier.
+#' [gd()], [cg()], [bb()], [newton()], [bfgs()], [lbfgs()] and [chebyshev()]
+#' default to `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`: the
+#' point is stationary, or the objective has stopped moving, or the
+#' parameters have. A disjunction can only become weaker as terms are added,
+#' so a run that ends under this rule would have ended under the gradient
+#' rule alone at the same iteration or later, never earlier.
 #'
-#' On the package's [test_problems()], with the six methods other than
+#' On the package's [test_problems()], with the methods above other than
 #' [chebyshev()], this rule converges on every run on which the gradient rule
 #' alone converges, and on three more (`cg` and `bb` on `abs_sum`, `gd` on
 #' `beale`), and it needs fewer evaluations of the objective and the gradient
@@ -913,12 +917,12 @@ crit_any <- function(...) combine_criteria(list(...), "any")
 #'
 #' @description
 #' Combines criteria conjunctively, for a run that should stop only when
-#' several rules hold at once. A conjunction can only become **stronger** as
+#' several rules hold at once. A conjunction can only become stronger as
 #' terms are added, so a run that ends under it would have ended under any
 #' one of its terms alone at the same iteration or earlier.
 #'
 #' @details
-#' It is useful when one rule alone is known to fire early:
+#' It is useful when a single rule is known to fire early:
 #' `crit_all(crit_grad(), crit_abs_par())` requires a stationary point at
 #' which the iterate has also stopped moving, a condition that a run circling
 #' a flat optimum does not satisfy.
@@ -961,7 +965,7 @@ crit_all <- function(...) combine_criteria(list(...), "all")
 #' @param x A [criterion()] object.
 #' @param ... Unused.
 #'
-#' @return `x`, invisibly. Called for the output.
+#' @return `x`, invisibly. The function is called for its printed output.
 #'
 #' @examples
 #' crit_grad()

@@ -19,14 +19,15 @@ could read is an estimate.
 On a stochastic objective the value and the gradient are noisy estimates
 computed from the observations that were sampled, and a tolerance applied
 to one of them tests the noise. Such a run is governed by its budget, and
-this rule states that explicitly.
+this rule makes that explicit.
 
-A run that ends on its budget reports \code{converged = FALSE}, because no rule
-tested the answer. A descent method can also stop before its budget, when
+A run that ends on its budget reports \code{converged = FALSE}, because the run
+did not test the answer with any rule. A descent method can also stop before its budget, when
 its line search accepts no step, and it then reports \code{converged = FALSE}
 as well. In the package \code{converged} is \code{TRUE} only when a stopping rule
-fired, when a line search with a declared resolution established that no
-step decreases the objective by more than that resolution, or when
+fired, when a line search with a declared resolution established that
+every step fails to decrease the objective by more than that resolution,
+or when
 \code{\link[=brent]{brent()}} reduced its bracket to the resolution of the iterate.
 }
 \examples{

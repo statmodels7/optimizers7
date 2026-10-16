@@ -6,15 +6,15 @@
 \arguments{
 \item{optimizer}{A \code{Chain} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. Passed to every
-stage as given, with \code{par} replaced by the answer of the previous
-stage.}
+\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. They are passed to
+every stage as given, except that \code{par} is replaced by the answer of the
+previous stage.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} with the point, value, gradient,
 iteration count and verdict of the last stage, the summed evaluation
 counts, the stacked trace and the elapsed time of the whole chain. \code{seed}
-is that of the \strong{first} stage, since a repeat of the chain has to start
+is that of the first stage, since a repeat of the chain has to start
 from that state.
 }
 \description{
@@ -24,11 +24,10 @@ derivatives and the bounds are passed to every stage unchanged; only the
 starting point changes.
 }
 \details{
-Two things happen before the first stage runs. The stopping rule of every
-stage is checked by \code{\link[=check_criterion]{check_criterion()}}, so a chain whose last stage
-cannot evaluate its own rule fails without running the earlier ones. And
-the gradient check is switched off for the stages, since the generic has
-already made it at the \code{par} of the caller; without that, the same warning
-would be printed once per stage.
+Before the first stage runs, \code{\link[=check_criterion]{check_criterion()}} checks the stopping rule
+of every stage, so a chain whose last stage cannot evaluate its own rule
+fails without running the earlier ones. The gradient check is also switched
+off for the stages, since the generic has already made it at the \code{par} of
+the caller; without that, the same warning would be printed once per stage.
 }
 \keyword{internal}

@@ -22,18 +22,18 @@ NULL
 #' @title S7 Class for a Starting-Value Generator
 #'
 #' @description
-#' The abstract parent of [start_zeros()] and [start_runif()]. A starter
-#' takes the place of the vector of starting values: it specifies how the
-#' values are produced and how many there are, and [minimize()] turns it into
-#' a vector before dispatch. Every optimizer therefore accepts one, including
-#' an optimizer written outside the package, and no method needs code of its
-#' own for starters.
+#' This class is the abstract parent of [start_zeros()] and [start_runif()]. A
+#' starter takes the place of the vector of starting values: it specifies how
+#' the values are produced and how many there are, and [minimize()] turns it
+#' into a vector before dispatch. Every optimizer therefore accepts one,
+#' including an optimizer written outside the package, and the methods do not
+#' need code of their own for starters.
 #'
 #' @details
 #' The class is abstract and carries one property, `npar`, an integer or
 #' `NULL`. A subclass needs a method for [starting_values()] and nothing
-#' else. [minimize()] decides whether `par` is a vector to use as given or an
-#' object to resolve by testing inheritance from this class, so a new starter
+#' else. [minimize()] tests inheritance from this class to determine whether
+#' `par` is a vector to use as given or an object to resolve, so a new starter
 #' has to inherit from it; a class that has a `starting_values()` method but
 #' inherits from another class is rejected with the error `'par' must be a
 #' numeric vector of starting values`.
@@ -75,10 +75,10 @@ starter <- S7::new_class("starter", abstract = TRUE,
 #' @title Is This a Starter?
 #'
 #' @description
-#' `TRUE` when `x` inherits from the abstract [starter] class, `FALSE`
-#' otherwise. [minimize()] calls it to decide whether `par` is a vector to be
-#' used as given or an object to be resolved into one, so that the test is
-#' written in one place.
+#' Returns `TRUE` when `x` inherits from the abstract [starter] class, and
+#' `FALSE` otherwise. [minimize()] calls it to test whether `par` is a vector
+#' to be used as given or an object to be resolved into one, so that the test
+#' is written in one place.
 #'
 #' @param x Any object.
 #'
@@ -92,11 +92,11 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #'
 #' @description
 #' Turns a starter into an actual numeric vector of length `npar`, on the
-#' **unconstrained** scale.
+#' unconstrained scale.
 #'
 #' @param starter A [start_zeros()] or [start_runif()]
 #'   object, or a user-defined starter.
-#' @param npar The number of parameters wanted.
+#' @param npar The number of parameters in the vector to produce.
 #'
 #' @details
 #' The unconstrained scale is the scale on which the optimizer works when
@@ -113,8 +113,8 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #' The two shipped starters are [start_zeros()] and [start_runif()]. A
 #' starter of a third kind is a subclass of the abstract [starter] class with
 #' a method for this generic and nothing else, and [minimize()] then accepts
-#' it as `par` like either shipped one. The parent class matters:
-#' `minimize()` accepts as `par` a numeric vector or an object that inherits
+#' it as `par` like either shipped one. The new class has to inherit from
+#' [starter], because `minimize()` accepts as `par` a numeric vector or an object that inherits
 #' from [starter], so a class that has a method for this generic but does
 #' not inherit from [starter] is rejected with the error `'par' must be a
 #' numeric vector of starting values`.
@@ -136,7 +136,7 @@ is_starter <- function(x) S7::S7_inherits(x, starter)
 #'
 #' @seealso [start_zeros()] and [start_runif()] for the two shipped starters,
 #'   [minimize()] for where the resolution happens, [infer_npar()] for how
-#'   `npar` is worked out when nothing declares it.
+#'   `npar` is determined when it is not declared.
 #' @export
 starting_values <- S7::new_generic("starting_values", "starter",
   function(starter, npar) S7::S7_dispatch())
@@ -147,9 +147,9 @@ starting_values <- S7::new_generic("starting_values", "starter",
 #' @title S7 Class for the Zero Starter
 #'
 #' @description
-#' A starter that produces a vector of zeros on the unconstrained scale.
-#' Built by [start_zeros()]. It carries `npar` alone, adding no property of
-#' its own to the abstract [starter] class.
+#' A `ZeroStart` object produces a vector of zeros on the unconstrained scale.
+#' It is built by [start_zeros()]. It carries only `npar` and adds no property
+#' of its own to the abstract [starter] class.
 #'
 #' @param npar The number of parameters, an integer, or `NULL`.
 #'
@@ -166,9 +166,9 @@ ZeroStart <- S7::new_class("ZeroStart", parent = starter)
 #' @title Start From Zero on the Unconstrained Scale
 #'
 #' @description
-#' A starting point of all zeros, which after the bound transform is the
-#' middle of the domain of every parameter: one for a positive parameter,
-#' one half for a probability, zero for an unbounded one.
+#' Creates a starter whose starting point is all zeros, which after the bound
+#' transform is the middle of the domain of every parameter: one for a
+#' positive parameter, one half for a probability, zero for an unbounded one.
 #'
 #' @param npar The number of parameters. Defaults to `NULL`, meaning work
 #'   it out from the bounds or from the objective; see [minimize()].
@@ -178,7 +178,7 @@ ZeroStart <- S7::new_class("ZeroStart", parent = starter)
 #' scale. Its image after the bound transform depends on the box:
 #'
 #' \tabular{ll}{
-#'   **bounds** \tab **starting value** \cr
+#'   bounds \tab starting value \cr
 #'   \eqn{(-\infty, \infty)} \tab 0 \cr
 #'   \eqn{(0, \infty)} \tab 1 \cr
 #'   \eqn{(0, 1)} \tab 0.5 \cr
@@ -217,13 +217,15 @@ start_zeros <- function(npar = NULL) ZeroStart(npar = check_npar(npar))
 #' @name starting_values.ZeroStart
 #'
 #' @description
-#' Returns `npar` zeros. Read on the unconstrained scale, so [minimize()]
-#' maps them through the bounds before any method sees them: a positive
-#' parameter starts at 1, a probability at 0.5, an unbounded one at 0.
+#' Returns `npar` zeros. The zeros are on the unconstrained scale, so
+#' [minimize()] maps them through the bounds before any method receives them:
+#' a positive parameter starts at 1, a probability at 0.5, an unbounded one at
+#' 0.
 #'
 #' @param starter A `ZeroStart` object. Its own `npar` is not read here;
 #'   [minimize()] has already settled the count and passes it.
-#' @param npar The number of parameters wanted, a positive whole number.
+#' @param npar The number of parameters in the vector to produce, a positive
+#'   whole number.
 #'
 #' @return A numeric vector of `npar` zeros.
 #'
@@ -241,12 +243,13 @@ S7::method(starting_values, ZeroStart) <- function(starter, npar) {
 #' @title S7 Class for the Uniform Starter
 #'
 #' @description
-#' A starter that draws each coordinate independently from a uniform on the
-#' unconstrained scale. Built by [start_runif()]. It adds `min` and `max` to
-#' the `npar` the abstract [starter] class carries; either may be one number
-#' or one per parameter.
+#' A `UniformStart` object draws each coordinate independently from a uniform
+#' on the unconstrained scale. It is built by [start_runif()]. It adds `min`
+#' and `max` to the `npar` that the abstract [starter] class carries; either
+#' may be one number or one per parameter.
 #'
-#' @param min,max The range drawn from, in unconstrained units.
+#' @param min,max The range from which each coordinate is drawn, in
+#'   unconstrained units.
 #' @param npar The number of parameters, an integer, or `NULL`.
 #'
 #' @return An S7 object of class `UniformStart` inheriting from [starter].
@@ -267,9 +270,9 @@ UniformStart <- S7::new_class("UniformStart", parent = starter,
 #' unconstrained scale and mapped back through the bounds, so every draw
 #' lies inside the box.
 #'
-#' @param min,max The range to draw from, in unconstrained units. Both default
-#'   to a width of one either side of zero, and both may be given per parameter
-#'   rather than as a single number.
+#' @param min,max The range from which to draw, in unconstrained units. Both
+#'   default to a width of one either side of zero, and both may be given per
+#'   parameter rather than as a single number.
 #' @param npar The number of parameters. Defaults to `NULL`, meaning work
 #'   it out from the bounds or from the objective; see [minimize()].
 #'
@@ -286,7 +289,7 @@ UniformStart <- S7::new_class("UniformStart", parent = starter,
 #' magnitude, and every draw still lies inside the box.
 #'
 #' The draw uses the ordinary generator of \R, so [set.seed()] reproduces
-#' it. The draw is made before the optimizer starts, so the `seed` that a
+#' it. The starter draws the values before the optimizer starts, so the `seed` that a
 #' stochastic optimizer records does not reproduce the draw, and a
 #' deterministic optimizer records no `seed`.
 #'
@@ -298,11 +301,12 @@ UniformStart <- S7::new_class("UniformStart", parent = starter,
 #' set.seed(1)
 #' minimize(bfgs(), f, start_runif(npar = 3))@par
 #'
-#' # What the range means on the parameter scale, for a positive parameter.
+#' # The example shows what the range means on the parameter scale for a
+#' # positive parameter.
 #' range(bounded_transform(c(0, Inf), c(-1, 1))$h)
 #' range(bounded_transform(c(0, Inf), c(-5, 5))$h)
 #'
-#' # A wider net on a positive parameter whose scale is unknown.
+#' # A wider net suits a positive parameter whose scale is unknown.
 #' set.seed(1)
 #' minimize(bfgs(), function(p) (log(p) - 1)^2, start_runif(-5, 5, npar = 1),
 #'          lower = 0)@par
@@ -342,7 +346,8 @@ start_runif <- function(min = -1, max = 1, npar = NULL) {
 #' range, and any other length raises an error that names both lengths.
 #'
 #' @param starter A `UniformStart` object, read for `min` and `max`.
-#' @param npar The number of parameters wanted, a positive whole number.
+#' @param npar The number of parameters in the vector to produce, a positive
+#'   whole number.
 #'
 #' @return A numeric vector of length `npar`, drawn with `stats::runif()`, so
 #'   `set.seed()` governs it.
@@ -351,11 +356,11 @@ start_runif <- function(min = -1, max = 1, npar = NULL) {
 #' set.seed(1)
 #' starting_values(start_runif(-2, 2), 4)
 #'
-#' # A range per coordinate.
+#' # Each coordinate can have its own range.
 #' set.seed(1)
 #' starting_values(start_runif(c(-1, -10), c(1, 10)), 2)
 #'
-#' # A length that is neither 1 nor npar is a mistake, not a request.
+#' # A length that is neither 1 nor npar is rejected as a mistake.
 #' try(starting_values(start_runif(c(-1, -2, -3)), 2))
 #'
 #' @keywords internal
@@ -372,7 +377,7 @@ S7::method(starting_values, UniformStart) <- function(starter, npar) {
 #'
 #' @description
 #' Checks that `npar` is a single positive whole number, or `NULL`, and
-#' returns it as an integer. Called by both starter constructors, so that
+#' returns it as an integer. Both starter constructors call it, so that
 #' `start_zeros(0)` and `start_runif(npar = 2.5)` are rejected with the same
 #' message where they are written.
 #'
@@ -399,12 +404,11 @@ check_npar <- function(npar) {
 #' Returns `v` at length `n`: a single value is repeated, a value already of
 #' length `n` is passed through as a double, and any other length raises an
 #' error that names the argument and both lengths. The recycling of \R is not
-#' used, since it is silent whenever the shorter length divides the longer,
-#' and a partial range is much more likely to be a mistake than a
-#' request.
+#' used, because it gives no warning whenever the shorter length divides the
+#' longer, and here a partial range is treated as a mistake.
 #'
 #' @param v A numeric vector.
-#' @param n The length wanted.
+#' @param n The length of the result.
 #' @param nm The name of the argument, for the message.
 #'
 #' @return A numeric vector of length `n`.
@@ -424,7 +428,7 @@ recycle_to <- function(v, n, nm) {
 #'
 #' @description
 #' Determines the length of the parameter vector by trying lengths and
-#' recording which ones the objective accepts. Called by [minimize()] when a
+#' recording which ones the objective accepts. [minimize()] calls it when a
 #' starter was given without `npar` and the bounds do not determine it.
 #'
 #' @param fn The objective.
@@ -446,8 +450,8 @@ recycle_to <- function(v, n, nm) {
 #' components out, since such a gradient returns a fixed number of them,
 #' whatever its argument.
 #'
-#' A vectorized objective written in terms of the parameter alone behaves
-#' differently. Recycling warns only when the shorter length is not a
+#' A vectorized objective written only in terms of the parameter vector
+#' behaves differently. Recycling warns only when the shorter length is not a
 #' *divisor* of the longer, so `sum((p - c(1, 2, 3))^2)` accepts a vector of
 #' length one without a warning and returns the finite value 14; and its
 #' gradient `2 * (p - c(1, 2, 3))` returns six components for an argument of
@@ -461,15 +465,15 @@ recycle_to <- function(v, n, nm) {
 #' that were accepted. The caller then gives the count through `npar` or
 #' through a vector of bounds.
 #'
-#' The search stops as soon as a *second* length is accepted, since the
-#' answer is then known to be ambiguous.
+#' The search stops as soon as a *second* length is accepted, because the
+#' answer is then ambiguous.
 #' The cost is therefore two evaluations when the objective accepts any
 #' length, and `npar_max` when it accepts exactly one. Either way it happens
 #' once, before the run.
 #'
-#' @return A single integer, the one length accepted. Raises an error naming
-#'   the two lengths it found when more than one is accepted, and an error
-#'   when none is.
+#' @return A single integer, the one length that is accepted. Signals an error
+#'   that names the first two lengths found when more than one length is
+#'   accepted, and an error when the search accepts no length.
 #'
 #' @examples
 #' # A hand-written gradient pins it exactly.
@@ -523,8 +527,8 @@ infer_npar <- function(fn, gr, probe, npar_max = 50) {
   }
 
   if (!length(found)) {
-    stop("Could not work out how many parameters the objective takes: no ",
-         "length\n  from 1 to ", npar_max, " gave a single finite value ",
+    stop("Could not work out how many parameters the objective takes: every ",
+         "length\n  from 1 to ", npar_max, " failed to give a single finite value ",
          "without a warning.\n  Say how many, as in start_zeros(npar = 3), or ",
          "pass a numeric starting value.", call. = FALSE)
   }
@@ -551,8 +555,8 @@ infer_npar <- function(fn, gr, probe, npar_max = 50) {
 #' length greater than one determines it, since bounds are one per
 #' parameter. Otherwise [infer_npar()] probes the objective.
 #'
-#' A numeric `par` passes through unchanged, so the ordinary call pays
-#' nothing for this.
+#' A numeric `par` passes through unchanged, so the ordinary call has no
+#' added cost.
 #'
 #' @param par Whatever was passed as `par`.
 #' @param fn,gr The objective and its gradient.
@@ -564,7 +568,7 @@ infer_npar <- function(fn, gr, probe, npar_max = 50) {
 resolve_start <- function(par, fn, gr, lower, upper) {
   if (!is_starter(par)) return(par)
   if (!is.function(fn)) {
-    stop("A starter needs an objective it can probe; 'fn' is not a function.",
+    stop("A starter needs an objective that it can probe; 'fn' is not a function.",
          call. = FALSE)
   }
 

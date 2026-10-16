@@ -13,9 +13,9 @@ is_starter(x)
 A single logical.
 }
 \description{
-\code{TRUE} when \code{x} inherits from the abstract \link{starter} class, \code{FALSE}
-otherwise. \code{\link[=minimize]{minimize()}} calls it to decide whether \code{par} is a vector to be
-used as given or an object to be resolved into one, so that the test is
-written in one place.
+Returns \code{TRUE} when \code{x} inherits from the abstract \link{starter} class, and
+\code{FALSE} otherwise. \code{\link[=minimize]{minimize()}} calls it to test whether \code{par} is a vector
+to be used as given or an object to be resolved into one, so that the test
+is written in one place.
 }
 \keyword{internal}

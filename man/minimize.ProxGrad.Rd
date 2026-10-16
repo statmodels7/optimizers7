@@ -10,7 +10,7 @@
 or \code{upper} raises an error; \code{he} is accepted and ignored.}
 }
 \value{
-An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{value} is the \strong{total} objective
+An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{value} is the total objective
 \eqn{f(x) + g(x)}, which is why \code{g} is required alongside \code{prox}, and
 whose \code{gradient} is the proximal gradient mapping at \code{par} rather than
 \eqn{\nabla f}.

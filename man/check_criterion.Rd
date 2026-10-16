@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{check_criterion}
 \alias{check_criterion}
-\title{Reject a Stopping Rule an Optimizer Cannot Evaluate}
+\title{Reject a Stopping Rule That an Optimizer Cannot Evaluate}
 \usage{
 check_criterion(optimizer)
 }

@@ -16,7 +16,7 @@ exact line search. A \code{c2} at or below \code{c1} is rejected, because a step
 that satisfies both conditions is guaranteed to exist only when
 \eqn{c_1 < c_2 < 1}.}
 
-\item{max_step}{Maximum trial steps in \strong{each} of the bracketing and zoom
+\item{max_step}{Maximum trial steps in each of the bracketing and zoom
 phases, a positive whole number. Defaults to 30.}
 
 \item{resolution}{The smallest difference in the objective that the

@@ -16,9 +16,9 @@ Invisibly \code{TRUE}. Raises an error naming \code{nm} otherwise.
 }
 \description{
 Checks that the value is a single positive whole number no larger than
-\code{.Machine$integer.max}. Used for \code{max_step}, which counts trial points,
-and for the \code{memory} of \code{\link[=lbfgs]{lbfgs()}}, which counts secant pairs. The count is
-passed to the compiled code as an integer, so a fractional value is
+\code{.Machine$integer.max}. It is used for \code{max_step}, which counts trial
+points, and for the \code{memory} of \code{\link[=lbfgs]{lbfgs()}}, which counts secant pairs. The
+count is passed to the compiled code as an integer, so a fractional value is
 rejected (\code{memory = 2.5} would otherwise run at a memory of 2), and so is
 an infinite one, which \code{as.integer()} would turn into \code{NA}.
 }

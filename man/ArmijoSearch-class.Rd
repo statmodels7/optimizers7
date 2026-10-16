@@ -19,8 +19,8 @@ ArmijoSearch(
 \item{shrink}{The factor by which the step is multiplied on each
 backtrack.}
 
-\item{max_step}{The most trial points allowed, the full step included. A
-\strong{count}, not a length.}
+\item{max_step}{The most trial points allowed, including the full step.
+It is a count, not a length.}
 
 \item{resolution}{The smallest difference in the objective that the
 objective can resolve, a number or a function of no arguments.}
@@ -30,10 +30,10 @@ An S7 object of class \code{ArmijoSearch} inheriting from
 \code{\link[=line_search]{line_search()}}, with the four properties above beside \code{label}.
 }
 \description{
-A line search that starts from the full step and multiplies it by
-\code{shrink} until the objective decreases by enough. Built by \code{\link[=armijo]{armijo()}}. It
-evaluates the objective at trial points and never the gradient, which
-makes it the cheaper search per iteration.
+This class is a line search that starts from the full step and multiplies
+it by \code{shrink} until the objective decreases by enough. \code{\link[=armijo]{armijo()}} builds
+it. The search evaluates the objective at trial points and never the
+gradient, which makes it the cheaper search per iteration.
 }
 \details{
 Beyond the \code{label} of every line search, an \code{ArmijoSearch} holds \code{c1},
