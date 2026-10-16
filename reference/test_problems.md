@@ -28,8 +28,8 @@ test_problems(which = NULL)
 
 ## Value
 
-A named list, one element per problem, each itself a list of nine
-components:
+A named list with one element per problem, and each element is a list of
+nine components:
 
 - `name`:
 
@@ -68,30 +68,29 @@ components:
 
 - `smooth`:
 
-  logical, `FALSE` for `abs_sum` alone.
+  logical, `FALSE` only for `abs_sum`.
 
 ## The eight
 
 |  |  |  |  |
 |----|----|----|----|
-| **name** | **p** | **start** | **what it tests** |
+| name | p | start | what it tests |
 | `sphere` | 3 | (1.3, -0.7, 0.8) | no difficulty; a method that fails here is defective |
 | `rosenbrock` | 2 | (-1.2, 1) | a curved valley, Hessian condition 2508 at the solution |
 | `booth` | 2 | (0, 0) | a well-conditioned quadratic written as a sum of squares |
 | `beale` | 2 | (1, 1) | a narrow valley, Hessian condition 162 |
-| `powell` | 4 | (3, -1, 0, 1) | a **singular** Hessian at the solution |
+| `powell` | 4 | (3, -1, 0, 1) | a singular Hessian at the solution |
 | `himmelblau` | 2 | (0, 0) | four minima, all of value zero |
 | `rastrigin` | 2 | (0.4, -0.4) | 121 local minima on the usual box |
 | `abs_sum` | 3 | (0, 0, 0) | a kink at the solution itself |
 
 The starting points are the customary ones, which for `rosenbrock` and
 `powell` are the difficult points for which those functions were
-designed. The two hardest problems are hard for opposite reasons. The
-Hessian of `powell` at the origin has eigenvalues 202, 20, 0 and 0, so a
-second-order method has no curvature in two of its four directions and
-converges linearly where it usually converges quadratically. `rastrigin`
-has 121 local minima on the usual box, so the answer depends on the
-point at which the run began.
+designed. The Hessian of `powell` at the origin has eigenvalues 202, 20,
+0 and 0, so a second-order method has no curvature in two of its four
+directions and converges linearly where it usually converges
+quadratically. `rastrigin`, by contrast, has 121 local minima on the
+usual box, so the answer depends on the point at which the run began.
 
 ## The two flags
 
@@ -103,7 +102,7 @@ is none.
 therefore scores every problem on the value reached and labels these two
 in its `note` column.
 
-`smooth` is `FALSE` for `abs_sum` alone. Its gradient at the solution is
+`smooth` is `FALSE` only for `abs_sum`. Its gradient at the solution is
 exactly zero, because `sign(0)` is zero, and at every neighboring point
 the subgradient has max-norm one. A method that tests \\\nabla f\\
 therefore reaches the solution without being able to certify it, unless
@@ -117,7 +116,7 @@ A line search accepts a step only when the objective decreases by a
 definite amount, and near a minimum that decrease is about \\\lVert g
 \rVert^{2} / (2\lambda)\\ for a curvature \\\lambda\\. Once it falls
 below the rounding error of the objective, about \\\varepsilon \lvert f
-\rvert\\, no step can be verified and the search rejects all of them.
+\rvert\\, the search cannot verify a trial step and rejects every one.
 The smallest gradient that a run can reach is therefore of order
 
 \$\$\lVert g \rVert\_{\text{floor}} \approx \sqrt{2 \lambda \varepsilon
@@ -186,5 +185,5 @@ k$gr(k$solution + 1e-9)
 # A name that is not one of the eight is rejected, and the message lists
 # them.
 try(test_problems("banana"))
-#> Error : No such test problem: banana. Available: sphere, rosenbrock, booth, beale, powell, himmelblau, rastrigin, abs_sum
+#> Error : There is no test problem named banana. The available problems are sphere, rosenbrock, booth, beale, powell, himmelblau, rastrigin, abs_sum
 ```

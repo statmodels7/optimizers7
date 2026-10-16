@@ -15,8 +15,8 @@ starting point changes.
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  Passed to every stage as given, with `par` replaced by the answer of
-  the previous stage.
+  They are passed to every stage as given, except that `par` is replaced
+  by the answer of the previous stage.
 
 ## Value
 
@@ -24,15 +24,15 @@ An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
 with the point, value, gradient, iteration count and verdict of the last
 stage, the summed evaluation counts, the stacked trace and the elapsed
-time of the whole chain. `seed` is that of the **first** stage, since a
+time of the whole chain. `seed` is that of the first stage, since a
 repeat of the chain has to start from that state.
 
 ## Details
 
-Two things happen before the first stage runs. The stopping rule of
-every stage is checked by
-[`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md),
-so a chain whose last stage cannot evaluate its own rule fails without
-running the earlier ones. And the gradient check is switched off for the
-stages, since the generic has already made it at the `par` of the
-caller; without that, the same warning would be printed once per stage.
+Before the first stage runs,
+[`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
+checks the stopping rule of every stage, so a chain whose last stage
+cannot evaluate its own rule fails without running the earlier ones. The
+gradient check is also switched off for the stages, since the generic
+has already made it at the `par` of the caller; without that, the same
+warning would be printed once per stage.

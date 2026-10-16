@@ -1,10 +1,10 @@
 # How Many Parameters the Objective Takes
 
 Determines the length of the parameter vector by trying lengths and
-recording which ones the objective accepts. Called by
+recording which ones the objective accepts.
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-when a starter was given without `npar` and the bounds do not determine
-it.
+calls it when a starter was given without `npar` and the bounds do not
+determine it.
 
 ## Usage
 
@@ -34,9 +34,9 @@ infer_npar(fn, gr, probe, npar_max = 50)
 
 ## Value
 
-A single integer, the one length accepted. Raises an error naming the
-two lengths it found when more than one is accepted, and an error when
-none is.
+A single integer, the one length that is accepted. Signals an error that
+names the first two lengths found when more than one length is accepted,
+and an error when the search accepts no length.
 
 ## Details
 
@@ -51,9 +51,9 @@ regression model is settled at once. A gradient helps when it writes its
 components out, since such a gradient returns a fixed number of them,
 whatever its argument.
 
-A vectorized objective written in terms of the parameter alone behaves
-differently. Recycling warns only when the shorter length is not a
-*divisor* of the longer, so `sum((p - c(1, 2, 3))^2)` accepts a vector
+A vectorized objective written only in terms of the parameter vector
+behaves differently. Recycling warns only when the shorter length is not
+a *divisor* of the longer, so `sum((p - c(1, 2, 3))^2)` accepts a vector
 of length one without a warning and returns the finite value 14; and its
 gradient `2 * (p - c(1, 2, 3))` returns six components for an argument
 of length six, so the gradient test accepts that length too. The
@@ -66,10 +66,10 @@ into them and rejects the others, with an error that names two lengths
 that were accepted. The caller then gives the count through `npar` or
 through a vector of bounds.
 
-The search stops as soon as a *second* length is accepted, since the
-answer is then known to be ambiguous. The cost is therefore two
-evaluations when the objective accepts any length, and `npar_max` when
-it accepts exactly one. Either way it happens once, before the run.
+The search stops as soon as a *second* length is accepted, because the
+answer is then ambiguous. The cost is therefore two evaluations when the
+objective accepts any length, and `npar_max` when it accepts exactly
+one. Either way it happens once, before the run.
 
 ## See also
 

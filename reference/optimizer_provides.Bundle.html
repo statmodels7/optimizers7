@@ -3,13 +3,13 @@
 evaluates subgradients and reports their aggregate. A rule built on
 crit_grad() would test the subgradient at the iterate, which does not
 tend to zero: near the minimum of \(\lvert x \rvert\) every evaluated
-subgradient has norm 1, so the run would end at the minimizer without the
-rule firing.'><meta property="og:description" content='Reports "stationarity" and not "gradient", although the method
+subgradient has norm 1, so the rule would not fire when the run reached
+the minimizer.'><meta property="og:description" content='Reports "stationarity" and not "gradient", although the method
 evaluates subgradients and reports their aggregate. A rule built on
 crit_grad() would test the subgradient at the iterate, which does not
 tend to zero: near the minimum of \(\lvert x \rvert\) every evaluated
-subgradient has norm 1, so the run would end at the minimizer without the
-rule firing.'><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
+subgradient has norm 1, so the rule would not fire when the run reached
+the minimizer.'><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ rule firing.'><meta property="og:image" content="https://statmodels7.github.io/o
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,8 +52,8 @@ rule firing.'><meta property="og:image" content="https://statmodels7.github.io/o
 evaluates subgradients and reports their aggregate. A rule built on
 <code><a href="crit_grad.html">crit_grad()</a></code> would test the subgradient at the iterate, which does not
 tend to zero: near the minimum of \(\lvert x \rvert\) every evaluated
-subgradient has norm 1, so the run would end at the minimizer without the
-rule firing.</p>
+subgradient has norm 1, so the rule would not fire when the run reached
+the minimizer.</p>
     </div>
 
 
@@ -89,7 +89,7 @@ objective.</p>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bundle.html">bundle</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>             gr <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sign.html" class="external-link">sign</a></span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : The stopping rule needs gradient, which proximal bundle does not provide.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Choose a criterion this optimizer can evaluate, or a method that provides it.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Choose a criterion that this optimizer can evaluate, or a method that provides it.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

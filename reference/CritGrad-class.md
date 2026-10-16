@@ -1,10 +1,13 @@
 # S7 Class for the Gradient Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md),
-and its two methods. The rule reads `state$gradient`, takes its max-norm
-or its 2-norm, and fires when that norm falls below `tol`. It declares
-`"gradient"` through
+which has a method for
+[`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
+and one for
+[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md).
+The rule reads `state$gradient`, takes its max-norm or its 2-norm, and
+fires when that norm falls below `tol`. It declares `"gradient"` through
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
 so a derivative-free optimizer rejects it when the run starts.
 
@@ -41,7 +44,7 @@ property selects the norm: on a gradient of \\(3, 4)\\,
 ## See also
 
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-for the constructor and the tolerance it can attain,
+for the constructor and the tolerance that it can attain,
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
 for what a derivative-free method reads.
 

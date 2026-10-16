@@ -11,8 +11,9 @@ requires no change to the other two.
 
 The alternative to an object would be an argument that takes a string,
 with a `switch` inside every algorithm. That arrangement fixes the set
-of meanings of *finished* when the package is written, and the meaning
-of convergence determines what the reported answer is.
+of meanings of *finished* when the package is written. The meaning of
+convergence matters because it determines which point is reported as the
+answer.
 
 A criterion is one class and one method. The method receives the state
 of the iteration and returns a single logical:
@@ -61,7 +62,7 @@ quantity:
 minimize(nelder_mead(criterion = crit_grad()), f, c(0, 0))
 #> Error:
 #> ! The stopping rule needs gradient, which nelder-mead does not provide.
-#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
+#>   Choose a criterion that this optimizer can evaluate, or a method that provides it.
 ```
 
 A rule declares the components that it needs through
@@ -109,7 +110,7 @@ minimize(bfgs(), f, c(0, 0), gr = gr)@counts
 #> 3 3 0
 ```
 
-With no gradient supplied, one is obtained by central differences, and
+If the call supplies no gradient, central differences provide one, and
 the result records it:
 
 ``` r
@@ -153,7 +154,7 @@ to subset. Such a class would require a second kind of objective, a rule
 for the stopping rules that it permits, a way of reporting which one is
 in force, and a branch in the compiled loop, for a task that the caller
 can do in one line, since the caller defines what an observation is. An
-optimizer with its own notion of an observation would not be a general
+optimizer that represented observations would not be a general
 optimizer, so the batch is drawn in the layer that defines observations.
 
 The resampling belongs *inside* the objective, not around the run.
@@ -272,7 +273,7 @@ The method sets `converged` itself: it is `TRUE` when the stopping rule
 fired and `FALSE` otherwise, including when the run ended on its
 iteration budget.
 
-On a quadratic:
+We run the method on a quadratic:
 
 ``` r
 
@@ -286,9 +287,9 @@ c(par = r@par, iterations = r@iterations, converged = r@converged)
 
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 separates two questions: whether the optimizer satisfies the twelve
-numbered checks, and how **powerful** it is. A slow method is not a
-defective one: gradient descent does not solve Rosenbrock in five
-hundred iterations, and that is a property of the method.
+numbered checks, and how powerful it is. A slow method can satisfy every
+requirement: gradient descent does not solve Rosenbrock in five hundred
+iterations, which is a property of the method.
 
 The numbered checks are therefore statements that every optimizer must
 satisfy, whatever its performance, and the battery below them is a table
@@ -298,20 +299,20 @@ of gaps, reported as information and not as a verdict:
 
 res <- check_optimizer(heavy_ball(alpha = 0.01))
 #> Checking optimizer: heavy ball
-#>   [ 1] value agrees with par:            [PASSED]
-#>   [ 2] gradient agrees with par:         [PASSED]
-#>   [ 3] convergence is not assumed:       [PASSED]
-#>   [ 4] budgets are respected:            [PASSED]
-#>   [ 5] evaluations are counted:          [PASSED]
-#>   [ 6] trace is well formed:             [PASSED]
-#>   [ 7] bounds are respected strictly:    [FAILED]
-#>   [ 8] the run repeats:                  [PASSED]
-#>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is rejected:  [FAILED]
-#>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimizes a quadratic:         [PASSED]
+#>   [ 1] value agrees with par:                       [PASSED]
+#>   [ 2] gradient agrees with par:                    [PASSED]
+#>   [ 3] convergence is not assumed:                  [PASSED]
+#>   [ 4] budgets are respected:                       [PASSED]
+#>   [ 5] evaluations are counted:                     [PASSED]
+#>   [ 6] trace is well formed:                        [PASSED]
+#>   [ 7] bounds are respected strictly:               [FAILED]
+#>   [ 8] the run repeats:                             [PASSED]
+#>   [ 9] maximize mirrors minimize:                   [PASSED]
+#>   [10] a rule that cannot be evaluated is rejected: [FAILED]
+#>   [11] a bad starting point is an error:            [PASSED]
+#>   [12] it minimizes a quadratic:                    [PASSED]
 #> 
-#>   2 check(s) FAILED: bounds are respected strictly; an unevaluable rule is rejected
+#>   2 check(s) FAILED: bounds are respected strictly; a rule that cannot be evaluated is rejected
 #> 
 #>   battery (gap from the known minimum; information, not a verdict)
 #>     sphere       gap  8.47e-18  conv      677 evals  
@@ -330,18 +331,18 @@ curvature varies by orders of magnitude, and the run does not converge
 on `rastrigin` and `abs_sum`. This is a property of heavy ball with a
 fixed step.
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
-which the package ships, has the same form with the step length
-estimated from the last secant pair, and it converges on all eight
-problems.
+which the package ships, has the same form, but its step length is
+estimated from the last secant pair, and it converges on every problem
+of the battery.
 
 The two failed checks concern the method and not the algorithm: the
 method receives two arguments and does nothing with them, and it does
 not validate its stopping rule.
 
-**It ignores `lower` and `upper`.** The signature includes them, since
-S7 warns when the formals of a method omit a named argument of the
-generic, and an argument that the author did not plan for is easily left
-unused. A caller then passes a box, gets no error, and receives an
+The method ignores `lower` and `upper`. The signature includes them,
+since S7 warns when the formals of a method omit a named argument of the
+generic, and an argument for which the author did not plan is easily
+left unused. A caller then passes a box, gets no error, and receives an
 answer outside it.
 
 Removing the box is a few lines, because
@@ -382,11 +383,11 @@ S7::method(minimize, HeavyBall) <-
 )
 ```
 
-**It does not validate the stopping rule.**
-[`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-(marked (2)) is the line that rejects a rule that the method cannot
-evaluate, instead of accepting one that would test `NULL` at every
-iteration. The quantities that a method supplies are declared by
+The method does not validate the stopping rule. The line marked (2),
+[`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md),
+rejects a rule that the method cannot evaluate, instead of accepting one
+that would test `NULL` at every iteration. The quantities that a method
+supplies are declared by
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md),
 whose default method returns `"gradient"`. This method computes the
 gradient, so the default is correct for it. A derivative-free method
@@ -409,9 +410,10 @@ all(check_optimizer(heavy_ball(alpha = 0.01),
 ```
 
 The two repairs add the handling of bounds and the validation of the
-stopping rule, which the package requires of every optimizer. Neither
-omission affects a run without bounds and with a rule that the method
-can evaluate, and the numbered checks are written to detect both.
+stopping rule, which the package requires of every optimizer. A run
+without bounds and with a rule that the method can evaluate is not
+affected by either omission, and the numbered checks are written to
+detect both.
 
 ## The test problems
 
@@ -440,10 +442,10 @@ p$solution
 #> [1] 3.0 0.5
 ```
 
-Two of them are marked `multimodal`: on them a local method that reaches
-a different minimum is behaving correctly. One is marked non-`smooth`:
-on it a method that assumes a derivative reaches the solution and cannot
-certify it:
+On the problems marked `multimodal`, a local method that reaches a
+different minimum is behaving correctly. On the problem marked
+non-`smooth`, a method that assumes a derivative reaches the solution
+and cannot certify it:
 
 ``` r
 

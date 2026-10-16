@@ -1,7 +1,7 @@
 # A Central-Difference Gradient
 
-The finite-difference gradient that the proximal loop uses when the
-caller supplies none, with the step scaled to each coordinate.
+Computes the finite-difference gradient that the proximal loop uses when
+the caller supplies none. The step is scaled to each coordinate.
 
 ## Usage
 

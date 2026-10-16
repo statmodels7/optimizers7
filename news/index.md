@@ -1,5 +1,27 @@
 # Changelog
 
+## optimizers7 0.15.1
+
+- Documentation and messages: relative clauses without a relative
+  pronoun, stranded prepositions, absolute constructions, sentences
+  without a verb (example captions included), emphasis in bold and
+  personified descriptions of the code rewritten as plain clauses.
+  Messages reworded:
+  [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
+  for an unknown name (“There is no test problem named …”), the
+  bracketing failure of
+  [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
+  (“the bracketing phase found no minimum …”), the length search of the
+  starters (“every length … failed to give a single finite value …”),
+  and the errors of
+  [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md),
+  [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md),
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) of a result
+  and the starters. The label of check 10 of
+  [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
+  reads “a rule that cannot be evaluated is rejected”. No change to the
+  algorithms.
+
 ## optimizers7 0.15.0
 
 ### Repairs

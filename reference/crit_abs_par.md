@@ -26,10 +26,10 @@ inheriting from
 
 ## Details
 
-With box constraints the comparison is on the **unconstrained** scale,
-on which the optimizer moves. Near a bound a short distance in
-\\\theta\\ corresponds to a long distance in \\\eta\\, so the rule fires
-later there than the change on the parameter scale suggests.
+With box constraints the comparison is on the unconstrained scale, on
+which the optimizer moves. Near a bound a short distance in \\\theta\\
+corresponds to a long distance in \\\eta\\, so the rule fires later
+there than the change on the parameter scale suggests.
 
 A method whose iterate does not move at an iteration, such as
 [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)

@@ -35,7 +35,7 @@ wolfe(c1 = 1e-04, c2 = 0.9, max_step = 30, resolution = 0)
 
 - max_step:
 
-  Maximum trial steps in **each** of the bracketing and zoom phases, a
+  Maximum trial steps in each of the bracketing and zoom phases, a
   positive whole number. Defaults to 30.
 
 - resolution:

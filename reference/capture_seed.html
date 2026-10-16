@@ -9,7 +9,7 @@ numbers, so that the run can be repeated exactly."><meta property="og:image" con
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,10 +56,10 @@ numbers, so that the run can be repeated exactly.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Assigning the recorded value back into the global environment reproduces
-the run. When no stream exists yet, one uniform is drawn to make <span style="R">R</span> create
-one, which costs a single discarded number on the first stochastic call of
-a session.</p>
-<p>The stream is <strong>not</strong> created with <code>set.seed(NULL)</code>, which reseeds from
+the run. When <code>.Random.seed</code> does not exist yet, one uniform is drawn to
+make <span style="R">R</span> create it, which costs a single discarded number on the first
+stochastic call of a session.</p>
+<p>The stream is not created with <code>set.seed(NULL)</code>, which reseeds from
 the clock and discards the seed that the caller had set.</p>
     </div>
 

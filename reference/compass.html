@@ -13,7 +13,7 @@ nelder_mead(), it has a convergence theorem."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,8 +83,8 @@ stationary (Audet and Dennis 2006).</p></dd>
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
 <dd><p>Initial poll size: <code>step</code> times the larger of 1 and the
-largest absolute coordinate of the starting value. A single positive
-number, default <code>0.1</code>.</p></dd>
+largest absolute coordinate of the starting value. The value is a
+single positive number and defaults to <code>0.1</code>.</p></dd>
 
 
 <dt id="arg-directions">directions<a class="anchor" aria-label="anchor" href="#arg-directions"></a></dt>
@@ -94,17 +94,18 @@ applies, and any other string is rejected by <code><a href="https://rdrr.io/r/ba
 
 <dt id="arg-opportunistic">opportunistic<a class="anchor" aria-label="anchor" href="#arg-opportunistic"></a></dt>
 <dd><p>Move to the first improvement found instead of
-polling every direction? <code>TRUE</code> or <code>FALSE</code>, default <code>TRUE</code>.</p></dd>
+polling every direction? The value is <code>TRUE</code> or <code>FALSE</code> and defaults to
+<code>TRUE</code>.</p></dd>
 
 
 <dt id="arg-expand">expand<a class="anchor" aria-label="anchor" href="#arg-expand"></a></dt>
-<dd><p>Factor applied to the poll size after a success. A single
-number of at least 1, default <code>2</code>.</p></dd>
+<dd><p>Factor applied to the poll size after a success. The value
+is a single number of at least 1 and defaults to <code>2</code>.</p></dd>
 
 
 <dt id="arg-shrink">shrink<a class="anchor" aria-label="anchor" href="#arg-shrink"></a></dt>
-<dd><p>Factor applied after a failure. A single number strictly
-inside \((0, 1)\), default <code>0.5</code>.</p></dd>
+<dd><p>Factor applied after a failure. The value is a single number
+strictly inside \((0, 1)\) and defaults to <code>0.5</code>.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
@@ -112,8 +113,8 @@ inside \((0, 1)\), default <code>0.5</code>.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
-no evaluation budget, so the run stops on the criterion or on
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>, which
+sets no evaluation budget, so the run stops on the criterion or on
 <code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
@@ -158,11 +159,11 @@ differentiable.</p></dd>
 plus and minus.</p></dd>
 
 
-</dl><p>The choice decides the outcome on the problems for which the method is
+</dl><p>The choice determines the result on the problems for which the method is
 intended. Where \(f\) is only Lipschitz, a <em>fixed</em> set of directions can
-fail: if a kink has a diagonal ridge, no coordinate direction descends
-it, so the poll fails at a point that is not stationary and the run stops
-there. On \(\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2\), whose
+fail: if a kink has a diagonal ridge, all the coordinate directions fail to
+descend it, so the poll fails at a point that is not stationary and the run
+stops there. On \(\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2\), whose
 minimum is 0, coordinate polling from \((1, 0.5)\) stops at <code>0.05</code>,
 whereas the random poll reaches values several orders of magnitude lower,
 which depend on the seed (see the examples).</p>
@@ -207,7 +208,8 @@ available, <code><a href="crit_stationary.html">crit_stationary()</a></code> for
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 2000, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 0.1, directions = mads, opportunistic = TRUE, expand = 2, shrink = 0.5</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A kink along a diagonal, which no coordinate direction descends. The</span></span></span>
+<span class="r-in"><span><span class="co"># The kink lies along a diagonal, and every coordinate direction fails to</span></span></span>
+<span class="r-in"><span><span class="co"># descend it. The</span></span></span>
 <span class="r-in"><span><span class="co"># true minimum is 0. Coordinate polling stops at the same wrong point every</span></span></span>
 <span class="r-in"><span><span class="co"># time; the random poll passes it.</span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">p</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>

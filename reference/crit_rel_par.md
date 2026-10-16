@@ -1,6 +1,6 @@
 # Stop When the Parameters Stop Moving (Relative)
 
-The rule \\\max_j \lvert x_j^{new} - x_j^{old}\rvert / (\lvert
+The rule is \\\max_j \lvert x_j^{new} - x_j^{old}\rvert / (\lvert
 x_j^{old}\rvert + \texttt{tol}) \< \texttt{tol}\\.
 
 ## Usage
@@ -40,7 +40,7 @@ for the version in the units of the parameters.
 crit_rel_par()
 #> <criterion> |dx| < 1e-08 (relative)
 
-# The same relative change at two very different scales.
+# The same relative change is tested at two very different scales.
 c(large = crit_met(crit_rel_par(1e-6), list(x_new = 1000,
                                             x_old = 1000.0001)),
   small = crit_met(crit_rel_par(1e-6), list(x_new = 1e-3,

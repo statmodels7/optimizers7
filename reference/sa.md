@@ -1,8 +1,9 @@
 # Simulated Annealing With an Adaptive Step
 
-A global search that accepts uphill moves with a probability that falls
-as the run cools, with one step length per coordinate, adjusted during
-the run to hold the acceptance rate of that coordinate near a target.
+Creates an optimizer for a global search that accepts uphill moves with
+a probability that falls as the run cools, with one step length per
+coordinate that is adjusted during the run to hold the acceptance rate
+of that coordinate near a target.
 
 ## Usage
 
@@ -51,7 +52,7 @@ sa(
 - cooling:
 
   The factor by which the temperature is multiplied at each level, a
-  single number **strictly** inside \\(0, 1)\\. Defaults to `0.85`. The
+  single number strictly inside \\(0, 1)\\. Defaults to `0.85`. The
   value `1` would never cool and `0` would freeze at once, so both
   endpoints are rejected.
 
@@ -77,9 +78,9 @@ sa(
 
 - target_accept:
 
-  The acceptance rate at which the adaptation aims, held inside a band
-  of 0.1 on either side. A single number strictly inside \\(0.1, 0.9)\\;
-  a value outside is rejected, because the band around it would reach 0
+  The target acceptance rate of the adaptation, held inside a band of
+  0.1 on either side. A single number strictly inside \\(0.1, 0.9)\\; a
+  value outside is rejected, because the band around it would reach 0
   or 1. Defaults to `0.5`.
 
 - adjust:
@@ -195,7 +196,7 @@ the minimizer than a fixed `t0 = 1` within the same budget.
 
 ## The value returned and the meaning of convergence
 
-The result is the best point **seen**, not the last one, since the last
+The result is the best point seen, not the last one, since the last
 point of an annealing run is a random draw from the walk. The `value`
 column of the trace is correspondingly the best value so far, and is
 monotone non-increasing.
@@ -285,5 +286,5 @@ identical(a@par, b@par)
 # computes no gradient.
 try(minimize(sa(criterion = crit_grad()), rastrigin, c(4.4, -3.6)))
 #> Error : The stopping rule needs gradient, which simulated annealing (uniform) does not provide.
-#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
+#>   Choose a criterion that this optimizer can evaluate, or a method that provides it.
 ```

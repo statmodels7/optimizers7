@@ -4,10 +4,10 @@ Renders a time in seconds in a unit matched to its size: microseconds
 below a millisecond, milliseconds below a second and seconds below a
 minute, each to three significant figures, then whole minutes and
 seconds below an hour, and whole hours and minutes above. The unit is
-chosen on the rounded value, so that no field reaches its carry
-(`"59 min 60 s"`). Used by
+chosen on the rounded value, so that rounding cannot produce a field at
+its carry value (`"59 min 60 s"`).
 [`print.optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/print.optimizer_result.md)
-for the `elapsed` line.
+uses it for the `elapsed` line.
 
 ## Usage
 

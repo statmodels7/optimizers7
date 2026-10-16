@@ -1,8 +1,9 @@
 # Translate an Evaluation Budget for the Compiled Loop
 
 The compiled loops hold the budget as an integer, and the default budget
-is `Inf`: no cap at all. This maps `Inf` to the largest representable
-integer, which no run reaches, and any finite value to itself.
+is `Inf`, which sets no cap at all. This maps `Inf` to the largest
+representable integer, which a run never reaches, and any finite value
+to itself.
 
 ## Usage
 

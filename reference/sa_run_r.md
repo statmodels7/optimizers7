@@ -1,8 +1,8 @@
 # The Annealing Loop in R
 
-The annealing loop written in R, the twin of the compiled `sa_run()`. It
-gives the kernel a reference that shares none of its code, and it is
-used by the tests only.
+This function is the annealing loop written in R, the twin of the
+compiled `sa_run()`. It gives the kernel a reference that shares none of
+its code, and it is used by the tests only.
 
 ## Usage
 
@@ -39,10 +39,9 @@ sa_run_r(
 
 - t0:
 
-  The initial temperature, or a non-positive value to calibrate it. `-1`
-  is what
+  The initial temperature, or a non-positive value to calibrate it.
   [`minimize.Sa()`](https://statmodels7.github.io/optimizers7/reference/minimize.Sa.md)
-  passes for `t0 = NULL`.
+  passes `-1` for `t0 = NULL`.
 
 - cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit:
 
@@ -53,7 +52,7 @@ sa_run_r(
 
 A list with `par` (the best point seen), `value` (the objective there)
 and `n_value` (the evaluation count). It reports no trace and no
-stationarity measure, the comparison being of the walk alone.
+stationarity measure, because the comparison concerns only the walk.
 
 ## Details
 

@@ -1,7 +1,8 @@
 # S7 Class for Gradient Descent
 
-An optimizer holding the initial step length and the line search only,
-since steepest descent keeps no model of the surface. Built by
+A `GradientDescent` object holds the initial step length and the line
+search only, since steepest descent does not keep a model of the
+surface. It is built by
 [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md).
 
 ## Usage

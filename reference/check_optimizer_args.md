@@ -1,4 +1,4 @@
-# Validate the Settings Every Optimizer Shares
+# Validate the Settings That Every Optimizer Shares
 
 Checks the six arguments common to the constructors (the stopping rule,
 `maxit`, `max_eval`, `verbose`, `refresh` and `keep_trace`), so that
@@ -38,7 +38,7 @@ The rules are:
 - `criterion` must inherit from
   [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md).
 
-- `maxit` must be a single number at least 1 **and finite**.
+- `maxit` must be a single number at least 1 and finite.
 
 - `max_eval` must be a single number at least 1; `Inf` passes.
 

@@ -1,6 +1,6 @@
 # S7 Class for the Empty Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md).
 Its
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
@@ -20,7 +20,7 @@ CritNever(label = character(0))
 
 An S7 object of class `CritNever` inheriting from
 [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md),
-carrying `label` alone.
+carrying only `label`.
 
 ## Details
 

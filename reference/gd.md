@@ -45,9 +45,9 @@ gd(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to `Inf`: no evaluation
-  budget, so the run stops on the criterion or on `maxit`. Set a finite
-  value to cap the cost of a run.
+  Maximum objective evaluations. Defaults to `Inf`, which sets no
+  evaluation budget, so the run stops on the criterion or on `maxit`.
+  Set a finite value to cap the cost of a run.
 
 - verbose:
 

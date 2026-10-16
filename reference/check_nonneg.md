@@ -1,7 +1,7 @@
 # Validate a Non-Negative Threshold
 
-Checks that the value is a single finite number that is not negative.
-Used for the curvature threshold `curv_tol` of
+Checks that the value is a single finite number that is not negative. It
+is used for the curvature threshold `curv_tol` of
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),

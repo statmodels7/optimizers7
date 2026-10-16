@@ -1,10 +1,10 @@
 # S7 Class for Newton's Method
 
-An optimizer holding the initial step length, the line search, the two
-settings that decide how an indefinite Hessian is repaired, and the two
-settings that bound and scale a step. Built by
-[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
-Among the shipped methods, only this one and
+This class is an optimizer that holds the initial step length, the line
+search, the two settings that determine how an indefinite Hessian is
+repaired, and the two settings that bound and scale a step.
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+builds it. Among the shipped methods, only this one and
 [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),
 which inherits from it, read the `he` argument of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).

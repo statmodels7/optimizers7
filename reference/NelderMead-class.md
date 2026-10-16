@@ -1,8 +1,8 @@
 # S7 Class for Nelder-Mead
 
-An optimizer holding the size and shape of the initial simplex, which
-set of reflection coefficients to use, and the safeguard against a
-simplex that has collapsed. Built by
+A `NelderMead` object holds the size and shape of the initial simplex,
+the set of reflection coefficients to use, and the safeguard against a
+simplex that has collapsed. It is built by
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md).
 The simplex itself moves inside the run; the `simplex` property is a
 starting one, or `NULL`.

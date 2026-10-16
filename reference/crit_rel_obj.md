@@ -1,6 +1,6 @@
 # Stop When the Objective Stops Moving (Relative)
 
-The rule \\\lvert f\_{new} - f\_{old} \rvert \< \texttt{tol}\\(\lvert
+The rule is \\\lvert f\_{new} - f\_{old} \rvert \< \texttt{tol}\\(\lvert
 f\_{old} \rvert + \texttt{tol})\\.
 
 ## Usage
@@ -52,7 +52,7 @@ for the default rule of the gradient methods.
 crit_rel_obj()
 #> <criterion> |df| < 1e-12 (relative)
 
-# The same absolute change, at two objective scales.
+# The same absolute change is tested at two objective scales.
 c(small = crit_met(crit_rel_obj(1e-6), list(f_new = 1, f_old = 1 + 1e-7)),
   large = crit_met(crit_rel_obj(1e-6),
                    list(f_new = 1e6, f_old = 1e6 + 1e-7)))

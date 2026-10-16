@@ -1,12 +1,12 @@
 # S7 Class for Simulated Annealing
 
-An optimizer holding the annealing schedule and the step adaptation:
-which proposal the walk draws from, the temperature and how it cools,
-how much work is done at each level, and the acceptance rate the
-per-coordinate steps are tuned to. Built by
-[`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md). Its
-result depends on the state of the random number generator, which the
-result records in `seed`.
+This class is an optimizer that holds the annealing schedule and the
+step adaptation: the proposal from which the walk draws, the temperature
+and how it cools, how much work is done at each level, and the
+acceptance rate to which the per-coordinate steps are tuned. It is built
+by [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md).
+Its result depends on the state of the random number generator, which
+the result records in `seed`.
 
 ## Usage
 
@@ -35,8 +35,8 @@ Sa(
 
 - visiting:
 
-  `"uniform"` or `"cauchy"`, which proposal the walk draws its moves
-  from.
+  `"uniform"` or `"cauchy"`, the proposal from which the walk draws its
+  moves.
 
 - t0:
 
@@ -57,7 +57,7 @@ Sa(
 
 - target_accept:
 
-  The acceptance rate at which the step adaptation aims.
+  The target acceptance rate of the step adaptation.
 
 - adjust:
 

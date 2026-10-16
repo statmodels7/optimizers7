@@ -1,7 +1,7 @@
 # Produce a Vector of Starting Values
 
 Turns a starter into an actual numeric vector of length `npar`, on the
-**unconstrained** scale.
+unconstrained scale.
 
 ## Usage
 
@@ -21,7 +21,7 @@ starting_values(starter, npar)
 
 - npar:
 
-  The number of parameters wanted.
+  The number of parameters in the vector to produce.
 
 ## Value
 
@@ -54,8 +54,10 @@ A starter of a third kind is a subclass of the abstract
 [starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
 class with a method for this generic and nothing else, and
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-then accepts it as `par` like either shipped one. The parent class
-matters:
+then accepts it as `par` like either shipped one. The new class has to
+inherit from
+[starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md),
+because
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 accepts as `par` a numeric vector or an object that inherits from
 [starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md),
@@ -73,7 +75,7 @@ for the two shipped starters,
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 for where the resolution happens,
 [`infer_npar()`](https://statmodels7.github.io/optimizers7/reference/infer_npar.md)
-for how `npar` is worked out when nothing declares it.
+for how `npar` is determined when it is not declared.
 
 ## Examples
 

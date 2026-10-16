@@ -1,8 +1,8 @@
 # S7 Class for Brent's Method
 
-An optimizer for a function of one variable, holding the length of the
-first step of the bracketing phase and how many times that phase may
-expand. Built by
+A `Brent` object is an optimizer for a function of one variable. It
+holds the length of the first step of the bracketing phase and the
+number of times that phase may expand, and it is built by
 [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md).
 
 ## Usage

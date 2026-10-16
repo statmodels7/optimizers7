@@ -27,7 +27,7 @@ repeated.
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-holding the best point seen, with `seed` filled in and `converged`
+holding the best point seen. Its `seed` is filled in, and `converged` is
 `TRUE` only when the stopping rule fired (by default, Corana's rule
 through
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)).

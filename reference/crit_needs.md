@@ -44,7 +44,7 @@ rules declare two names, `"gradient"` and `"stationarity"`.
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
 for the rule itself,
 [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-for the rejection this feeds,
+for the rejection that this generic feeds,
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)
 for the other half of the comparison.
 

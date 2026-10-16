@@ -1,8 +1,8 @@
 # Validate a Positive Whole Number
 
 Checks that the value is a single positive whole number no larger than
-`.Machine$integer.max`. Used for `max_step`, which counts trial points,
-and for the `memory` of
+`.Machine$integer.max`. It is used for `max_step`, which counts trial
+points, and for the `memory` of
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),
 which counts secant pairs. The count is passed to the compiled code as
 an integer, so a fractional value is rejected (`memory = 2.5` would

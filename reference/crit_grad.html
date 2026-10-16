@@ -13,7 +13,7 @@ rejects it when the run starts."><meta property="og:image" content="https://stat
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,8 +84,8 @@ by the method. A line search accepts a step only when the objective
 decreases by a definite amount, and near a minimum that decrease is about
 \(\lVert \nabla f \rVert^{2} / (2\lambda)\) for a curvature
 \(\lambda\). Once it falls below the rounding error of the objective,
-about \(\varepsilon \lvert f \rvert\), no step can be verified and the
-search stops, so the smallest attainable gradient is about
+about \(\varepsilon \lvert f \rvert\), the search cannot verify any step
+and stops, so the smallest attainable gradient is about
 \(\sqrt{2 \lambda \varepsilon \lvert f^{*} \rvert}\) and grows with the
 value at the solution. Adding a constant to the objective moves neither
 the minimizer nor the gradient, but it changes this bound (the last
@@ -115,7 +115,8 @@ default, <code><a href="test_problems.html">test_problems()</a></code> for the p
 <span class="r-out co"><span class="r-pr">#&gt;</span>   max   two </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  TRUE FALSE </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Asking for the rule alone, where the shipped default is a disjunction.</span></span></span>
+<span class="r-in"><span><span class="co"># The rule is used by itself here, where the shipped default is a</span></span></span>
+<span class="r-in"><span><span class="co"># disjunction.</span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fl">400</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                   <span class="fl">200</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>

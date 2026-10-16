@@ -46,13 +46,13 @@ minimize(
 - par:
 
   A numeric vector of starting values, or a starter object; see Starters
-  below. With bounds it must lie **strictly** inside them.
+  below. With bounds it must lie strictly inside them.
 
 - gr:
 
   The gradient, a function of the parameter vector. `NULL`, the default,
-  has it differenced from `fn`. Ignored when `fn` is an objective
-  carrying its own gradient.
+  has it differenced from `fn`. It is ignored when `fn` is an objective
+  that carries its own gradient.
 
 - he:
 
@@ -74,8 +74,8 @@ minimize(
 
 - ...:
 
-  Passed to the method dispatched on. Among the shipped methods, only
-  the method for
+  Passed to the method selected by dispatch. Among the shipped methods,
+  only the method for
   [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
   reads from it, its argument `t3`.
 
@@ -97,12 +97,12 @@ with \\f\\ the objective, \\l\\ and \\u\\ the bounds, and the
 inequalities read coordinatewise. Every method reports the point where
 it stopped together with the rule that stopped it. `converged` is `TRUE`
 when the stopping rule is satisfied; it is also `TRUE` when a line
-search with a declared resolution establishes that no step decreases the
-objective by more than that resolution, and when
+search with a declared resolution establishes that every step fails to
+decrease the objective by more than that resolution, and when
 [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
 reduces its bracket to the resolution of the iterate, and the result
 then reports that stop with its own label in `criterion_met`. It is
-never inferred from the run having ended, so a run that exhausts its
+never inferred from the end of the run, so a run that exhausts its
 budget comes back with `converged = FALSE`.
 
 Dispatch is on `optimizer` alone, so each algorithm is written once. The
@@ -134,7 +134,7 @@ first iteration, with no indication of its cause. Set
 
 ## Starters
 
-`par` may be a **starter** object instead of a vector:
+`par` may be a starter object instead of a vector:
 [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
 for all zeros,
 [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md)
@@ -176,17 +176,17 @@ is the map.
 [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html), so `lower = 0`
 applies the lower bound zero to every parameter without one value per
 coefficient. A length that is neither 1 nor `p` is rejected, and so is a
-`lower` that is at or above its `upper`. The **starting value must lie
-strictly inside its bounds**: `par = 0` with `lower = 0` is an error,
-the transformed coordinate being infinite there.
+`lower` that is at or above its `upper`. The starting value must lie
+strictly inside its bounds: `par = 0` with `lower = 0` is an error,
+because the transformed coordinate is infinite there.
 
 ## An optimum lying on a bound
 
 Reaching a bound exactly requires the transformed variable to run to
-infinity, so a solution on a bound is approached and not attained. What
-stops the run is the stopping rule, because the chain-rule factor
-\\\partial x / \partial \eta\\ decays to zero as the bound is approached
-and takes the transformed gradient with it. The run therefore reports
+infinity, so a solution on a bound is approached and not attained. The
+stopping rule ends the run, because the chain-rule factor \\\partial x /
+\partial \eta\\ decays to zero as the bound is approached and takes the
+transformed gradient with it. The run therefore reports
 `converged = TRUE` at a point near the bound, and how near is set by the
 tolerance rather than by the budget.
 
@@ -220,7 +220,7 @@ for the map that removes the bounds.
 q <- function(p) sum((p - c(1, 2))^2)
 qg <- function(p) 2 * (p - c(1, 2))
 
-# With the gradient supplied, and without it, so that it is differenced.
+# The first run supplies the gradient, and the second differences it.
 # The two runs reach the same point and differ in the evaluation counts.
 a <- minimize(bfgs(), q, par = c(0, 0), gr = qg)
 b <- minimize(bfgs(), q, c(0, 0))
@@ -231,11 +231,11 @@ rbind(supplied = unlist(a@counts), differenced = unlist(b@counts))
 #> supplied     3 3 0
 #> differenced 15 0 0
 
-# One bound for every parameter: a scale that must stay positive.
+# One bound applies to every parameter: a scale that must stay positive.
 minimize(bfgs(), q, c(0.5, 0.5), lower = 0)@par
 #> [1] 1 2
 
-# Or one per parameter. The unconstrained minimum is at (1, 2), so the
+# Bounds may also be given per parameter. The unconstrained minimum is at (1, 2), so the
 # second coordinate approaches its upper bound of 1 and stops just short of
 # it, at a distance set by the tolerance.
 minimize(bfgs(), q, c(0.5, 0.5), lower = c(0, 0), upper = c(5, 1))@par
@@ -244,7 +244,7 @@ minimize(bfgs(criterion = crit_grad(1e-12)), q, c(0.5, 0.5),
          lower = c(0, 0), upper = c(5, 1))@par
 #> [1] 1 1
 
-# No starting value: the bounds give the number of parameters.
+# Without a starting value, the bounds give the number of parameters.
 minimize(bfgs(), q, start_zeros(), lower = c(0, 0), upper = c(5, 10))@par
 #> [1] 1 2
 

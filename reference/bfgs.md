@@ -1,8 +1,8 @@
 # BFGS
 
 Builds an approximation to the inverse Hessian from successive
-gradients, so the direction is a matrix-vector product and no second
-derivatives are ever required. It is the usual choice for a smooth
+gradients, so the direction is a matrix-vector product and the method
+never evaluates second derivatives. It is the usual choice for a smooth
 problem of moderate size.
 
 ## Usage
@@ -66,9 +66,9 @@ to be handed to
 
 ## Notation
 
-\\s = x\_{new} - x\_{old}\\ is the **secant vector** and \\y =
-g\_{new} - g\_{old}\\ the change in the gradient. The scalar step length
-a line search chooses is \\\alpha\\, a different quantity; the two are
+\\s = x\_{new} - x\_{old}\\ is the secant vector and \\y = g\_{new} -
+g\_{old}\\ the change in the gradient. The scalar step length that a
+line search returns is \\\alpha\\, a different quantity; the two are
 related by \\s = \alpha d\\ for the direction \\d\\.
 
 ## Why the line search is the strong Wolfe one
@@ -91,7 +91,7 @@ reasonable choice where evaluations are expensive.
 
 ## Skipping and resetting
 
-When the curvature condition fails, the update is **skipped**. A small
+When the curvature condition fails, the update is skipped. A small
 \\s^\top y\\ makes \\\rho = 1/s^\top y\\ very large, and one such update
 can destroy the accumulated approximation; skipping it keeps the
 previous matrix, which is still positive definite. After `max_skip`
@@ -143,7 +143,7 @@ minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
 #>   elapsed    : 3 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
-# Armijo instead of Wolfe: the update is skipped once here, the trace
+# With Armijo instead of Wolfe, the update is skipped once here, the trace
 # records it, and the run converges.
 a <- minimize(bfgs(line_search = armijo(), keep_trace = TRUE), rosen,
               c(-1.2, 1), gr = rg)
@@ -151,8 +151,8 @@ c(iterations = a@iterations, skips = sum(a@trace$safeguard == "bfgs update skipp
 #> iterations      skips 
 #>         39          1 
 
-# A curvature threshold that no pair can meet forces every update to be
-# skipped; the run exhausts its budget, and the trace names both
+# A curvature threshold that every pair fails to meet forces every update
+# to be skipped; the run exhausts its budget, and the trace names both
 # safeguards.
 b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
               gr = rg)

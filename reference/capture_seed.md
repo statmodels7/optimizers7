@@ -16,9 +16,9 @@ An integer vector, the value of `.Random.seed`.
 ## Details
 
 Assigning the recorded value back into the global environment reproduces
-the run. When no stream exists yet, one uniform is drawn to make R
-create one, which costs a single discarded number on the first
+the run. When `.Random.seed` does not exist yet, one uniform is drawn to
+make R create it, which costs a single discarded number on the first
 stochastic call of a session.
 
-The stream is **not** created with `set.seed(NULL)`, which reseeds from
-the clock and discards the seed that the caller had set.
+The stream is not created with `set.seed(NULL)`, which reseeds from the
+clock and discards the seed that the caller had set.

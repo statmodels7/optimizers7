@@ -1,9 +1,9 @@
 # Validate a Non-Negative Whole Number
 
-Checks that the value is a single whole number, zero included, no larger
-than `.Machine$integer.max`. Used where a count says how many of
-something to tolerate, so that zero means that none is tolerated: the
-`memory` of
+Checks that the value is a single whole number, including zero, no
+larger than `.Machine$integer.max`. It is used where a count gives how
+many of something are tolerated, so that zero means that every one is
+rejected: the `memory` of
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
 where zero makes the reference the current value and the search
 identical to

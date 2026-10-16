@@ -39,7 +39,7 @@ optimizer_result(
 
   The objective at `par`, a single number. For a run started by
   [`maximize()`](https://statmodels7.github.io/optimizers7/reference/maximize.md)
-  this is the value of the original objective, with the sign already
+  this is the value of the original objective, and its sign is already
   undone.
 
 - gradient:
@@ -91,8 +91,8 @@ optimizer_result(
 
 - elapsed:
 
-  Wall-clock seconds, a single number. Measured to the platform's clock
-  resolution, so a fast run can read exactly `0`.
+  Wall-clock seconds, a single number. The time is measured to the
+  platform's clock resolution, so a fast run can read exactly `0`.
 
 - seed:
 
@@ -109,9 +109,10 @@ a caller receives one and does not construct it.
 ## The meaning of `converged`
 
 `converged` is `TRUE` when the stopping rule was satisfied, and also
-when a line search with a declared resolution established that no step
-decreases the objective by more than that resolution (`criterion_met` is
-then `no decrease above the objective's resolution`) or when
+when a line search with a declared resolution established that every
+step fails to decrease the objective by more than that resolution
+(`criterion_met` is then `no decrease above the objective's resolution`)
+or when
 [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md)
 reduced its bracket to the resolution of the iterate
 (`bracket at machine resolution`). Running out of iterations or

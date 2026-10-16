@@ -1,10 +1,10 @@
 # S7 Class for Limited-Memory BFGS
 
-An optimizer holding the number of secant pairs to keep, the curvature
-threshold that a pair must meet to be stored, and the step length and
-the line search. Built by
-[`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md).
-The pairs themselves exist only inside the run.
+This class is an optimizer that holds the number of secant pairs to
+keep, the curvature threshold that a pair must meet to be stored, and
+the step length and the line search.
+[`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
+builds it. The pairs themselves exist only inside the run.
 
 ## Usage
 

@@ -1,6 +1,6 @@
 # The Two Phases of Brent's Method
 
-The body of
+This is the body of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 for a
 [Brent](https://statmodels7.github.io/optimizers7/reference/Brent-class.md)
@@ -36,6 +36,6 @@ brent_run(optimizer, spec, par, bounds)
 
 ## Value
 
-A list in the shape
+A list in the shape that
 [`build_result()`](https://statmodels7.github.io/optimizers7/reference/build_result.md)
 consumes.

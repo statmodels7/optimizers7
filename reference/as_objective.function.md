@@ -19,7 +19,7 @@ counts the evaluations, and the result reports them in `counts`.
 - he:
 
   A function of the parameter vector returning the Hessian, or `NULL`.
-  Read by
+  It is read by
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
   and
   [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md).

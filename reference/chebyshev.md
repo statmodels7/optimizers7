@@ -128,7 +128,7 @@ rosen_gr <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 rosen_he <- function(p) matrix(
   c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
     -400 * p[1], 200), 2, 2)
-# T[d, d] of Rosenbrock: the only third derivatives are
+# The example computes T[d, d] of Rosenbrock: the only third derivatives are
 # f_111 = 2400 p1 and f_112 = -400
 rosen_t3 <- function(p, d) c(2400 * p[1] * d[1]^2 - 800 * d[1] * d[2],
                              -400 * d[1]^2)

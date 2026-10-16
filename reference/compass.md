@@ -40,8 +40,8 @@ compass(
 - step:
 
   Initial poll size: `step` times the larger of 1 and the largest
-  absolute coordinate of the starting value. A single positive number,
-  default `0.1`.
+  absolute coordinate of the starting value. The value is a single
+  positive number and defaults to `0.1`.
 
 - directions:
 
@@ -52,17 +52,17 @@ compass(
 - opportunistic:
 
   Move to the first improvement found instead of polling every
-  direction? `TRUE` or `FALSE`, default `TRUE`.
+  direction? The value is `TRUE` or `FALSE` and defaults to `TRUE`.
 
 - expand:
 
-  Factor applied to the poll size after a success. A single number of at
-  least 1, default `2`.
+  Factor applied to the poll size after a success. The value is a single
+  number of at least 1 and defaults to `2`.
 
 - shrink:
 
-  Factor applied after a failure. A single number strictly inside \\(0,
-  1)\\, default `0.5`.
+  Factor applied after a failure. The value is a single number strictly
+  inside \\(0, 1)\\ and defaults to `0.5`.
 
 - maxit:
 
@@ -70,9 +70,9 @@ compass(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to `Inf`: no evaluation
-  budget, so the run stops on the criterion or on `maxit`. Set a finite
-  value to cap the cost of a run.
+  Maximum objective evaluations. Defaults to `Inf`, which sets no
+  evaluation budget, so the run stops on the criterion or on `maxit`.
+  Set a finite value to cap the cost of a run.
 
 - verbose:
 
@@ -117,14 +117,14 @@ radius goes to zero are stationary.
 
   a fresh random orthonormal basis at every poll, taken plus and minus.
 
-The choice decides the outcome on the problems for which the method is
+The choice determines the result on the problems for which the method is
 intended. Where \\f\\ is only Lipschitz, a *fixed* set of directions can
-fail: if a kink has a diagonal ridge, no coordinate direction descends
-it, so the poll fails at a point that is not stationary and the run
-stops there. On \\\lvert x_1 + x_2 \rvert + 0.1\lVert x \rVert^2\\,
-whose minimum is 0, coordinate polling from \\(1, 0.5)\\ stops at
-`0.05`, whereas the random poll reaches values several orders of
-magnitude lower, which depend on the seed (see the examples).
+fail: if a kink has a diagonal ridge, all the coordinate directions fail
+to descend it, so the poll fails at a point that is not stationary and
+the run stops there. On \\\lvert x_1 + x_2 \rvert + 0.1\lVert x
+\rVert^2\\, whose minimum is 0, coordinate polling from \\(1, 0.5)\\
+stops at `0.05`, whereas the random poll reaches values several orders
+of magnitude lower, which depend on the seed (see the examples).
 
 The remedy, which is the idea behind MADS, is to let the directions used
 over the whole run become dense in the sphere, so that every direction
@@ -174,7 +174,8 @@ compass()
 #>   budgets   : maxit 2000, evaluations Inf
 #>   settings  : step = 0.1, directions = mads, opportunistic = TRUE, expand = 2, shrink = 0.5
 
-# A kink along a diagonal, which no coordinate direction descends. The
+# The kink lies along a diagonal, and every coordinate direction fails to
+# descend it. The
 # true minimum is 0. Coordinate polling stops at the same wrong point every
 # time; the random poll passes it.
 f <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)

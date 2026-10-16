@@ -88,7 +88,7 @@ method, which finds the minimum.
 Both are themselves optimizers, so they combine with every method above
 and with each other. A multi-start reports the number of distinct
 optimal values reached from its starts; a chain runs its stages in
-order, each starting where the previous one finished.
+order, and each stage starts where the previous one finished.
 
 - [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
   : Run an Optimizer From Many Starting Points
@@ -176,13 +176,13 @@ The requirements on a new
 method, and the functions that help to meet them.
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 runs twelve checks on what an optimizer reports, and reports separately
-the gaps that it reaches on the test problems, since performance and
-correctness are different questions.
+the gaps that it reaches on the test problems, and these gaps do not
+enter the verdicts.
 
 - [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
   : S7 Class for Optimization Algorithms
 - [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-  : Reject a Stopping Rule an Optimizer Cannot Evaluate
+  : Reject a Stopping Rule That an Optimizer Cannot Evaluate
 - [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
   : Normalize Box Constraints
 - [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)

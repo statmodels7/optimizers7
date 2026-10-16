@@ -1,6 +1,7 @@
 # Whether an Optimizer Takes Box Bounds
 
-`TRUE` when the optimizer honors the `lower` and `upper` arguments of
+Returns `TRUE` when the optimizer applies the `lower` and `upper`
+arguments of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
 so that
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
@@ -37,8 +38,8 @@ second, conflicting way of imposing the same constraint.
 
 A wrapper returns the answer of what it contains.
 [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md)
-is bounded only when **every** stage is, since the bounds are passed to
-all of them, and
+is bounded only when every stage is, since the bounds are passed to all
+of them, and
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 returns the answer of its inner optimizer.
 
@@ -51,9 +52,9 @@ reads the declaration before its seventh check, so a method that returns
 [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md)
 for the other declaration generic,
 [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
-for what a method that answers `TRUE` receives,
+for what a method that returns `TRUE` receives,
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md)
-for the one that answers `FALSE`.
+for the one that returns `FALSE`.
 
 ## Examples
 

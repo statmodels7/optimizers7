@@ -50,5 +50,5 @@ plot(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g), log = "y")
 # Without a trace there is nothing to draw, and the error names the
 # missing argument.
 try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
-#> Error : No trace to plot; build the optimizer with keep_trace = TRUE.
+#> Error : Plotting needs a trace; build the optimizer with keep_trace = TRUE.
 ```

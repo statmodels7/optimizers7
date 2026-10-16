@@ -1,8 +1,8 @@
 # S7 Class for Convergence Criteria
 
-The abstract parent of every stopping rule. An optimizer carries one,
-and a caller may replace it, combine several, or write a new kind: a
-class that inherits from this one and has a method for
+A criterion is the abstract parent of every stopping rule. An optimizer
+carries one, and a caller may replace it, combine several, or write a
+new kind: a class that inherits from this one and has a method for
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
 is a stopping rule, and every algorithm in the package consults it.
 
@@ -35,7 +35,7 @@ needs a branch in the compiled loop.
 ## The two generics
 
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
-answers whether the run should stop, given the state of the iteration
+returns whether the run should stop, given the state of the iteration
 just completed.
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md)
 names the `state` components that the rule reads, so that an optimizer

@@ -16,7 +16,7 @@ radius, and shrink the radius when the poll fails in every direction.
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `gr` and `he` are accepted and ignored, the method using no
+  `gr` and `he` are accepted and ignored, since the method uses no
   derivative. Bounds are taken and removed by reparametrization.
 
 ## Value

@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,8 +83,8 @@ requires no change to the other two.</p>
 <p>The alternative to an object would be an argument that takes a
 string, with a <code>switch</code> inside every algorithm. That
 arrangement fixes the set of meanings of <em>finished</em> when the
-package is written, and the meaning of convergence determines what the
-reported answer is.</p>
+package is written. The meaning of convergence matters because it
+determines which point is reported as the answer.</p>
 <p>A criterion is one class and one method. The method receives the
 state of the iteration and returns a single logical:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -123,7 +123,7 @@ names the missing quantity:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="../reference/nelder_mead.html">nelder_mead</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="../reference/crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00; font-weight: bold;">Error</span><span style="font-weight: bold;">:</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> The stopping rule needs gradient, which nelder-mead does not provide.</span></span>
-<span><span class="co">#&gt;   Choose a criterion this optimizer can evaluate, or a method that provides it.</span></span></code></pre></div>
+<span><span class="co">#&gt;   Choose a criterion that this optimizer can evaluate, or a method that provides it.</span></span></code></pre></div>
 <p>A rule declares the components that it needs through
 <code><a href="../reference/crit_needs.html">crit_needs()</a></code>; a rule that reads only the objective, as
 <code>CritTiny</code> does, declares nothing:</p>
@@ -156,7 +156,7 @@ each pair of an algorithm and a kind of objective.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="../reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">counts</span></span>
 <span><span class="co">#&gt; f g h </span></span>
 <span><span class="co">#&gt; 3 3 0</span></span></code></pre></div>
-<p>With no gradient supplied, one is obtained by central differences,
+<p>If the call supplies no gradient, central differences provide one,
 and the result records it:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="../reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">message</span></span>
@@ -192,9 +192,9 @@ observations for <code><a href="../reference/adam.html">adam()</a></code> to sub
 require a second kind of objective, a rule for the stopping rules that
 it permits, a way of reporting which one is in force, and a branch in
 the compiled loop, for a task that the caller can do in one line, since
-the caller defines what an observation is. An optimizer with its own
-notion of an observation would not be a general optimizer, so the batch
-is drawn in the layer that defines observations.</p>
+the caller defines what an observation is. An optimizer that represented
+observations would not be a general optimizer, so the batch is drawn in
+the layer that defines observations.</p>
 <p>The resampling belongs <em>inside</em> the objective, not around the
 run. Calling <code>minimize(adam(maxit = 1), ...)</code> in a loop
 resets
@@ -304,7 +304,7 @@ instead of across it, and it is the precursor of the moment estimate in
 <p>The method sets <code>converged</code> itself: it is
 <code>TRUE</code> when the stopping rule fired and <code>FALSE</code>
 otherwise, including when the run ended on its iteration budget.</p>
-<p>On a quadratic:</p>
+<p>We run the method on a quadratic:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu">heavy_ball</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">par</span>, iterations <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">iterations</span>, converged <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">converged</span><span class="op">)</span></span>
@@ -315,30 +315,30 @@ otherwise, including when the run ended on its iteration budget.</p>
 <h2 id="checking-it">Checking it<a class="anchor" aria-label="anchor" href="#checking-it"></a>
 </h2>
 <p><code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> separates two questions: whether the
-optimizer satisfies the twelve numbered checks, and how
-<strong>powerful</strong> it is. A slow method is not a defective one:
-gradient descent does not solve Rosenbrock in five hundred iterations,
-and that is a property of the method.</p>
+optimizer satisfies the twelve numbered checks, and how powerful it is.
+A slow method can satisfy every requirement: gradient descent does not
+solve Rosenbrock in five hundred iterations, which is a property of the
+method.</p>
 <p>The numbered checks are therefore statements that every optimizer
 must satisfy, whatever its performance, and the battery below them is a
 table of gaps, reported as information and not as a verdict:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/check_optimizer.html">check_optimizer</a></span><span class="op">(</span><span class="fu">heavy_ball</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Checking optimizer: heavy ball</span></span>
-<span><span class="co">#&gt;   [ 1] value agrees with par:            [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 2] gradient agrees with par:         [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 3] convergence is not assumed:       [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 4] budgets are respected:            [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 5] evaluations are counted:          [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 6] trace is well formed:             [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 7] bounds are respected strictly:    [FAILED]</span></span>
-<span><span class="co">#&gt;   [ 8] the run repeats:                  [PASSED]</span></span>
-<span><span class="co">#&gt;   [ 9] maximize mirrors minimize:        [PASSED]</span></span>
-<span><span class="co">#&gt;   [10] an unevaluable rule is rejected:  [FAILED]</span></span>
-<span><span class="co">#&gt;   [11] a bad starting point is an error: [PASSED]</span></span>
-<span><span class="co">#&gt;   [12] it minimizes a quadratic:         [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 1] value agrees with par:                       [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 2] gradient agrees with par:                    [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 3] convergence is not assumed:                  [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 4] budgets are respected:                       [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 5] evaluations are counted:                     [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 6] trace is well formed:                        [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 7] bounds are respected strictly:               [FAILED]</span></span>
+<span><span class="co">#&gt;   [ 8] the run repeats:                             [PASSED]</span></span>
+<span><span class="co">#&gt;   [ 9] maximize mirrors minimize:                   [PASSED]</span></span>
+<span><span class="co">#&gt;   [10] a rule that cannot be evaluated is rejected: [FAILED]</span></span>
+<span><span class="co">#&gt;   [11] a bad starting point is an error:            [PASSED]</span></span>
+<span><span class="co">#&gt;   [12] it minimizes a quadratic:                    [PASSED]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   2 check(s) FAILED: bounds are respected strictly; an unevaluable rule is rejected</span></span>
+<span><span class="co">#&gt;   2 check(s) FAILED: bounds are respected strictly; a rule that cannot be evaluated is rejected</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   battery (gap from the known minimum; information, not a verdict)</span></span>
 <span><span class="co">#&gt;     sphere       gap  8.47e-18  conv      677 evals  </span></span>
@@ -354,18 +354,17 @@ length of 0.01 the iterate diverges on <code>rosenbrock</code> and
 <code>powell</code>, whose curvature varies by orders of magnitude, and
 the run does not converge on <code>rastrigin</code> and
 <code>abs_sum</code>. This is a property of heavy ball with a fixed
-step. <code><a href="../reference/bb.html">bb()</a></code>, which the package ships, has the same form with
-the step length estimated from the last secant pair, and it converges on
-all eight problems.</p>
+step. <code><a href="../reference/bb.html">bb()</a></code>, which the package ships, has the same form, but
+its step length is estimated from the last secant pair, and it converges
+on every problem of the battery.</p>
 <p>The two failed checks concern the method and not the algorithm: the
 method receives two arguments and does nothing with them, and it does
 not validate its stopping rule.</p>
-<p><strong>It ignores <code>lower</code> and
-<code>upper</code>.</strong> The signature includes them, since S7 warns
-when the formals of a method omit a named argument of the generic, and
-an argument that the author did not plan for is easily left unused. A
-caller then passes a box, gets no error, and receives an answer outside
-it.</p>
+<p>The method ignores <code>lower</code> and <code>upper</code>. The
+signature includes them, since S7 warns when the formals of a method
+omit a named argument of the generic, and an argument for which the
+author did not plan is easily left unused. A caller then passes a box,
+gets no error, and receives an answer outside it.</p>
 <p>Removing the box is a few lines, because <code><a href="../reference/check_bounds.html">check_bounds()</a></code>
 normalizes the two vectors into one pair per coordinate and
 <code><a href="../reference/bounded_transform.html">bounded_transform()</a></code> does the rest:</p>
@@ -398,14 +397,14 @@ normalizes the two vectors into one pair per coordinate and
 <span>    <span class="va">res</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><strong>It does not validate the stopping rule.</strong>
-<code><a href="../reference/check_criterion.html">check_criterion()</a></code> (marked (2)) is the line that rejects a
-rule that the method cannot evaluate, instead of accepting one that
-would test <code>NULL</code> at every iteration. The quantities that a
-method supplies are declared by <code><a href="../reference/optimizer_provides.html">optimizer_provides()</a></code>, whose
-default method returns <code>"gradient"</code>. This method computes the
-gradient, so the default is correct for it. A derivative-free method
-would need one line:</p>
+<p>The method does not validate the stopping rule. The line marked (2),
+<code><a href="../reference/check_criterion.html">check_criterion()</a></code>, rejects a rule that the method cannot
+evaluate, instead of accepting one that would test <code>NULL</code> at
+every iteration. The quantities that a method supplies are declared by
+<code><a href="../reference/optimizer_provides.html">optimizer_provides()</a></code>, whose default method returns
+<code>"gradient"</code>. This method computes the gradient, so the
+default is correct for it. A derivative-free method would need one
+line:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/method.html" class="external-link">method</a></span><span class="op">(</span><span class="va">optimizer_provides</span>, <span class="va">HeavyBall</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">optimizer</span><span class="op">)</span></span>
 <span>  <span class="st">"stationarity"</span></span></code></pre></div>
@@ -416,9 +415,10 @@ would need one line:</p>
 <span>                    verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">$</span><span class="va">checks</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p>The two repairs add the handling of bounds and the validation of the
-stopping rule, which the package requires of every optimizer. Neither
-omission affects a run without bounds and with a rule that the method
-can evaluate, and the numbered checks are written to detect both.</p>
+stopping rule, which the package requires of every optimizer. A run
+without bounds and with a rule that the method can evaluate is not
+affected by either omission, and the numbered checks are written to
+detect both.</p>
 </div>
 <div class="section level2">
 <h2 id="the-test-problems">The test problems<a class="anchor" aria-label="anchor" href="#the-test-problems"></a>
@@ -443,10 +443,10 @@ for writing any optimizer, not only those of this package:</p>
 <span><span class="co">#&gt; [1] 3.0 0.5</span></span>
 <span><span class="va">p</span><span class="op">$</span><span class="va">solution</span></span>
 <span><span class="co">#&gt; [1] 3.0 0.5</span></span></code></pre></div>
-<p>Two of them are marked <code>multimodal</code>: on them a local
-method that reaches a different minimum is behaving correctly. One is
-marked non-<code>smooth</code>: on it a method that assumes a derivative
-reaches the solution and cannot certify it:</p>
+<p>On the problems marked <code>multimodal</code>, a local method that
+reaches a different minimum is behaving correctly. On the problem marked
+non-<code>smooth</code>, a method that assumes a derivative reaches the
+solution and cannot certify it:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fu"><a href="../reference/test_problems.html">test_problems</a></span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>multimodal <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">multimodal</span>,</span>
 <span>                                      smooth <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">smooth</span><span class="op">)</span><span class="op">)</span></span>

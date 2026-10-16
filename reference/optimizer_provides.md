@@ -20,7 +20,7 @@ optimizer_provides(optimizer)
 
 ## Value
 
-A character vector of `state` component names. The two the shipped
+A character vector of `state` component names. The two that the shipped
 criteria read are `"gradient"` and `"stationarity"`.
 
 ## Details
@@ -53,16 +53,16 @@ a rule that reads the objective is accepted by every method.
 returns `"gradient"`, and its gradient is the proximal gradient mapping,
 which vanishes at a stationary point of the whole objective.
 
-The **default method** returns `"gradient"`, so an optimizer written
-outside the package declares a gradient unless it has a method of its
-own. The rejection relies on this declaration being accurate: a method
-that declares a gradient that it does not compute accepts a rule that
-can never fire.
+The default method returns `"gradient"`, so an optimizer written outside
+the package declares a gradient unless it has a method of its own. The
+rejection works only if the declaration is accurate: a method that
+declares a gradient that it does not compute accepts a rule that can
+never fire.
 
 ## See also
 
 [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md)
-for the rejection this feeds,
+for the rejection that this generic feeds,
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md)
 for the other half of the comparison,
 [`optimizer_bounded()`](https://statmodels7.github.io/optimizers7/reference/optimizer_bounded.md)
@@ -71,7 +71,7 @@ for the package's other declaration generic.
 ## Examples
 
 ``` r
-# The two answers, across the shipped methods.
+# The shipped methods give both answers.
 vapply(list(bfgs(), newton(), cg(), bb(), gd(), adam()),
        optimizer_provides, "")
 #> [1] "gradient" "gradient" "gradient" "gradient" "gradient" "gradient"

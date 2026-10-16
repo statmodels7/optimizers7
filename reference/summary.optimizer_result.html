@@ -17,7 +17,7 @@ bb curvature reset had secant pairs without usable curvature."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,8 +77,8 @@ repairing an indefinite Hessian, and a Barzilai-Borwein run that reports
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The safeguard table needs a trace, so the optimizer must have been built
 with <code>keep_trace = TRUE</code>. Without a trace the method prints what
-<code><a href="print.optimizer_result.html">print.optimizer_result()</a></code> prints. With a trace in which no safeguard
-fired, the output reads <code>safeguards : none fired</code>.</p>
+<code><a href="print.optimizer_result.html">print.optimizer_result()</a></code> prints. When every row of the trace has
+<code>safeguard</code> equal to <code>"none"</code>, the output reads <code>safeguards : none fired</code>.</p>
     </div>
 
     <div class="section level2">
@@ -87,7 +87,7 @@ fired, the output reads <code>safeguards : none fired</code>.</p>
 <span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span> <span class="op">-</span> <span class="fl">400</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                   <span class="fl">200</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span> <span class="op">-</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Newton on the curved valley: the line search shortens a few steps.</span></span></span>
+<span class="r-in"><span><span class="co"># On the curved valley the line search of newton() shortens a few steps.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="newton.html">newton</a></span><span class="op">(</span>keep_trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">g</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer_result&gt; Newton</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 3.74523e-21</span>
@@ -98,14 +98,14 @@ fired, the output reads <code>safeguards : none fired</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   safeguards :</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     step shortened: 4</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># On a quadratic no safeguard fires.</span></span></span>
+<span class="r-in"><span><span class="co"># On a quadratic the safeguards do not fire.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="newton.html">newton</a></span><span class="op">(</span>keep_trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                 <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer_result&gt; Newton</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 2   evaluations: f 47, g 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   note       : gradient obtained by finite differences</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   safeguards : none fired</span>

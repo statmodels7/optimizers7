@@ -11,7 +11,7 @@ lies inside the box."><meta property="og:image" content="https://statmodels7.git
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,9 +57,9 @@ lies inside the box.</p>
 
 
 <dl><dt id="arg-min-max">min, max<a class="anchor" aria-label="anchor" href="#arg-min-max"></a></dt>
-<dd><p>The range to draw from, in unconstrained units. Both default
-to a width of one either side of zero, and both may be given per parameter
-rather than as a single number.</p></dd>
+<dd><p>The range from which to draw, in unconstrained units. Both
+default to a width of one either side of zero, and both may be given per
+parameter rather than as a single number.</p></dd>
 
 
 <dt id="arg-npar">npar<a class="anchor" aria-label="anchor" href="#arg-npar"></a></dt>
@@ -84,7 +84,7 @@ and would sometimes be inadmissible.</p>
 spans <code>0.0067</code> to <code>148</code> for a positive parameter, four orders of
 magnitude, and every draw still lies inside the box.</p>
 <p>The draw uses the ordinary generator of <span style="R">R</span>, so <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproduces
-it. The draw is made before the optimizer starts, so the <code>seed</code> that a
+it. The starter draws the values before the optimizer starts, so the <code>seed</code> that a
 stochastic optimizer records does not reproduce the draw, and a
 deterministic optimizer records no <code>seed</code>.</p>
     </div>
@@ -102,13 +102,14 @@ generate its own starts.</p></div>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu">start_runif</span><span class="op">(</span>npar <span class="op">=</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2 3</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># What the range means on the parameter scale, for a positive parameter.</span></span></span>
+<span class="r-in"><span><span class="co"># The example shows what the range means on the parameter scale for a</span></span></span>
+<span class="r-in"><span><span class="co"># positive parameter.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="bounded_transform.html">bounded_transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">h</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3678794 2.7182818</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fu"><a href="bounded_transform.html">bounded_transform</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">h</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.737947e-03 1.484132e+02</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A wider net on a positive parameter whose scale is unknown.</span></span></span>
+<span class="r-in"><span><span class="co"># A wider net suits a positive parameter whose scale is unknown.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, <span class="fu">start_runif</span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">5</span>, npar <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>         lower <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>

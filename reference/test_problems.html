@@ -23,7 +23,7 @@ others."><meta property="og:image" content="https://statmodels7.github.io/optimi
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,8 +84,8 @@ that is not one of the eight raises an error listing the eight.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A named list, one element per problem, each itself a list of nine
-components:</p><dl><dt><code>name</code></dt>
+    <p>A named list with one element per problem, and each element is a
+list of nine components:</p><dl><dt><code>name</code></dt>
 <dd><p>character, the same as the element's name.</p></dd>
 
 <dt><code>fn</code></dt>
@@ -114,21 +114,20 @@ components:</p><dl><dt><code>name</code></dt>
 <code>rastrigin</code>.</p></dd>
 
 <dt><code>smooth</code></dt>
-<dd><p>logical, <code>FALSE</code> for <code>abs_sum</code> alone.</p></dd>
+<dd><p>logical, <code>FALSE</code> only for <code>abs_sum</code>.</p></dd>
 
 
 </dl></div>
     <div class="section level2">
     <h2 id="the-eight">The eight<a class="anchor" aria-label="anchor" href="#the-eight"></a></h2>
 
-<table class="table table"><tr><td><strong>name</strong></td><td><strong>p</strong></td><td><strong>start</strong></td><td><strong>what it tests</strong></td></tr><tr><td><code>sphere</code></td><td>3</td><td>(1.3, -0.7, 0.8)</td><td>no difficulty; a method that fails here is defective</td></tr><tr><td><code>rosenbrock</code></td><td>2</td><td>(-1.2, 1)</td><td>a curved valley, Hessian condition 2508 at the solution</td></tr><tr><td><code>booth</code></td><td>2</td><td>(0, 0)</td><td>a well-conditioned quadratic written as a sum of squares</td></tr><tr><td><code>beale</code></td><td>2</td><td>(1, 1)</td><td>a narrow valley, Hessian condition 162</td></tr><tr><td><code>powell</code></td><td>4</td><td>(3, -1, 0, 1)</td><td>a <strong>singular</strong> Hessian at the solution</td></tr><tr><td><code>himmelblau</code></td><td>2</td><td>(0, 0)</td><td>four minima, all of value zero</td></tr><tr><td><code>rastrigin</code></td><td>2</td><td>(0.4, -0.4)</td><td>121 local minima on the usual box</td></tr><tr><td><code>abs_sum</code></td><td>3</td><td>(0, 0, 0)</td><td>a kink at the solution itself</td></tr></table><p>The starting points are the customary ones, which for <code>rosenbrock</code> and
+<table class="table table"><tr><td>name</td><td>p</td><td>start</td><td>what it tests</td></tr><tr><td><code>sphere</code></td><td>3</td><td>(1.3, -0.7, 0.8)</td><td>no difficulty; a method that fails here is defective</td></tr><tr><td><code>rosenbrock</code></td><td>2</td><td>(-1.2, 1)</td><td>a curved valley, Hessian condition 2508 at the solution</td></tr><tr><td><code>booth</code></td><td>2</td><td>(0, 0)</td><td>a well-conditioned quadratic written as a sum of squares</td></tr><tr><td><code>beale</code></td><td>2</td><td>(1, 1)</td><td>a narrow valley, Hessian condition 162</td></tr><tr><td><code>powell</code></td><td>4</td><td>(3, -1, 0, 1)</td><td>a singular Hessian at the solution</td></tr><tr><td><code>himmelblau</code></td><td>2</td><td>(0, 0)</td><td>four minima, all of value zero</td></tr><tr><td><code>rastrigin</code></td><td>2</td><td>(0.4, -0.4)</td><td>121 local minima on the usual box</td></tr><tr><td><code>abs_sum</code></td><td>3</td><td>(0, 0, 0)</td><td>a kink at the solution itself</td></tr></table><p>The starting points are the customary ones, which for <code>rosenbrock</code> and
 <code>powell</code> are the difficult points for which those functions were
-designed. The two hardest problems are hard for opposite reasons. The
-Hessian of <code>powell</code> at the origin has eigenvalues 202, 20, 0 and 0, so a
-second-order method has no curvature in two of its four directions and
-converges linearly where it usually converges quadratically. <code>rastrigin</code>
-has 121 local minima on the usual box, so the answer depends on the point
-at which the run began.</p>
+designed. The Hessian of <code>powell</code> at the origin has eigenvalues 202, 20, 0
+and 0, so a second-order method has no curvature in two of its four
+directions and converges linearly where it usually converges
+quadratically. <code>rastrigin</code>, by contrast, has 121 local minima on the usual
+box, so the answer depends on the point at which the run began.</p>
     </div>
     <div class="section level2">
     <h2 id="the-two-flags">The two flags<a class="anchor" aria-label="anchor" href="#the-two-flags"></a></h2>
@@ -137,7 +136,7 @@ method that reaches a different minimum there is behaving correctly, and
 comparing its point with <code>solution</code> would report a failure where there is
 none. <code><a href="check_optimizer.html">check_optimizer()</a></code> therefore scores every problem on the value
 reached and labels these two in its <code>note</code> column.</p>
-<p><code>smooth</code> is <code>FALSE</code> for <code>abs_sum</code> alone. Its gradient at the solution is
+<p><code>smooth</code> is <code>FALSE</code> only for <code>abs_sum</code>. Its gradient at the solution is
 exactly zero, because <code>sign(0)</code> is zero, and at every neighboring point
 the subgradient has max-norm one. A method that tests \(\nabla f\)
 therefore reaches the solution without being able to certify it, unless
@@ -150,8 +149,8 @@ report a measure of their own instead, tested by <code><a href="crit_stationary.
 definite amount, and near a minimum that decrease is about
 \(\lVert g \rVert^{2} / (2\lambda)\) for a curvature \(\lambda\).
 Once it falls below the rounding error of the objective, about
-\(\varepsilon \lvert f \rvert\), no step can be verified and the search
-rejects all of them. The smallest gradient that a run can reach is
+\(\varepsilon \lvert f \rvert\), the search cannot verify a trial step
+and rejects every one. The smallest gradient that a run can reach is
 therefore of order</p>
 <p>$$\lVert g \rVert_{\text{floor}} \approx
   \sqrt{2 \lambda \varepsilon \lvert f(x^{\ast}) \rvert},$$</p>
@@ -212,7 +211,7 @@ non-smooth methods.</p></div>
 <span class="r-in"><span><span class="co"># A name that is not one of the eight is rejected, and the message lists</span></span></span>
 <span class="r-in"><span><span class="co"># them.</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">test_problems</span><span class="op">(</span><span class="st">"banana"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Error : No such test problem: banana. Available: sphere, rosenbrock, booth, beale, powell, himmelblau, rastrigin, abs_sum</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error : There is no test problem named banana. The available problems are sphere, rosenbrock, booth, beale, powell, himmelblau, rastrigin, abs_sum</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

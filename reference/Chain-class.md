@@ -1,10 +1,11 @@
 # S7 Class for a Sequence of Optimizers
 
-An optimizer holding a list of optimizers to be run in order, each from
-the point the previous one reached. Built by
+A `Chain` object is an optimizer that holds a list of optimizers to be
+run in order, each from the point that the previous one reached. It is
+built by
 [`chain()`](https://statmodels7.github.io/optimizers7/reference/chain.md).
 Because it inherits from
-[`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
+[`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
 it is accepted anywhere a single method is, including inside
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md).
 
@@ -29,7 +30,7 @@ Chain(
 
   A list of
   [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
-  objects, in the order they run.
+  objects, in the order in which they run.
 
 ## Value
 
@@ -41,7 +42,7 @@ with the property `stages` beside the seven shared ones.
 
 Beyond the seven properties of every optimizer, a `Chain` carries
 `stages`, the list of optimizers in running order. Three of the seven
-shared properties describe the **last** stage: `criterion`, `maxit` and
+shared properties describe the last stage: `criterion`, `maxit` and
 `max_eval` are copied from it, because the rule of the last stage ends
 the run and its result is reported. `name` joins the names of all the
 stages, `verbose` and `keep_trace` belong to the chain, and `refresh` is

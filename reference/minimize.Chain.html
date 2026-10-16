@@ -13,7 +13,7 @@ starting point changes."><meta property="og:image" content="https://statmodels7.
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,9 +60,9 @@ starting point changes.</p>
 
 
 <dt id="arg-fn-par-gr-he-lower-upper-">fn, par, gr, he, lower, upper, ...<a class="anchor" aria-label="anchor" href="#arg-fn-par-gr-he-lower-upper-"></a></dt>
-<dd><p>As in <code><a href="minimize.html">minimize()</a></code>. Passed to every
-stage as given, with <code>par</code> replaced by the answer of the previous
-stage.</p></dd>
+<dd><p>As in <code><a href="minimize.html">minimize()</a></code>. They are passed to
+every stage as given, except that <code>par</code> is replaced by the answer of the
+previous stage.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -70,17 +70,16 @@ stage.</p></dd>
     <p>An <code><a href="optimizer_result.html">optimizer_result()</a></code> with the point, value, gradient,
 iteration count and verdict of the last stage, the summed evaluation
 counts, the stacked trace and the elapsed time of the whole chain. <code>seed</code>
-is that of the <strong>first</strong> stage, since a repeat of the chain has to start
+is that of the first stage, since a repeat of the chain has to start
 from that state.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Two things happen before the first stage runs. The stopping rule of every
-stage is checked by <code><a href="check_criterion.html">check_criterion()</a></code>, so a chain whose last stage
-cannot evaluate its own rule fails without running the earlier ones. And
-the gradient check is switched off for the stages, since the generic has
-already made it at the <code>par</code> of the caller; without that, the same warning
-would be printed once per stage.</p>
+    <p>Before the first stage runs, <code><a href="check_criterion.html">check_criterion()</a></code> checks the stopping rule
+of every stage, so a chain whose last stage cannot evaluate its own rule
+fails without running the earlier ones. The gradient check is also switched
+off for the stages, since the generic has already made it at the <code>par</code> of
+the caller; without that, the same warning would be printed once per stage.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

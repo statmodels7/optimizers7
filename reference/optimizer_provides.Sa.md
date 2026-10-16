@@ -34,5 +34,5 @@ optimizer_provides(sa())
 rastrigin <- function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p))
 try(minimize(sa(criterion = crit_grad()), rastrigin, c(1, 1)))
 #> Error : The stopping rule needs gradient, which simulated annealing (uniform) does not provide.
-#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
+#>   Choose a criterion that this optimizer can evaluate, or a method that provides it.
 ```

@@ -16,9 +16,10 @@ capitals.
 
 - digits:
 
-  Decimal places the parameters are rounded to. A single non-negative
-  whole number, default 4. Anything else raises an error. The objective
-  value is not affected: it always prints to six significant figures.
+  Number of decimal places to which the parameters are rounded. It must
+  be a single non-negative whole number, and the default is 4. Any other
+  value raises an error. The objective value is not affected: it always
+  prints to six significant figures.
 
 - max_par:
 
@@ -42,7 +43,7 @@ res
 #>   value      : 2.80957e-22
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 print(res, digits = 2, max_par = 1)
@@ -50,7 +51,7 @@ print(res, digits = 2, max_par = 1)
 #>   value      : 2.80957e-22
 #>   par        : 1 ... (1 of 2 shown)
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 

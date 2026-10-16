@@ -33,6 +33,7 @@ rebuilt.
 ## Details
 
 A `simplex` supplied on the optimizer is checked here against the
-starting value, since only now is the number of parameters known: it
-must have \\p+1\\ rows and \\p\\ columns, and a mismatch is rejected
-with an error that states the required numbers of rows and columns.
+starting value, because the number of parameters is known only at this
+point: it must have \\p+1\\ rows and \\p\\ columns, and a mismatch is
+rejected with an error whose message gives the required numbers of rows
+and columns.

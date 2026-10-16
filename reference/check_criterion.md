@@ -1,4 +1,4 @@
-# Reject a Stopping Rule an Optimizer Cannot Evaluate
+# Reject a Stopping Rule That an Optimizer Cannot Evaluate
 
 Compares the quantities that the criterion of the optimizer reads with
 the quantities that the optimizer supplies, and signals an error if the
@@ -48,5 +48,5 @@ computes no gradient.
 check_criterion(bfgs())
 try(check_criterion(nelder_mead(criterion = crit_grad())))
 #> Error : The stopping rule needs gradient, which nelder-mead does not provide.
-#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
+#>   Choose a criterion that this optimizer can evaluate, or a method that provides it.
 ```

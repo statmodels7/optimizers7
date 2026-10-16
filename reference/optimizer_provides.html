@@ -11,7 +11,7 @@ evaluate."><meta property="og:image" content="https://statmodels7.github.io/opti
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,8 +62,8 @@ evaluate.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A character vector of <code>state</code> component names. The two the shipped
-criteria read are <code>"gradient"</code> and <code>"stationarity"</code>.</p>
+    <p>A character vector of <code>state</code> component names. The two that the
+shipped criteria read are <code>"gradient"</code> and <code>"stationarity"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -79,22 +79,22 @@ kink.</p>
 rule that reads the objective is accepted by every method. <code><a href="prox_grad.html">prox_grad()</a></code>
 returns <code>"gradient"</code>, and its gradient is the proximal gradient mapping,
 which vanishes at a stationary point of the whole objective.</p>
-<p>The <strong>default method</strong> returns <code>"gradient"</code>, so an optimizer written
+<p>The default method returns <code>"gradient"</code>, so an optimizer written
 outside the package declares a gradient unless it has a method of its
-own. The rejection relies on this declaration being accurate: a method
+own. The rejection works only if the declaration is accurate: a method
 that declares a gradient that it does not compute accepts a rule that can
 never fire.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="check_criterion.html">check_criterion()</a></code> for the rejection this feeds, <code><a href="crit_needs.html">crit_needs()</a></code>
-for the other half of the comparison, <code><a href="optimizer_bounded.html">optimizer_bounded()</a></code> for the
-package's other declaration generic.</p></div>
+    <div class="dont-index"><p><code><a href="check_criterion.html">check_criterion()</a></code> for the rejection that this generic feeds,
+<code><a href="crit_needs.html">crit_needs()</a></code> for the other half of the comparison,
+<code><a href="optimizer_bounded.html">optimizer_bounded()</a></code> for the package's other declaration generic.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The two answers, across the shipped methods.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The shipped methods give both answers.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="newton.html">newton</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="cg.html">cg</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="bb.html">bb</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="gd.html">gd</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="adam.html">adam</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>       <span class="va">optimizer_provides</span>, <span class="st">""</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "gradient" "gradient" "gradient" "gradient" "gradient" "gradient"</span>

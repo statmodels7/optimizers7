@@ -1,12 +1,12 @@
 # Run an Optimizer From Many Starting Points
 
 Wraps any optimizer and runs it from several starting points, returning
-the best result together with the number of **distinct optimal values**
+the best result together with the number of distinct optimal values
 reached. Two runs count as reaching the same optimum when their
 objective values differ by at most `distinct_tol`. A count above one
 shows that the surface has more than one local minimum; a count of one
-does not exclude other minima with the same value or minima that no
-start reached.
+does not exclude other minima with the same value or minima that all the
+starts missed.
 
 ## Usage
 
@@ -46,8 +46,8 @@ multistart(
   An optional matrix of starting points, one per row, used verbatim; `n`
   and `spread` are then ignored and `n` is taken from the number of
   rows. A matrix whose number of columns differs from the length of
-  `par` is rejected when the run starts, with an error that states the
-  required number of columns.
+  `par` is rejected when the run starts, with an error whose message
+  gives the required number of columns.
 
 - spread:
 
@@ -56,10 +56,10 @@ multistart(
 
 - ncores:
 
-  How many processes to spread the starts over. Defaults to `NULL`,
-  meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass `1` for a
-  sequential run. For a deterministic inner optimizer the answer does
-  not depend on the value; for a stochastic one, such as
+  The number of processes over which to spread the starts. Defaults to
+  `NULL`, meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass
+  `1` for a sequential run. For a deterministic inner optimizer the
+  answer does not depend on the value; for a stochastic one, such as
   [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md),
   it does.
 
@@ -80,8 +80,8 @@ multistart(
 - keep_trace:
 
   Keep the per-start summary? Defaults to `TRUE`, unlike every other
-  optimizer, because here the trace is one row per **start**, not one
-  per iteration.
+  optimizer, because here the trace is one row per start, not one per
+  iteration.
 
 ## Value
 
@@ -115,19 +115,19 @@ Unless `starts` is given, the first starting point is `par`, and the
 remaining \\n - 1\\ form a Latin hypercube: the range of each coordinate
 is divided into equal strata and each stratum is used exactly once,
 which spreads the starts more evenly than independent draws. They are
-generated on the **unconstrained** scale and mapped back through the
-bounds, so every start is admissible by construction, however tight the
-box. The rows of a matrix given in `starts` are not checked against the
-bounds in advance: a row outside the box fails in its own run and is
-recorded as a failed start.
+generated on the unconstrained scale and mapped back through the bounds,
+so every start is admissible by construction, however tight the box. The
+rows of a matrix given in `starts` are not checked against the bounds in
+advance: a row outside the box fails in its own run and is recorded as a
+failed start.
 
 ## Parallel execution
 
 The starts are independent and are run over `ncores` processes. The
-creation of the workers, the loading of the package, the assignment of
-random streams and the shutdown are handled internally: on Unix-alikes
-the workers are forks, on Windows they form a socket cluster. If the
-workers cannot load optimizers7, the run gives a warning and proceeds
+function creates the workers, loads the package, assigns the random
+streams and shuts the workers down internally: on Unix-alikes the
+workers are forks, on Windows they form a socket cluster. If the workers
+cannot load optimizers7, the run gives a warning and proceeds
 sequentially. If optimizers7 was loaded from source with pkgload, the
 starts are run sequentially on every platform, without a warning,
 because a worker would load an installed copy of the package instead of
@@ -153,8 +153,8 @@ therefore on `ncores`.
 
 A start where the objective is undefined is recorded as failed and the
 others proceed; the `message` then reports how many succeeded and quotes
-the first failure. An error is raised only when **every** start fails,
-and it quotes the first error.
+the first failure. An error is raised only when every start fails, and
+it quotes the first error.
 
 ## References
 
@@ -180,7 +180,7 @@ multistart(bfgs())
 #>   budgets   : maxit 10, evaluations Inf
 #>   settings  : optimizer = BFGS, n = 10, starts = <NULL>, spread = 1, ncores = <NULL>, distinct_tol = 1e-06
 
-# A surface with two minima, one of them lower. A single run from the
+# The surface has two minima, and one of them is lower. A single run from the
 # origin finds the lower one; the count shows that there is another.
 f <- function(p) (p[1]^2 - 1)^2 + p[2]^2 + 0.3 * p[1]
 set.seed(1)

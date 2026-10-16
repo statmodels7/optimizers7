@@ -1,11 +1,11 @@
 # S7 Class for the Strong Wolfe Line Search
 
-A line search that brackets a step satisfying both Wolfe conditions and
-then bisects inside the bracket. Built by
-[`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md).
-It evaluates the **gradient** at trial points as well as the objective,
-which is the cost of the curvature condition that a quasi-Newton method
-needs.
+This class is a line search that brackets a step satisfying both Wolfe
+conditions and then bisects inside the bracket.
+[`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
+builds it. The search evaluates the gradient at trial points as well as
+the objective, which is the cost of the curvature condition that a
+quasi-Newton method needs.
 
 ## Usage
 
@@ -31,7 +31,7 @@ WolfeSearch(
 
 - max_step:
 
-  The most trial steps allowed in each phase. A **count**.
+  The most trial steps allowed in each phase. It is a count.
 
 - resolution:
 

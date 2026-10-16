@@ -1,8 +1,8 @@
 # Whether a Chain Takes Box Bounds
 
-`TRUE` when every stage takes bounds, `FALSE` otherwise. The bounds are
-passed to all of them, so a single stage that does not take them makes
-the whole chain unable to take them.
+Returns `TRUE` when every stage takes bounds and `FALSE` otherwise. The
+bounds are passed to all of them, so a single stage that does not take
+them makes the whole chain unable to take them.
 
 ## Arguments
 
@@ -20,7 +20,7 @@ A single logical.
 is the only shipped method that returns `FALSE`: it takes its constraint
 inside the proximal operator, where the constraint combines with the
 penalty. A chain that contains it therefore does not take bounds,
-whatever its other stages.
+whichever other stages it has.
 
 ## Examples
 

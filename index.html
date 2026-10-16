@@ -32,7 +32,7 @@
 
     <a class="navbar-brand me-2" href="index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,8 +70,8 @@
 </h1>
 </div>
 <p>Almost every R package that fits a model carries its own optimizer, written inside the function that needs it: a loop, a <code>while (!converged)</code>, a tolerance compared with a quantity chosen by the author. Such an optimizer cannot be reused or extended outside the package, and it provides only the quantities that its author needed. The stopping rule, which defines what the procedure means by <em>finished</em>, is usually a constant deep inside the code.</p>
-<p><a href="https://statmodels7.github.io/optimizers7/">optimizers7</a> writes optimizers once, as objects. An optimizer carries its algorithm and every setting of that algorithm; a stopping rule is a separate object that can be replaced, combined, or written by the user; and every algorithm is written once against one interface for the objective.</p>
-<p>The package minimizes the function that it is given, with no notion of an observation, of the origin of the data, or of the meaning of the parameters. Those belong to the calling package.</p>
+<p>In <a href="https://statmodels7.github.io/optimizers7/">optimizers7</a>, each optimizer is written once, as an object. An optimizer carries its algorithm and every setting of that algorithm; a stopping rule is a separate object that can be replaced, combined, or written by the user; and every algorithm is written once against one interface for the objective.</p>
+<p>The package minimizes the function that it is given, and it does not represent observations, the origin of the data or the meaning of the parameters. Those belong to the calling package.</p>
 <p>It is the optimization layer of <a href="https://statmodels7.github.io" class="external-link">statmodels7</a>, alongside <a href="https://statmodels7.github.io/linkfunctions7/" class="external-link">linkfunctions7</a> and <a href="https://statmodels7.github.io/distributions7/" class="external-link">distributions7</a>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -79,7 +79,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"statmodels7/optimizers7"</span><span class="op">)</span></span></code></pre></div>
-<p>Or the whole toolkit at once, which also installs the other packages of the toolkit:</p>
+<p>To install the whole toolkit, including the other packages of the toolkit, use:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"statmodels7/statmodels7"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -125,7 +125,7 @@
 <span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu">CritTiny</span><span class="op">(</span>label <span class="op">=</span> <span class="st">"f &lt; 1e-8"</span>, tol <span class="op">=</span> <span class="fl">1e-8</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>         <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">criterion_met</span></span>
 <span><span class="co">#&gt; [1] "f &lt; 1e-8"</span></span></code></pre></div>
-<p>A rule that an optimizer cannot evaluate is <strong>rejected</strong> when the run starts, with an error that names the missing quantity, instead of being accepted and never firing:</p>
+<p>A rule that an optimizer cannot evaluate is rejected when the run starts, with an error that names the missing quantity, instead of being accepted and never firing:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="reference/nelder_mead.html">nelder_mead</a></span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="reference/crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error:</span></span>
@@ -179,7 +179,7 @@
 <span><span class="co">#&gt; 0.06462703 0.06462703</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="what-is-here">What is here<a class="anchor" aria-label="anchor" href="#what-is-here"></a>
+<h2 id="components-of-the-package">Components of the package<a class="anchor" aria-label="anchor" href="#components-of-the-package"></a>
 </h2>
 <table class="table">
 <colgroup>
@@ -255,12 +255,12 @@
 </tbody>
 </table>
 <p>Every method counts its own evaluations, records in its trace the safeguards that fired, and sets <code>converged</code> only when the run ended on its stopping rule (or on the resolution of the objective), never because a budget ran out.</p>
-<p><code><a href="reference/multistart.html">multistart()</a></code> runs its starts in parallel without any setup: <code>ncores</code> is a number, by default as many processes as there are starts and at most the number of cores minus two. Starting the workers, loading the package on them, giving each an independent random stream and shutting them down happen inside the call. The implementation uses forks on Linux and macOS and a socket cluster on Windows. For a deterministic optimizer such as <code><a href="reference/bfgs.html">bfgs()</a></code>, <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproduces the run identically however many cores were used; for a stochastic one such as <code><a href="reference/sa.html">sa()</a></code> the result depends on <code>ncores</code>.</p>
+<p><code><a href="reference/multistart.html">multistart()</a></code> runs its starts in parallel without any setup: <code>ncores</code> is a number, by default as many processes as there are starts and at most the number of cores minus two. The call itself starts the workers, loads the package on them, gives each of them an independent random stream and shuts them down. The implementation uses forks on Linux and macOS and a socket cluster on Windows. For a deterministic optimizer such as <code><a href="reference/bfgs.html">bfgs()</a></code>, <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> reproduces the run identically however many cores were used; for a stochastic one such as <code><a href="reference/sa.html">sa()</a></code> the result depends on <code>ncores</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="validating-an-optimizer">Validating an optimizer<a class="anchor" aria-label="anchor" href="#validating-an-optimizer"></a>
 </h2>
-<p><code><a href="reference/check_optimizer.html">check_optimizer()</a></code> runs twelve checks on what an optimizer reports: that <code>value</code> is the objective at <code>par</code>, that a reported gradient is the gradient there, that bounds hold <em>strictly</em>, that a run repeats, and others. It then reports, separately, the gaps that the method reached on the standard test problems, because performance and correctness are different questions:</p>
+<p><code><a href="reference/check_optimizer.html">check_optimizer()</a></code> runs twelve checks on what an optimizer reports: that <code>value</code> is the objective at <code>par</code>, that a reported gradient is the gradient there, that bounds hold <em>strictly</em>, that a run repeats, and others. It then reports, separately, the gaps that the method reached on the standard test problems; these gaps measure performance and do not enter the verdicts:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/check_optimizer.html">check_optimizer</a></span><span class="op">(</span><span class="fu"><a href="reference/bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Checking optimizer: BFGS</span></span>

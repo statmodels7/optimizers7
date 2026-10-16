@@ -3,7 +3,8 @@
 Maps a parameter from inside its bounds to the unconstrained scale: the
 inverse of
 [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)'s
-`h`, and what a starting value goes through before an unconstrained run.
+`h`, and the map applied to a starting value before an unconstrained
+run.
 
 ## Usage
 
@@ -25,12 +26,12 @@ bounded_forward(b, theta)
 
 A numeric vector on the unconstrained scale, as long as `theta`. A value
 on or outside a bound gives an infinite or `NaN` entry rather than an
-error, the check belonging to
+error; the check belongs to
 [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md).
 
 ## Details
 
-The values must lie strictly inside. A value **on** a bound maps to an
+The values must lie strictly inside. A value on a bound maps to an
 infinite \\\eta\\, so a run started there would begin at infinity and
 fail far from its cause. For this reason
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
@@ -57,7 +58,7 @@ bounded_forward(c(0, 1), 0.5)
 bounded_forward(c(0, 1), c(0, 1))
 #> [1] -Inf  Inf
 
-# Round trip, in this direction too.
+# The round trip also holds in this direction.
 eta <- c(-2, 0, 3)
 all.equal(bounded_forward(c(0, Inf), bounded_transform(c(0, Inf), eta)$h),
           eta)

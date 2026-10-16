@@ -9,7 +9,7 @@ unconstrained scale."><meta property="og:image" content="https://statmodels7.git
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ unconstrained scale."><meta property="og:image" content="https://statmodels7.git
 
     <div class="ref-description section level2">
     <p>Turns a starter into an actual numeric vector of length <code>npar</code>, on the
-<strong>unconstrained</strong> scale.</p>
+unconstrained scale.</p>
     </div>
 
     <div class="section level2">
@@ -59,7 +59,7 @@ object, or a user-defined starter.</p></dd>
 
 
 <dt id="arg-npar">npar<a class="anchor" aria-label="anchor" href="#arg-npar"></a></dt>
-<dd><p>The number of parameters wanted.</p></dd>
+<dd><p>The number of parameters in the vector to produce.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -80,8 +80,8 @@ the argument, not <code>starter@npar</code>.</p>
 <p>The two shipped starters are <code><a href="start_zeros.html">start_zeros()</a></code> and <code><a href="start_runif.html">start_runif()</a></code>. A
 starter of a third kind is a subclass of the abstract <a href="starter-class.html">starter</a> class with
 a method for this generic and nothing else, and <code><a href="minimize.html">minimize()</a></code> then accepts
-it as <code>par</code> like either shipped one. The parent class matters:
-<code><a href="minimize.html">minimize()</a></code> accepts as <code>par</code> a numeric vector or an object that inherits
+it as <code>par</code> like either shipped one. The new class has to inherit from
+<a href="starter-class.html">starter</a>, because <code><a href="minimize.html">minimize()</a></code> accepts as <code>par</code> a numeric vector or an object that inherits
 from <a href="starter-class.html">starter</a>, so a class that has a method for this generic but does
 not inherit from <a href="starter-class.html">starter</a> is rejected with the error <code>'par' must be a numeric vector of starting values</code>.</p>
     </div>
@@ -89,7 +89,7 @@ not inherit from <a href="starter-class.html">starter</a> is rejected with the e
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="start_zeros.html">start_zeros()</a></code> and <code><a href="start_runif.html">start_runif()</a></code> for the two shipped starters,
 <code><a href="minimize.html">minimize()</a></code> for where the resolution happens, <code><a href="infer_npar.html">infer_npar()</a></code> for how
-<code>npar</code> is worked out when nothing declares it.</p></div>
+<code>npar</code> is determined when it is not declared.</p></div>
     </div>
 
     <div class="section level2">

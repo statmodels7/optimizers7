@@ -32,8 +32,8 @@ maximize(
 
 - fn:
 
-  The objective, a **plain function** of the parameter vector returning
-  a single number, to be maximized. Unlike
+  The objective, a plain function of the parameter vector returning a
+  single number, to be maximized. Unlike
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
   an object of another class is rejected and not passed to
   [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md);
@@ -54,11 +54,12 @@ maximize(
 
 - he:
 
-  The Hessian of `fn` as written, or `NULL`. Negated here too, and read
-  only by
+  The Hessian of `fn` as written, or `NULL`. It is negated here too, and
+  only
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
   and
-  [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md).
+  [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+  read it.
 
 - lower, upper:
 
@@ -80,10 +81,10 @@ maximize(
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-with the same twelve properties
+with the same twelve properties that
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-returns, and with `value`, `gradient` and `trace$value` referring to
-`fn` as written.
+returns, in which `value`, `gradient` and `trace$value` refer to `fn` as
+written.
 
 ## Details
 
@@ -97,7 +98,7 @@ have their sign restored. The other properties of the result pass
 through unchanged: `counts`, `iterations`, `converged`, `criterion_met`
 and the optimizer.
 
-The rule named in `criterion_met` was evaluated on the **negated**
+The rule named in `criterion_met` was evaluated on the negated
 objective. Each shipped rule gives the same verdict on \\f\\ and on
 \\-f\\, since each reads a gradient norm, an absolute change or a
 relative change.
@@ -115,7 +116,7 @@ and it cannot negate an object whose evaluation it does not perform.
 ## Examples
 
 ``` r
-# A log-likelihood: the normal mean, maximized directly.
+# A log-likelihood for the normal mean is maximized directly.
 set.seed(1)
 y <- rnorm(200, mean = 3)
 ll <- function(p) sum(dnorm(y, mean = p, log = TRUE))

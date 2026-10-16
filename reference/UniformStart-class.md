@@ -1,9 +1,9 @@
 # S7 Class for the Uniform Starter
 
-A starter that draws each coordinate independently from a uniform on the
-unconstrained scale. Built by
+A `UniformStart` object draws each coordinate independently from a
+uniform on the unconstrained scale. It is built by
 [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md).
-It adds `min` and `max` to the `npar` the abstract
+It adds `min` and `max` to the `npar` that the abstract
 [starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
 class carries; either may be one number or one per parameter.
 
@@ -21,7 +21,7 @@ UniformStart(npar = NULL, min = integer(0), max = integer(0))
 
 - min, max:
 
-  The range drawn from, in unconstrained units.
+  The range from which each coordinate is drawn, in unconstrained units.
 
 ## Value
 

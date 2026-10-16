@@ -14,9 +14,9 @@ start_runif(min = -1, max = 1, npar = NULL)
 
 - min, max:
 
-  The range to draw from, in unconstrained units. Both default to a
-  width of one either side of zero, and both may be given per parameter
-  rather than as a single number.
+  The range from which to draw, in unconstrained units. Both default to
+  a width of one either side of zero, and both may be given per
+  parameter rather than as a single number.
 
 - npar:
 
@@ -47,8 +47,8 @@ magnitude, and every draw still lies inside the box.
 
 The draw uses the ordinary generator of R, so
 [`set.seed()`](https://rdrr.io/r/base/Random.html) reproduces it. The
-draw is made before the optimizer starts, so the `seed` that a
-stochastic optimizer records does not reproduce the draw, and a
+starter draws the values before the optimizer starts, so the `seed` that
+a stochastic optimizer records does not reproduce the draw, and a
 deterministic optimizer records no `seed`.
 
 ## See also
@@ -68,13 +68,14 @@ set.seed(1)
 minimize(bfgs(), f, start_runif(npar = 3))@par
 #> [1] 1 2 3
 
-# What the range means on the parameter scale, for a positive parameter.
+# The example shows what the range means on the parameter scale for a
+# positive parameter.
 range(bounded_transform(c(0, Inf), c(-1, 1))$h)
 #> [1] 0.3678794 2.7182818
 range(bounded_transform(c(0, Inf), c(-5, 5))$h)
 #> [1] 6.737947e-03 1.484132e+02
 
-# A wider net on a positive parameter whose scale is unknown.
+# A wider net suits a positive parameter whose scale is unknown.
 set.seed(1)
 minimize(bfgs(), function(p) (log(p) - 1)^2, start_runif(-5, 5, npar = 1),
          lower = 0)@par

@@ -1,11 +1,12 @@
 # S7 Class for Optimization Algorithms
 
-The abstract parent of every algorithm in the package. An optimizer
-object carries the algorithm and every setting that the algorithm uses:
-its stopping rule, its two budgets, what it reports during the run and
-what it keeps. It is built once and can be reused, printed, stored
-beside a result and passed around, so that all the settings of a run are
-stored in the object and not in the call that started it.
+This class is the abstract parent of every algorithm in the package. An
+optimizer object carries the algorithm and every setting that the
+algorithm uses: its stopping rule, its two budgets, what it reports
+during the run and what it keeps. It is built once and can be reused,
+printed, stored beside a result and passed around, so that all the
+settings of a run are stored in the object and not in the call that
+started it.
 
 ## Usage
 
@@ -34,14 +35,14 @@ optimizer(
   [`criterion()`](https://statmodels7.github.io/optimizers7/reference/criterion.md)
   object. Anything else raises an error naming
   [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
-  as an example. An algorithm also rejects a rule it cannot evaluate,
-  through
+  as an example. An algorithm also rejects a rule that it cannot
+  evaluate, through
   [`check_criterion()`](https://statmodels7.github.io/optimizers7/reference/check_criterion.md).
 
 - maxit:
 
-  Maximum iterations, a single number at least 1 and **finite**. `Inf`
-  is rejected, because a run without a last resort can run forever on an
+  Maximum iterations, a single number at least 1 and finite. `Inf` is
+  rejected, because a run without a last resort can run forever on an
   objective that never satisfies its rule.
 
 - max_eval:
@@ -58,15 +59,15 @@ optimizer(
 
 - refresh:
 
-  Report every `refresh` iterations when `verbose` is `TRUE`. A single
-  non-negative number; `0` is allowed and reports only the final
+  Report every `refresh` iterations when `verbose` is `TRUE`. It is a
+  single non-negative number; `0` is allowed and reports only the final
   summary.
 
 - keep_trace:
 
   `TRUE` or `FALSE`; whether to store the iteration path in the `trace`
-  field of the result. Off by default, since the path costs one row per
-  iteration.
+  field of the result. It is off by default, since the path costs one
+  row per iteration.
 
 ## Value
 
@@ -117,13 +118,13 @@ for the checks that a new subclass has to pass.
 ## Examples
 
 ``` r
-# Abstract, so it cannot be built: use one of the constructors.
+# The class is abstract, so it cannot be built: use one of the constructors.
 try(optimizer(name = "mine"))
 #> Error in new_object(S7_object(), name = name, criterion = criterion, maxit = maxit,  : 
 #>   Can't construct an object from abstract class <optimizer>
 
-# The same seven properties on every algorithm, and the properties of
-# each one.
+# Every algorithm has the same seven properties, and each one has properties
+# of its own.
 shared <- c("name", "criterion", "maxit", "max_eval", "verbose",
             "refresh", "keep_trace")
 stopifnot(all(shared %in% names(S7::props(nelder_mead()))))

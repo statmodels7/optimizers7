@@ -36,14 +36,15 @@ bundle(
 
 - t0:
 
-  Initial value of the proximal parameter \\t\\, expressed as a **step
-  length** on the parameter scale and not as a bare multiplier; see
+  Initial value of the proximal parameter \\t\\, expressed as a step
+  length on the parameter scale and not as a bare multiplier; see
   Details. Defaults to `1`.
 
 - t_min, t_max:
 
-  Bounds on it, so that neither a run of null steps nor a run of serious
-  ones can drive it to zero or to infinity. Default `1e-10` and `1e10`.
+  Bounds on it, so that a run of null steps or a run of serious ones
+  cannot drive it to zero or to infinity. The defaults are `1e-10` and
+  `1e10`.
 
 - m_serious:
 
@@ -59,7 +60,7 @@ bundle(
 
   Effort spent on the subproblem: at most this many accelerated
   projected-gradient steps, stopping when the weights move by less than
-  `qp_tol`. Defaults `500` and `1e-12`.
+  `qp_tol`. The defaults are `500` and `1e-12`.
 
 - maxit:
 
@@ -67,9 +68,9 @@ bundle(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to `Inf`: no evaluation
-  budget, so the run stops on the criterion or on `maxit`. Set a finite
-  value to cap the cost of a run.
+  Maximum objective evaluations. Defaults to `Inf`, which sets no
+  evaluation budget, so the run stops on the criterion or on `maxit`.
+  Set a finite value to cap the cost of a run.
 
 - verbose:
 
@@ -103,13 +104,13 @@ On the median example below,
 reaches the median and reports `converged = FALSE`.
 
 The bundle method tests no single subgradient. It keeps a *collection*
-of them, from the points it has visited, and builds the piecewise-linear
-model \\\max_j \\ f_j + g_j'(x - x_j) \\\\, the largest of the
-linearizations. Such a model represents a kink well, as the meeting
-point of two linearizations. At the minimum of \\\lvert x \rvert\\ the
-bundle holds subgradients near \\+1\\ and near \\-1\\, and \\0\\ is a
-convex combination of them, which is the statement that \\0\\ lies in
-the subdifferential.
+of them, from the points that it has visited, and builds the
+piecewise-linear model \\\max_j \\ f_j + g_j'(x - x_j) \\\\, the largest
+of the linearizations. Such a model represents a kink well, as the
+meeting point of two linearizations. At the minimum of \\\lvert x
+\rvert\\ the bundle holds subgradients near \\+1\\ and near \\-1\\, and
+\\0\\ is a convex combination of them, which is the statement that \\0\\
+lies in the subdifferential.
 
 The step solves \$\$\min_d\\ \max_j \\ -\alpha_j + g_j'd \\ +
 \frac{1}{2t}\lVert d \rVert^2,\$\$ where \\\alpha_j \ge 0\\ measures how
@@ -225,7 +226,7 @@ bundle()
 #>   budgets   : maxit 500, evaluations Inf
 #>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12
 
-# The median, as the minimizer of a sum of absolute deviations: the
+# The median is the minimizer of a sum of absolute deviations: the
 # objective has a kink at every observation, and one of them is the answer.
 set.seed(1)
 y <- rnorm(101)
@@ -254,7 +255,7 @@ c(par = d@par, converged = d@converged)
 #>        par  converged 
 #> 0.07456498 0.00000000 
 
-# A kink along a diagonal. The bundle method and the simplex reach the
+# The kink lies along a diagonal. The bundle method and the simplex reach the
 # minimum; the random-direction pattern search (the default of compass())
 # comes close, whereas a coordinate search stops at a wrong point.
 ff <- function(p) abs(p[1] + p[2]) + 0.1 * sum(p^2)
@@ -268,5 +269,5 @@ c(bundle      = minimize(bundle(), ff, c(1, 0.5), gr = gg)@value,
 # A gradient rule is rejected, since this method declares no gradient.
 try(minimize(bundle(criterion = crit_grad()), f, par = 0, gr = g))
 #> Error : The stopping rule needs gradient, which proximal bundle does not provide.
-#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
+#>   Choose a criterion that this optimizer can evaluate, or a method that provides it.
 ```

@@ -24,6 +24,6 @@ names `prox` as the place for the constraint.
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-whose `value` is the **total** objective \\f(x) + g(x)\\, which is why
-`g` is required alongside `prox`, and whose `gradient` is the proximal
+whose `value` is the total objective \\f(x) + g(x)\\, which is why `g`
+is required alongside `prox`, and whose `gradient` is the proximal
 gradient mapping at `par` rather than \\\nabla f\\.

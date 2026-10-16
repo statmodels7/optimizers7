@@ -39,9 +39,9 @@ brent(
 - max_expand:
 
   How many golden expansions the bracketing phase may take, a single
-  number of at least 1, default `50`. If no minimum has been bracketed
-  by then, the run stops at the lowest point evaluated and reports
-  `converged = FALSE`.
+  number of at least 1, default `50`. If the phase has not bracketed a
+  minimum by then, the run stops at the lowest point evaluated and
+  reports `converged = FALSE`.
 
 - maxit:
 
@@ -76,13 +76,14 @@ to be handed to
 
 The bracketing phase evaluates the starting value \\x_0\\ and \\x_0 +
 h\\, turns round if the second is the higher, and steps on in the
-descending direction, each step \\1.618\\ times the last, until the
-value no longer falls. The three points then satisfy \\f(b) \le f(a)\\
-and \\f(b) \le f(c)\\ with \\b\\ between \\a\\ and \\c\\, so a minimum
-lies in \\\[a, c\]\\. If the value is still falling when `max_expand`
-expansions have been taken, or when the evaluation budget runs out, no
-minimum has been bracketed: the run stops at the lowest point evaluated,
-reports `converged = FALSE` and records the reason in `message`.
+descending direction, where each step is \\1.618\\ times the previous
+one, until the value no longer falls. The three points then satisfy
+\\f(b) \le f(a)\\ and \\f(b) \le f(c)\\ with \\b\\ between \\a\\ and
+\\c\\, so a minimum lies in \\\[a, c\]\\. If the value is still falling
+when `max_expand` expansions have been taken, or when the evaluation
+budget runs out, the phase has not bracketed a minimum, and the run
+stops at the lowest point evaluated, reports `converged = FALSE` and
+records the reason in `message`.
 
 The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 iteration the parabola through the three best points is tried first; its
@@ -98,10 +99,10 @@ The rule receives `iter`, `f_new`, `f_old`, `x_new`, `x_old` and
 and are `NULL` at the first. Besides the rule, the reduction stops on
 Brent's own test, when the bracket has shrunk to about
 \\\sqrt{\varepsilon}\\\lvert x \rvert + 10^{-12}\\ around the best point
-\\x\\, below which no further point can be distinguished from \\x\\.
-That stop reports `converged = TRUE` with `criterion_met` equal to
-`bracket at machine resolution`, so a rule with a smaller tolerance than
-this resolution, or
+\\x\\, because at that width a further point cannot be distinguished
+from \\x\\. That stop reports `converged = TRUE` with `criterion_met`
+equal to `bracket at machine resolution`, so a rule with a smaller
+tolerance than this resolution, or
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
 ends there.
 
@@ -131,14 +132,14 @@ brent()
 #>   budgets   : maxit 100, evaluations Inf
 #>   settings  : step = 1, max_expand = 50
 
-# A smooth function of one variable.
+# The method minimizes a smooth function of one variable.
 f <- function(x) (x - 2)^2 + exp(-x)
 r <- minimize(brent(), f, par = 0)
 c(par = r@par, evaluations = r@counts[["f"]])
 #>         par evaluations 
 #>    2.063504   12.000000 
 
-# Against nelder_mead() on the same function.
+# nelder_mead() is run on the same function for comparison.
 minimize(nelder_mead(), f, par = 0)@counts[["f"]]
 #> [1] 42
 ```

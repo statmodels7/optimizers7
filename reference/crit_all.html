@@ -13,7 +13,7 @@ one of its terms alone at the same iteration or earlier."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@ one of its terms alone at the same iteration or earlier."><meta property="og:ima
 
     <div class="ref-description section level2">
     <p>Combines criteria conjunctively, for a run that should stop only when
-several rules hold at once. A conjunction can only become <strong>stronger</strong> as
+several rules hold at once. A conjunction can only become stronger as
 terms are added, so a run that ends under it would have ended under any
 one of its terms alone at the same iteration or earlier.</p>
     </div>
@@ -71,7 +71,7 @@ is not a criterion raises an error.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>It is useful when one rule alone is known to fire early:
+    <p>It is useful when a single rule is known to fire early:
 <code>crit_all(crit_grad(), crit_abs_par())</code> requires a stationary point at
 which the iterate has also stopped moving, a condition that a run circling
 a flat optimum does not satisfy.</p>

@@ -15,7 +15,7 @@ consults it."><meta property="og:image" content="https://statmodels7.github.io/o
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,8 +98,8 @@ supplied in place of a gradient by <code><a href="nelder_mead.html">nelder_mead(
 
 </dl><p>The shipped methods supply <code>f_old</code> and <code>x_old</code> from the first call on,
 except <code><a href="brent.html">brent()</a></code>, which supplies them from its second iteration. A descent
-method calls the rule with <code>f_old</code> and <code>x_old</code> set to <code>NULL</code> only after a
-line search that accepted no step, so that only the state at <code>x_new</code> can
+method sets <code>f_old</code> and <code>x_old</code> to <code>NULL</code> in the call only after a line
+search that accepted no step, so that only the state at <code>x_new</code> can
 end the run there. With box constraints, <code>x_new</code>,
 <code>x_old</code> and <code>gradient</code> are on the unconstrained scale on which the
 optimizer moves.</p>

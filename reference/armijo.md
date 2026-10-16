@@ -27,9 +27,9 @@ armijo(c1 = 1e-04, shrink = 0.5, max_step = 30, resolution = 0)
 
 - max_step:
 
-  Maximum number of **trial points**, the full step included, before the
-  search gives up; a positive whole number. Defaults to 30. The name
-  suggests a length, but the quantity is a count.
+  Maximum number of trial points, including the full step, before the
+  search returns without a step; a positive whole number. Defaults
+  to 30. The name suggests a length, but the quantity is a count.
 
 - resolution:
 
@@ -48,13 +48,14 @@ to be passed as an optimizer's `line_search`.
 
 ## Details
 
-The term \\c_1 \alpha\\ g^\top d\\ is required. A test of \\f\_{new} \le
-f\\ alone accepts steps that leave the objective unchanged: on \\f(x) =
-\lVert x \rVert^2\\, whose Hessian is \\2I\\, a unit step along \\-g\\
-reflects the iterate through the minimum and leaves the objective
-*exactly* unchanged. The weaker test accepts that step, the iterate
-oscillates indefinitely, and a stopping rule that reads the objective
-sees no change and reports convergence at a point that is not a minimum.
+The term \\c_1 \alpha\\ g^\top d\\ is required. A test that requires
+only \\f\_{new} \le f\\ accepts steps that leave the objective
+unchanged: on \\f(x) = \lVert x \rVert^2\\, whose Hessian is \\2I\\, a
+unit step along \\-g\\ reflects the iterate through the minimum and
+leaves the objective *exactly* unchanged. The weaker test accepts that
+step, the iterate oscillates indefinitely, and a stopping rule that
+reads the objective sees no change and reports convergence at a point
+that is not a minimum.
 
 A quasi-Newton method also needs the curvature condition, which
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
@@ -69,15 +70,15 @@ move, a simulation. Differences below that spread carry no information,
 and a search that has to verify a smaller decrease backtracks until it
 has used `max_step` trial points.
 
-The test is made **once**, before the first trial point, on the decrease
+The test is made once, before the first trial point, on the decrease
 that the linear model of the method predicts over the full step,
 \\\alpha_0 \lvert g^\top d\rvert\\. When that decrease is below
 `resolution` the search returns at once, and the run reports that the
 point is optimal to the accuracy of the objective. That is a weaker
-statement than a stopping rule being met, and the result reports it with
-a different label.
+statement than the one made when a stopping rule is met, and the result
+reports it with a different label.
 
-**The test is not applied inside the backtracking loop.** There the two
+The test is not applied inside the backtracking loop. There the two
 situations cannot be distinguished, since \\x + \alpha d \to x\\ as the
 step shrinks and the objective stops resolving the change whether the
 point is optimal or the direction is wrong. At the full step they
@@ -94,12 +95,12 @@ method can still make progress.
 
 When the objective becomes more precise as the run proceeds (for example
 a fit warm-started from the previous evaluation), the resolution
-measured at the start is the worst value of the whole run. A
-**function** of no arguments passed instead of a number is called at
-every iteration, once per invocation of the search and not once per
-trial, so it costs one call per iteration. Its value is the resolution
-for the step about to be taken; a value that is not finite and positive
-is read as `0`, which disables the test.
+measured at the start is the worst value of the whole run. A function of
+no arguments passed instead of a number is called at every iteration,
+once per invocation of the search and not once per trial, so it costs
+one call per iteration. Its value is the resolution for the step about
+to be taken; a value that is not finite and positive is read as `0`,
+which disables the test.
 
 ## References
 

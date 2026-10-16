@@ -1,9 +1,9 @@
 # S7 Class for the Proximal Bundle Method
 
-An optimizer holding the proximal parameter \\t\\ and its bounds, the
-acceptance fraction that separates a serious step from a null one, the
-size of the bundle of linearizations, and the effort spent on the
-subproblem. Built by
+This class is an optimizer that holds the proximal parameter \\t\\ and
+its bounds, the acceptance fraction that separates a serious step from a
+null one, the size of the bundle of linearizations, and the effort spent
+on the subproblem. It is built by
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md).
 
 ## Usage
@@ -40,7 +40,7 @@ Bundle(
 
 - m_serious:
 
-  Fraction of the predicted decrease a serious step must achieve.
+  Fraction of the predicted decrease that a serious step must achieve.
 
 - bundle_size:
 

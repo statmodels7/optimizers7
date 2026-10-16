@@ -24,7 +24,6 @@ object, so combinations nest.
 
 ## Details
 
-**The default rule of the gradient methods.**
 [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md),
 [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md),
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md),
@@ -41,7 +40,7 @@ gradient rule alone at the same iteration or later, never earlier.
 
 On the package's
 [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md),
-with the six methods other than
+with the methods above other than
 [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),
 this rule converges on every run on which the gradient rule alone
 converges, and on three more (`cg` and `bb` on `abs_sum`, `gd` on

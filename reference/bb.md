@@ -38,17 +38,17 @@ bb(
 - alpha0:
 
   The step length used on the first iteration, before there is a secant
-  pair to estimate one from. Defaults to `1e-2`.
+  pair from which to estimate one. Defaults to `1e-2`.
 
 - alpha_min, alpha_max:
 
-  Bounds on the step length. Defaults `1e-10` and `1e10`.
+  Bounds on the step length. The defaults are `1e-10` and `1e10`.
 
 - curv_tol:
 
   The relative curvature threshold: a secant pair is rejected when
   \\s^\top y \le c \lVert s \rVert \lVert y \rVert\\ for \\c\\ equal to
-  `curv_tol`. Defaults to `1e-10`, which is the same relative test
+  `curv_tol`. Defaults to `1e-10`, which is the same relative test that
   [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
   applies to the same quantity.
 
@@ -69,9 +69,9 @@ bb(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to `Inf`: no evaluation
-  budget, so the run stops on the criterion or on `maxit`. Set a finite
-  value to cap the cost of a run.
+  Maximum objective evaluations. Defaults to `Inf`, which sets no
+  evaluation budget, so the run stops on the criterion or on `maxit`.
+  Set a finite value to cap the cost of a run.
 
 - verbose:
 
@@ -103,7 +103,7 @@ g_k - g\_{k-1}\\. Both estimate the inverse curvature along the
 direction just traveled, so the method is a quasi-Newton method that
 keeps a single scalar. When the Hessian is a multiple of the identity,
 the curvature is the same in every direction, the estimate from one
-secant pair is exact, and the method converges in **two** iterations.
+secant pair is exact, and the method converges in two iterations.
 Otherwise the scalar is the curvature along the last step only, and the
 number of iterations grows with the spread of the curvatures. On a
 general smooth objective the method usually needs more iterations and
@@ -127,10 +127,11 @@ test. The method makes progress through steps that may increase the
 objective temporarily, so the default acceptance test is
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md),
 which requires an improvement over the largest of the last `memory + 1`
-objective values, the current one included, and not over the current
-value alone. A plain Armijo condition rejects every step that increases
-the objective, and with it the steps on which the method relies, so the
-run needs more than twice as many evaluations (see the examples).
+objective values, which include the current one, and not only over the
+current value. A plain Armijo condition rejects every step that
+increases the objective, and with it the steps on which the method
+relies, so the run needs more than twice as many evaluations (see the
+examples).
 
 `nonmonotone(memory = 0)` is
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
@@ -141,16 +142,17 @@ memory.
 
 A pair is used only if it reports positive curvature by a relative
 margin, \\s^\top y \> c \lVert s \rVert \lVert y \rVert\\ with \\c\\ the
-`curv_tol` argument, the same test
+`curv_tol` argument, the same test that
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 applies. When a pair is rejected the step length is reset to \\1/\lVert
 g \rVert\_\infty\\, a trial displacement of order one in the parameters.
 The reset reads the current gradient and not the step length being
-replaced or a fixed constant, so it can neither freeze the iteration at
-a too-short step nor produce one the backtracking cannot rescale. Steps
-outside `[alpha_min, alpha_max]` are clamped. The reset and the clamp
-appear in the trace as `bb curvature reset` and `bb step clamped`, and a
-step shortened by the line search as `step shortened`.
+replaced or a fixed constant, so it cannot freeze the iteration at a
+too-short step and cannot produce a step that the backtracking is unable
+to rescale. Steps outside `[alpha_min, alpha_max]` are clamped. The
+reset and the clamp appear in the trace as `bb curvature reset` and
+`bb step clamped`, and a step shortened by the line search as
+`step shortened`.
 
 ## References
 

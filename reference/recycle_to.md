@@ -3,9 +3,8 @@
 Returns `v` at length `n`: a single value is repeated, a value already
 of length `n` is passed through as a double, and any other length raises
 an error that names the argument and both lengths. The recycling of R is
-not used, since it is silent whenever the shorter length divides the
-longer, and a partial range is much more likely to be a mistake than a
-request.
+not used, because it gives no warning whenever the shorter length
+divides the longer, and here a partial range is treated as a mistake.
 
 ## Usage
 
@@ -21,7 +20,7 @@ recycle_to(v, n, nm)
 
 - n:
 
-  The length wanted.
+  The length of the result.
 
 - nm:
 

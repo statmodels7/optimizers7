@@ -56,9 +56,9 @@ cg(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to `Inf`: no evaluation
-  budget, so the run stops on the criterion or on `maxit`. Set a finite
-  value to cap the cost of a run.
+  Maximum objective evaluations. Defaults to `Inf`, which sets no
+  evaluation budget, so the run stops on the criterion or on `maxit`.
+  Set a finite value to cap the cost of a run.
 
 - verbose:
 
@@ -91,25 +91,25 @@ against
 
 ## Conjugate directions and the line search
 
-On a quadratic **with an exact line search** the directions are
-conjugate with respect to the Hessian, and the method terminates in
-\\p\\ steps without forming that Hessian. The line search here is
-inexact, so that guarantee does not hold, and the number of iterations
-on a quadratic depends on its conditioning. Each iteration still stores
-only two vectors.
+On a quadratic with an exact line search the directions are conjugate
+with respect to the Hessian, and the method terminates in \\p\\ steps
+without forming that Hessian. The line search here is inexact, so that
+guarantee does not hold, and the number of iterations on a quadratic
+depends on its conditioning. Each iteration still stores only two
+vectors.
 
 ## Choice of beta
 
 All four formulas agree on a quadratic under an exact line search and
-differ elsewhere. `"fr"` has the simplest convergence theory and is
-known to stall for many iterations after a poor step. `"pr"` recovers
-from a poor step at once, since a small \\y = g_k - g\_{k-1}\\ makes
-\\\beta\\ small and the direction close to steepest descent; its known
-theoretical non-convergence is removed by clamping \\\beta\\ at zero,
-which restarts the method and appears in the trace as `cg restart`.
-`"hs"` and `"dy"` are the other two standard choices. `"pr"` is the
-default as the safest of the four on a general objective; which formula
-needs the fewest iterations depends on the problem (see the examples).
+differ elsewhere. `"fr"` has the simplest convergence theory and can
+stall for many iterations after a poor step. `"pr"` recovers from a poor
+step at once, since a small \\y = g_k - g\_{k-1}\\ makes \\\beta\\ small
+and the direction close to steepest descent; its known theoretical
+non-convergence is removed by clamping \\\beta\\ at zero, which restarts
+the method and appears in the trace as `cg restart`. `"hs"` and `"dy"`
+are the other two standard choices. `"pr"` is the default as the safest
+of the four on a general objective; which formula needs the fewest
+iterations depends on the problem (see the examples).
 
 ## Line search
 
@@ -120,7 +120,6 @@ Backtracking gives no such guarantee, so
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
 is the default.
 
-The constant also matters.
 [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
 defaults to \\c_2 = 0.9\\, which suits
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
@@ -176,7 +175,7 @@ gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
 minimize(cg(), f, c(-1.2, 1), gr = gr)@par
 #> [1] 0.9999728 0.9999455
 
-# The four formulas on the same problem. They agree on a quadratic under
+# The four formulas are compared on the same problem. They agree on a quadratic under
 # an exact line search and differ here; which is best depends on the
 # problem.
 vapply(c("pr", "fr", "hs", "dy"),

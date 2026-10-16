@@ -37,9 +37,9 @@ Invisibly `TRUE`; warns on a gross mismatch.
 
 The check costs one call to `gr` and two to `fn`, runs once per call of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
-and is skipped when it cannot decide: for an objective that is not a
-function, a gradient that is not finite at `par`, an objective that is
-not finite at the probe points, and a gradient too small to be
+and is skipped when the comparison cannot be made: for an objective that
+is not a function, a gradient that is not finite at `par`, an objective
+that is not finite at the probe points, and a gradient too small to be
 distinguished from the truncation error of the difference. The last case
 arises when a caller starts at the optimum, where a warning would be
 wrong.

@@ -1,9 +1,10 @@
 # S7 Class for the Nonmonotone Line Search
 
-Armijo backtracking whose reference value is the largest of the last
-`memory + 1` objective values, the current one included, so a step may
-increase the objective. Built by
-[`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md).
+This class is Armijo backtracking whose reference value is the largest
+of the last `memory + 1` objective values, including the current one, so
+a step may increase the objective.
+[`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
+builds it.
 
 ## Usage
 
@@ -35,7 +36,7 @@ NonmonotoneSearch(
 
 - max_step:
 
-  The most trial points allowed, the full step included. A **count**.
+  The most trial points allowed, including the full step. It is a count.
 
 - resolution:
 
@@ -51,9 +52,9 @@ with the five properties above beside `label`.
 ## Details
 
 Beyond the `label` of every line search, a `NonmonotoneSearch` holds
-`c1`, `shrink`, `memory`, `max_step` and `resolution`. `memory` is the
-only property that no other line search has, and at `memory = 0` the
-object behaves exactly as an
+`c1`, `shrink`, `memory`, `max_step` and `resolution`. Only this class
+has the property `memory`, and at `memory = 0` the object behaves
+exactly as an
 [ArmijoSearch](https://statmodels7.github.io/optimizers7/reference/ArmijoSearch-class.md)
 with the same constants.
 

@@ -13,7 +13,8 @@ own range, and any other length raises an error that names both lengths.
 
 - npar:
 
-  The number of parameters wanted, a positive whole number.
+  The number of parameters in the vector to produce, a positive whole
+  number.
 
 ## Value
 
@@ -28,12 +29,12 @@ set.seed(1)
 starting_values(start_runif(-2, 2), 4)
 #> [1] -0.9379653 -0.5115044  0.2914135  1.6328312
 
-# A range per coordinate.
+# Each coordinate can have its own range.
 set.seed(1)
 starting_values(start_runif(c(-1, -10), c(1, 10)), 2)
 #> [1] -0.4689827 -2.5575220
 
-# A length that is neither 1 nor npar is a mistake, not a request.
+# A length that is neither 1 nor npar is rejected as a mistake.
 try(starting_values(start_runif(c(-1, -2, -3)), 2))
 #> Error : 'min' must have length 1 or 2, one per parameter; it has length 3.
 ```

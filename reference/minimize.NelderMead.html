@@ -11,7 +11,7 @@ it until the stopping rule fires."><meta property="og:image" content="https://st
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,9 +74,10 @@ has a <code>stationarity</code> column holding the size of the simplex. The
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>A <code>simplex</code> supplied on the optimizer is checked here against the
-starting value, since only now is the number of parameters known: it must
-have \(p+1\) rows and \(p\) columns, and a mismatch is rejected with
-an error that states the required numbers of rows and columns.</p>
+starting value, because the number of parameters is known only at this
+point: it must have \(p+1\) rows and \(p\) columns, and a mismatch is
+rejected with an error whose message gives the required numbers of rows
+and columns.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

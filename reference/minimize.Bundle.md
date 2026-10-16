@@ -16,7 +16,7 @@ acceptance test that turns each trial into a serious step or a null one.
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `gr` should return a **subgradient**, not a difference taken across a
+  `gr` should return a subgradient, not a difference taken across a
   kink; `he` is accepted and ignored. Bounds are taken and removed by
   reparametrization.
 
@@ -24,6 +24,6 @@ acceptance test that turns each trial into a serious step or a null one.
 
 An
 [`optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/optimizer_result.md)
-whose `gradient` is the **aggregate** subgradient, which tends to zero
-at a solution, and whose `message` reports the numbers of serious and
-null steps.
+whose `gradient` is the aggregate subgradient, which tends to zero at a
+solution, and whose `message` reports the numbers of serious and null
+steps.

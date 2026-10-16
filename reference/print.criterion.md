@@ -18,7 +18,7 @@ When the rule ends a run, the result reports the same label in
 
 ## Value
 
-`x`, invisibly. Called for the output.
+`x`, invisibly. The function is called for its printed output.
 
 ## Examples
 

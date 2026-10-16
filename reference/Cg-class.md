@@ -1,8 +1,9 @@
 # S7 Class for Conjugate Gradients
 
-An optimizer holding which of the four \\\beta\\ formulas combines the
+A `Cg` object holds which of the four \\\beta\\ formulas combines the
 gradient with the previous direction, how often the method is restarted
-at steepest descent, and the step length and the line search. Built by
+at steepest descent, and the step length and the line search. It is
+built by
 [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md).
 
 ## Usage

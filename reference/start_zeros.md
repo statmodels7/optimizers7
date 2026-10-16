@@ -1,8 +1,9 @@
 # Start From Zero on the Unconstrained Scale
 
-A starting point of all zeros, which after the bound transform is the
-middle of the domain of every parameter: one for a positive parameter,
-one half for a probability, zero for an unbounded one.
+Creates a starter whose starting point is all zeros, which after the
+bound transform is the middle of the domain of every parameter: one for
+a positive parameter, one half for a probability, zero for an unbounded
+one.
 
 ## Usage
 
@@ -31,14 +32,14 @@ to be passed as `par`.
 Zero is a suitable constant because it is applied on the unconstrained
 scale. Its image after the bound transform depends on the box:
 
-|                       |                    |
-|-----------------------|--------------------|
-| **bounds**            | **starting value** |
-| \\(-\infty, \infty)\\ | 0                  |
-| \\(0, \infty)\\       | 1                  |
-| \\(0, 1)\\            | 0.5                |
-| \\(2, 6)\\            | 4                  |
-| \\(-\infty, 5)\\      | 4                  |
+|                       |                |
+|-----------------------|----------------|
+| bounds                | starting value |
+| \\(-\infty, \infty)\\ | 0              |
+| \\(0, \infty)\\       | 1              |
+| \\(0, 1)\\            | 0.5            |
+| \\(2, 6)\\            | 4              |
+| \\(-\infty, 5)\\      | 4              |
 
 A vector of zeros on the *parameter* scale is not admissible for a model
 with a scale parameter: zero lies on the boundary of the parameter

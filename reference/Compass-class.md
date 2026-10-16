@@ -1,8 +1,8 @@
 # S7 Class for Pattern Search
 
-An optimizer holding the poll size and how it changes, which set of poll
-directions is used, and whether the poll stops at the first improvement.
-Built by
+A `Compass` object holds the poll size and how it changes, the set of
+poll directions that is used, and whether the poll stops at the first
+improvement. It is built by
 [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md).
 With `directions = "mads"` a run draws from R's generator and records
 its seed; with `"coordinate"` it is deterministic and records none.
@@ -38,7 +38,8 @@ Compass(
 
 - opportunistic:
 
-  Logical; whether the poll stops at the first improvement it finds.
+  Logical; whether the poll stops at the first improvement that it
+  finds.
 
 - expand, shrink:
 
@@ -56,8 +57,8 @@ with the five properties above beside the seven shared ones.
 
 Beyond the seven properties of every optimizer, a `Compass` carries five
 of its own: `step`, `expand` and `shrink` govern the poll radius,
-`directions` selects the set that is polled, and `opportunistic` decides
-when the poll stops.
+`directions` selects the set that is polled, and `opportunistic`
+controls when the poll stops.
 
 ## See also
 

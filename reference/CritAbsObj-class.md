@@ -1,6 +1,6 @@
 # S7 Class for the Absolute Objective Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md).
 The rule reads `state$f_new` and `state$f_old` and fires when they
 differ by less than `tol`. It declares nothing through
@@ -52,7 +52,7 @@ crit_met(crit_abs_obj(1e-6),
          list(f_new = 1.0000001, f_old = 1.0000002))
 #> [1] TRUE
 
-# Without a previous value there is nothing to compare.
+# Without a previous value the rule cannot compare anything.
 crit_met(crit_abs_obj(), list(f_new = 1, f_old = NULL))
 #> [1] FALSE
 ```

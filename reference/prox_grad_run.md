@@ -4,8 +4,8 @@ The iteration behind
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md):
 a backtracked gradient step on the smooth part, the proximal operator
 applied to its result, and the momentum extrapolation with its restart.
-It counts its own evaluations, those of a gradient obtained by
-differences included.
+It counts its own evaluations, including those of a gradient obtained by
+differences.
 
 ## Usage
 
@@ -30,7 +30,7 @@ prox_grad_run(optimizer, spec, par)
 
 ## Value
 
-A list in the shape
+A list in the shape that
 [`build_result()`](https://statmodels7.github.io/optimizers7/reference/build_result.md)
 consumes: the point, the total objective there, the mapping, the counts,
 the iteration count, the verdict and the trace.
@@ -42,7 +42,7 @@ The loop is written in R, as that of
 Every iteration calls three R functions supplied by the caller: the
 objective, its gradient and the proximal operator.
 
-The proximal gradient mapping is read **at the iterate**, the point that
-is reported, and not at the extrapolated point. The trace records
+The proximal gradient mapping is read at the iterate, the point that is
+reported, and not at the extrapolated point. The trace records
 `step shortened` at an iteration whose step was backtracked and
 `momentum restart` at one whose momentum was reset.

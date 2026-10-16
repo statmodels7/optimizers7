@@ -33,4 +33,4 @@ is seconds, whereas a fork takes microseconds.
 
 It is capped at two under `R CMD check`, which sets
 `_R_CHECK_LIMIT_CORES_` and fails a package that ignores it, and it
-falls back to one process where `detectCores()` cannot tell.
+falls back to one process where `detectCores()` returns `NA`.

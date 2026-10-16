@@ -1,13 +1,17 @@
 # S7 Class for the Stationarity Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md),
-and its two methods. The rule reads `state$stationarity`, the
-non-negative measure that a method without a gradient test reports
-instead, and fires when it falls below `tol`. It declares
-`"stationarity"` through
+which has a method for
+[`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
+and one for
+[`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md).
+The rule reads `state$stationarity`, the non-negative measure that a
+method without a gradient test reports instead, and fires when it falls
+below `tol`. It declares `"stationarity"` through
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md),
-so a method that reports no such measure rejects it when the run starts.
+so a method that does not report this measure rejects it when the run
+starts.
 
 ## Usage
 

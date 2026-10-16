@@ -9,7 +9,7 @@ starts, but not more than the number of cores minus two."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,7 @@ costs the start-up time of the extra processes, which on Windows is
 seconds, whereas a fork takes microseconds.</p>
 <p>It is capped at two under <code>R CMD check</code>, which sets
 <code>_R_CHECK_LIMIT_CORES_</code> and fails a package that ignores it, and it
-falls back to one process where <code>detectCores()</code> cannot tell.</p>
+falls back to one process where <code>detectCores()</code> returns <code>NA</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -29,8 +29,8 @@ pairs without usable curvature.
 The safeguard table needs a trace, so the optimizer must have been built
 with `keep_trace = TRUE`. Without a trace the method prints what
 [`print.optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/print.optimizer_result.md)
-prints. With a trace in which no safeguard fired, the output reads
-`safeguards : none fired`.
+prints. When every row of the trace has `safeguard` equal to `"none"`,
+the output reads `safeguards : none fired`.
 
 ## Examples
 
@@ -39,7 +39,7 @@ f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
 
-# Newton on the curved valley: the line search shortens a few steps.
+# On the curved valley the line search of newton() shortens a few steps.
 summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 #> <optimizer_result> Newton
 #>   value      : 3.74523e-21
@@ -50,14 +50,14 @@ summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 #>   safeguards :
 #>     step shortened: 4
 
-# On a quadratic no safeguard fires.
+# On a quadratic the safeguards do not fire.
 summary(minimize(newton(keep_trace = TRUE),
                  function(p) sum((p - 1:2)^2), c(0, 0)))
 #> <optimizer_result> Newton
 #>   value      : 0
 #>   par        : 1 2
 #>   iterations : 2   evaluations: f 47, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 #>   safeguards : none fired

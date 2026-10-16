@@ -9,7 +9,7 @@ unconstrained scale so that any bounds are respected by construction."><meta pro
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,7 +68,7 @@ unconstrained units: the half-width is
 
 
 <dt id="arg-bounds">bounds<a class="anchor" aria-label="anchor" href="#arg-bounds"></a></dt>
-<dd><p>Box constraints in the shape <code><a href="check_bounds.html">check_bounds()</a></code>
+<dd><p>Box constraints in the shape that <code><a href="check_bounds.html">check_bounds()</a></code>
 returns, possibly empty.</p></dd>
 
 </dl></div>
@@ -78,8 +78,8 @@ returns, possibly empty.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The range of each coordinate is cut into <code>n - 1</code> strata, each used
-exactly once, so the starts cannot all fall in one corner, as independent
+    <p>The range of each coordinate is cut into <code>n - 1</code> strata, and each stratum
+is used exactly once, so the starts cannot all fall in one corner, as independent
 draws can. On the unconstrained scale the range is the starting value
 \(\eta_0\) plus or minus
 \(3\, \texttt{spread}\, \max(1, \lvert\eta_0\rvert)\). The

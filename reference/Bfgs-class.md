@@ -1,11 +1,11 @@
 # S7 Class for BFGS
 
-An optimizer holding the initial step length, the line search, and the
-two settings that apply when a secant pair has no usable curvature.
-Built by
-[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
-The inverse-Hessian approximation is not a property: it is built inside
-the run and discarded at its end.
+This class is an optimizer that holds the initial step length, the line
+search, and the two settings that apply when a secant pair has no usable
+curvature.
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
+builds it. The inverse-Hessian approximation is not a property: it is
+built inside the run and discarded at its end.
 
 ## Usage
 

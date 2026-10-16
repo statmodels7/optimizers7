@@ -19,7 +19,7 @@ kink."><meta property="og:image" content="https://statmodels7.github.io/optimize
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,13 +89,13 @@ read on the optimality estimate \(\lVert p \rVert^2 + \alpha\).</p></dd>
 
 <dt id="arg-t-">t0<a class="anchor" aria-label="anchor" href="#arg-t-"></a></dt>
 <dd><p>Initial value of the proximal parameter \(t\), expressed as a
-<strong>step length</strong> on the parameter scale and not as a bare multiplier;
+step length on the parameter scale and not as a bare multiplier;
 see Details. Defaults to <code>1</code>.</p></dd>
 
 
 <dt id="arg-t-min-t-max">t_min, t_max<a class="anchor" aria-label="anchor" href="#arg-t-min-t-max"></a></dt>
-<dd><p>Bounds on it, so that neither a run of null steps nor a
-run of serious ones can drive it to zero or to infinity. Default
+<dd><p>Bounds on it, so that a run of null steps or a run of
+serious ones cannot drive it to zero or to infinity. The defaults are
 <code>1e-10</code> and <code>1e10</code>.</p></dd>
 
 
@@ -113,7 +113,7 @@ would exceed it, the oldest are replaced by the aggregate. Defaults to
 <dt id="arg-qp-iters-qp-tol">qp_iters, qp_tol<a class="anchor" aria-label="anchor" href="#arg-qp-iters-qp-tol"></a></dt>
 <dd><p>Effort spent on the subproblem: at most this many
 accelerated projected-gradient steps, stopping when the weights move by
-less than <code>qp_tol</code>. Defaults <code>500</code> and <code>1e-12</code>.</p></dd>
+less than <code>qp_tol</code>. The defaults are <code>500</code> and <code>1e-12</code>.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
@@ -121,8 +121,8 @@ less than <code>qp_tol</code>. Defaults <code>500</code> and <code>1e-12</code>.
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
-no evaluation budget, so the run stops on the criterion or on
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>, which
+sets no evaluation budget, so the run stops on the criterion or on
 <code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
@@ -152,7 +152,7 @@ minimizer without meeting its stopping rule, whatever the tolerance. On
 the median example below, <code><a href="bfgs.html">bfgs()</a></code> reaches the median and reports
 <code>converged = FALSE</code>.</p>
 <p>The bundle method tests no single subgradient. It keeps a <em>collection</em> of
-them, from the points it has visited, and builds the piecewise-linear
+them, from the points that it has visited, and builds the piecewise-linear
 model \(\max_j \{ f_j + g_j'(x - x_j) \}\), the largest of the
 linearizations. Such a model represents a kink well, as the meeting point
 of two linearizations. At the minimum of \(\lvert x \rvert\) the bundle
@@ -262,7 +262,7 @@ methods, <code><a href="crit_stationary.html">crit_stationary()</a></code> for t
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The median, as the minimizer of a sum of absolute deviations: the</span></span></span>
+<span class="r-in"><span><span class="co"># The median is the minimizer of a sum of absolute deviations: the</span></span></span>
 <span class="r-in"><span><span class="co"># objective has a kink at every observation, and one of them is the answer.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">101</span><span class="op">)</span></span></span>
@@ -291,7 +291,7 @@ methods, <code><a href="crit_stationary.html">crit_stationary()</a></code> for t
 <span class="r-out co"><span class="r-pr">#&gt;</span>        par  converged </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.07456498 0.00000000 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A kink along a diagonal. The bundle method and the simplex reach the</span></span></span>
+<span class="r-in"><span><span class="co"># The kink lies along a diagonal. The bundle method and the simplex reach the</span></span></span>
 <span class="r-in"><span><span class="co"># minimum; the random-direction pattern search (the default of compass())</span></span></span>
 <span class="r-in"><span><span class="co"># comes close, whereas a coordinate search stops at a wrong point.</span></span></span>
 <span class="r-in"><span><span class="va">ff</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">p</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
@@ -305,7 +305,7 @@ methods, <code><a href="crit_stationary.html">crit_stationary()</a></code> for t
 <span class="r-in"><span><span class="co"># A gradient rule is rejected, since this method declares no gradient.</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bundle</span><span class="op">(</span>criterion <span class="op">=</span> <span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fl">0</span>, gr <span class="op">=</span> <span class="va">g</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : The stopping rule needs gradient, which proximal bundle does not provide.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Choose a criterion this optimizer can evaluate, or a method that provides it.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Choose a criterion that this optimizer can evaluate, or a method that provides it.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

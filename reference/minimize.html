@@ -21,7 +21,7 @@ the sign of the answer."><meta property="og:image" content="https://statmodels7.
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,13 +93,13 @@ whenever <code><a href="as_objective.html">as_objective()</a></code> has a metho
 
 <dt id="arg-par">par<a class="anchor" aria-label="anchor" href="#arg-par"></a></dt>
 <dd><p>A numeric vector of starting values, or a starter object; see
-Starters below. With bounds it must lie <strong>strictly</strong> inside them.</p></dd>
+Starters below. With bounds it must lie strictly inside them.</p></dd>
 
 
 <dt id="arg-gr">gr<a class="anchor" aria-label="anchor" href="#arg-gr"></a></dt>
 <dd><p>The gradient, a function of the parameter vector. <code>NULL</code>, the
-default, has it differenced from <code>fn</code>. Ignored when <code>fn</code> is an objective
-carrying its own gradient.</p></dd>
+default, has it differenced from <code>fn</code>. It is ignored when <code>fn</code> is an
+objective that carries its own gradient.</p></dd>
 
 
 <dt id="arg-he">he<a class="anchor" aria-label="anchor" href="#arg-he"></a></dt>
@@ -118,7 +118,7 @@ coordinate whose pair is infinite on both sides is left untransformed.
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Passed to the method dispatched on. Among the shipped
+<dd><p>Passed to the method selected by dispatch. Among the shipped
 methods, only the method for <code><a href="chebyshev.html">chebyshev()</a></code> reads from it, its argument
 <code>t3</code>.</p></dd>
 
@@ -138,11 +138,11 @@ methods, only the method for <code><a href="chebyshev.html">chebyshev()</a></cod
 inequalities read coordinatewise. Every method reports the point where it
 stopped together with the rule that stopped it. <code>converged</code> is <code>TRUE</code>
 when the stopping rule is satisfied; it is also <code>TRUE</code> when a line search
-with a declared resolution establishes that no step decreases the
-objective by more than that resolution, and when <code><a href="brent.html">brent()</a></code> reduces its
+with a declared resolution establishes that every step fails to decrease
+the objective by more than that resolution, and when <code><a href="brent.html">brent()</a></code> reduces its
 bracket to the resolution of the iterate, and the result then reports
 that stop with its own label in <code>criterion_met</code>. It is never inferred from
-the run having ended, so a run that exhausts its budget comes back with
+the end of the run, so a run that exhausts its budget comes back with
 <code>converged = FALSE</code>.</p>
 <p>Dispatch is on <code>optimizer</code> alone, so each algorithm is written once. The
 objective is normalized separately, by <code><a href="as_objective.html">as_objective()</a></code>, which dispatches
@@ -169,7 +169,7 @@ iteration, with no indication of its cause. Set
     </div>
     <div class="section level2">
     <h2 id="starters">Starters<a class="anchor" aria-label="anchor" href="#starters"></a></h2>
-    <p><code>par</code> may be a <strong>starter</strong> object instead of a vector: <code><a href="start_zeros.html">start_zeros()</a></code> for
+    <p><code>par</code> may be a starter object instead of a vector: <code><a href="start_zeros.html">start_zeros()</a></code> for
 all zeros, <code><a href="start_runif.html">start_runif()</a></code> for a uniform draw from a chosen range. Both
 work on the unconstrained scale and are mapped back through the bounds, so
 one constant gives a sensible value for every kind of parameter (zero
@@ -201,15 +201,15 @@ its own for the bounds. <code><a href="bounded_transform.html">bounded_transform
 <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, so <code>lower = 0</code> applies the lower bound zero to every
 parameter without one value per coefficient. A length that is neither 1
 nor <code>p</code> is rejected, and so is a <code>lower</code> that is at or above its <code>upper</code>.
-The
-<strong>starting value must lie strictly inside its bounds</strong>: <code>par = 0</code> with
-<code>lower = 0</code> is an error, the transformed coordinate being infinite there.</p>
+The starting value must lie strictly inside its bounds: <code>par = 0</code> with
+<code>lower = 0</code> is an error, because the transformed coordinate is infinite
+there.</p>
     </div>
     <div class="section level2">
     <h2 id="an-optimum-lying-on-a-bound">An optimum lying on a bound<a class="anchor" aria-label="anchor" href="#an-optimum-lying-on-a-bound"></a></h2>
     <p>Reaching a bound exactly requires the transformed variable to run to
-infinity, so a solution on a bound is approached and not attained. What
-stops the run is the stopping rule, because the chain-rule factor
+infinity, so a solution on a bound is approached and not attained. The
+stopping rule ends the run, because the chain-rule factor
 \(\partial x / \partial \eta\) decays to zero as the bound is
 approached and takes the transformed gradient with it. The run therefore
 reports <code>converged = TRUE</code> at a point near the bound, and how near is set
@@ -236,7 +236,7 @@ the starters, <code><a href="bounded_transform.html">bounded_transform()</a></co
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">qg</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># With the gradient supplied, and without it, so that it is differenced.</span></span></span>
+<span class="r-in"><span><span class="co"># The first run supplies the gradient, and the second differences it.</span></span></span>
 <span class="r-in"><span><span class="co"># The two runs reach the same point and differ in the evaluation counts.</span></span></span>
 <span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu">minimize</span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">q</span>, par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">qg</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu">minimize</span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -247,11 +247,11 @@ the starters, <code><a href="bounded_transform.html">bounded_transform()</a></co
 <span class="r-out co"><span class="r-pr">#&gt;</span> supplied     3 3 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> differenced 15 0 0</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># One bound for every parameter: a scale that must stay positive.</span></span></span>
+<span class="r-in"><span><span class="co"># One bound applies to every parameter: a scale that must stay positive.</span></span></span>
 <span class="r-in"><span><span class="fu">minimize</span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Or one per parameter. The unconstrained minimum is at (1, 2), so the</span></span></span>
+<span class="r-in"><span><span class="co"># Bounds may also be given per parameter. The unconstrained minimum is at (1, 2), so the</span></span></span>
 <span class="r-in"><span><span class="co"># second coordinate approaches its upper bound of 1 and stops just short of</span></span></span>
 <span class="r-in"><span><span class="co"># it, at a distance set by the tolerance.</span></span></span>
 <span class="r-in"><span><span class="fu">minimize</span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.5</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
@@ -260,7 +260,7 @@ the starters, <code><a href="bounded_transform.html">bounded_transform()</a></co
 <span class="r-in"><span>         lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 1</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># No starting value: the bounds give the number of parameters.</span></span></span>
+<span class="r-in"><span><span class="co"># Without a starting value, the bounds give the number of parameters.</span></span></span>
 <span class="r-in"><span><span class="fu">minimize</span><span class="op">(</span><span class="fu"><a href="bfgs.html">bfgs</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">q</span>, <span class="fu"><a href="start_zeros.html">start_zeros</a></span><span class="op">(</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1 2</span>
 <span class="r-in"><span></span></span>

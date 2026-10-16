@@ -27,7 +27,7 @@ make_starts(par, n, spread, bounds)
 
 - bounds:
 
-  Box constraints in the shape
+  Box constraints in the shape that
   [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
   returns, possibly empty.
 
@@ -37,11 +37,11 @@ A matrix with `n` rows, the first of which is `par`.
 
 ## Details
 
-The range of each coordinate is cut into `n - 1` strata, each used
-exactly once, so the starts cannot all fall in one corner, as
-independent draws can. On the unconstrained scale the range is the
-starting value \\\eta_0\\ plus or minus \\3\\ \texttt{spread}\\ \max(1,
-\lvert\eta_0\rvert)\\. The unconstrained scale is the parameter itself
-for an unbounded coordinate and its shifted log or scaled logit for a
-bounded one, so a start for a variance is drawn on the log scale and
-comes back positive, without a rejected draw.
+The range of each coordinate is cut into `n - 1` strata, and each
+stratum is used exactly once, so the starts cannot all fall in one
+corner, as independent draws can. On the unconstrained scale the range
+is the starting value \\\eta_0\\ plus or minus \\3\\ \texttt{spread}\\
+\max(1, \lvert\eta_0\rvert)\\. The unconstrained scale is the parameter
+itself for an unbounded coordinate and its shifted log or scaled logit
+for a bounded one, so a start for a variance is drawn on the log scale
+and comes back positive, without a rejected draw.

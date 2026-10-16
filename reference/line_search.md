@@ -1,8 +1,8 @@
 # S7 Class for Line Searches
 
-The abstract parent of the three line searches. A line search decides
-how far to travel along a direction that the method has already chosen.
-It is an object, so the descent methods
+This class is the abstract parent of the three line searches. A line
+search determines how far to travel along a direction that the method
+has already computed. It is an object, so the descent methods
 ([`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md),
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md),
@@ -72,7 +72,7 @@ package.
 
 \\x\\ is the current point, \\g = \nabla f(x)\\ the gradient there,
 \\d\\ a direction satisfying \\g^\top d \< 0\\, and \\\alpha \> 0\\ the
-**step length** the search returns. The vector \\\alpha d\\ is the step
+step length that the search returns. The vector \\\alpha d\\ is the step
 taken; \\s\\ elsewhere in this package is the secant vector \\x^{+} -
 x\\ of a quasi-Newton update, a different quantity.
 
@@ -85,7 +85,7 @@ x\\ of a quasi-Newton update, a different quantity.
 ## Examples
 
 ``` r
-# Abstract: use one of the constructors.
+# The class is abstract: use one of the constructors.
 try(line_search(label = "mine"))
 #> Error in new_object(S7_object(), label = label) : 
 #>   Can't construct an object from abstract class <line_search>
@@ -112,8 +112,8 @@ rbind(armijo = unlist(minimize(bfgs(line_search = armijo()), f,
 #> armijo 49 40 0
 #> wolfe  49 39 0
 
-# The non-smooth problem of the battery, on which BFGS converges with
-# Armijo and stops without converging with Wolfe.
+# On the non-smooth problem of the battery, BFGS converges with Armijo
+# and stops without converging with Wolfe.
 k <- test_problems("abs_sum")[[1]]
 rbind(armijo = c(value = minimize(bfgs(line_search = armijo()), k$fn,
                                   k$par, gr = k$gr)@value),

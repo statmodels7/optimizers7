@@ -16,7 +16,8 @@ build_multistart_result(res, S, optimizer, seed, elapsed)
 
 - res:
 
-  The list of results, entries that failed being character messages.
+  The list of results, in which the entry of a failed start is a
+  character message.
 
 - S:
 
@@ -28,7 +29,7 @@ build_multistart_result(res, S, optimizer, seed, elapsed)
 
 - seed:
 
-  The generator state the run began with.
+  The generator state with which the run began.
 
 - elapsed:
 

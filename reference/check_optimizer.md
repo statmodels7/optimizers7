@@ -33,10 +33,11 @@ check_optimizer(
 
 - problems:
 
-  A list of problems in the shape
+  A list of problems in the shape that
   [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
-  returns. Defaults to all eight. Pass a subset to keep the report
-  short: `test_problems("sphere")`.
+  returns. Defaults to every problem of
+  [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md).
+  Pass a subset to keep the report short: `test_problems("sphere")`.
 
 - verbose:
 
@@ -75,9 +76,9 @@ Invisibly, a named list of two:
 The twelve numbered checks are statements that an optimizer must satisfy
 whatever its performance. The performance comes afterwards, as a table
 of gaps without a verdict. The two are kept apart because a slow method
-is not a defective one: gradient descent does not solve Rosenbrock in
-five hundred iterations, and that is a documented property of the
-method.
+can satisfy every requirement: gradient descent does not solve
+Rosenbrock in five hundred iterations, which is a documented property of
+the method.
 
 The only performance requirement among the numbered checks is check 12,
 the minimization of a quadratic, which every correct method passes.
@@ -85,19 +86,19 @@ the minimization of a quadratic, which every correct method passes.
 ## The twelve checks
 
 1.  `value` is the objective at `par`. A method that reports the value
-    at a point that it has since left passes every test written in terms
-    of the value alone.
+    at a point that it has since left passes every test that uses only
+    the value.
 
-2.  the reported gradient is the gradient at `par`. Checked only for an
-    optimizer that declares `"gradient"` through
+2.  the reported gradient is the gradient at `par`. The check is run
+    only for an optimizer that declares `"gradient"` through
     [`optimizer_provides()`](https://statmodels7.github.io/optimizers7/reference/optimizer_provides.md).
     [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
     reports an aggregate subgradient and does not declare a gradient, so
     the check does not apply to it.
 
 3.  `converged` follows the stopping rule and is never inferred from the
-    run having ended. Checked by starving the optimizer of iterations: a
-    run cut off after one must not report success.
+    run having ended. The check starves the optimizer of iterations, and
+    a run cut off after one iteration must not report success.
 
 4.  budgets are respected: `iterations` never exceeds `maxit`.
 
@@ -109,13 +110,13 @@ the minimization of a quadratic, which every correct method passes.
     [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
     trace) starts at one and increases.
 
-7.  bounds are respected **strictly**. A probability of exactly 1 is not
-    a probability inside \\(0, 1)\\, and the next computation of the
+7.  bounds are respected strictly. A probability of exactly 1 is not a
+    probability inside \\(0, 1)\\, and the next computation of the
     caller often divides by it.
 
 8.  the run repeats. A deterministic method gives the same answer twice;
-    a stochastic one gives it again from the seed it recorded, which
-    tests the recording as well as the repeatability.
+    a stochastic one gives it again from the seed that it recorded,
+    which tests the recording as well as the repeatability.
 
 9.  [`maximize()`](https://statmodels7.github.io/optimizers7/reference/maximize.md)
     is
@@ -161,18 +162,18 @@ for the declaration read by check 2.
 ``` r
 check_optimizer(bfgs())
 #> Checking optimizer: BFGS
-#>   [ 1] value agrees with par:            [PASSED]
-#>   [ 2] gradient agrees with par:         [PASSED]
-#>   [ 3] convergence is not assumed:       [PASSED]
-#>   [ 4] budgets are respected:            [PASSED]
-#>   [ 5] evaluations are counted:          [PASSED]
-#>   [ 6] trace is well formed:             [PASSED]
-#>   [ 7] bounds are respected strictly:    [PASSED]
-#>   [ 8] the run repeats:                  [PASSED]
-#>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is rejected:  [PASSED]
-#>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimizes a quadratic:         [PASSED]
+#>   [ 1] value agrees with par:                       [PASSED]
+#>   [ 2] gradient agrees with par:                    [PASSED]
+#>   [ 3] convergence is not assumed:                  [PASSED]
+#>   [ 4] budgets are respected:                       [PASSED]
+#>   [ 5] evaluations are counted:                     [PASSED]
+#>   [ 6] trace is well formed:                        [PASSED]
+#>   [ 7] bounds are respected strictly:               [PASSED]
+#>   [ 8] the run repeats:                             [PASSED]
+#>   [ 9] maximize mirrors minimize:                   [PASSED]
+#>   [10] a rule that cannot be evaluated is rejected: [PASSED]
+#>   [11] a bad starting point is an error:            [PASSED]
+#>   [12] it minimizes a quadratic:                    [PASSED]
 #> 
 #>   All checks passed.
 #> 
@@ -190,18 +191,18 @@ check_optimizer(bfgs())
 # apply, and the other checks are the same.
 res <- check_optimizer(nelder_mead(), problems = test_problems("sphere"))
 #> Checking optimizer: nelder-mead
-#>   [ 1] value agrees with par:            [PASSED]
-#>   [ 2] gradient agrees with par:         [PASSED]
-#>   [ 3] convergence is not assumed:       [PASSED]
-#>   [ 4] budgets are respected:            [PASSED]
-#>   [ 5] evaluations are counted:          [PASSED]
-#>   [ 6] trace is well formed:             [PASSED]
-#>   [ 7] bounds are respected strictly:    [PASSED]
-#>   [ 8] the run repeats:                  [PASSED]
-#>   [ 9] maximize mirrors minimize:        [PASSED]
-#>   [10] an unevaluable rule is rejected:  [PASSED]
-#>   [11] a bad starting point is an error: [PASSED]
-#>   [12] it minimizes a quadratic:         [PASSED]
+#>   [ 1] value agrees with par:                       [PASSED]
+#>   [ 2] gradient agrees with par:                    [PASSED]
+#>   [ 3] convergence is not assumed:                  [PASSED]
+#>   [ 4] budgets are respected:                       [PASSED]
+#>   [ 5] evaluations are counted:                     [PASSED]
+#>   [ 6] trace is well formed:                        [PASSED]
+#>   [ 7] bounds are respected strictly:               [PASSED]
+#>   [ 8] the run repeats:                             [PASSED]
+#>   [ 9] maximize mirrors minimize:                   [PASSED]
+#>   [10] a rule that cannot be evaluated is rejected: [PASSED]
+#>   [11] a bad starting point is an error:            [PASSED]
+#>   [12] it minimizes a quadratic:                    [PASSED]
 #> 
 #>   All checks passed.
 #> 

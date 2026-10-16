@@ -15,7 +15,7 @@ curvature approximation."><meta property="og:image" content="https://statmodels7
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,9 +74,9 @@ only a small fraction of the decrease that the linear model predicts.</p></dd>
 
 
 <dt id="arg-max-step">max_step<a class="anchor" aria-label="anchor" href="#arg-max-step"></a></dt>
-<dd><p>Maximum number of <strong>trial points</strong>, the full step
-included, before the search gives up; a positive whole number. Defaults
-to 30. The name suggests a length, but the quantity is a count.</p></dd>
+<dd><p>Maximum number of trial points, including the full step,
+before the search returns without a step; a positive whole number.
+Defaults to 30. The name suggests a length, but the quantity is a count.</p></dd>
 
 
 <dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
@@ -93,8 +93,8 @@ no arguments that returns it when it changes during the run. Defaults to
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The term \(c_1 \alpha\, g^\top d\) is required. A test of
-\(f_{new} \le f\) alone accepts steps that leave the objective
+    <p>The term \(c_1 \alpha\, g^\top d\) is required. A test that requires
+only \(f_{new} \le f\) accepts steps that leave the objective
 unchanged: on \(f(x) = \lVert x \rVert^2\), whose Hessian is \(2I\),
 a unit step along \(-g\) reflects the iterate through the minimum and
 leaves the objective <em>exactly</em> unchanged. The weaker test accepts that
@@ -114,14 +114,14 @@ the point where the last evaluation ended, a quadrature whose panels move,
 a simulation. Differences below that spread carry no information, and a
 search that has to verify a smaller decrease backtracks until it has used
 <code>max_step</code> trial points.</p>
-<p>The test is made <strong>once</strong>, before the first trial point, on the decrease
+<p>The test is made once, before the first trial point, on the decrease
 that the linear model of the method predicts over the full step,
 \(\alpha_0 \lvert g^\top d\rvert\). When that decrease is below
 <code>resolution</code> the search returns at once, and the run reports that the
 point is optimal to the accuracy of the objective. That is a weaker
-statement than a stopping rule being met, and the result reports it with
-a different label.</p>
-<p><strong>The test is not applied inside the backtracking loop.</strong> There the two
+statement than the one made when a stopping rule is met, and the result
+reports it with a different label.</p>
+<p>The test is not applied inside the backtracking loop. There the two
 situations cannot be distinguished, since \(x + \alpha d \to x\) as the
 step shrinks and the objective stops resolving the change whether the
 point is optimal or the direction is wrong. At the full step they differ:
@@ -137,7 +137,7 @@ while the method can still make progress.</p><div class="section">
 
 <p>When the objective becomes more precise as the run proceeds (for example
 a fit warm-started from the previous evaluation), the resolution measured
-at the start is the worst value of the whole run. A <strong>function</strong> of no
+at the start is the worst value of the whole run. A function of no
 arguments passed instead of a number is called at every iteration, once
 per invocation of the search and not once per trial, so it costs one call
 per iteration. Its value is the resolution for the step about to be

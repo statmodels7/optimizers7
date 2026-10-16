@@ -1,9 +1,9 @@
 # S7 Class for the Barzilai-Borwein Method
 
-An optimizer holding which of the two Rayleigh quotients gives the step
+A `Bb` object holds which of the two Rayleigh quotients gives the step
 length, the bounds to which that quotient is clamped, the curvature
 threshold that a secant pair must meet, and the step multiplier and the
-line search. Built by
+line search. It is built by
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md). Its
 line search defaults to
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md);
@@ -73,4 +73,4 @@ search along the direction.
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) for
 the constructor,
 [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
-for the acceptance test it defaults to.
+for the acceptance test that is its default.

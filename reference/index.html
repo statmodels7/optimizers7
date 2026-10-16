@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -211,7 +211,7 @@
       </dl></div><div class="section level2">
       <h2 id="wrapping-an-optimizer">Wrapping an optimizer<a class="anchor" aria-label="anchor" href="#wrapping-an-optimizer"></a></h2>
 
-      <div class="section-desc"><p>Both are themselves optimizers, so they combine with every method above and with each other. A multi-start reports the number of distinct optimal values reached from its starts; a chain runs its stages in order, each starting where the previous one finished.</p></div>
+      <div class="section-desc"><p>Both are themselves optimizers, so they combine with every method above and with each other. A multi-start reports the number of distinct optimal values reached from its starts; a chain runs its stages in order, and each stage starts where the previous one finished.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -424,7 +424,7 @@
       </dl></div><div class="section level2">
       <h2 id="writing-a-new-optimizer">Writing a new optimizer<a class="anchor" aria-label="anchor" href="#writing-a-new-optimizer"></a></h2>
 
-      <div class="section-desc"><p>The requirements on a new <code><a href="../reference/minimize.html">minimize()</a></code> method, and the functions that help to meet them. <code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> runs twelve checks on what an optimizer reports, and reports separately the gaps that it reaches on the test problems, since performance and correctness are different questions.</p></div>
+      <div class="section-desc"><p>The requirements on a new <code><a href="../reference/minimize.html">minimize()</a></code> method, and the functions that help to meet them. <code><a href="../reference/check_optimizer.html">check_optimizer()</a></code> runs twelve checks on what an optimizer reports, and reports separately the gaps that it reaches on the test problems, and these gaps do not enter the verdicts.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -443,7 +443,7 @@
           <code><a href="check_criterion.html">check_criterion()</a></code>
 
         </dt>
-        <dd>Reject a Stopping Rule an Optimizer Cannot Evaluate</dd>
+        <dd>Reject a Stopping Rule That an Optimizer Cannot Evaluate</dd>
 
         <dt>
 

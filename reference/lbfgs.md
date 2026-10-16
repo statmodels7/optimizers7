@@ -1,8 +1,8 @@
 # Limited-Memory BFGS
 
-BFGS without ever forming the matrix: only the last `memory` secant
-pairs are kept, and the direction comes from the two-loop recursion.
-Costs \\O(mp)\\ in time and memory where
+Applies the BFGS update without forming the matrix: only the last
+`memory` secant pairs are kept, and the direction comes from the
+two-loop recursion. It costs \\O(mp)\\ in time and memory where
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 costs \\O(p^2)\\. The direction equals the one of the explicitly
 assembled inverse built from the same pairs and the same initial
@@ -77,7 +77,7 @@ g\_{old}\\ the change in the gradient. The scalar step length is
 
 The two-loop recursion returns exactly the product of the explicitly
 assembled inverse built from the same pairs and the same scaling (the
-last example). The difference is in the cost: one iteration costs
+last example). The methods differ in cost: one iteration costs
 \\O(p^2)\\ for
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and \\O(mp)\\ for `lbfgs()`, while the numbers of iterations of the two

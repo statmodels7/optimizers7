@@ -11,7 +11,7 @@ user-defined minimize() method can remove one in the same way."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,19 +111,20 @@ The test suite compares them with <code>linkinv()</code>, <code>dlinkinv()</code
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="bounded_forward.html">bounded_forward()</a></code> for the inverse, <code><a href="check_bounds.html">check_bounds()</a></code> for the
-shape <code>b</code> comes in, <code><a href="minimize.html">minimize()</a></code> for the run that uses both.</p></div>
+shape in which <code>b</code> is supplied, <code><a href="minimize.html">minimize()</a></code> for the run that uses both.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A variance: the whole line maps onto the positive half-line, and every</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># For a variance, the whole line maps onto the positive half-line, and every</span></span></span>
 <span class="r-in"><span><span class="co"># value of eta, however large, maps inside it.</span></span></span>
 <span class="r-in"><span><span class="fu">bounded_transform</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">h</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1353353 1.0000000 7.3890561</span>
 <span class="r-in"><span><span class="fu">bounded_transform</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">Inf</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">500</span>, <span class="fl">500</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">h</span> <span class="op">&gt;</span> <span class="fl">0</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE TRUE</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A probability, with the derivative that carries a gradient across.</span></span></span>
+<span class="r-in"><span><span class="co"># For a probability, the result also includes the derivative that carries a</span></span></span>
+<span class="r-in"><span><span class="co"># gradient across.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu">bounded_transform</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ h : num [1:3] 0.269 0.5 0.731</span>

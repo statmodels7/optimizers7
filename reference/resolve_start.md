@@ -39,5 +39,5 @@ parameter. Otherwise
 [`infer_npar()`](https://statmodels7.github.io/optimizers7/reference/infer_npar.md)
 probes the objective.
 
-A numeric `par` passes through unchanged, so the ordinary call pays
-nothing for this.
+A numeric `par` passes through unchanged, so the ordinary call has no
+added cost.

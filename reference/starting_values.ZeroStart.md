@@ -1,8 +1,8 @@
 # Zero Starting Values
 
-Returns `npar` zeros. Read on the unconstrained scale, so
+Returns `npar` zeros. The zeros are on the unconstrained scale, so
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-maps them through the bounds before any method sees them: a positive
+maps them through the bounds before any method receives them: a positive
 parameter starts at 1, a probability at 0.5, an unbounded one at 0.
 
 ## Arguments
@@ -15,7 +15,8 @@ parameter starts at 1, a probability at 0.5, an unbounded one at 0.
 
 - npar:
 
-  The number of parameters wanted, a positive whole number.
+  The number of parameters in the vector to produce, a positive whole
+  number.
 
 ## Value
 

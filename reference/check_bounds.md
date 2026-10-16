@@ -1,7 +1,7 @@
 # Normalize Box Constraints
 
 Recycles `lower` and `upper` to the length of `par`, checks them, and
-returns them in the shape the compiled loop reads.
+returns them in the shape that the compiled loop reads.
 
 ## Usage
 
@@ -22,7 +22,7 @@ check_bounds(lower, upper, par)
 ## Value
 
 A list with one `c(lower, upper)` pair per parameter, or an empty list
-when no bound is finite. Call it at the top of a user-defined
+when every bound is infinite. Call it at the top of a user-defined
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 method, then hand each pair to
 [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md);
@@ -72,7 +72,7 @@ check_bounds(c(0, -5), c(1, 5), par = c(0.5, 0))
 #> [1] -5  5
 #> 
 
-# no finite bound is no box at all
+# infinite bounds on every parameter give no box at all
 length(check_bounds(-Inf, Inf, par = c(1, 2)))
 #> [1] 0
 

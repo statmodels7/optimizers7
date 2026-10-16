@@ -8,14 +8,15 @@ package, and it provides only the quantities that its author needed. The
 stopping rule, which defines what the procedure means by *finished*, is
 usually a constant deep inside the code.
 
-[optimizers7](https://statmodels7.github.io/optimizers7/) writes
-optimizers once, as objects. An optimizer carries its algorithm and
-every setting of that algorithm; a stopping rule is a separate object
-that can be replaced, combined, or written by the user; and every
-algorithm is written once against one interface for the objective.
+In [optimizers7](https://statmodels7.github.io/optimizers7/), each
+optimizer is written once, as an object. An optimizer carries its
+algorithm and every setting of that algorithm; a stopping rule is a
+separate object that can be replaced, combined, or written by the user;
+and every algorithm is written once against one interface for the
+objective.
 
-The package minimizes the function that it is given, with no notion of
-an observation, of the origin of the data, or of the meaning of the
+The package minimizes the function that it is given, and it does not
+represent observations, the origin of the data or the meaning of the
 parameters. Those belong to the calling package.
 
 It is the optimization layer of
@@ -31,8 +32,8 @@ It is the optimization layer of
 pak::pak("statmodels7/optimizers7")
 ```
 
-Or the whole toolkit at once, which also installs the other packages of
-the toolkit:
+To install the whole toolkit, including the other packages of the
+toolkit, use:
 
 ``` r
 
@@ -96,7 +97,7 @@ minimize(bfgs(criterion = CritTiny(label = "f < 1e-8", tol = 1e-8)),
 #> [1] "f < 1e-8"
 ```
 
-A rule that an optimizer cannot evaluate is **rejected** when the run
+A rule that an optimizer cannot evaluate is rejected when the run
 starts, with an error that names the missing quantity, instead of being
 accepted and never firing:
 
@@ -183,7 +184,7 @@ c(bundle = minimize(bundle(), sad, par = 0, gr = sub)@par, median = median(z))
 #> 0.06462703 0.06462703
 ```
 
-## What is here
+## Components of the package
 
 |  |  |
 |----|----|
@@ -209,10 +210,10 @@ a budget ran out.
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 runs its starts in parallel without any setup: `ncores` is a number, by
 default as many processes as there are starts and at most the number of
-cores minus two. Starting the workers, loading the package on them,
-giving each an independent random stream and shutting them down happen
-inside the call. The implementation uses forks on Linux and macOS and a
-socket cluster on Windows. For a deterministic optimizer such as
+cores minus two. The call itself starts the workers, loads the package
+on them, gives each of them an independent random stream and shuts them
+down. The implementation uses forks on Linux and macOS and a socket
+cluster on Windows. For a deterministic optimizer such as
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
 [`set.seed()`](https://rdrr.io/r/base/Random.html) reproduces the run
 identically however many cores were used; for a stochastic one such as
@@ -226,7 +227,7 @@ runs twelve checks on what an optimizer reports: that `value` is the
 objective at `par`, that a reported gradient is the gradient there, that
 bounds hold *strictly*, that a run repeats, and others. It then reports,
 separately, the gaps that the method reached on the standard test
-problems, because performance and correctness are different questions:
+problems; these gaps measure performance and do not enter the verdicts:
 
 ``` r
 

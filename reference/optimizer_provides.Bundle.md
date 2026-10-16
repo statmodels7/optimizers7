@@ -5,7 +5,7 @@ evaluates subgradients and reports their aggregate. A rule built on
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 would test the subgradient at the iterate, which does not tend to zero:
 near the minimum of \\\lvert x \rvert\\ every evaluated subgradient has
-norm 1, so the run would end at the minimizer without the rule firing.
+norm 1, so the rule would not fire when the run reached the minimizer.
 
 ## Arguments
 
@@ -38,5 +38,5 @@ f <- function(p) sum(abs(p - c(1, -2)))
 try(minimize(bundle(criterion = crit_grad()), f, c(0, 0),
              gr = function(p) sign(p - c(1, -2))))
 #> Error : The stopping rule needs gradient, which proximal bundle does not provide.
-#>   Choose a criterion this optimizer can evaluate, or a method that provides it.
+#>   Choose a criterion that this optimizer can evaluate, or a method that provides it.
 ```

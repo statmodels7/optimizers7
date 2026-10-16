@@ -37,21 +37,22 @@ A list of `n` results.
 
 ## Details
 
-There are three routes, chosen here so that the caller need not choose.
+The function selects one of three routes, so that the caller does not
+have to.
 
 One process is the sequential loop, and it is the only route that
 reports progress during the run, since a worker has no output that the
 caller would see. When optimizers7 was loaded with pkgload, this route
 is used whatever `ncores` is.
 
-On a Unix-alike the workers are **forks**, through
+On a Unix-alike the workers are forks, through
 [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html). A
-fork starts in microseconds and inherits the whole session, so nothing
-has to be loaded or exported.
+fork starts in microseconds and inherits the whole session, so the
+function does not have to load the package or export objects.
 
-On Windows there is no `fork`, so a **socket cluster** is started here
-and stopped on exit. Its workers are new sessions, so optimizers7 has to
-be loaded on them; when that is not possible, because the package is not
+On Windows there is no `fork`, so a socket cluster is started here and
+stopped on exit. Its workers are new sessions, so optimizers7 has to be
+loaded on them; when that is not possible, because the package is not
 installed in a library that they can see, the function gives a warning
 and runs the starts sequentially instead of failing.
 

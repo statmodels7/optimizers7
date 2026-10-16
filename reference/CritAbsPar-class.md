@@ -1,6 +1,6 @@
 # S7 Class for the Absolute Parameter Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md).
 The rule fires when the largest change of a coordinate, \\\max_j \lvert
 x_j^{new} - x_j^{old}\rvert\\, falls below `tol`, so the tolerance is in
@@ -29,9 +29,9 @@ carrying `label` and `tol`.
 
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
 returns `FALSE` when `x_old` is `NULL`. With box constraints the
-comparison is on the **unconstrained** scale, on which the optimizer
-moves, so the same tolerance has different meanings for a variance near
-zero and for one near a thousand.
+comparison is on the unconstrained scale, on which the optimizer moves,
+so the same tolerance has different meanings for a variance near zero
+and for one near a thousand.
 
 ## See also
 

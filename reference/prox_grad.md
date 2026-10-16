@@ -38,9 +38,9 @@ prox_grad(
 
 - g:
 
-  The value of the non-smooth part, a function of the point. Required
-  alongside `prox`: the two describe the same term, and without `g` the
-  reported objective would be the smooth part alone.
+  The value of the non-smooth part, a function of the point. It is
+  required alongside `prox`, because the two describe the same term, and
+  without `g` the reported objective would include only the smooth part.
 
 - accelerate:
 
@@ -116,11 +116,11 @@ run.
 ## What the stopping rule reads
 
 The gradient of \\f + g\\ does not vanish at the solution, since \\g\\
-is not differentiable there, so this method reports the **proximal
-gradient mapping** \$\$G_t(x) = \frac{x - \mathrm{prox}\_{tg}(x -
-t\nabla f(x))}{t}\$\$ as its gradient, read at the iterate \\x\\, the
-point that is reported. It vanishes exactly at a stationary point of
-\\f + g\\ and reduces to \\\nabla f\\ when \\g\\ is absent, so
+is not differentiable there, so this method reports the proximal
+gradient mapping \$\$G_t(x) = \frac{x - \mathrm{prox}\_{tg}(x - t\nabla
+f(x))}{t}\$\$ as its gradient, read at the iterate \\x\\, the point that
+is reported. It vanishes exactly at a stationary point of \\f + g\\ and
+reduces to \\\nabla f\\ when \\g\\ is absent, so
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 keeps its meaning and its default tolerance. On the lasso of the
 examples the mapping agrees with the KKT conditions, which the last
@@ -182,7 +182,7 @@ the smooth case.
 ## Examples
 
 ``` r
-# A lasso-penalized least squares problem, solved through the operator.
+# A lasso-penalized least squares problem is solved through the operator.
 # Three of the eight coefficients are non-zero in the truth.
 set.seed(1)
 X <- matrix(rnorm(200 * 8), 200, 8)

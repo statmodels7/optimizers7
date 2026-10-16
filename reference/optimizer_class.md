@@ -4,7 +4,7 @@ Returns the
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md)
 class itself, for the same reason as
 [`criterion_class()`](https://statmodels7.github.io/optimizers7/reference/criterion_class.md):
-the three functions that accept an arbitrary optimizer and check their
+the functions that accept an arbitrary optimizer and check their
 argument all take an argument named `optimizer`, which shadows the class
 inside their body.
 

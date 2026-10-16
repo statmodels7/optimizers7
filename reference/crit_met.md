@@ -68,9 +68,9 @@ A single logical.
 The shipped methods supply `f_old` and `x_old` from the first call on,
 except
 [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
-which supplies them from its second iteration. A descent method calls
-the rule with `f_old` and `x_old` set to `NULL` only after a line search
-that accepted no step, so that only the state at `x_new` can end the run
+which supplies them from its second iteration. A descent method sets
+`f_old` and `x_old` to `NULL` in the call only after a line search that
+accepted no step, so that only the state at `x_new` can end the run
 there. With box constraints, `x_new`, `x_old` and `gradient` are on the
 unconstrained scale on which the optimizer moves.
 

@@ -4,12 +4,12 @@ the best result together with the number of distinct optimal values
 reached. Two runs count as reaching the same optimum when their objective
 values differ by at most distinct_tol. A count above one shows that the
 surface has more than one local minimum; a count of one does not exclude
-other minima with the same value or minima that no start reached."><meta property="og:description" content="Wraps any optimizer and runs it from several starting points, returning
+other minima with the same value or minima that all the starts missed."><meta property="og:description" content="Wraps any optimizer and runs it from several starting points, returning
 the best result together with the number of distinct optimal values
 reached. Two runs count as reaching the same optimum when their objective
 values differ by at most distinct_tol. A count above one shows that the
 surface has more than one local minimum; a count of one does not exclude
-other minima with the same value or minima that no start reached."><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
+other minima with the same value or minima that all the starts missed."><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ other minima with the same value or minima that no start reached."><meta propert
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,11 +49,11 @@ other minima with the same value or minima that no start reached."><meta propert
 
     <div class="ref-description section level2">
     <p>Wraps any optimizer and runs it from several starting points, returning
-the best result together with the number of <strong>distinct optimal values</strong>
+the best result together with the number of distinct optimal values
 reached. Two runs count as reaching the same optimum when their objective
 values differ by at most <code>distinct_tol</code>. A count above one shows that the
 surface has more than one local minimum; a count of one does not exclude
-other minima with the same value or minima that no start reached.</p>
+other minima with the same value or minima that all the starts missed.</p>
     </div>
 
     <div class="section level2">
@@ -91,8 +91,8 @@ an error that names <code>maxit</code>.</p></dd>
 <dd><p>An optional matrix of starting points, one per row, used
 verbatim; <code>n</code> and <code>spread</code> are then ignored and <code>n</code> is taken from the
 number of rows. A matrix whose number of columns differs from the length
-of <code>par</code> is rejected when the run starts, with an error that states the
-required number of columns.</p></dd>
+of <code>par</code> is rejected when the run starts, with an error whose message
+gives the required number of columns.</p></dd>
 
 
 <dt id="arg-spread">spread<a class="anchor" aria-label="anchor" href="#arg-spread"></a></dt>
@@ -101,7 +101,7 @@ unconstrained scale. Defaults to <code>1</code>.</p></dd>
 
 
 <dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>
-<dd><p>How many processes to spread the starts over. Defaults to
+<dd><p>The number of processes over which to spread the starts. Defaults to
 <code>NULL</code>, meaning <code>min(n, max(1, parallel::detectCores() - 2))</code>. Pass <code>1</code>
 for a sequential run. For a deterministic inner optimizer the answer
 does not depend on the value; for a stochastic one, such as <code><a href="sa.html">sa()</a></code>, it
@@ -125,7 +125,7 @@ nothing.</p></dd>
 
 <dt id="arg-keep-trace">keep_trace<a class="anchor" aria-label="anchor" href="#arg-keep-trace"></a></dt>
 <dd><p>Keep the per-start summary? Defaults to <code>TRUE</code>, unlike
-every other optimizer, because here the trace is one row per <strong>start</strong>,
+every other optimizer, because here the trace is one row per start,
 not one per iteration.</p></dd>
 
 </dl></div>
@@ -155,7 +155,7 @@ consecutive ones differ by more than <code>distinct_tol</code>.</p>
 remaining \(n - 1\) form a Latin hypercube: the range of each coordinate
 is divided into equal strata and each stratum is used exactly once, which
 spreads the starts more evenly than independent draws. They are generated
-on the <strong>unconstrained</strong> scale and mapped back through the bounds, so
+on the unconstrained scale and mapped back through the bounds, so
 every start is admissible by construction, however tight the box. The
 rows of a matrix given in <code>starts</code> are not checked against the bounds in
 advance: a row outside the box fails in its own run and is recorded as a
@@ -164,8 +164,8 @@ failed start.</p>
     <div class="section level2">
     <h2 id="parallel-execution">Parallel execution<a class="anchor" aria-label="anchor" href="#parallel-execution"></a></h2>
     <p>The starts are independent and are run over <code>ncores</code> processes. The
-creation of the workers, the loading of the package, the assignment of
-random streams and the shutdown are handled internally: on Unix-alikes the
+function creates the workers, loads the package, assigns the random
+streams and shuts the workers down internally: on Unix-alikes the
 workers are forks, on Windows they form a socket cluster. If the workers
 cannot load <span class="pkg">optimizers7</span>, the run gives a warning and proceeds
 sequentially. If <span class="pkg">optimizers7</span> was loaded from source with
@@ -186,7 +186,7 @@ streams to the workers, and therefore on <code>ncores</code>.</p>
     <h2 id="failed-starts">Failed starts<a class="anchor" aria-label="anchor" href="#failed-starts"></a></h2>
     <p>A start where the objective is undefined is recorded as failed and the
 others proceed; the <code>message</code> then reports how many succeeded and quotes
-the first failure. An error is raised only when <strong>every</strong> start fails, and
+the first failure. An error is raised only when every start fails, and
 it quotes the first error.</p>
     </div>
     <div class="section level2">
@@ -211,7 +211,7 @@ parallel, <code><a href="sa.html">sa()</a></code> for a global search that needs
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 10, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : optimizer = BFGS, n = 10, starts = &lt;NULL&gt;, spread = 1, ncores = &lt;NULL&gt;, distinct_tol = 1e-06</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A surface with two minima, one of them lower. A single run from the</span></span></span>
+<span class="r-in"><span><span class="co"># The surface has two minima, and one of them is lower. A single run from the</span></span></span>
 <span class="r-in"><span><span class="co"># origin finds the lower one; the count shows that there is another.</span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="op">(</span><span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>

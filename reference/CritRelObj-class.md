@@ -1,6 +1,6 @@
 # S7 Class for the Relative Objective Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md).
 The rule fires when \\\lvert f\_{new} - f\_{old}\rvert \< \texttt{tol}\\
 (\lvert f\_{old}\rvert + \texttt{tol})\\, so the change is compared with

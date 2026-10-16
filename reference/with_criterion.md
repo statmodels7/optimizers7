@@ -1,8 +1,9 @@
 # Rebuild an Optimizer With a Different Stopping Rule
 
-Returns a copy of the optimizer with its criterion replaced, keeping its
-class and every other setting. For a wrapper it replaces the rule that
-is actually consulted, which is not always the one on the outside.
+Returns a copy of the optimizer in which the criterion is replaced. The
+copy keeps the class and every other setting of the optimizer. For a
+wrapper it replaces the rule that is actually consulted, which is not
+always the one on the outside.
 
 ## Usage
 
@@ -33,8 +34,8 @@ An optimizer of the same class as `optimizer`.
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
 carries a criterion property that is used for printing; the rule that
 the run evaluates belongs to the optimizer inside. Setting the outer one
-alone changes only the printing, and a check that relied on it would
-test the default rule:
+without the inner one changes only the printing, and a check that relied
+on it would test the default rule:
 
     ms <- multistart(bfgs(), n = 3)
     with_criterion(ms, crit_abs_obj(1e-4))@optimizer@criterion@label

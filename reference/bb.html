@@ -11,7 +11,7 @@ inverse curvature computed from the previous secant pair."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,19 +81,19 @@ see Details.</p></dd>
 
 <dt id="arg-alpha-">alpha0<a class="anchor" aria-label="anchor" href="#arg-alpha-"></a></dt>
 <dd><p>The step length used on the first iteration, before there is a
-secant pair to estimate one from. Defaults to <code>1e-2</code>.</p></dd>
+secant pair from which to estimate one. Defaults to <code>1e-2</code>.</p></dd>
 
 
 <dt id="arg-alpha-min-alpha-max">alpha_min, alpha_max<a class="anchor" aria-label="anchor" href="#arg-alpha-min-alpha-max"></a></dt>
-<dd><p>Bounds on the step length. Defaults <code>1e-10</code>
-and <code>1e10</code>.</p></dd>
+<dd><p>Bounds on the step length. The defaults are
+<code>1e-10</code> and <code>1e10</code>.</p></dd>
 
 
 <dt id="arg-curv-tol">curv_tol<a class="anchor" aria-label="anchor" href="#arg-curv-tol"></a></dt>
 <dd><p>The relative curvature threshold: a secant pair is rejected
 when \(s^\top y \le c \lVert s \rVert \lVert y \rVert\)
 for \(c\) equal to <code>curv_tol</code>. Defaults to <code>1e-10</code>, which is
-the same relative test <code><a href="bfgs.html">bfgs()</a></code> applies to the same quantity.</p></dd>
+the same relative test that <code><a href="bfgs.html">bfgs()</a></code> applies to the same quantity.</p></dd>
 
 
 <dt id="arg-step">step<a class="anchor" aria-label="anchor" href="#arg-step"></a></dt>
@@ -111,8 +111,8 @@ the same relative test <code><a href="bfgs.html">bfgs()</a></code> applies to th
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
-no evaluation budget, so the run stops on the criterion or on
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>, which
+sets no evaluation budget, so the run stops on the criterion or on
 <code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
@@ -143,12 +143,11 @@ the two Rayleigh quotients of the secant pair \(s = x_k - x_{k-1}\),
 direction just traveled, so the method is a quasi-Newton method that keeps
 a single scalar. When the Hessian is a multiple of the identity, the
 curvature is the same in every direction, the estimate from one secant
-pair is exact, and the method converges in <strong>two</strong> iterations. Otherwise
+pair is exact, and the method converges in two iterations. Otherwise
 the scalar is the curvature along the last step only, and the number of
 iterations grows with the spread of the curvatures. On a general smooth
 objective the method usually needs more iterations and more evaluations
-than
-<code><a href="bfgs.html">bfgs()</a></code>, and it stores one scalar instead of a matrix.</p>
+than <code><a href="bfgs.html">bfgs()</a></code>, and it stores one scalar instead of a matrix.</p>
     </div>
     <div class="section level2">
     <h2 id="variants">Variants<a class="anchor" aria-label="anchor" href="#variants"></a></h2>
@@ -165,8 +164,8 @@ unaltered, and backtracking occurs only when it fails the acceptance test.
 The method makes progress through steps that may increase the objective
 temporarily, so the default acceptance test is <code><a href="nonmonotone.html">nonmonotone()</a></code>, which
 requires an improvement over the largest of the last <code>memory + 1</code>
-objective values, the current one included, and not over the current value
-alone. A plain Armijo condition rejects every step that increases the
+objective values, which include the current one, and not only over the
+current value. A plain Armijo condition rejects every step that increases the
 objective, and with it the steps on which the method relies, so the run
 needs more than twice as many evaluations (see the examples).</p>
 <p><code>nonmonotone(memory = 0)</code> is <code><a href="armijo.html">armijo()</a></code> value for value, so a comparison
@@ -176,16 +175,16 @@ of the two isolates the effect of the memory.</p>
     <h2 id="rejected-secant-pairs">Rejected secant pairs<a class="anchor" aria-label="anchor" href="#rejected-secant-pairs"></a></h2>
     <p>A pair is used only if it reports positive curvature by a relative margin,
 \(s^\top y &gt; c \lVert s \rVert \lVert y \rVert\) with
-\(c\) the <code>curv_tol</code> argument, the same test <code><a href="bfgs.html">bfgs()</a></code> applies. When a
+\(c\) the <code>curv_tol</code> argument, the same test that <code><a href="bfgs.html">bfgs()</a></code> applies. When a
 pair is rejected the step length is reset to
 \(1/\lVert g \rVert_\infty\), a trial displacement of order one
 in the parameters. The reset reads the current gradient and not the step
-length being replaced or a fixed constant, so it can neither freeze the
-iteration at a too-short step nor produce one the backtracking cannot
-rescale. Steps outside <code>[alpha_min, alpha_max]</code> are clamped. The reset and
-the clamp appear in the trace as <code>bb curvature reset</code> and
-<code>bb step clamped</code>, and a step shortened by the line search as
-<code>step shortened</code>.</p>
+length being replaced or a fixed constant, so it cannot freeze the
+iteration at a too-short step and cannot produce a step that the
+backtracking is unable to rescale. Steps outside <code>[alpha_min, alpha_max]</code>
+are clamped. The reset and the clamp appear in the trace as
+<code>bb curvature reset</code> and <code>bb step clamped</code>, and a step shortened by the
+line search as <code>step shortened</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

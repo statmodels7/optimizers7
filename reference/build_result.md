@@ -32,8 +32,8 @@ build_result(out, optimizer, spec, elapsed, seed = NULL)
 
 - seed:
 
-  The generator state the run began with, or `NULL` for a method that
-  draws no random numbers.
+  The generator state with which the run began, or `NULL` for a method
+  that does not draw random numbers.
 
 ## Value
 
@@ -43,9 +43,10 @@ An
 ## Details
 
 `converged` is the flag returned by the loop, and it is never inferred
-from the run having ended. The loop sets it when the stopping rule
-fires, when a line search with a declared resolution establishes that no
-step decreases the objective by more than that resolution, and, for
+from the fact that the run ended. The loop sets it when the stopping
+rule fires, when a line search with a declared resolution establishes
+that every step fails to decrease the objective by more than that
+resolution, and, for
 [`brent()`](https://statmodels7.github.io/optimizers7/reference/brent.md),
 when the bracket reaches the resolution of the iterate. `criterion_met`
 is the label of the rule in the first case and a label of its own in the

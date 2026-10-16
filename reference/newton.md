@@ -127,11 +127,11 @@ When it fails:
 
 - `"ridge"`:
 
-  add \\\tau I\\, with \\\tau\\ doubled until the factorization
-  succeeds. This is Levenberg's idea: it interpolates between the Newton
-  step at \\\tau = 0\\ and a scaled steepest-descent step for large
-  \\\tau\\. It costs less than the eigendecomposition and shifts every
-  eigenvalue, not only the small ones.
+  add \\\tau I\\ and double \\\tau\\ until the factorization succeeds.
+  This is Levenberg's idea: it interpolates between the Newton step at
+  \\\tau = 0\\ and a scaled steepest-descent step for large \\\tau\\. It
+  costs less than the eigendecomposition and shifts every eigenvalue,
+  not only the small ones.
 
 A repair of the Hessian is recorded in the trace as `hessian modified`,
 or `hessian modified (capped)` when the repaired step is also scaled
@@ -222,7 +222,7 @@ edition. Springer, New York.
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
-when no Hessian is available,
+when a Hessian is not available,
 [`armijo()`](https://statmodels7.github.io/optimizers7/reference/armijo.md)
 for the line search,
 [`summary.optimizer_result()`](https://statmodels7.github.io/optimizers7/reference/summary.optimizer_result.md)
@@ -243,10 +243,10 @@ minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
-# A saddle, where the unrepaired step points the wrong way. The Hessian at
+# At a saddle the unrepaired step points the wrong way. The Hessian at
 # the start has eigenvalues 2 and -1.99; the repair is recorded in the
 # trace.
 sad <- function(p) p[1]^2 - p[2]^2 + 0.1 * p[2]^4

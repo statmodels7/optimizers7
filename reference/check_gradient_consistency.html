@@ -21,7 +21,7 @@ cause."><meta property="og:image" content="https://statmodels7.github.io/optimiz
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,12 +90,12 @@ cause.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The check costs one call to <code>gr</code> and two to <code>fn</code>, runs once per call of
-<code><a href="minimize.html">minimize()</a></code>, and is skipped when it cannot decide: for an objective that
-is not a function, a gradient that is not finite at <code>par</code>, an objective
-that is not finite at the probe points, and a gradient too small to be
-distinguished from the truncation error of the difference. The last case
-arises when a caller starts at the optimum, where a warning would be
-wrong.</p>
+<code><a href="minimize.html">minimize()</a></code>, and is skipped when the comparison cannot be made: for an
+objective that is not a function, a gradient that is not finite at <code>par</code>,
+an objective that is not finite at the probe points, and a gradient too
+small to be distinguished from the truncation error of the difference.
+The last case arises when a caller starts at the optimum, where a warning
+would be wrong.</p>
 <p>The tolerance is loose, a relative disagreement above one half, so that
 the error of the difference or a subgradient of a non-smooth objective
 does not trigger it. It is meant to detect a wrong function, not an error

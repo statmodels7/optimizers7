@@ -3,13 +3,15 @@
 below a millisecond, milliseconds below a second and seconds below a
 minute, each to three significant figures, then whole minutes and seconds
 below an hour, and whole hours and minutes above. The unit is chosen on
-the rounded value, so that no field reaches its carry ("59 min 60 s").
-Used by print.optimizer_result() for the elapsed line.'><meta property="og:description" content='Renders a time in seconds in a unit matched to its size: microseconds
+the rounded value, so that rounding cannot produce a field at its carry
+value ("59 min 60 s"). print.optimizer_result() uses it for the
+elapsed line.'><meta property="og:description" content='Renders a time in seconds in a unit matched to its size: microseconds
 below a millisecond, milliseconds below a second and seconds below a
 minute, each to three significant figures, then whole minutes and seconds
 below an hour, and whole hours and minutes above. The unit is chosen on
-the rounded value, so that no field reaches its carry ("59 min 60 s").
-Used by print.optimizer_result() for the elapsed line.'><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
+the rounded value, so that rounding cannot produce a field at its carry
+value ("59 min 60 s"). print.optimizer_result() uses it for the
+elapsed line.'><meta property="og:image" content="https://statmodels7.github.io/optimizers7/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +19,7 @@ Used by print.optimizer_result() for the elapsed line.'><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,8 +54,9 @@ Used by print.optimizer_result() for the elapsed line.'><meta property="og:image
 below a millisecond, milliseconds below a second and seconds below a
 minute, each to three significant figures, then whole minutes and seconds
 below an hour, and whole hours and minutes above. The unit is chosen on
-the rounded value, so that no field reaches its carry (<code>"59 min 60 s"</code>).
-Used by <code><a href="print.optimizer_result.html">print.optimizer_result()</a></code> for the <code>elapsed</code> line.</p>
+the rounded value, so that rounding cannot produce a field at its carry
+value (<code>"59 min 60 s"</code>). <code><a href="print.optimizer_result.html">print.optimizer_result()</a></code> uses it for the
+<code>elapsed</code> line.</p>
     </div>
 
     <div class="section level2">

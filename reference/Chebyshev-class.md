@@ -1,10 +1,10 @@
 # S7 Class for Chebyshev's Method
 
-A
+This class is a
 [Newton](https://statmodels7.github.io/optimizers7/reference/Newton-class.md)
 optimizer whose direction carries Chebyshev's third-order correction.
-Built by
-[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md).
+[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+builds it.
 
 ## Usage
 

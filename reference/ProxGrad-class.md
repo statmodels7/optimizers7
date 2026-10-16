@@ -1,8 +1,8 @@
 # S7 Class for the Proximal Gradient Method
 
-An optimizer holding the two descriptions of the non-smooth part of an
-objective, its proximal operator and its value, together with the three
-settings of the accelerated iteration. Built by
+This class is an optimizer that holds the two descriptions of the
+non-smooth part of an objective, its proximal operator and its value,
+together with the settings of the accelerated iteration. It is built by
 [`prox_grad()`](https://statmodels7.github.io/optimizers7/reference/prox_grad.md).
 It is the only shipped class whose
 [`optimizer_bounded()`](https://statmodels7.github.io/optimizers7/reference/optimizer_bounded.md)

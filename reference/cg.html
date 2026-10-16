@@ -13,7 +13,7 @@ matrix, which suits problems too large for a Hessian."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,8 +101,8 @@ theory of the method assumes a Wolfe step, see Details.</p></dd>
 
 
 <dt id="arg-max-eval">max_eval<a class="anchor" aria-label="anchor" href="#arg-max-eval"></a></dt>
-<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>:
-no evaluation budget, so the run stops on the criterion or on
+<dd><p>Maximum objective evaluations. Defaults to <code>Inf</code>, which
+sets no evaluation budget, so the run stops on the criterion or on
 <code>maxit</code>. Set a finite value to cap the cost of a run.</p></dd>
 
 
@@ -132,7 +132,7 @@ two vectors against <code><a href="bfgs.html">bfgs()</a></code>'s \(p \times p\)
     </div>
     <div class="section level2">
     <h2 id="conjugate-directions-and-the-line-search">Conjugate directions and the line search<a class="anchor" aria-label="anchor" href="#conjugate-directions-and-the-line-search"></a></h2>
-    <p>On a quadratic <strong>with an exact line search</strong> the directions are conjugate
+    <p>On a quadratic with an exact line search the directions are conjugate
 with respect to the Hessian, and the method terminates in \(p\) steps
 without forming that Hessian. The line search here is inexact, so that
 guarantee does not hold, and the number of iterations on a quadratic
@@ -142,8 +142,8 @@ vectors.</p>
     <div class="section level2">
     <h2 id="choice-of-beta">Choice of beta<a class="anchor" aria-label="anchor" href="#choice-of-beta"></a></h2>
     <p>All four formulas agree on a quadratic under an exact line search and
-differ elsewhere. <code>"fr"</code> has the simplest convergence theory and is known
-to stall for many iterations after a poor step. <code>"pr"</code> recovers from a
+differ elsewhere. <code>"fr"</code> has the simplest convergence theory and can
+stall for many iterations after a poor step. <code>"pr"</code> recovers from a
 poor step at once, since a small \(y = g_k - g_{k-1}\) makes \(\beta\)
 small and the direction close to steepest descent; its known theoretical
 non-convergence is removed by clamping \(\beta\) at zero, which restarts
@@ -158,11 +158,10 @@ depends on the problem (see the examples).</p>
 the Wolfe conditions (the strong ones for <code>"fr"</code> and <code>"pr"</code>) and use them
 to show that the direction produced is a descent direction. Backtracking
 gives no such guarantee, so <code><a href="wolfe.html">wolfe()</a></code> is the default.</p>
-<p>The constant also matters. <code><a href="wolfe.html">wolfe()</a></code> defaults to \(c_2 = 0.9\), which
-suits <code><a href="bfgs.html">bfgs()</a></code>, because its curvature update compensates for an inexact
-step. The conjugacy accumulated by conjugate gradients depends directly on
-the accuracy of the line search, so the default here is
-<code>wolfe(c2 = 0.1)</code>.</p>
+<p><code><a href="wolfe.html">wolfe()</a></code> defaults to \(c_2 = 0.9\), which suits <code><a href="bfgs.html">bfgs()</a></code>, because its
+curvature update compensates for an inexact step. The conjugacy
+accumulated by conjugate gradients depends directly on the accuracy of the
+line search, so the default here is <code>wolfe(c2 = 0.1)</code>.</p>
 <p>A direction that is not a descent direction is replaced by \(-g\), and
 the trace records the replacement as <code>cg not descent</code>. A periodic restart
 set by <code>restart_every</code> is recorded as <code>cg restart</code>.</p>
@@ -205,7 +204,7 @@ estimate.</p></div>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">cg</span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>, gr <span class="op">=</span> <span class="va">gr</span><span class="op">)</span><span class="op">@</span><span class="va">par</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9999728 0.9999455</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># The four formulas on the same problem. They agree on a quadratic under</span></span></span>
+<span class="r-in"><span><span class="co"># The four formulas are compared on the same problem. They agree on a quadratic under</span></span></span>
 <span class="r-in"><span><span class="co"># an exact line search and differ here; which is best depends on the</span></span></span>
 <span class="r-in"><span><span class="co"># problem.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pr"</span>, <span class="st">"fr"</span>, <span class="st">"hs"</span>, <span class="st">"dy"</span><span class="op">)</span>,</span></span>

@@ -1,6 +1,6 @@
 # S7 Class for the Relative Parameter Criterion
 
-The class of the rule built by
+This is the class of the rule built by
 [`crit_rel_par()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_par.md).
 The rule fires when the change of every coordinate, divided by the size
 of that coordinate, falls below `tol`, so a parameter of order
@@ -46,7 +46,7 @@ for the version in the units of the parameters.
 ## Examples
 
 ``` r
-# The same relative change at two very different scales.
+# The same relative change is tested at two very different scales.
 crit_met(crit_rel_par(1e-6), list(x_new = 1000, x_old = 1000.0001))
 #> [1] TRUE
 crit_met(crit_rel_par(1e-6), list(x_new = 1e-3, x_old = 1e-3 + 1e-10))

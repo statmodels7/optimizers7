@@ -25,7 +25,7 @@ print_optimizer_check(optimizer, ok, battery)
 
 - battery:
 
-  The data frame
+  The data frame that
   [`run_battery()`](https://statmodels7.github.io/optimizers7/reference/run_battery.md)
   returned.
 

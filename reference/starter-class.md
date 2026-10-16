@@ -1,6 +1,6 @@
 # S7 Class for a Starting-Value Generator
 
-The abstract parent of
+This class is the abstract parent of
 [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md)
 and
 [`start_runif()`](https://statmodels7.github.io/optimizers7/reference/start_runif.md).
@@ -8,8 +8,8 @@ A starter takes the place of the vector of starting values: it specifies
 how the values are produced and how many there are, and
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 turns it into a vector before dispatch. Every optimizer therefore
-accepts one, including an optimizer written outside the package, and no
-method needs code of its own for starters.
+accepts one, including an optimizer written outside the package, and the
+methods do not need code of their own for starters.
 
 ## Usage
 
@@ -37,9 +37,9 @@ The class is abstract and carries one property, `npar`, an integer or
 [`starting_values()`](https://statmodels7.github.io/optimizers7/reference/starting_values.md)
 and nothing else.
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-decides whether `par` is a vector to use as given or an object to
-resolve by testing inheritance from this class, so a new starter has to
-inherit from it; a class that has a
+tests inheritance from this class to determine whether `par` is a vector
+to use as given or an object to resolve, so a new starter has to inherit
+from it; a class that has a
 [`starting_values()`](https://statmodels7.github.io/optimizers7/reference/starting_values.md)
 method but inherits from another class is rejected with the error
 `'par' must be a numeric vector of starting values`.

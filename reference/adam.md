@@ -1,10 +1,10 @@
 # Adaptive Moment Estimation
 
-Adaptive moment estimation: a first-order method whose coordinate-wise
-step lengths come from exponentially weighted first and second moments
-of the gradient. It takes no line search and tolerates a gradient that
-is correct only on average, which makes it the method suited to a
-stochastic objective.
+Adaptive moment estimation (Adam) is a first-order method whose
+coordinate-wise step lengths come from exponentially weighted first and
+second moments of the gradient. It takes no line search and tolerates a
+gradient that is correct only on average, which makes it the method
+suited to a stochastic objective.
 
 ## Usage
 
@@ -50,9 +50,9 @@ adam(
 
 - eps:
 
-  Added to the square-rooted second moment before dividing, so that a
-  coordinate whose gradient has been uniformly zero does not divide by
-  it. Defaults to `1e-8`.
+  Added to the square root of the second moment before dividing, so that
+  a coordinate whose gradient has been uniformly zero does not divide by
+  zero. Defaults to `1e-8`.
 
 - decay:
 
@@ -73,9 +73,9 @@ adam(
 
 - max_eval:
 
-  Maximum objective evaluations. Defaults to `Inf`: no evaluation
-  budget, so the run stops on the criterion or on `maxit`. Set a finite
-  value to cap the cost of a run.
+  Maximum objective evaluations. Defaults to `Inf`, which sets no
+  evaluation budget, so the run stops on the criterion or on `maxit`.
+  Set a finite value to cap the cost of a run.
 
 - verbose:
 
@@ -118,10 +118,10 @@ which the first iterations would barely move.
 ## Relation to the descent methods
 
 Adam takes no line search and does not require the objective to decrease
-at every step. This is the main reason why it tolerates a gradient that
-is correct only on average, and it also means that there is no guarantee
-of monotone progress: the run may end at a point worse than one it
-passed through.
+at every step. Because of this, Adam tolerates a gradient that is
+correct only on average, and it provides no guarantee of monotone
+progress: the run may end at a point worse than a point through which it
+passed.
 
 Adam is therefore a poor choice for a small smooth problem where a
 Hessian is affordable: on a quadratic
@@ -132,8 +132,8 @@ a quadratic model is a poor description.
 
 ## Stochastic objectives
 
-Adam draws no subsamples of its own. The optimizer has no notion of an
-observation, and a stochastic objective is an ordinary function of the
+Adam draws no subsamples of its own. The optimizer does not represent
+observations, and a stochastic objective is an ordinary function of the
 parameters, so a minibatch is drawn inside the objective, as in the
 following closure:
 
@@ -147,7 +147,7 @@ Adam then behaves as on a minibatch of its own drawing, and
 [`set.seed()`](https://rdrr.io/r/base/Random.html) governs the run
 because the draws happen in the code of the caller.
 
-**Resample inside the objective, not around the run.** Calling
+Resample inside the objective, not around the run. Calling
 `minimize(adam(maxit = 1), ...)` in a loop with a new batch each time
 does not work: \\m\\ and \\v\\ start at zero and the bias correction
 restarts at \\t = 1\\, so every call takes a first step of length
@@ -167,16 +167,17 @@ fit.
 The default criterion is
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
 so the run ends when `maxit` is reached and reports `converged = FALSE`,
-because no stopping rule was tested. On a noisy objective Adam with a
-fixed `alpha` circles an optimum instead of settling on it, so a
-tolerance on the gradient seldom fires there.
+because the run does not test any stopping rule. On a noisy objective
+Adam with a fixed `alpha` circles an optimum instead of settling on it,
+so a tolerance on the gradient seldom fires there.
 
 On an exact objective a stopping rule such as
 [`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md)
 can be passed and fires. On a noisy objective the value and the gradient
 are both estimates, so a rule that reads either is unreliable, and the
-method cannot determine which kind of objective it receives. The rule is
-also tested at the point produced by the last iteration of the budget.
+method does not distinguish an exact objective from a noisy one. The
+rule is also tested at the point produced by the last iteration of the
+budget.
 
 ## The safeguards
 

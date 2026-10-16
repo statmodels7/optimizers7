@@ -13,7 +13,7 @@ and golden-section steps."><meta property="og:image" content="https://statmodels
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,9 +83,9 @@ single positive number, default <code>1</code>.</p></dd>
 
 <dt id="arg-max-expand">max_expand<a class="anchor" aria-label="anchor" href="#arg-max-expand"></a></dt>
 <dd><p>How many golden expansions the bracketing phase may
-take, a single number of at least 1, default <code>50</code>. If no minimum has
-been bracketed by then, the run stops at the lowest point evaluated and
-reports <code>converged = FALSE</code>.</p></dd>
+take, a single number of at least 1, default <code>50</code>. If the phase has not
+bracketed a minimum by then, the run stops at the lowest point evaluated
+and reports <code>converged = FALSE</code>.</p></dd>
 
 
 <dt id="arg-maxit">maxit<a class="anchor" aria-label="anchor" href="#arg-maxit"></a></dt>
@@ -117,14 +117,14 @@ be handed to <code><a href="minimize.html">minimize()</a></code>.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The bracketing phase evaluates the starting value \(x_0\) and
 \(x_0 + h\), turns round if the second is the higher, and steps on in
-the descending direction, each step \(1.618\) times the last, until the
-value no longer falls. The three points then satisfy
+the descending direction, where each step is \(1.618\) times the previous
+one, until the value no longer falls. The three points then satisfy
 \(f(b) \le f(a)\) and \(f(b) \le f(c)\) with \(b\) between \(a\)
 and \(c\), so a minimum lies in \([a, c]\). If the value is still
 falling when <code>max_expand</code> expansions have been taken, or when the
-evaluation budget runs out, no minimum has been bracketed: the run stops
-at the lowest point evaluated, reports <code>converged = FALSE</code> and records the
-reason in <code>message</code>.</p>
+evaluation budget runs out, the phase has not bracketed a minimum, and the
+run stops at the lowest point evaluated, reports <code>converged = FALSE</code> and
+records the reason in <code>message</code>.</p>
 <p>The reduction phase is the algorithm of Brent (1973, chapter 5). At each
 iteration the parabola through the three best points is tried first; its
 vertex is accepted when it lies inside the bracket and the step is less
@@ -138,7 +138,8 @@ stationarity measure is the half-width of the bracket.</p>
 and are <code>NULL</code> at the first. Besides the rule, the reduction stops on
 Brent's own test, when the bracket has shrunk to about
 \(\sqrt{\varepsilon}\,\lvert x \rvert + 10^{-12}\) around the best point
-\(x\), below which no further point can be distinguished from \(x\).
+\(x\), because at that width a further point cannot be distinguished from
+\(x\).
 That stop reports <code>converged = TRUE</code> with <code>criterion_met</code> equal to
 <code>bracket at machine resolution</code>, so a rule with a smaller tolerance than
 this resolution, or <code><a href="crit_never.html">crit_never()</a></code>, ends there.</p>
@@ -165,14 +166,14 @@ dimensions, <code><a href="crit_stationary.html">crit_stationary()</a></code> fo
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 100, evaluations Inf</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : step = 1, max_expand = 50</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># A smooth function of one variable.</span></span></span>
+<span class="r-in"><span><span class="co"># The method minimizes a smooth function of one variable.</span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">brent</span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>par <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">par</span>, evaluations <span class="op">=</span> <span class="va">r</span><span class="op">@</span><span class="va">counts</span><span class="op">[[</span><span class="st">"f"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         par evaluations </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    2.063504   12.000000 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Against nelder_mead() on the same function.</span></span></span>
+<span class="r-in"><span><span class="co"># nelder_mead() is run on the same function for comparison.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="nelder_mead.html">nelder_mead</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">f</span>, par <span class="op">=</span> <span class="fl">0</span><span class="op">)</span><span class="op">@</span><span class="va">counts</span><span class="op">[[</span><span class="st">"f"</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 42</span>
 <span class="r-in"><span></span></span>

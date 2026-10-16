@@ -1,9 +1,9 @@
 # Stop Only When Every Rule Fires
 
 Combines criteria conjunctively, for a run that should stop only when
-several rules hold at once. A conjunction can only become **stronger**
-as terms are added, so a run that ends under it would have ended under
-any one of its terms alone at the same iteration or earlier.
+several rules hold at once. A conjunction can only become stronger as
+terms are added, so a run that ends under it would have ended under any
+one of its terms alone at the same iteration or earlier.
 
 ## Usage
 
@@ -29,7 +29,7 @@ so combinations nest.
 
 ## Details
 
-It is useful when one rule alone is known to fire early:
+It is useful when a single rule is known to fire early:
 `crit_all(crit_grad(), crit_abs_par())` requires a stationary point at
 which the iterate has also stopped moving, a condition that a run
 circling a flat optimum does not satisfy.

@@ -1,14 +1,14 @@
 # S7 Class for Multi-Start
 
-An optimizer that wraps another and runs it from several starting
-points. Built by
+A `MultiStart` object wraps another optimizer and runs it from several
+starting points. It is built by
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md).
 Its seven shared properties describe the wrapper: `criterion` and
 `max_eval` are copied from the inner optimizer, so that the printed
 stopping rule and evaluation budget are those in force; `verbose`,
 `refresh` and `keep_trace` are the arguments of
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md);
-and `maxit` counts **starts**.
+and `maxit` counts starts.
 
 ## Usage
 
@@ -52,7 +52,7 @@ MultiStart(
 
 - ncores:
 
-  How many processes the starts are spread over.
+  The number of processes over which the starts are spread.
 
 - distinct_tol:
 
@@ -75,7 +75,7 @@ one optimum.
 Because the rule that is evaluated belongs to the inner optimizer,
 [`with_criterion()`](https://statmodels7.github.io/optimizers7/reference/with_criterion.md)
 has a method for this class that sets both; setting the outer property
-alone changes only the printing.
+without the inner one changes only the printing.
 
 ## See also
 

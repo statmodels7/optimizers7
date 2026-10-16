@@ -79,21 +79,22 @@ the copy stays equal to the original.
 [`bounded_forward()`](https://statmodels7.github.io/optimizers7/reference/bounded_forward.md)
 for the inverse,
 [`check_bounds()`](https://statmodels7.github.io/optimizers7/reference/check_bounds.md)
-for the shape `b` comes in,
+for the shape in which `b` is supplied,
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 for the run that uses both.
 
 ## Examples
 
 ``` r
-# A variance: the whole line maps onto the positive half-line, and every
+# For a variance, the whole line maps onto the positive half-line, and every
 # value of eta, however large, maps inside it.
 bounded_transform(c(0, Inf), c(-2, 0, 2))$h
 #> [1] 0.1353353 1.0000000 7.3890561
 bounded_transform(c(0, Inf), c(-500, 500))$h > 0
 #> [1] TRUE TRUE
 
-# A probability, with the derivative that carries a gradient across.
+# For a probability, the result also includes the derivative that carries a
+# gradient across.
 str(bounded_transform(c(0, 1), c(-1, 0, 1)))
 #> List of 3
 #>  $ h : num [1:3] 0.269 0.5 0.731

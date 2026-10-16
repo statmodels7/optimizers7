@@ -1,8 +1,8 @@
 # The line_search Class Object
 
 Returns the class object from the namespace at the time of the call, so
-that a class check does not depend on the class object being the one
-created when the package was loaded.
+that a class check does not depend on whether the class object is the
+one created when the package was loaded.
 
 ## Usage
 

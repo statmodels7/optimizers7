@@ -19,7 +19,7 @@ iteration."><meta property="og:image" content="https://statmodels7.github.io/opt
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,9 +91,9 @@ that has it.</p></dd>
 
 <dt id="arg-g">g<a class="anchor" aria-label="anchor" href="#arg-g"></a></dt>
 <dd><p>The value of the non-smooth part, a function of the point.
-Required alongside <code>prox</code>: the two describe the same term, and
-without <code>g</code> the reported objective would be the smooth part
-alone.</p></dd>
+It is required alongside <code>prox</code>, because the two describe the same
+term, and without <code>g</code> the reported objective would include only the
+smooth part.</p></dd>
 
 
 <dt id="arg-accelerate">accelerate<a class="anchor" aria-label="anchor" href="#arg-accelerate"></a></dt>
@@ -167,8 +167,8 @@ The step length is not increased again during the run.</p>
     <div class="section level2">
     <h2 id="what-the-stopping-rule-reads">What the stopping rule reads<a class="anchor" aria-label="anchor" href="#what-the-stopping-rule-reads"></a></h2>
     <p>The gradient of \(f + g\) does not vanish at the solution, since \(g\)
-is not differentiable there, so this method reports the <strong>proximal
-gradient mapping</strong>
+is not differentiable there, so this method reports the proximal
+gradient mapping
 $$G_t(x) = \frac{x - \mathrm{prox}_{tg}(x - t\nabla f(x))}{t}$$
 as its gradient, read at the iterate \(x\), the point that is reported.
 It vanishes exactly at a stationary point of \(f + g\) and reduces to
@@ -227,7 +227,7 @@ proximal operator, <code><a href="gd.html">gd()</a></code> for the smooth case.<
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A lasso-penalized least squares problem, solved through the operator.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A lasso-penalized least squares problem is solved through the operator.</span></span></span>
 <span class="r-in"><span><span class="co"># Three of the eight coefficients are non-zero in the truth.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span> <span class="op">*</span> <span class="fl">8</span><span class="op">)</span>, <span class="fl">200</span>, <span class="fl">8</span><span class="op">)</span></span></span>

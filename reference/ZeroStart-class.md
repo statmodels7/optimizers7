@@ -1,9 +1,9 @@
 # S7 Class for the Zero Starter
 
-A starter that produces a vector of zeros on the unconstrained scale.
-Built by
+A `ZeroStart` object produces a vector of zeros on the unconstrained
+scale. It is built by
 [`start_zeros()`](https://statmodels7.github.io/optimizers7/reference/start_zeros.md).
-It carries `npar` alone, adding no property of its own to the abstract
+It carries only `npar` and adds no property of its own to the abstract
 [starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
 class.
 

@@ -11,7 +11,7 @@ the best run."><meta property="og:image" content="https://statmodels7.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,15 +74,14 @@ is the state from which the whole run began.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Three things happen before the first start runs. The objective, the
-bounds and <code>par</code> are validated <strong>once</strong>, so a bad criterion or a <code>par</code>
-outside its box is rejected before the \(n\) runs are launched; a row of
-a user-supplied <code>starts</code> matrix is not checked in advance, and a row
-outside the box fails in its own run. The state of the generator is
-recorded for the <code>seed</code> of the result. And the gradient check is switched
-off for the inner runs, since the generic has already made it at the <code>par</code>
-of the caller; without that the same warning would be printed once per
-start.</p>
+    <p>Before the first start runs, the objective, the bounds and <code>par</code> are
+validated once, so a bad criterion or a <code>par</code> outside its box is rejected
+before the \(n\) runs are launched; a row of a user-supplied <code>starts</code>
+matrix is not checked in advance, and a row outside the box fails in its
+own run. The state of the generator is recorded for the <code>seed</code> of the
+result. The gradient check is switched off for the inner runs, since the
+generic has already made it at the <code>par</code> of the caller; without that the
+same warning would be printed once per start.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

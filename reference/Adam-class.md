@@ -1,9 +1,9 @@
 # S7 Class for Adam
 
-An optimizer holding the learning rate, the two moment decay rates and
-the three safeguards of the Adam iteration. Built by
-[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md).
-It is the only shipped method whose default stopping rule is
+An `Adam` object holds the learning rate, the two moment decay rates and
+the three safeguards of the Adam iteration. It is built by
+[`adam()`](https://statmodels7.github.io/optimizers7/reference/adam.md)
+and is the only shipped method whose default stopping rule is
 [`crit_never()`](https://statmodels7.github.io/optimizers7/reference/crit_never.md),
 so a run with the defaults ends on its iteration budget and reports
 `converged = FALSE`.
@@ -40,7 +40,7 @@ Adam(
 
 - eps:
 
-  Added to the square-rooted second moment before dividing.
+  Added to the square root of the second moment before dividing.
 
 - decay:
 

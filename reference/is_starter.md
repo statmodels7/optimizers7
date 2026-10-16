@@ -1,10 +1,10 @@
 # Is This a Starter?
 
-`TRUE` when `x` inherits from the abstract
+Returns `TRUE` when `x` inherits from the abstract
 [starter](https://statmodels7.github.io/optimizers7/reference/starter-class.md)
-class, `FALSE` otherwise.
+class, and `FALSE` otherwise.
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
-calls it to decide whether `par` is a vector to be used as given or an
+calls it to test whether `par` is a vector to be used as given or an
 object to be resolved into one, so that the test is written in one
 place.
 

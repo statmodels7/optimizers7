@@ -1,12 +1,12 @@
 # Normalize an Objective for the Optimizers
 
-Packs a function to be minimized, together with whichever of its
-gradient and Hessian the caller has, into the handle on which every
-algorithm in the package operates. The result is a named list that
-contains the pieces and two flags recording which derivatives were
-supplied. `as_objective()` is a generic that dispatches on `fn`, so a
-caller with another kind of objective registers one method and every
-algorithm accepts that objective.
+Packs a function to be minimized, together with its gradient and Hessian
+when the caller has them, into the handle on which every algorithm in
+the package operates. The result is a named list that contains the
+pieces and two flags recording which derivatives were supplied.
+`as_objective()` is a generic that dispatches on `fn`, so a caller with
+another kind of objective registers one method and every algorithm
+accepts that objective.
 
 ## Usage
 
@@ -19,16 +19,15 @@ as_objective(fn, gr = NULL, he = NULL, ...)
 - fn:
 
   The objective, a function of the parameter vector returning a single
-  number to be **minimized**. An object of some other class is accepted
+  number to be minimized. An object of some other class is accepted
   whenever a method has been registered for it; without one, dispatch
-  fails and reports the class it was handed.
+  fails and reports the class that it was handed.
 
 - gr:
 
   The gradient, a function of the parameter vector returning a numeric
   vector of the same length. `NULL`, the default, has the gradient
-  differenced from `fn` as above. Anything that is neither a function
-  nor `NULL` is an error.
+  differenced from `fn` as above. Any other value is an error.
 
 - he:
 
@@ -42,8 +41,8 @@ as_objective(fn, gr = NULL, he = NULL, ...)
 
 - ...:
 
-  Passed to the method dispatched on. The shipped method for an ordinary
-  function reads nothing from it.
+  Passed to the method that dispatch selects. The shipped method for an
+  ordinary function does not read it.
 
 ## Value
 
@@ -74,7 +73,7 @@ side:
 
   logical, whether `he` was supplied.
 
-## Two generics, each dispatching once
+## Dispatch of the two generics
 
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 dispatches on the optimizer, so an algorithm is written once for every
@@ -84,7 +83,7 @@ kind of objective is converted once for every algorithm. Dispatching
 on both would need one method for each pair of an algorithm and a kind
 of objective. The package ships one method, for an ordinary R function.
 
-## What happens when no gradient is supplied
+## A gradient obtained by differencing
 
 The compiled loop differences the objective, once per coordinate,
 \$\$\hat{g}\_j = \frac{f(x + h e_j) - f(x - h e_j)}{2h}, \qquad h =
@@ -101,13 +100,13 @@ of the result.
 [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
 and
 [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
-read a Hessian, and when none is supplied it is obtained by differencing
-the gradient once. With an analytic gradient this is a single
-differentiation and costs \\2p\\ gradient evaluations. Without a
-gradient, the gradient is itself a difference and the Hessian is a
-difference of differences, which costs about \\4p^2\\ evaluations of the
-objective and is less accurate. The Hessian is symmetrized before it is
-returned, since its two triangles differ by the error of the
+read a Hessian, and the Hessian is obtained by differencing the gradient
+once when the caller does not supply one. With an analytic gradient this
+is a single differentiation and costs \\2p\\ gradient evaluations.
+Without a gradient, the gradient is itself a difference and the Hessian
+is a difference of differences, which costs about \\4p^2\\ evaluations
+of the objective and is less accurate. The Hessian is symmetrized before
+it is returned, since its two triangles differ by the error of the
 differences.
 
 ## Points where the objective is not finite
@@ -150,7 +149,8 @@ str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #>  $ has_gradient: logi TRUE
 #>  $ has_hessian : logi FALSE
 
-# The cost of the difference, on Rosenbrock from the origin. Both runs take
+# The example measures the cost of the difference on Rosenbrock from the
+# origin. Both runs take
 # 21 iterations and reach the same point; the evaluation counts differ.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),

@@ -1,7 +1,7 @@
 # Rebuild an Optimizer With a Different Iteration Budget
 
-Returns a copy of the optimizer with `maxit` replaced, keeping its class
-and every other setting.
+Returns a copy of the optimizer in which `maxit` is replaced. The copy
+keeps the class and every other setting of the optimizer.
 [`check_optimizer()`](https://statmodels7.github.io/optimizers7/reference/check_optimizer.md)
 uses it for check 3, which gives an optimizer a single iteration and
 tests that it does not report convergence, and which receives an

@@ -1,10 +1,10 @@
 # S7 Class for a Combination of Criteria
 
-The class built by both
+This is the class built by both
 [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
 and
-[`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md),
-and its two methods. Its
+[`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md).
+Its
 [`crit_met()`](https://statmodels7.github.io/optimizers7/reference/crit_met.md)
 evaluates every rule that it contains and reduces the results with
 [`any()`](https://rdrr.io/r/base/any.html) or
@@ -12,7 +12,7 @@ evaluates every rule that it contains and reduces the results with
 [`crit_needs()`](https://statmodels7.github.io/optimizers7/reference/crit_needs.md)
 is the union of the needs of those rules, so a derivative-free method
 rejects a combination that contains a gradient rule, as it rejects the
-gradient rule alone.
+gradient rule by itself.
 
 ## Usage
 
