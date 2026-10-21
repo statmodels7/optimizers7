@@ -1,3 +1,9 @@
+# optimizers7 0.15.2
+
+* The package description no longer gives a wrong count of methods (it
+  said twelve; there are fourteen) and no longer says that every method
+  accepts box constraints: the proximal gradient rejects them.
+
 # optimizers7 0.15.1
 
 * Documentation and messages: relative clauses without a relative pronoun,

@@ -1,6 +1,6 @@
 Package: optimizers7
 Title: An S7 Framework for Optimization Algorithms
-Version: 0.15.1
+Version: 0.15.2
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Optimization algorithms as objects, built on the S7 object
@@ -8,11 +8,12 @@ Description: Optimization algorithms as objects, built on the S7 object
     settings, its safeguards and its stopping rule, so swapping one for
     another changes a single word. The stopping rule is a composable object
     of its own, so the caller decides what a run means by convergence.
-    Twelve methods cover second-order, first-order, derivative-free,
-    non-smooth and global search, and two wrappers compose them: multi-start
-    and a chain of stages. Box constraints are removed by reparametrization,
-    so every method accepts them without knowing they exist, and every method
-    reports which of its safeguards fired.
+    The methods cover second-order, third-order, first-order,
+    derivative-free, one-dimensional, non-smooth and global search, and two
+    wrappers compose them: multi-start and a chain of stages. Box constraints
+    are removed by reparametrization, so every method except the proximal
+    gradient accepts them with no code of its own for bounds, and every
+    method reports which of its safeguards fired.
 License: GPL (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
