@@ -45,7 +45,7 @@ summary(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g))
 #>   value      : 3.74523e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 106
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   safeguards :
 #>     step shortened: 4
