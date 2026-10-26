@@ -1,3 +1,11 @@
+# optimizers7 0.16.0
+
+* `newton()` and `chebyshev()` take `modify = modify_eigen(floor = 1e-8)` or
+  `modify_ridge(floor = 1e-8)` in place of `hessian_mod` and `floor`. The
+  generic `hessian_modify()` lets a subclass of `hessian_modification`
+  define another repair of an indefinite Hessian. The results of both
+  existing repairs are unchanged.
+
 # optimizers7 0.15.2
 
 * The package description no longer gives a wrong count of methods (it
