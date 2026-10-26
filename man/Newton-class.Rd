@@ -15,8 +15,7 @@ Newton(
   keep_trace = logical(0),
   step = integer(0),
   line_search = NULL,
-  hessian_mod = character(0),
-  floor = integer(0),
+  modify = NULL,
   max_length = integer(0),
   typical = NULL
 )
@@ -25,10 +24,8 @@ Newton(
 \item{step, line_search}{The initial step length and the \code{\link[=line_search]{line_search()}}
 object, as in \code{\link[=newton]{newton()}}.}
 
-\item{hessian_mod}{How an indefinite Hessian is repaired, \code{"eigen"} or
-\code{"ridge"}.}
-
-\item{floor}{The lower bound of the repair; see \code{\link[=newton]{newton()}}.}
+\item{modify}{The \code{\link[=hessian_modification]{hessian_modification()}} object that repairs an
+indefinite Hessian; see \code{\link[=newton]{newton()}}.}
 
 \item{max_length}{The largest component that a step may have.}
 
@@ -37,19 +34,18 @@ units of which the step lengths are measured.}
 }
 \value{
 An S7 object of class \code{Newton} inheriting from \code{\link[=optimizer]{optimizer()}}, with
-the six properties above beside the seven shared ones.
+the five properties above beside the seven shared ones.
 }
 \description{
 This class is an optimizer that holds the initial step length, the line
-search, the two settings that determine how an indefinite Hessian is
-repaired, and the two settings that bound and scale a step. \code{\link[=newton]{newton()}}
-builds it. Among the shipped methods, only this one and \code{\link[=chebyshev]{chebyshev()}}, which inherits from it,
+search, the \code{\link[=hessian_modification]{hessian_modification()}} that repairs an indefinite Hessian,
+and the two settings that bound and scale a step. \code{\link[=newton]{newton()}} builds it. Among the shipped methods, only this one and \code{\link[=chebyshev]{chebyshev()}}, which inherits from it,
 read the \code{he} argument of \code{\link[=minimize]{minimize()}}.
 }
 \details{
-Beyond the seven properties of every optimizer, a \code{Newton} carries six:
+Beyond the seven properties of every optimizer, a \code{Newton} carries five:
 \code{step} and \code{line_search}, shared with the other line-search methods, and
-\code{hessian_mod}, \code{floor}, \code{max_length} and \code{typical}, which are its own.
+\code{modify}, \code{max_length} and \code{typical}, which are its own.
 }
 \seealso{
 \code{\link[=newton]{newton()}} for the constructor, \code{\link[=bfgs]{bfgs()}} for the method that

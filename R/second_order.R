@@ -1,6 +1,7 @@
 #' @include optimizer_class.R
 #' @include generics.R
 #' @include line_search.R
+#' @include modify.R
 NULL
 
 # Newton, BFGS and L-BFGS. Each is a constructor and a method that names its
@@ -12,19 +13,17 @@ NULL
 #'
 #' @description
 #' This class is an optimizer that holds the initial step length, the line
-#' search, the two settings that determine how an indefinite Hessian is
-#' repaired, and the two settings that bound and scale a step. [newton()]
-#' builds it. Among the shipped methods, only this one and [chebyshev()], which inherits from it,
+#' search, the [hessian_modification()] that repairs an indefinite Hessian,
+#' and the two settings that bound and scale a step. [newton()] builds it. Among the shipped methods, only this one and [chebyshev()], which inherits from it,
 #' read the `he` argument of [minimize()].
 #'
 #' @details
-#' Beyond the seven properties of every optimizer, a `Newton` carries six:
+#' Beyond the seven properties of every optimizer, a `Newton` carries five:
 #' `step` and `line_search`, shared with the other line-search methods, and
-#' `hessian_mod`, `floor`, `max_length` and `typical`, which are its own.
+#' `modify`, `max_length` and `typical`, which are its own.
 #'
-#' @param hessian_mod How an indefinite Hessian is repaired, `"eigen"` or
-#'   `"ridge"`.
-#' @param floor The lower bound of the repair; see [newton()].
+#' @param modify The [hessian_modification()] object that repairs an
+#'   indefinite Hessian; see [newton()].
 #' @param max_length The largest component that a step may have.
 #' @param typical `NULL`, or the typical size of each parameter, in the
 #'   units of which the step lengths are measured.
@@ -32,7 +31,7 @@ NULL
 #'   object, as in [newton()].
 #'
 #' @return An S7 object of class `Newton` inheriting from [optimizer()], with
-#'   the six properties above beside the seven shared ones.
+#'   the five properties above beside the seven shared ones.
 #'
 #' @seealso [newton()] for the constructor, [bfgs()] for the method that
 #'   needs no Hessian.
@@ -41,8 +40,7 @@ NULL
 #' @keywords internal
 Newton <- S7::new_class("Newton", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
-                    hessian_mod = S7::class_character,
-                    floor = S7::class_numeric,
+                    modify = S7::class_any,
                     max_length = S7::class_numeric,
                     typical = S7::class_any))
 
@@ -57,15 +55,19 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`; see
 #'   [crit_any()] for the effect of that disjunction.
-#' @param hessian_mod How to repair an indefinite Hessian: `"eigen"`
-#'   (default) or `"ridge"`. Partial matching applies, and any other string
-#'   is rejected by [match.arg()].
-#' @param floor The lower bound of the repair, a single positive number.
-#'   Defaults to `1e-8`. With `"eigen"`, eigenvalues below
-#'   \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
-#'   are raised to that value, so the bound is relative to the largest
-#'   eigenvalue when that eigenvalue exceeds one in absolute value; with
-#'   `"ridge"`, `floor` is the smallest shift \eqn{\tau} tried.
+#' @param modify A [hessian_modification()] object that determines how an
+#'   indefinite or nearly singular Hessian is repaired before the step. A
+#'   character string is rejected. The constructors are:
+#'   * [modify_eigen()] (default): raises the eigenvalues of the Hessian that
+#'     are below a floor to the floor.
+#'   * [modify_ridge()]: adds a multiple of the identity, doubled until the
+#'     Cholesky factorization succeeds.
+#'   * A user-defined subclass of [hessian_modification()] with a method for
+#'     [hessian_modify()], which needs no change to this function.
+#'
+#'   The floor is an argument of the constructor, as in
+#'   `newton(modify = modify_ridge(floor = 1e-6))`. See [modifications] for
+#'   the comparison and [hessian_modify()] for writing a new object.
 #' @param step Initial step length offered to the line search, a single
 #'   positive number. Defaults to `1`, which is the Newton step itself and is
 #'   accepted unchanged near the solution.
@@ -97,28 +99,31 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' ascent direction cannot decrease the objective. Indefinite Hessians are
 #' common far from the solution.
 #'
-#' Both repairs begin with an attempted Cholesky factorization, which, when
-#' it succeeds, is both the test for positive definiteness and the solve.
-#' When it fails:
+#' The repair is selected by `modify`. Every repair begins with an attempted
+#' Cholesky factorization, which, when it succeeds, is both the test for
+#' positive definiteness and the solve. When it fails, the Hessian is passed
+#' to [hessian_modify()] and the two shipped repairs are:
 #'
 #' \describe{
-#'   \item{`"eigen"`}{decompose \eqn{H} and raise every eigenvalue below
+#'   \item{[modify_eigen()]}{decompose \eqn{H} and raise every eigenvalue below
 #'     \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
 #'     to that value. The direction is then the Newton direction in the
 #'     subspace where the curvature is positive, and close to the gradient
 #'     direction in the rest. The repair costs a symmetric eigendecomposition
 #'     and gives the best-conditioned matrix. If the eigendecomposition
 #'     fails, the ridge repair is used.}
-#'   \item{`"ridge"`}{add \eqn{\tau I} and double \eqn{\tau} until the
+#'   \item{[modify_ridge()]}{add \eqn{\tau I} and double \eqn{\tau} until the
 #'     factorization succeeds. This is Levenberg's idea: it interpolates
 #'     between the Newton step at \eqn{\tau = 0} and a scaled steepest-descent
 #'     step for large \eqn{\tau}. It costs less than the eigendecomposition and
 #'     shifts every eigenvalue, not only the small ones.}
 #' }
 #'
-#' A repair of the Hessian is recorded in the trace as `hessian modified`,
-#' or `hessian modified (capped)` when the repaired step is also scaled down
-#' (see below). The label does not record which of the two repairs was used.
+#' A user-defined [hessian_modification()] is called through R at each such
+#' iterate. A repair of the Hessian is recorded in the trace as
+#' `hessian modified`, or `hessian modified (capped)` when the repaired step
+#' is also scaled down (see below). The label does not record which repair
+#' was used.
 #'
 #' # Bounding the length of a step
 #'
@@ -155,7 +160,8 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' `step = 1` is its natural unit, so the step is taken as it stands, subject
 #' only to `max_length`. Where it fails, the component of the direction in
 #' the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is
-#' set by `floor` and not by the curvature of the objective. The direction is
+#' set by the `floor` of the modification and not by the curvature of the
+#' objective. The direction is
 #' therefore multiplied by \eqn{\min(1, 1/\lVert d\rVert_\infty)}, which
 #' gives a displacement of order one in the parameters. [bfgs()] and
 #' [lbfgs()] apply the same rule to their first direction. The factor never
@@ -192,6 +198,9 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'
 #' minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #'
+#' # The repair of an indefinite Hessian is an object, with its floor.
+#' newton(modify = modify_ridge(floor = 1e-6))
+#'
 #' # At a saddle the unrepaired step points the wrong way. The Hessian at
 #' # the start has eigenvalues 2 and -1.99; the repair is recorded in the
 #' # trace.
@@ -208,7 +217,9 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
 #'                  gr = rosen_gr, he = rosen_he))
 #'
-#' @seealso [bfgs()] and [lbfgs()] when a Hessian is not available,
+#' @seealso [modifications] for the repairs of the Hessian, [modify_eigen()],
+#'   [modify_ridge()] and [hessian_modify()] to write another,
+#'   [bfgs()] and [lbfgs()] when a Hessian is not available,
 #'   [armijo()] for the line search, [summary.optimizer_result()] for the
 #'   safeguard counts.
 #' @references
@@ -224,18 +235,15 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'
 #' @export
 newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-                   hessian_mod = c("eigen", "ridge"), floor = 1e-8,
+                   modify = modify_eigen(),
                    step = 1, line_search = armijo(),
                    maxit = 200, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE,
                    max_length = Inf, typical = NULL) {
-  hessian_mod <- match.arg(hessian_mod)
+  check_modify(modify)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
-  if (length(floor) != 1L || !is.numeric(floor) || is.na(floor) || floor <= 0) {
-    stop("'floor' must be a single positive number.", call. = FALSE)
-  }
   if (length(max_length) != 1L || !is.numeric(max_length) ||
       is.na(max_length) || max_length <= 0) {
     stop("'max_length' must be a single positive number (Inf for no bound).",
@@ -250,7 +258,7 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
   Newton(name = "Newton", criterion = criterion, maxit = maxit,
          max_eval = max_eval, verbose = verbose, refresh = refresh,
          keep_trace = keep_trace, step = step, line_search = line_search,
-         hessian_mod = hessian_mod, floor = floor, max_length = max_length,
+         modify = modify, max_length = max_length,
          typical = typical)
 }
 
@@ -612,10 +620,9 @@ S7::method(minimize, Newton) <-
       }
     }
     run_descent(optimizer, fn, par, gr, he, lower, upper,
-                list(type = "newton", hessian_mod = optimizer@hessian_mod,
-                     floor = optimizer@floor,
-                     max_length = optimizer@max_length,
-                     typical = if (is.null(typ)) numeric(0) else typ))
+                c(list(type = "newton"), modify_spec(optimizer@modify),
+                  list(max_length = optimizer@max_length,
+                       typical = if (is.null(typ)) numeric(0) else typ)))
   }
 
 #' @title Minimize by BFGS

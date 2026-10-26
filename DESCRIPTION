@@ -47,6 +47,7 @@ Collate:
     'direct_search.R'
     'first_order.R'
     'line_search.R'
+    'modify.R'
     'multistart.R'
     'optimizers7-package.R'
     'proximal.R'

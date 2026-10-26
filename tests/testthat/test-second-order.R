@@ -14,6 +14,10 @@ saddle    <- function(p) p[1]^4 - 2 * p[1]^2 + p[2]^2
 saddle_gr <- function(p) c(4 * p[1]^3 - 4 * p[1], 2 * p[2])
 saddle_he <- function(p) matrix(c(12 * p[1]^2 - 4, 0, 0, 2), 2, 2)
 
+modify_by_name <- function(mod) {
+  switch(mod, eigen = modify_eigen(), ridge = modify_ridge())
+}
+
 
 test_that("all three solve Rosenbrock, and far faster than first order", {
   x0 <- c(-1.2, 1)
@@ -44,7 +48,7 @@ test_that("Newton repairs an indefinite Hessian and says that it did", {
   expect_lt(min(eigen(saddle_he(c(0.05, 0.6)))$values), 0)
 
   for (mod in c("eigen", "ridge")) {
-    r <- minimize(newton(hessian_mod = mod, keep_trace = TRUE),
+    r <- minimize(newton(modify = modify_by_name(mod), keep_trace = TRUE),
                   saddle, c(0.05, 0.6), gr = saddle_gr, he = saddle_he)
     expect_true(r@converged, label = mod)
     expect_equal(r@value, -1, tolerance = 1e-8, label = mod)
@@ -72,7 +76,7 @@ test_that("a repaired Newton step is capped and an unrepaired one is not", {
   expect_gt(d1, 1e6)
 
   for (mod in c("eigen", "ridge")) {
-    r <- minimize(newton(hessian_mod = mod, keep_trace = TRUE),
+    r <- minimize(newton(modify = modify_by_name(mod), keep_trace = TRUE),
                   saddle, c(0.05, 0.6), gr = saddle_gr, he = saddle_he)
     expect_true(r@converged, label = mod)
     expect_equal(r@value, -1, tolerance = 1e-8, label = mod)
@@ -90,7 +94,7 @@ test_that("a repaired Newton step is capped and an unrepaired one is not", {
   #     the floored eigenvalue is 3.97 and the direction is (0.05, -0.3), so
   #     the cap cannot fire and the guard stays the plain string. Measured
   #     identical either side of the change: 8 iterations, 9 evaluations.
-  r1 <- minimize(newton(floor = 1, keep_trace = TRUE), saddle, c(0.05, 0.6),
+  r1 <- minimize(newton(modify = modify_eigen(floor = 1), keep_trace = TRUE), saddle, c(0.05, 0.6),
                  gr = saddle_gr, he = saddle_he)
   expect_true(r1@converged)
   expect_true("hessian modified" %in% r1@trace$safeguard)
@@ -184,8 +188,8 @@ test_that("a non-finite region is stepped around by every method", {
 
 
 test_that("the three constructors validate their own settings", {
-  expect_error(newton(hessian_mod = "nonsense"), "should be one of")
-  expect_error(newton(floor = 0), "positive")
+  expect_error(newton(modify = "nonsense"), "Hessian modification object")
+  expect_error(newton(modify = modify_eigen(floor = 0)), "positive")
   expect_error(newton(step = -1), "positive")
   expect_error(bfgs(line_search = "wolfe"), "line_search object")
   expect_error(lbfgs(memory = 0), "positive")
@@ -222,7 +226,7 @@ test_that("the quasi-Newton settings are validated at their own bounds", {
 test_that("each carries its own settings and prints them", {
   expect_match(capture.output(print(newton()))[1], "Newton")
   expect_match(paste(capture.output(print(newton())), collapse = " "),
-               "hessian_mod = eigen")
+               "modify = eigenvalue floor \\(floor = 1e-08\\)")
   expect_match(paste(capture.output(print(bfgs())), collapse = " "),
                "Wolfe")
   expect_match(paste(capture.output(print(lbfgs(memory = 7))), collapse = " "),
