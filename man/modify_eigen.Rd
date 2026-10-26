@@ -22,13 +22,15 @@ the floor:
 \deqn{\tilde H = Q \max(\Lambda, \lambda_{\min}) Q^\top, \qquad
   \lambda_{\min} = \max(\texttt{floor},\;
   \texttt{floor}\,\max_i\lvert\lambda_i\rvert).}
-The eigenvectors and the eigenvalues above the floor are unchanged, so the
-direction is the Newton direction in the subspace where the curvature is
-positive and close to the gradient direction in the rest. It gives the
-best-conditioned modified matrix of the shipped modifications, at the cost
-of a symmetric eigendecomposition. It is the default of \code{\link[=newton]{newton()}} and
-\code{\link[=chebyshev]{chebyshev()}}. If the eigendecomposition fails, the ridge modification is
-used.
+The eigenvectors and the eigenvalues above the floor are unchanged. The
+step component along an eigenvector \eqn{q_i} is
+\eqn{-q_i^\top g / \max(\lambda_i, \lambda_{\min})}: the Newton component
+where \eqn{\lambda_i \ge \lambda_{\min}}, and, where the eigenvalue was
+raised, a component of length \eqn{\lvert q_i^\top g\rvert/\lambda_{\min}}
+that is large when the floor is small. The cost is a symmetric
+eigendecomposition. It is the default of
+\code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}. If the eigendecomposition fails, the ridge
+modification is used.
 }
 \examples{
 m <- modify_eigen(floor = 1e-6)

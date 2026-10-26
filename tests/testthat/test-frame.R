@@ -468,10 +468,8 @@ test_that("the default rule never fails where the gradient rule succeeds", {
 
 
 test_that("crit_rel_obj in that rule fires on nothing", {
-  # It was in the default until 0.6.0 and was removed because it never decided
-  # anything. Measured over the battery the two rules agree on every count and
-  # every reported point, which is what licenses dropping it rather than
-  # keeping a rule nobody can observe.
+  # Measured over the battery the two rules agree on every count and every
+  # reported point, which is why the default rule does not include it.
   with_it <- crit_any(crit_grad(), crit_rel_obj(), crit_abs_obj(),
                       crit_abs_par())
   without <- crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())

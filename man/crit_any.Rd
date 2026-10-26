@@ -35,8 +35,7 @@ solution, and a rule that reads a stall reports it as convergence (\code{cg} on
 \code{abs_sum} is such a case). A caller who needs a stationary point uses
 \code{criterion = crit_grad()}.
 
-\code{\link[=crit_rel_obj]{crit_rel_obj()}} was part of this default until 0.6.0. It was removed
-because on the same problems it never fired before the other terms.
+\code{\link[=crit_rel_obj]{crit_rel_obj()}} is not part of this default.
 }
 \examples{
 crit_any(crit_grad(1e-8), crit_rel_obj(1e-12))

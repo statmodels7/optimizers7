@@ -23,9 +23,12 @@ selects how \eqn{\tilde H} is formed. The default is \code{\link[=modify_eigen]{
 every eigenvalue below
 \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
 to that value. It costs a symmetric eigendecomposition and leaves the
-eigenvectors and the eigenvalues above the floor unchanged, so the
-direction is the Newton direction in the subspace where the curvature
-is positive.}
+eigenvectors and the eigenvalues above the floor unchanged. The step
+component along an eigenvector \eqn{q_i} is
+\eqn{-q_i^\top g / \max(\lambda_i, \lambda_{\min})}, the Newton
+component where \eqn{\lambda_i \ge \lambda_{\min}} and a component
+of length \eqn{\lvert q_i^\top g\rvert/\lambda_{\min}} where the
+eigenvalue was raised, which is large when the floor is small.}
 \item{\code{\link[=modify_ridge]{modify_ridge()}}}{Adds \eqn{\tau I} to \eqn{H}, starting from the
 smallest \eqn{\tau \ge \texttt{floor}} that makes the diagonal
 positive and doubling \eqn{\tau} until the Cholesky factorization

@@ -65,9 +65,12 @@ hessian_modification <- S7::new_class(
 #'     every eigenvalue below
 #'     \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
 #'     to that value. It costs a symmetric eigendecomposition and leaves the
-#'     eigenvectors and the eigenvalues above the floor unchanged, so the
-#'     direction is the Newton direction in the subspace where the curvature
-#'     is positive.}
+#'     eigenvectors and the eigenvalues above the floor unchanged. The step
+#'     component along an eigenvector \eqn{q_i} is
+#'     \eqn{-q_i^\top g / \max(\lambda_i, \lambda_{\min})}, the Newton
+#'     component where \eqn{\lambda_i \ge \lambda_{\min}} and a component
+#'     of length \eqn{\lvert q_i^\top g\rvert/\lambda_{\min}} where the
+#'     eigenvalue was raised, which is large when the floor is small.}
 #'   \item{[modify_ridge()]}{Adds \eqn{\tau I} to \eqn{H}, starting from the
 #'     smallest \eqn{\tau \ge \texttt{floor}} that makes the diagonal
 #'     positive and doubling \eqn{\tau} until the Cholesky factorization
@@ -157,13 +160,15 @@ ModifyRidge <- S7::new_class("ModifyRidge", parent = hessian_modification,
 #' \deqn{\tilde H = Q \max(\Lambda, \lambda_{\min}) Q^\top, \qquad
 #'   \lambda_{\min} = \max(\texttt{floor},\;
 #'   \texttt{floor}\,\max_i\lvert\lambda_i\rvert).}
-#' The eigenvectors and the eigenvalues above the floor are unchanged, so the
-#' direction is the Newton direction in the subspace where the curvature is
-#' positive and close to the gradient direction in the rest. It gives the
-#' best-conditioned modified matrix of the shipped modifications, at the cost
-#' of a symmetric eigendecomposition. It is the default of [newton()] and
-#' [chebyshev()]. If the eigendecomposition fails, the ridge modification is
-#' used.
+#' The eigenvectors and the eigenvalues above the floor are unchanged. The
+#' step component along an eigenvector \eqn{q_i} is
+#' \eqn{-q_i^\top g / \max(\lambda_i, \lambda_{\min})}: the Newton component
+#' where \eqn{\lambda_i \ge \lambda_{\min}}, and, where the eigenvalue was
+#' raised, a component of length \eqn{\lvert q_i^\top g\rvert/\lambda_{\min}}
+#' that is large when the floor is small. The cost is a symmetric
+#' eigendecomposition. It is the default of
+#' [newton()] and [chebyshev()]. If the eigendecomposition fails, the ridge
+#' modification is used.
 #'
 #' @param floor The lower bound of the eigenvalues, a single positive number.
 #'   Defaults to `1e-8`. The bound is relative to the largest eigenvalue in
@@ -270,16 +275,8 @@ check_modify_floor <- function(floor) {
 #' @keywords internal
 check_modify <- function(x) {
   if (S7::S7_inherits(x, hessian_modification)) return(invisible(TRUE))
-  if (is.character(x) && length(x) == 1L) {
-    use <- switch(x, eigen = "modify_eigen(floor = ...)",
-                  ridge = "modify_ridge(floor = ...)",
-                  "modify_eigen() or modify_ridge()")
-    stop("'modify' must be a Hessian modification object such as ",
-         "modify_eigen(); the string \"", x, "\" is no longer accepted. Use ",
-         use, ".", call. = FALSE)
-  }
-  stop("'modify' must be a Hessian modification object such as ",
-       "modify_eigen() or modify_ridge().", call. = FALSE)
+  stop("'modify' must be a hessian_modification object such as ",
+       "modify_eigen().", call. = FALSE)
 }
 
 

@@ -30,18 +30,12 @@ test_that("the objects print", {
 })
 
 
-test_that("a string for modify is rejected with the object to use instead", {
-  expect_error(newton(modify = "ridge"),
-               "no longer accepted. Use modify_ridge\\(floor = \\.\\.\\.\\)")
-  expect_error(newton(modify = "eigen"), "Use modify_eigen\\(floor = \\.\\.\\.\\)")
-  expect_error(chebyshev(modify = "ridge"), "Use modify_ridge")
-  expect_error(newton(modify = "other"), "modify_eigen\\(\\) or modify_ridge\\(\\)")
-  expect_error(newton(modify = 1), "must be a Hessian modification object")
-  expect_error(newton(modify = NULL), "must be a Hessian modification object")
-  # the former arguments no longer exist
-  expect_error(newton(hessian_mod = "ridge"), "unused argument")
-  expect_error(newton(floor = 1e-6), "unused argument")
-  expect_error(chebyshev(hessian_mod = "ridge"), "unused argument")
+test_that("a value that is not a hessian_modification object is rejected", {
+  msg <- "'modify' must be a hessian_modification object such as modify_eigen\\(\\)"
+  expect_error(newton(modify = "ridge"), msg)
+  expect_error(chebyshev(modify = "eigen"), msg)
+  expect_error(newton(modify = 1), msg)
+  expect_error(newton(modify = NULL), msg)
 })
 
 
@@ -54,10 +48,9 @@ test_that("the default modification is the eigenvalue floor at 1e-8", {
 })
 
 
-test_that("both shipped modifications reproduce the numbers of the string form", {
-  # Values recorded with the code at the base of this change, in which the
-  # modification was newton(hessian_mod = , floor = ). The comparison is
-  # exact for the parameters up to 1e-12 and for the counts.
+test_that("both shipped modifications reproduce recorded numbers", {
+  # Recorded values. The comparison is exact for the parameters up to 1e-12
+  # and for the counts.
   ref <- function(opt, par, it, counts, start = c(0.05, 0.6)) {
     r <- run_saddle(opt, start)
     expect_equal(r@par, par, tolerance = 1e-12)

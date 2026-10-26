@@ -188,7 +188,7 @@ test_that("a non-finite region is stepped around by every method", {
 
 
 test_that("the three constructors validate their own settings", {
-  expect_error(newton(modify = "nonsense"), "Hessian modification object")
+  expect_error(newton(modify = "nonsense"), "hessian_modification object")
   expect_error(newton(modify = modify_eigen(floor = 0)), "positive")
   expect_error(newton(step = -1), "positive")
   expect_error(bfgs(line_search = "wolfe"), "line_search object")
