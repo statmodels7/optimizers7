@@ -314,15 +314,19 @@ private:
 //   "ridge"  add tau*I with tau doubling until the Cholesky succeeds. Cheaper,
 //            and the Levenberg idea: it interpolates between the Newton step
 //            (tau = 0) and a scaled steepest-descent step (tau large).
+//
+//   "custom" an R function of H that calls hessian_modify() on a user-defined
+//            modification object; the two above stay in C++ for speed.
 
 class NewtonDirection : public Direction {
 public:
-  NewtonDirection(std::string mod, double floor_value,
+  NewtonDirection(std::string mod, double floor_value, SEXP modify_fn,
                   double max_length = arma::datum::inf,
                   arma::vec typical = arma::vec(),
                   int order = 2, double ratio = 0.5,
                   SEXP t3 = R_NilValue)
-    : mod_(mod), floor_(floor_value), max_length_(max_length),
+    : mod_(mod), floor_(floor_value), modify_fn_(modify_fn),
+      max_length_(max_length),
       typ_(typical), order_(order), ratio_(ratio), t3_(t3) {}
 
   bool needs_hessian() const { return true; }
@@ -362,7 +366,21 @@ public:
     }
 
     guard = "hessian modified";
-    arma::mat Hm = (mod_ == "ridge") ? ridge(H) : eigen_floor(H);
+    arma::mat Hm;
+    if (mod_ == "custom") {
+      // A user-defined modification: the R function calls hessian_modify() on
+      // the modification object. A result that is not a finite matrix of the
+      // dimension of H is treated as a failed solve.
+      Rcpp::NumericMatrix out = Rcpp::Function(modify_fn_)(Rcpp::wrap(H));
+      Hm = Rcpp::as<arma::mat>(out);
+      if (Hm.n_rows != H.n_rows || Hm.n_cols != H.n_cols || !Hm.is_finite()) {
+        guard = "hessian solve failed";
+        return first(g);
+      }
+      Hm = 0.5 * (Hm + Hm.t());
+    } else {
+      Hm = (mod_ == "ridge") ? ridge(H) : eigen_floor(H);
+    }
 
     arma::vec d;
     if (!arma::solve(d, Hm, -g, arma::solve_opts::likely_sympd + arma::solve_opts::no_approx) ||
@@ -496,6 +514,7 @@ private:
 
   std::string mod_;
   double floor_;
+  SEXP modify_fn_;
   double max_length_;
   arma::vec typ_;
   int order_;
@@ -665,13 +684,15 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                Rcpp::as<double>(method["alpha_max"]),
                                Rcpp::as<double>(method["curv_tol"]));
   } else if (type == "newton") {
-    return new NewtonDirection(Rcpp::as<std::string>(method["hessian_mod"]),
+    return new NewtonDirection(Rcpp::as<std::string>(method["modify_type"]),
                                Rcpp::as<double>(method["floor"]),
+                               method["modify_fn"],
                                Rcpp::as<double>(method["max_length"]),
                                Rcpp::as<arma::vec>(method["typical"]));
   } else if (type == "chebyshev") {
-    return new NewtonDirection(Rcpp::as<std::string>(method["hessian_mod"]),
+    return new NewtonDirection(Rcpp::as<std::string>(method["modify_type"]),
                                Rcpp::as<double>(method["floor"]),
+                               method["modify_fn"],
                                Rcpp::as<double>(method["max_length"]),
                                Rcpp::as<arma::vec>(method["typical"]),
                                3, Rcpp::as<double>(method["ratio"]),

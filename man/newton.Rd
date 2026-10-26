@@ -6,8 +6,7 @@
 \usage{
 newton(
   criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-  hessian_mod = c("eigen", "ridge"),
-  floor = 1e-08,
+  modify = modify_eigen(),
   step = 1,
   line_search = armijo(),
   maxit = 200,
@@ -24,16 +23,21 @@ newton(
 \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}; see
 \code{\link[=crit_any]{crit_any()}} for the effect of that disjunction.}
 
-\item{hessian_mod}{How to repair an indefinite Hessian: \code{"eigen"}
-(default) or \code{"ridge"}. Partial matching applies, and any other string
-is rejected by \code{\link[=match.arg]{match.arg()}}.}
+\item{modify}{A \code{\link[=hessian_modification]{hessian_modification()}} object that determines how an
+indefinite or nearly singular Hessian is repaired before the step. A
+character string is rejected. The constructors are:
+\itemize{
+\item \code{\link[=modify_eigen]{modify_eigen()}} (default): raises the eigenvalues of the Hessian that
+are below a floor to the floor.
+\item \code{\link[=modify_ridge]{modify_ridge()}}: adds a multiple of the identity, doubled until the
+Cholesky factorization succeeds.
+\item A user-defined subclass of \code{\link[=hessian_modification]{hessian_modification()}} with a method for
+\code{\link[=hessian_modify]{hessian_modify()}}, which needs no change to this function.
+}
 
-\item{floor}{The lower bound of the repair, a single positive number.
-Defaults to \code{1e-8}. With \code{"eigen"}, eigenvalues below
-\eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
-are raised to that value, so the bound is relative to the largest
-eigenvalue when that eigenvalue exceeds one in absolute value; with
-\code{"ridge"}, \code{floor} is the smallest shift \eqn{\tau} tried.}
+The floor is an argument of the constructor, as in
+\code{newton(modify = modify_ridge(floor = 1e-6))}. See \link{modifications} for
+the comparison and \code{\link[=hessian_modify]{hessian_modify()}} for writing a new object.}
 
 \item{step}{Initial step length offered to the line search, a single
 positive number. Defaults to \code{1}, which is the Newton step itself and is
@@ -77,28 +81,31 @@ step can point towards a saddle or a maximum, and a line search along an
 ascent direction cannot decrease the objective. Indefinite Hessians are
 common far from the solution.
 
-Both repairs begin with an attempted Cholesky factorization, which, when
-it succeeds, is both the test for positive definiteness and the solve.
-When it fails:
+The repair is selected by \code{modify}. Every repair begins with an attempted
+Cholesky factorization, which, when it succeeds, is both the test for
+positive definiteness and the solve. When it fails, the Hessian is passed
+to \code{\link[=hessian_modify]{hessian_modify()}} and the two shipped repairs are:
 
 \describe{
-\item{\code{"eigen"}}{decompose \eqn{H} and raise every eigenvalue below
+\item{\code{\link[=modify_eigen]{modify_eigen()}}}{decompose \eqn{H} and raise every eigenvalue below
 \eqn{\max(\texttt{floor}, \texttt{floor}\,\max_i\lvert\lambda_i\rvert)}
 to that value. The direction is then the Newton direction in the
 subspace where the curvature is positive, and close to the gradient
 direction in the rest. The repair costs a symmetric eigendecomposition
 and gives the best-conditioned matrix. If the eigendecomposition
 fails, the ridge repair is used.}
-\item{\code{"ridge"}}{add \eqn{\tau I} and double \eqn{\tau} until the
+\item{\code{\link[=modify_ridge]{modify_ridge()}}}{add \eqn{\tau I} and double \eqn{\tau} until the
 factorization succeeds. This is Levenberg's idea: it interpolates
 between the Newton step at \eqn{\tau = 0} and a scaled steepest-descent
 step for large \eqn{\tau}. It costs less than the eigendecomposition and
 shifts every eigenvalue, not only the small ones.}
 }
 
-A repair of the Hessian is recorded in the trace as \verb{hessian modified},
-or \verb{hessian modified (capped)} when the repaired step is also scaled down
-(see below). The label does not record which of the two repairs was used.
+A user-defined \code{\link[=hessian_modification]{hessian_modification()}} is called through R at each such
+iterate. A repair of the Hessian is recorded in the trace as
+\verb{hessian modified}, or \verb{hessian modified (capped)} when the repaired step
+is also scaled down (see below). The label does not record which repair
+was used.
 }
 
 \section{Bounding the length of a step}{
@@ -135,7 +142,8 @@ Where the factorization succeeds, \eqn{-H^{-1}g} is the Newton step and
 \code{step = 1} is its natural unit, so the step is taken as it stands, subject
 only to \code{max_length}. Where it fails, the component of the direction in
 the floored subspace is \eqn{g_i/\lambda_{\mathrm{floor}}}, whose size is
-set by \code{floor} and not by the curvature of the objective. The direction is
+set by the \code{floor} of the modification and not by the curvature of the
+objective. The direction is
 therefore multiplied by \eqn{\min(1, 1/\lVert d\rVert_\infty)}, which
 gives a displacement of order one in the parameters. \code{\link[=bfgs]{bfgs()}} and
 \code{\link[=lbfgs]{lbfgs()}} apply the same rule to their first direction. The factor never
@@ -170,6 +178,9 @@ rosen_he <- function(p) matrix(
 
 minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 
+# The repair of an indefinite Hessian is an object, with its floor.
+newton(modify = modify_ridge(floor = 1e-6))
+
 # At a saddle the unrepaired step points the wrong way. The Hessian at
 # the start has eigenvalues 2 and -1.99; the repair is recorded in the
 # trace.
@@ -199,6 +210,8 @@ Nocedal, J. and Wright, S. J. (2006). \emph{Numerical Optimization},
 2nd edition. Springer, New York.
 }
 \seealso{
+\link{modifications} for the repairs of the Hessian, \code{\link[=modify_eigen]{modify_eigen()}},
+\code{\link[=modify_ridge]{modify_ridge()}} and \code{\link[=hessian_modify]{hessian_modify()}} to write another,
 \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}} when a Hessian is not available,
 \code{\link[=armijo]{armijo()}} for the line search, \code{\link[=summary.optimizer_result]{summary.optimizer_result()}} for the
 safeguard counts.

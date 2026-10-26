@@ -413,11 +413,8 @@ S7::method(crit_met, CritRelObj) <- function(criterion, state) {
 #' be zero at an objective value of zero, and since the comparison is strict
 #' the rule could never fire at an optimum of zero.
 #'
-#' The rule was part of the default rule of the gradient methods until
-#' version 0.6.0. It was removed because on the package's [test_problems()]
-#' it never fired before the other terms. It is useful where the scale of the
-#' objective is not known in advance, which is where [crit_abs_obj()] is
-#' hard to set.
+#' The rule is useful where the scale of the objective is not known in
+#' advance, which is where [crit_abs_obj()] is hard to set.
 #'
 #' @param tol Numeric tolerance, a single positive number. Defaults to
 #'   `1e-12`, smaller than the default of [crit_abs_obj()] because the
@@ -899,8 +896,7 @@ combine_criteria <- function(dots, how) {
 #' `abs_sum` is such a case). A caller who needs a stationary point uses
 #' `criterion = crit_grad()`.
 #'
-#' [crit_rel_obj()] was part of this default until 0.6.0. It was removed
-#' because on the same problems it never fired before the other terms.
+#' [crit_rel_obj()] is not part of this default.
 #'
 #' @param ... [criterion()] objects.
 #'

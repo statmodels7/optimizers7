@@ -49,8 +49,9 @@ Chebyshev <- S7::new_class("Chebyshev", parent = Newton,
 #'   not a descent direction, indicates that the cubic model does not
 #'   describe the objective over the length of the step, and the Newton step
 #'   is used instead. Defaults to `0.5`.
-#' @param criterion,hessian_mod,floor,step,line_search,maxit,max_eval,verbose,refresh,keep_trace,max_length,typical
-#'   As in [newton()].
+#' @param criterion,modify,step,line_search,maxit,max_eval,verbose,refresh,keep_trace,max_length,typical
+#'   As in [newton()]. `modify` takes a [hessian_modification()] object
+#'   ([modify_eigen()] by default, or [modify_ridge()]); see [modifications].
 #'
 #' @details
 #' # The third derivative
@@ -130,13 +131,12 @@ Chebyshev <- S7::new_class("Chebyshev", parent = Newton,
 #' @export
 chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                       ratio = 0.5,
-                      hessian_mod = c("eigen", "ridge"), floor = 1e-8,
+                      modify = modify_eigen(),
                       step = 1, line_search = armijo(),
                       maxit = 200, max_eval = Inf,
                       verbose = FALSE, refresh = 10, keep_trace = FALSE,
                       max_length = Inf, typical = NULL) {
-  base <- newton(criterion = criterion, hessian_mod = hessian_mod,
-                 floor = floor, step = step, line_search = line_search,
+  base <- newton(criterion = criterion, modify = modify, step = step, line_search = line_search,
                  maxit = maxit, max_eval = max_eval, verbose = verbose,
                  refresh = refresh, keep_trace = keep_trace,
                  max_length = max_length, typical = typical)
@@ -149,8 +149,8 @@ chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs
             maxit = base@maxit, max_eval = base@max_eval,
             verbose = base@verbose, refresh = base@refresh,
             keep_trace = base@keep_trace, step = base@step,
-            line_search = base@line_search, hessian_mod = base@hessian_mod,
-            floor = base@floor, max_length = base@max_length,
+            line_search = base@line_search, modify = base@modify,
+            max_length = base@max_length,
             typical = base@typical, ratio = ratio)
 }
 
@@ -187,9 +187,8 @@ S7::method(minimize, Chebyshev) <-
       }
     }
     run_descent(optimizer, fn, par, gr, he, lower, upper,
-                list(type = "chebyshev", hessian_mod = optimizer@hessian_mod,
-                     floor = optimizer@floor,
-                     max_length = optimizer@max_length,
-                     typical = if (is.null(typ)) numeric(0) else typ,
-                     ratio = optimizer@ratio, t3 = t3))
+                c(list(type = "chebyshev"), modify_spec(optimizer@modify),
+                  list(max_length = optimizer@max_length,
+                       typical = if (is.null(typ)) numeric(0) else typ,
+                       ratio = optimizer@ratio, t3 = t3)))
   }

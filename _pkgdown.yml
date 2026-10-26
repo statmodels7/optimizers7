@@ -129,6 +129,18 @@ reference:
   - wolfe
   - nonmonotone
 
+- title: Hessian modifications
+  desc: >
+    How `newton()` and `chebyshev()` repair a Hessian that is not positive
+    definite. A modification is an object that implements one generic, so a
+    user-defined repair is treated like a shipped one.
+  contents:
+  - modifications
+  - hessian_modification
+  - modify_eigen
+  - modify_ridge
+  - hessian_modify
+
 - title: Starting values
   desc: >
     A starter takes the place of the vector of starting values and is

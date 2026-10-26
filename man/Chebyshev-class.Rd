@@ -15,8 +15,7 @@ Chebyshev(
   keep_trace = logical(0),
   step = integer(0),
   line_search = NULL,
-  hessian_mod = character(0),
-  floor = integer(0),
+  modify = NULL,
   max_length = integer(0),
   typical = NULL,
   ratio = integer(0)
@@ -26,10 +25,8 @@ Chebyshev(
 \item{step, line_search}{The initial step length and the \code{\link[=line_search]{line_search()}}
 object, as in \code{\link[=newton]{newton()}}.}
 
-\item{hessian_mod}{How an indefinite Hessian is repaired, \code{"eigen"} or
-\code{"ridge"}.}
-
-\item{floor}{The lower bound of the repair; see \code{\link[=newton]{newton()}}.}
+\item{modify}{The \code{\link[=hessian_modification]{hessian_modification()}} object that repairs an
+indefinite Hessian; see \code{\link[=newton]{newton()}}.}
 
 \item{max_length}{The largest component that a step may have.}
 

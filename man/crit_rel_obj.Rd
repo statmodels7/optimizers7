@@ -24,11 +24,8 @@ The term \code{+ tol} is a floor on the scale. Without it the threshold would
 be zero at an objective value of zero, and since the comparison is strict
 the rule could never fire at an optimum of zero.
 
-The rule was part of the default rule of the gradient methods until
-version 0.6.0. It was removed because on the package's \code{\link[=test_problems]{test_problems()}}
-it never fired before the other terms. It is useful where the scale of the
-objective is not known in advance, which is where \code{\link[=crit_abs_obj]{crit_abs_obj()}} is
-hard to set.
+The rule is useful where the scale of the objective is not known in
+advance, which is where \code{\link[=crit_abs_obj]{crit_abs_obj()}} is hard to set.
 }
 \examples{
 crit_rel_obj()
