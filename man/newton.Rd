@@ -15,7 +15,8 @@ newton(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL
+  typical = NULL,
+  stop_decrement = 0.001
 )
 }
 \arguments{
@@ -64,6 +65,13 @@ by the method is then measured in these units, as the largest
 \eqn{\lvert d_i\rvert}: the bound \code{max_length}, and the scaling of a
 direction whose length is not set by the curvature. With \code{NULL} the
 lengths are measured in the units of the parameters.}
+
+\item{stop_decrement}{The largest Newton decrement
+\eqn{\tfrac12 g^\top H^{-1} g} at which a stopping rule on the change in
+the parameters or in the objective, such as \code{\link[=crit_abs_par]{crit_abs_par()}} or
+\code{\link[=crit_abs_obj]{crit_abs_obj()}}, may end the run as converged. A single positive number,
+in the units of the objective, or \code{Inf} to accept every such stop.
+Defaults to \code{1e-3}. See below.}
 }
 \value{
 An S7 object of class \link{Newton}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
@@ -125,6 +133,29 @@ near a minimum the Newton steps are short, so the quadratic convergence of
 the method is kept. A step shortened by the bound is recorded in the trace
 as \verb{newton step capped}, except at an iteration at which the Hessian was
 repaired, which keeps the label of the repair.
+}
+
+\section{Stopping on the change}{
+A rule on the change in the parameters or in the objective ends the run
+when the iterate stops moving, which near a minimum is the same as having
+arrived. Away from a minimum it is not. Where the Hessian has no Cholesky
+factor, the step that preceded the stop came from the repaired matrix and
+its length is the floor's, so that a Hessian with a very large eigenvalue
+and a negative one yields steps of the order of \eqn{10^{-8}} while the
+objective is still falling. Where the Hessian is positive definite, a step
+that is short for another reason, such as a bound \code{max_length}, leaves the
+Newton decrement \eqn{\tfrac12 g^\top H^{-1} g}, the decrease that the
+quadratic model still predicts, above what a minimum would leave.
+
+A stop on the change is therefore not accepted at a point where the
+Hessian is not positive definite or where the Newton decrement exceeds
+\code{stop_decrement}. The run ends as not converged, with \code{criterion_met}
+reporting \code{"stopped without converging"} and the message giving the reason,
+and the trace records the safeguard \verb{change stop refused}. A rule on the
+gradient, such as \code{\link[=crit_grad]{crit_grad()}}, is not affected, and neither is a point at
+which the Hessian is not finite. The check costs one Hessian evaluation at
+the point where such a stop would end the run. \code{stop_decrement = Inf}
+accepts every stop on a change, as in versions before 0.17.0.
 }
 
 \section{Parameters in different units}{

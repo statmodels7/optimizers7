@@ -18,20 +18,22 @@ NULL
 #' read the `he` argument of [minimize()].
 #'
 #' @details
-#' Beyond the seven properties of every optimizer, a `Newton` carries five:
+#' Beyond the seven properties of every optimizer, a `Newton` carries six:
 #' `step` and `line_search`, shared with the other line-search methods, and
-#' `modify`, `max_length` and `typical`, which are its own.
+#' `modify`, `max_length`, `typical` and `stop_decrement`, which are its own.
 #'
 #' @param modify The [hessian_modification()] object that repairs an
 #'   indefinite Hessian; see [newton()].
 #' @param max_length The largest component that a step may have.
 #' @param typical `NULL`, or the typical size of each parameter, in the
 #'   units of which the step lengths are measured.
+#' @param stop_decrement The largest Newton decrement at which a stopping rule
+#'   on a change may end the run; see [newton()].
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [newton()].
 #'
 #' @return An S7 object of class `Newton` inheriting from [optimizer()], with
-#'   the five properties above beside the seven shared ones.
+#'   the six properties above beside the seven shared ones.
 #'
 #' @seealso [newton()] for the constructor, [bfgs()] for the method that
 #'   needs no Hessian.
@@ -42,7 +44,8 @@ Newton <- S7::new_class("Newton", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     modify = S7::class_any,
                     max_length = S7::class_numeric,
-                    typical = S7::class_any))
+                    typical = S7::class_any,
+                    stop_decrement = S7::class_numeric))
 
 
 #' @title Newton's Method with a Modified Hessian
@@ -89,6 +92,12 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   \eqn{\lvert d_i\rvert}: the bound `max_length`, and the scaling of a
 #'   direction whose length is not set by the curvature. With `NULL` the
 #'   lengths are measured in the units of the parameters.
+#' @param stop_decrement The largest Newton decrement
+#'   \eqn{\tfrac12 g^\top H^{-1} g} at which a stopping rule on the change in
+#'   the parameters or in the objective, such as [crit_abs_par()] or
+#'   [crit_abs_obj()], may end the run as converged. A single positive number,
+#'   in the units of the objective, or `Inf` to accept every such stop.
+#'   Defaults to `1e-3`. See below.
 #'
 #' @details
 #' # Why the Hessian has to be repaired
@@ -143,6 +152,29 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' the method is kept. A step shortened by the bound is recorded in the trace
 #' as `newton step capped`, except at an iteration at which the Hessian was
 #' repaired, which keeps the label of the repair.
+#'
+#' # Stopping on the change
+#'
+#' A rule on the change in the parameters or in the objective ends the run
+#' when the iterate stops moving, which near a minimum is the same as having
+#' arrived. Away from a minimum it is not. Where the Hessian has no Cholesky
+#' factor, the step that preceded the stop came from the repaired matrix and
+#' its length is the floor's, so that a Hessian with a very large eigenvalue
+#' and a negative one yields steps of the order of \eqn{10^{-8}} while the
+#' objective is still falling. Where the Hessian is positive definite, a step
+#' that is short for another reason, such as a bound `max_length`, leaves the
+#' Newton decrement \eqn{\tfrac12 g^\top H^{-1} g}, the decrease that the
+#' quadratic model still predicts, above what a minimum would leave.
+#'
+#' A stop on the change is therefore not accepted at a point where the
+#' Hessian is not positive definite or where the Newton decrement exceeds
+#' `stop_decrement`. The run ends as not converged, with `criterion_met`
+#' reporting `"stopped without converging"` and the message giving the reason,
+#' and the trace records the safeguard `change stop refused`. A rule on the
+#' gradient, such as [crit_grad()], is not affected, and neither is a point at
+#' which the Hessian is not finite. The check costs one Hessian evaluation at
+#' the point where such a stop would end the run. `stop_decrement = Inf`
+#' accepts every stop on a change, as in versions before 0.17.0.
 #'
 #' # Parameters in different units
 #'
@@ -239,7 +271,7 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
                    step = 1, line_search = armijo(),
                    maxit = 200, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE,
-                   max_length = Inf, typical = NULL) {
+                   max_length = Inf, typical = NULL, stop_decrement = 1e-3) {
   check_modify(modify)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -255,11 +287,12 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
     stop(paste0("'typical' must be NULL, or positive finite numbers: one, ",
                 "or one per parameter."), call. = FALSE)
   }
+  check_stop_decrement(stop_decrement)
   Newton(name = "Newton", criterion = criterion, maxit = maxit,
          max_eval = max_eval, verbose = verbose, refresh = refresh,
          keep_trace = keep_trace, step = step, line_search = line_search,
          modify = modify, max_length = max_length,
-         typical = typical)
+         typical = typical, stop_decrement = stop_decrement)
 }
 
 
@@ -622,7 +655,8 @@ S7::method(minimize, Newton) <-
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 c(list(type = "newton"), modify_spec(optimizer@modify),
                   list(max_length = optimizer@max_length,
-                       typical = if (is.null(typ)) numeric(0) else typ)))
+                       typical = if (is.null(typ)) numeric(0) else typ,
+                       stop_decrement = optimizer@stop_decrement)))
   }
 
 #' @title Minimize by BFGS

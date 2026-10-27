@@ -215,6 +215,21 @@ Rcpp::List descent_run(Rcpp::List spec,
         if (keep_trace) tr.push(it, f, gnorm, 0.0, guard);
         break;
       }
+      // A rule on the change does not close the run at a point where the
+      // direction can tell from the curvature that the point is not a minimum
+      // (newton(): a Hessian without a Cholesky factor, or a Newton decrement
+      // above stop_decrement). Only a gradient rule can then close it, and the
+      // rule is asked for that at the new point with no previous iterate.
+      std::string why;
+      if (dir->vets_change_stop() &&
+          !ask_criterion(crit_fn, criterion, it, f, f, x, x, g, true, false) &&
+          !dir->accepts_change_stop(*obj, x, g, why)) {
+        note = "the stopping rule was met on a change at a point that is not a minimum: " + why;
+        stopped_by = "failed";
+        guard = "change stop refused";
+        if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
+        break;
+      }
       if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
       converged = true;
       stopped_by = "criterion";

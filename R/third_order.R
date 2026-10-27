@@ -49,7 +49,7 @@ Chebyshev <- S7::new_class("Chebyshev", parent = Newton,
 #'   not a descent direction, indicates that the cubic model does not
 #'   describe the objective over the length of the step, and the Newton step
 #'   is used instead. Defaults to `0.5`.
-#' @param criterion,modify,step,line_search,maxit,max_eval,verbose,refresh,keep_trace,max_length,typical
+#' @param criterion,modify,step,line_search,maxit,max_eval,verbose,refresh,keep_trace,max_length,typical,stop_decrement
 #'   As in [newton()]. `modify` takes a [hessian_modification()] object
 #'   ([modify_eigen()] by default, or [modify_ridge()]); see [modifications].
 #'
@@ -135,11 +135,12 @@ chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs
                       step = 1, line_search = armijo(),
                       maxit = 200, max_eval = Inf,
                       verbose = FALSE, refresh = 10, keep_trace = FALSE,
-                      max_length = Inf, typical = NULL) {
+                      max_length = Inf, typical = NULL, stop_decrement = 1e-3) {
   base <- newton(criterion = criterion, modify = modify, step = step, line_search = line_search,
                  maxit = maxit, max_eval = max_eval, verbose = verbose,
                  refresh = refresh, keep_trace = keep_trace,
-                 max_length = max_length, typical = typical)
+                 max_length = max_length, typical = typical,
+                 stop_decrement = stop_decrement)
   if (length(ratio) != 1L || !is.numeric(ratio) || is.na(ratio) ||
       ratio <= 0) {
     stop("'ratio' must be a single positive number (Inf for no bound).",
@@ -151,7 +152,8 @@ chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs
             keep_trace = base@keep_trace, step = base@step,
             line_search = base@line_search, modify = base@modify,
             max_length = base@max_length,
-            typical = base@typical, ratio = ratio)
+            typical = base@typical, stop_decrement = base@stop_decrement,
+            ratio = ratio)
 }
 
 
@@ -190,5 +192,6 @@ S7::method(minimize, Chebyshev) <-
                 c(list(type = "chebyshev"), modify_spec(optimizer@modify),
                   list(max_length = optimizer@max_length,
                        typical = if (is.null(typ)) numeric(0) else typ,
-                       ratio = optimizer@ratio, t3 = t3)))
+                       ratio = optimizer@ratio, t3 = t3,
+                       stop_decrement = optimizer@stop_decrement)))
   }

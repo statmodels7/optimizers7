@@ -10,6 +10,7 @@
 // in descent.cpp is written once.
 
 #include <RcppArmadillo.h>
+#include <sstream>
 #include "objective.h"
 
 namespace optimizers7 {
@@ -30,6 +31,19 @@ public:
                       std::string& guard) {}
 
   virtual bool needs_hessian() const { return false; }
+
+  // Asked when a stopping rule on the change in the iterate or in the objective
+  // has fired at x, and the gradient rule alone would not. A direction that can
+  // tell from the curvature at x that x is not a minimum returns FALSE and sets
+  // `why`; the run then ends as a failure. The default accepts every stop.
+  virtual bool accepts_change_stop(Objective& obj, const arma::vec& x,
+                                   const arma::vec& g, std::string& why) {
+    return true;
+  }
+
+  // Whether accepts_change_stop() can ever refuse, so that the loop does not
+  // ask the gradient rule for a direction that accepts every stop.
+  virtual bool vets_change_stop() const { return false; }
 };
 
 
@@ -324,12 +338,49 @@ public:
                   double max_length = arma::datum::inf,
                   arma::vec typical = arma::vec(),
                   int order = 2, double ratio = 0.5,
-                  SEXP t3 = R_NilValue)
+                  SEXP t3 = R_NilValue,
+                  double stop_decrement = arma::datum::inf)
     : mod_(mod), floor_(floor_value), modify_fn_(modify_fn),
       max_length_(max_length),
-      typ_(typical), order_(order), ratio_(ratio), t3_(t3) {}
+      typ_(typical), order_(order), ratio_(ratio), t3_(t3),
+      stop_dec_(stop_decrement) {}
 
   bool needs_hessian() const { return true; }
+
+  // A stop on the change in the iterate or in the objective is a statement that
+  // the iterate no longer moves, and near a minimum that is the same as being
+  // there. Away from one it is not: where the Hessian has no Cholesky factor
+  // the step that preceded the stop came from a repaired matrix, whose length
+  // is the floor's and not the curvature's, and where the Hessian is positive
+  // definite a step that is short for another reason (a bound on its length, a
+  // steep wall) leaves the Newton decrement g'H^-1 g / 2, the decrease that
+  // the quadratic model still predicts, above what a minimum would leave.
+  // Both are read at the point where the run would stop. A Hessian that is not
+  // finite is no evidence either way and the stop stands.
+  bool vets_change_stop() const { return std::isfinite(stop_dec_); }
+
+  bool accepts_change_stop(Objective& obj, const arma::vec& x,
+                           const arma::vec& g, std::string& why) {
+    if (!std::isfinite(stop_dec_)) return true;
+    arma::mat H = obj.hess(x);
+    if (!H.is_finite() || !g.is_finite()) return true;
+    H = 0.5 * (H + H.t());
+    arma::mat R;
+    if (!arma::chol(R, H)) {
+      why = "the Hessian at the point is not positive definite";
+      return false;
+    }
+    const arma::vec z = arma::solve(arma::trimatl(R.t()), g);
+    const double dec = 0.5 * arma::dot(z, z);
+    if (dec > stop_dec_) {
+      std::ostringstream os;
+      os << "the Newton decrement at the point is " << dec
+         << ", above stop_decrement = " << stop_dec_;
+      why = os.str();
+      return false;
+    }
+    return true;
+  }
 
   arma::vec compute(Objective& obj, const arma::vec& x, const arma::vec& g,
                     double, std::string& guard) {
@@ -520,6 +571,7 @@ private:
   int order_;
   double ratio_;
   SEXP t3_;
+  double stop_dec_;
 };
 
 
@@ -688,7 +740,9 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                Rcpp::as<double>(method["floor"]),
                                method["modify_fn"],
                                Rcpp::as<double>(method["max_length"]),
-                               Rcpp::as<arma::vec>(method["typical"]));
+                               Rcpp::as<arma::vec>(method["typical"]),
+                               2, 0.5, R_NilValue,
+                               Rcpp::as<double>(method["stop_decrement"]));
   } else if (type == "chebyshev") {
     return new NewtonDirection(Rcpp::as<std::string>(method["modify_type"]),
                                Rcpp::as<double>(method["floor"]),
@@ -696,7 +750,8 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                Rcpp::as<double>(method["max_length"]),
                                Rcpp::as<arma::vec>(method["typical"]),
                                3, Rcpp::as<double>(method["ratio"]),
-                               method["t3"]);
+                               method["t3"],
+                               Rcpp::as<double>(method["stop_decrement"]));
   } else if (type == "bfgs") {
     return new BfgsDirection(p, Rcpp::as<double>(method["curv_tol"]),
                              Rcpp::as<int>(method["max_skip"]));
