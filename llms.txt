@@ -412,6 +412,27 @@ the objective.
 - [`nonmonotone()`](https://statmodels7.github.io/optimizers7/reference/nonmonotone.md)
   : Nonmonotone Backtracking
 
+## Hessian modifications
+
+How
+[`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+and
+[`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+repair a Hessian that is not positive definite. A modification is an
+object that implements one generic, so a user-defined repair is treated
+like a shipped one.
+
+- [`modifications`](https://statmodels7.github.io/optimizers7/reference/modifications.md)
+  : Modifications of the Hessian
+- [`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+  : S7 Class for Hessian Modifications
+- [`modify_eigen()`](https://statmodels7.github.io/optimizers7/reference/modify_eigen.md)
+  : Eigenvalue Modification of the Hessian
+- [`modify_ridge()`](https://statmodels7.github.io/optimizers7/reference/modify_ridge.md)
+  : Ridge Modification of the Hessian
+- [`hessian_modify()`](https://statmodels7.github.io/optimizers7/reference/hessian_modify.md)
+  : Modify a Hessian
+
 ## Starting values
 
 A starter takes the place of the vector of starting values and is

@@ -9,7 +9,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,11 +69,8 @@ quantity compared is a ratio.</p></dd>
     <p>The term <code>+ tol</code> is a floor on the scale. Without it the threshold would
 be zero at an objective value of zero, and since the comparison is strict
 the rule could never fire at an optimum of zero.</p>
-<p>The rule was part of the default rule of the gradient methods until
-version 0.6.0. It was removed because on the package's <code><a href="test_problems.html">test_problems()</a></code>
-it never fired before the other terms. It is useful where the scale of the
-objective is not known in advance, which is where <code><a href="crit_abs_obj.html">crit_abs_obj()</a></code> is
-hard to set.</p>
+<p>The rule is useful where the scale of the objective is not known in
+advance, which is where <code><a href="crit_abs_obj.html">crit_abs_obj()</a></code> is hard to set.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

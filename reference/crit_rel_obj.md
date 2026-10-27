@@ -31,11 +31,8 @@ The term `+ tol` is a floor on the scale. Without it the threshold would
 be zero at an objective value of zero, and since the comparison is
 strict the rule could never fire at an optimum of zero.
 
-The rule was part of the default rule of the gradient methods until
-version 0.6.0. It was removed because on the package's
-[`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
-it never fired before the other terms. It is useful where the scale of
-the objective is not known in advance, which is where
+The rule is useful where the scale of the objective is not known in
+advance, which is where
 [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md)
 is hard to set.
 

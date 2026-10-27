@@ -9,7 +9,7 @@ is satisfied."><meta property="og:image" content="https://statmodels7.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,8 +79,7 @@ estimate. On a non-smooth problem a smooth method can stall far from the
 solution, and a rule that reads a stall reports it as convergence (<code>cg</code> on
 <code>abs_sum</code> is such a case). A caller who needs a stationary point uses
 <code>criterion = crit_grad()</code>.</p>
-<p><code><a href="crit_rel_obj.html">crit_rel_obj()</a></code> was part of this default until 0.6.0. It was removed
-because on the same problems it never fired before the other terms.</p>
+<p><code><a href="crit_rel_obj.html">crit_rel_obj()</a></code> is not part of this default.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

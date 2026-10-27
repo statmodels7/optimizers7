@@ -1,8 +1,10 @@
 # S7 Class for Newton's Method
 
 This class is an optimizer that holds the initial step length, the line
-search, the two settings that determine how an indefinite Hessian is
-repaired, and the two settings that bound and scale a step.
+search, the
+[`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+that repairs an indefinite Hessian, and the two settings that bound and
+scale a step.
 [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
 builds it. Among the shipped methods, only this one and
 [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),
@@ -22,8 +24,7 @@ Newton(
   keep_trace = logical(0),
   step = integer(0),
   line_search = NULL,
-  hessian_mod = character(0),
-  floor = integer(0),
+  modify = NULL,
   max_length = integer(0),
   typical = NULL
 )
@@ -38,13 +39,11 @@ Newton(
   object, as in
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
-- hessian_mod:
+- modify:
 
-  How an indefinite Hessian is repaired, `"eigen"` or `"ridge"`.
-
-- floor:
-
-  The lower bound of the repair; see
+  The
+  [`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+  object that repairs an indefinite Hessian; see
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - max_length:
@@ -60,13 +59,13 @@ Newton(
 
 An S7 object of class `Newton` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the six properties above beside the seven shared ones.
+with the five properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties of every optimizer, a `Newton` carries six:
+Beyond the seven properties of every optimizer, a `Newton` carries five:
 `step` and `line_search`, shared with the other line-search methods, and
-`hessian_mod`, `floor`, `max_length` and `typical`, which are its own.
+`modify`, `max_length` and `typical`, which are its own.
 
 ## See also
 

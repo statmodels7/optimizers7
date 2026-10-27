@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.15.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,11 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.16.0" id="optimizers7-0160">optimizers7 0.16.0<a class="anchor" aria-label="anchor" href="#optimizers7-0160"></a></h2>
+<ul><li>
+<code><a href="../reference/newton.html">newton()</a></code> and <code><a href="../reference/chebyshev.html">chebyshev()</a></code> take <code>modify = modify_eigen(floor = 1e-8)</code> or <code>modify_ridge(floor = 1e-8)</code> in place of <code>hessian_mod</code> and <code>floor</code>. The generic <code><a href="../reference/hessian_modify.html">hessian_modify()</a></code> lets a subclass of <code>hessian_modification</code> define another repair of an indefinite Hessian. The results of both existing repairs are unchanged.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.15.2" id="optimizers7-0152">optimizers7 0.15.2<a class="anchor" aria-label="anchor" href="#optimizers7-0152"></a></h2>
 <ul><li>The package description no longer gives a wrong count of methods (it said twelve; there are fourteen) and no longer says that every method accepts box constraints: the proximal gradient rejects them.</li>

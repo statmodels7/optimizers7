@@ -25,6 +25,8 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/CritStationary-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/GradientDescent-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Lbfgs-class.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/ModifyEigen-class.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/ModifyRidge-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/MultiStart-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/NelderMead-class.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/Newton-class.html</loc></url>
@@ -58,6 +60,8 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_criterion.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_gradient_consistency.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_line_search.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/check_modify.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/check_modify_floor.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_nonneg.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_npar.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/check_optimizer.html</loc></url>
@@ -85,6 +89,8 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/fd_gradient.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/format_elapsed.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/gd.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/hessian_modification.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/hessian_modify.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/index.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/infer_npar.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/is_starter.html</loc></url>
@@ -111,6 +117,10 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.ProxGrad.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.Sa.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/minimize.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/modifications.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/modify_eigen.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/modify_ridge.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/modify_spec.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/multistart.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/nelder_mead.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/newton.html</loc></url>
@@ -132,6 +142,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/plot.optimizer_result.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/prepare_objective.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print.criterion.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/print.hessian_modification.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print.line_search.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print.optimizer.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/print.optimizer_result.html</loc></url>

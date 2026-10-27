@@ -9,8 +9,7 @@ converges quadratically near a minimum.
 ``` r
 newton(
   criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-  hessian_mod = c("eigen", "ridge"),
-  floor = 1e-08,
+  modify = modify_eigen(),
   step = 1,
   line_search = armijo(),
   maxit = 200,
@@ -34,20 +33,34 @@ newton(
   [`crit_any()`](https://statmodels7.github.io/optimizers7/reference/crit_any.md)
   for the effect of that disjunction.
 
-- hessian_mod:
+- modify:
 
-  How to repair an indefinite Hessian: `"eigen"` (default) or `"ridge"`.
-  Partial matching applies, and any other string is rejected by
-  [`match.arg()`](https://rdrr.io/r/base/match.arg.html).
+  A
+  [`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+  object that determines how an indefinite or nearly singular Hessian is
+  repaired before the step. A character string is rejected. The
+  constructors are:
 
-- floor:
+  - [`modify_eigen()`](https://statmodels7.github.io/optimizers7/reference/modify_eigen.md)
+    (default): raises the eigenvalues of the Hessian that are below a
+    floor to the floor.
 
-  The lower bound of the repair, a single positive number. Defaults to
-  `1e-8`. With `"eigen"`, eigenvalues below \\\max(\texttt{floor},
-  \texttt{floor}\\\max_i\lvert\lambda_i\rvert)\\ are raised to that
-  value, so the bound is relative to the largest eigenvalue when that
-  eigenvalue exceeds one in absolute value; with `"ridge"`, `floor` is
-  the smallest shift \\\tau\\ tried.
+  - [`modify_ridge()`](https://statmodels7.github.io/optimizers7/reference/modify_ridge.md):
+    adds a multiple of the identity, doubled until the Cholesky
+    factorization succeeds.
+
+  - A user-defined subclass of
+    [`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+    with a method for
+    [`hessian_modify()`](https://statmodels7.github.io/optimizers7/reference/hessian_modify.md),
+    which needs no change to this function.
+
+  The floor is an argument of the constructor, as in
+  `newton(modify = modify_ridge(floor = 1e-6))`. See
+  [modifications](https://statmodels7.github.io/optimizers7/reference/modifications.md)
+  for the comparison and
+  [`hessian_modify()`](https://statmodels7.github.io/optimizers7/reference/hessian_modify.md)
+  for writing a new object.
 
 - step:
 
@@ -111,11 +124,14 @@ step can point towards a saddle or a maximum, and a line search along an
 ascent direction cannot decrease the objective. Indefinite Hessians are
 common far from the solution.
 
-Both repairs begin with an attempted Cholesky factorization, which, when
-it succeeds, is both the test for positive definiteness and the solve.
-When it fails:
+The repair is selected by `modify`. Every repair begins with an
+attempted Cholesky factorization, which, when it succeeds, is both the
+test for positive definiteness and the solve. When it fails, the Hessian
+is passed to
+[`hessian_modify()`](https://statmodels7.github.io/optimizers7/reference/hessian_modify.md)
+and the two shipped repairs are:
 
-- `"eigen"`:
+- [`modify_eigen()`](https://statmodels7.github.io/optimizers7/reference/modify_eigen.md):
 
   decompose \\H\\ and raise every eigenvalue below
   \\\max(\texttt{floor}, \texttt{floor}\\\max_i\lvert\lambda_i\rvert)\\
@@ -125,7 +141,7 @@ When it fails:
   and gives the best-conditioned matrix. If the eigendecomposition
   fails, the ridge repair is used.
 
-- `"ridge"`:
+- [`modify_ridge()`](https://statmodels7.github.io/optimizers7/reference/modify_ridge.md):
 
   add \\\tau I\\ and double \\\tau\\ until the factorization succeeds.
   This is Levenberg's idea: it interpolates between the Newton step at
@@ -133,10 +149,12 @@ When it fails:
   costs less than the eigendecomposition and shifts every eigenvalue,
   not only the small ones.
 
-A repair of the Hessian is recorded in the trace as `hessian modified`,
-or `hessian modified (capped)` when the repaired step is also scaled
-down (see below). The label does not record which of the two repairs was
-used.
+A user-defined
+[`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+is called through R at each such iterate. A repair of the Hessian is
+recorded in the trace as `hessian modified`, or
+`hessian modified (capped)` when the repaired step is also scaled down
+(see below). The label does not record which repair was used.
 
 ## Bounding the length of a step
 
@@ -173,10 +191,10 @@ Where the factorization succeeds, \\-H^{-1}g\\ is the Newton step and
 `step = 1` is its natural unit, so the step is taken as it stands,
 subject only to `max_length`. Where it fails, the component of the
 direction in the floored subspace is \\g_i/\lambda\_{\mathrm{floor}}\\,
-whose size is set by `floor` and not by the curvature of the objective.
-The direction is therefore multiplied by \\\min(1, 1/\lVert
-d\rVert\_\infty)\\, which gives a displacement of order one in the
-parameters.
+whose size is set by the `floor` of the modification and not by the
+curvature of the objective. The direction is therefore multiplied by
+\\\min(1, 1/\lVert d\rVert\_\infty)\\, which gives a displacement of
+order one in the parameters.
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
@@ -219,6 +237,13 @@ edition. Springer, New York.
 
 ## See also
 
+[modifications](https://statmodels7.github.io/optimizers7/reference/modifications.md)
+for the repairs of the Hessian,
+[`modify_eigen()`](https://statmodels7.github.io/optimizers7/reference/modify_eigen.md),
+[`modify_ridge()`](https://statmodels7.github.io/optimizers7/reference/modify_ridge.md)
+and
+[`hessian_modify()`](https://statmodels7.github.io/optimizers7/reference/hessian_modify.md)
+to write another,
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 and
 [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
@@ -243,8 +268,15 @@ minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 2 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
+
+# The repair of an indefinite Hessian is an object, with its floor.
+newton(modify = modify_ridge(floor = 1e-6))
+#> <optimizer> Newton
+#>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
+#>   budgets   : maxit 200, evaluations Inf
+#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), modify = ridge (floor = 1e-06), max_length = Inf, typical = <NULL>
 
 # At a saddle the unrepaired step points the wrong way. The Hessian at
 # the start has eigenvalues 2 and -1.99; the repair is recorded in the

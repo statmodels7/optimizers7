@@ -16,8 +16,7 @@ length of a step, the line search, the stopping rule) is as in
 chebyshev(
   criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   ratio = 0.5,
-  hessian_mod = c("eigen", "ridge"),
-  floor = 1e-08,
+  modify = modify_eigen(),
   step = 1,
   line_search = armijo(),
   maxit = 200,
@@ -32,11 +31,19 @@ chebyshev(
 
 ## Arguments
 
-- criterion, hessian_mod, floor, step, line_search, maxit, max_eval,
-  verbose, refresh, keep_trace, max_length, typical:
+- criterion, modify, step, line_search, maxit, max_eval, verbose,
+  refresh, keep_trace, max_length, typical:
 
   As in
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
+  `modify` takes a
+  [`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+  object
+  ([`modify_eigen()`](https://statmodels7.github.io/optimizers7/reference/modify_eigen.md)
+  by default, or
+  [`modify_ridge()`](https://statmodels7.github.io/optimizers7/reference/modify_ridge.md));
+  see
+  [modifications](https://statmodels7.github.io/optimizers7/reference/modifications.md).
 
 - ratio:
 
@@ -146,6 +153,6 @@ minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 0
 #>   par        : 1 1
 #>   iterations : 18   evaluations: f 30, g 53
-#>   elapsed    : 2 ms
+#>   elapsed    : 5 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```

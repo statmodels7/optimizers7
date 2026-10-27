@@ -19,8 +19,7 @@ Chebyshev(
   keep_trace = logical(0),
   step = integer(0),
   line_search = NULL,
-  hessian_mod = character(0),
-  floor = integer(0),
+  modify = NULL,
   max_length = integer(0),
   typical = NULL,
   ratio = integer(0)
@@ -36,13 +35,11 @@ Chebyshev(
   object, as in
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
-- hessian_mod:
+- modify:
 
-  How an indefinite Hessian is repaired, `"eigen"` or `"ridge"`.
-
-- floor:
-
-  The lower bound of the repair; see
+  The
+  [`hessian_modification()`](https://statmodels7.github.io/optimizers7/reference/hessian_modification.md)
+  object that repairs an indefinite Hessian; see
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - max_length:

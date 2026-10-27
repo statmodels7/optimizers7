@@ -53,8 +53,7 @@ convergence (`cg` on `abs_sum` is such a case). A caller who needs a
 stationary point uses `criterion = crit_grad()`.
 
 [`crit_rel_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_rel_obj.md)
-was part of this default until 0.6.0. It was removed because on the same
-problems it never fired before the other terms.
+is not part of this default.
 
 ## See also
 

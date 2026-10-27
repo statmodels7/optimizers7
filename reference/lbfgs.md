@@ -157,5 +157,5 @@ two_loop <- function(g, S, Y, gamma) {       # the recursion
   r
 }
 max(abs(H %*% g - two_loop(g, S, Y, gamma)))
-#> [1] 1.665335e-16
+#> [1] 1.804112e-16
 ```
