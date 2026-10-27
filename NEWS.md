@@ -1,3 +1,15 @@
+# optimizers7 (development version)
+
+* `newton()` and `chebyshev()` take `stop_decrement` (default `1e-3`). A
+  stopping rule on the change in the parameters or in the objective, such as
+  `crit_abs_par()` or `crit_abs_obj()`, no longer ends a run as converged at a
+  point where the Hessian is not positive definite or where the Newton
+  decrement exceeds `stop_decrement`: the run ends as not converged, with the
+  reason in the message and the safeguard `change stop refused` in the trace.
+  The check costs one Hessian evaluation at the point where such a stop would
+  end the run. `stop_decrement = Inf` restores the earlier behavior. A run
+  that ends on the gradient rule is unchanged.
+
 # optimizers7 0.16.0
 
 * `newton()` and `chebyshev()` take `modify = modify_eigen(floor = 1e-8)` or

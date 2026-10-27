@@ -445,6 +445,25 @@ check_step <- function(step) {
   invisible(TRUE)
 }
 
+#' Validate a Decrement Threshold
+#'
+#' @description
+#' Checks that `stop_decrement` is a single positive number, or `Inf`, so that
+#' [newton()] and [chebyshev()] reject invalid values with the same message.
+#'
+#' @param x The value supplied.
+#'
+#' @return Invisibly `TRUE`. Raises an error naming `stop_decrement` otherwise.
+#'
+#' @keywords internal
+check_stop_decrement <- function(x) {
+  if (length(x) != 1L || !is.numeric(x) || is.na(x) || x <= 0) {
+    stop("'stop_decrement' must be a single positive number (Inf to accept ",
+         "every stop on a change).", call. = FALSE)
+  }
+  invisible(TRUE)
+}
+
 #' Validate a Line Search
 #'
 #' @description

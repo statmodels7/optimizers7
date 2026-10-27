@@ -389,3 +389,91 @@ test_that("typical sizes read every length in the parameters' own units", {
   expect_identical(r2@par, r1@par)
   expect_identical(r2@counts, r1@counts)
 })
+
+
+test_that("a stop on a change is not convergence where the Hessian is indefinite", {
+  # A Hessian with an eigenvalue of 1e19 and one of -1e9 is repaired to a
+  # floor of 1e11, so the step is of the order of 5e-9 and crit_abs_par()
+  # meets it while the gradient is 500 and the objective is still falling.
+  f  <- function(p) 0.5 * 1e19 * p[1]^2 + 500 * p[2] - 0.5 * 1e9 * p[2]^2
+  gr <- function(p) c(1e19 * p[1], 500 - 1e9 * p[2])
+  he <- function(p) diag(c(1e19, -1e9))
+
+  off <- minimize(newton(stop_decrement = Inf), f, c(0, 0), gr = gr, he = he)
+  expect_true(off@converged)
+  expect_gt(max(abs(off@gradient)), 100)
+
+  on <- minimize(newton(keep_trace = TRUE), f, c(0, 0), gr = gr, he = he)
+  expect_false(on@converged)
+  expect_identical(on@criterion_met, "stopped without converging")
+  expect_match(on@message, "not positive definite")
+  expect_identical(on@trace$safeguard[nrow(on@trace)], "change stop refused")
+  expect_identical(on@par, off@par)
+  expect_identical(on@value, off@value)
+})
+
+test_that("a stop on a change is not convergence above stop_decrement", {
+  # max_length = 1e-9 makes every step shorter than crit_abs_par() asks, with
+  # a positive definite Hessian: the Newton decrement at the point is 2.
+  q  <- function(p) sum((p - 1)^2)
+  qg <- function(p) 2 * (p - 1)
+  qh <- function(p) diag(2, length(p))
+
+  off <- minimize(newton(max_length = 1e-9, stop_decrement = Inf), q, c(0, 0),
+                  gr = qg, he = qh)
+  expect_true(off@converged)
+
+  on <- minimize(newton(max_length = 1e-9), q, c(0, 0), gr = qg, he = qh)
+  expect_false(on@converged)
+  expect_match(on@message, "Newton decrement at the point is 2")
+
+  # a threshold above the decrement accepts the stop
+  wide <- minimize(newton(max_length = 1e-9, stop_decrement = 10), q, c(0, 0),
+                   gr = qg, he = qh)
+  expect_true(wide@converged)
+
+  # the chebyshev() method carries the setting
+  ch <- minimize(chebyshev(max_length = 1e-9), q, c(0, 0), gr = qg, he = qh)
+  expect_false(ch@converged)
+})
+
+test_that("stop_decrement leaves a run that ends on the gradient or at a minimum alone", {
+  rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+  rosen_gr <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                            200 * (p[2] - p[1]^2))
+  rosen_he <- function(p) matrix(c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
+                                   -400 * p[1], 200), 2, 2)
+  a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  b <- minimize(newton(stop_decrement = Inf), rosen, c(-1.2, 1), gr = rosen_gr,
+                he = rosen_he)
+  expect_true(a@converged)
+  expect_identical(a@par, b@par)
+  expect_identical(a@counts, b@counts)
+
+  # a stop on the change at a minimum is accepted, at the cost of one Hessian
+  c1 <- minimize(newton(crit_any(crit_abs_par(1e-3))), rosen, c(-1.2, 1),
+                 gr = rosen_gr, he = rosen_he)
+  c2 <- minimize(newton(crit_any(crit_abs_par(1e-3)), stop_decrement = Inf),
+                 rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  expect_true(c1@converged)
+  expect_identical(c1@par, c2@par)
+  expect_identical(unname(c1@counts[["h"]]), unname(c2@counts[["h"]]) + 1L)
+
+  # a run on a box reads the decrement on the scale it runs on
+  q  <- function(p) sum((p - 1)^2)
+  r <- minimize(newton(), q, c(0.5, 0.5), gr = function(p) 2 * (p - 1),
+                he = function(p) diag(2, length(p)), lower = 0, upper = 3)
+  expect_true(r@converged)
+})
+
+test_that("stop_decrement is validated and printed", {
+  expect_error(newton(stop_decrement = 0), "single positive number")
+  expect_error(newton(stop_decrement = -1), "single positive number")
+  expect_error(newton(stop_decrement = NA_real_), "single positive number")
+  expect_error(newton(stop_decrement = c(1, 2)), "single positive number")
+  expect_error(chebyshev(stop_decrement = "a"), "single positive number")
+  expect_identical(newton()@stop_decrement, 1e-3)
+  expect_identical(chebyshev(stop_decrement = Inf)@stop_decrement, Inf)
+  expect_match(paste(capture.output(print(newton())), collapse = "\n"),
+               "stop_decrement = 0.001")
+})

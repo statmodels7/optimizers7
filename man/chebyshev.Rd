@@ -16,11 +16,12 @@ chebyshev(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL
+  typical = NULL,
+  stop_decrement = 0.001
 )
 }
 \arguments{
-\item{criterion, modify, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical}{As in \code{\link[=newton]{newton()}}. \code{modify} takes a \code{\link[=hessian_modification]{hessian_modification()}} object
+\item{criterion, modify, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical, stop_decrement}{As in \code{\link[=newton]{newton()}}. \code{modify} takes a \code{\link[=hessian_modification]{hessian_modification()}} object
 (\code{\link[=modify_eigen]{modify_eigen()}} by default, or \code{\link[=modify_ridge]{modify_ridge()}}); see \link{modifications}.}
 
 \item{ratio}{The largest relative change of the Newton step that the
