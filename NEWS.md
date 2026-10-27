@@ -1,4 +1,4 @@
-# optimizers7 (development version)
+# optimizers7 0.17.0
 
 * `newton()` and `chebyshev()` take `stop_decrement` (default `1e-3`). A
   stopping rule on the change in the parameters or in the objective, such as
