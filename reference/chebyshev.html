@@ -23,7 +23,7 @@ the stopping rule) is as in newton()."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,8 @@ the stopping rule) is as in <code><a href="newton.html">newton()</a></code>.</p>
 <span>  refresh <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  max_length <span class="op">=</span> <span class="cn">Inf</span>,</span>
-<span>  typical <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  typical <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stop_decrement <span class="op">=</span> <span class="fl">0.001</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -87,7 +88,7 @@ the stopping rule) is as in <code><a href="newton.html">newton()</a></code>.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-criterion-modify-step-line-search-maxit-max-eval-verbose-refresh-keep-trace-max-length-typical">criterion, modify, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical<a class="anchor" aria-label="anchor" href="#arg-criterion-modify-step-line-search-maxit-max-eval-verbose-refresh-keep-trace-max-length-typical"></a></dt>
+<dl><dt id="arg-criterion-modify-step-line-search-maxit-max-eval-verbose-refresh-keep-trace-max-length-typical-stop-decrement">criterion, modify, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical, stop_decrement<a class="anchor" aria-label="anchor" href="#arg-criterion-modify-step-line-search-maxit-max-eval-verbose-refresh-keep-trace-max-length-typical-stop-decrement"></a></dt>
 <dd><p>As in <code><a href="newton.html">newton()</a></code>. <code>modify</code> takes a <code><a href="hessian_modification.html">hessian_modification()</a></code> object
 (<code><a href="modify_eigen.html">modify_eigen()</a></code> by default, or <code><a href="modify_ridge.html">modify_ridge()</a></code>); see <a href="modifications.html">modifications</a>.</p></dd>
 
@@ -186,7 +187,7 @@ Australian Mathematical Society</em> <strong>55</strong>, 113–130.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 18   evaluations: f 30, g 53</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 5 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

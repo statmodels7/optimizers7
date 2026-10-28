@@ -40,7 +40,7 @@ bfgs()
 #> <optimizer> BFGS
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 500, evaluations Inf
-#>   settings  : step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.9), curv_tol = 1e-10, max_skip = 5
+#>   settings  : step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.9), curv_tol = 1e-10, max_skip = 5, stop_decrement = 0.001
 
 # A derivative-free method has a different rule and different settings.
 nelder_mead()

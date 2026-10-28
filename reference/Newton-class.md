@@ -26,7 +26,8 @@ Newton(
   line_search = NULL,
   modify = NULL,
   max_length = integer(0),
-  typical = NULL
+  typical = NULL,
+  stop_decrement = integer(0)
 )
 ```
 
@@ -55,17 +56,24 @@ Newton(
   `NULL`, or the typical size of each parameter, in the units of which
   the step lengths are measured.
 
+- stop_decrement:
+
+  The largest Newton decrement at which a stopping rule on a change may
+  end the run; see
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
+
 ## Value
 
 An S7 object of class `Newton` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the five properties above beside the seven shared ones.
+with the six properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties of every optimizer, a `Newton` carries five:
+Beyond the seven properties of every optimizer, a `Newton` carries six:
 `step` and `line_search`, shared with the other line-search methods, and
-`modify`, `max_length` and `typical`, which are its own.
+`modify`, `max_length`, `typical` and `stop_decrement`, which are its
+own.
 
 ## See also
 

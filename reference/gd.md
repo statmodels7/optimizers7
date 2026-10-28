@@ -14,7 +14,8 @@ gd(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 ```
 
@@ -61,6 +62,18 @@ gd(
 
   Store the iteration path? Defaults to `FALSE`.
 
+- stop_decrement:
+
+  The largest decrease \\\tfrac12\lvert g^\top s\rvert\\, with \\s\\ the
+  last step and \\g\\ the gradient at the new point, at which a stopping
+  rule on the change in the parameters or in the objective, such as
+  [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md)
+  or
+  [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md),
+  may end the run as converged. A single positive number, in the units
+  of the objective, or `Inf` to accept every such stop. Defaults to
+  `1e-3`. See below.
+
 ## Value
 
 An S7 object of class
@@ -79,6 +92,23 @@ converge slowly.
 [`cg()`](https://statmodels7.github.io/optimizers7/reference/cg.md)
 corrects this by combining each direction with the previous one, at no
 extra cost per iteration.
+
+## A stop on a change
+
+A stopping rule on the change in the parameters or in the objective
+states that the iterate no longer moves, and near a minimum that is the
+same as being there. Away from one it is not: a step can be short
+because the objective is steep, or because the direction came from a
+poor model of the surface, and the decrease \\\tfrac12\lvert g^\top
+s\rvert\\ that the step still predicts at the new point is then above
+what a minimum leaves. A stop on the change is therefore not accepted
+where that decrease exceeds `stop_decrement`. The run ends as not
+converged, with `criterion_met` reporting `"stopped without converging"`
+and the message giving the decrease, and the trace records the safeguard
+`change stop refused`. A rule on the gradient, such as
+[`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md),
+is not affected. The check uses quantities that the loop already holds.
+`stop_decrement = Inf` accepts every stop on a change.
 
 Gradient descent serves as a baseline for the other methods. On the
 Rosenbrock function from the usual start it does not converge within its
@@ -111,12 +141,12 @@ gd()
 #> <optimizer> gradient descent
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 500, evaluations Inf
-#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
+#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), stop_decrement = 0.001
 gd(criterion = crit_grad(1e-10), maxit = 2000)
 #> <optimizer> gradient descent
 #>   stop when : gradient (max-norm) < 1e-10
 #>   budgets   : maxit 2000, evaluations Inf
-#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04)
+#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), stop_decrement = 0.001
 
 # A well-conditioned problem is solved quickly.
 minimize(gd(), function(p) sum((p - c(1, 2))^2), c(0, 0),

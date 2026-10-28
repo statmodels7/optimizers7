@@ -129,7 +129,8 @@ shared <- c("name", "criterion", "maxit", "max_eval", "verbose",
             "refresh", "keep_trace")
 stopifnot(all(shared %in% names(S7::props(nelder_mead()))))
 setdiff(names(S7::props(newton())), shared)
-#> [1] "step"        "line_search" "modify"      "max_length"  "typical"    
+#> [1] "step"           "line_search"    "modify"         "max_length"    
+#> [5] "typical"        "stop_decrement"
 setdiff(names(S7::props(adam())), shared)
 #> [1] "alpha"   "beta1"   "beta2"   "eps"     "decay"   "amsgrad"
 
@@ -139,7 +140,7 @@ bfgs()
 #> <optimizer> BFGS
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 500, evaluations Inf
-#>   settings  : step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.9), curv_tol = 1e-10, max_skip = 5
+#>   settings  : step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.9), curv_tol = 1e-10, max_skip = 5, stop_decrement = 0.001
 
 # The two budgets bound different things.
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2

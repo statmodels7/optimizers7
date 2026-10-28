@@ -21,7 +21,8 @@ Bfgs(
   step = integer(0),
   line_search = NULL,
   curv_tol = integer(0),
-  max_skip = integer(0)
+  max_skip = integer(0),
+  stop_decrement = integer(0)
 )
 ```
 
@@ -42,17 +43,23 @@ Bfgs(
 
   Consecutive skips before the approximation is reset to the identity.
 
+- stop_decrement:
+
+  The largest decrease at which a stopping rule on a change may end the
+  run as converged; see
+  [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md).
+
 ## Value
 
 An S7 object of class `Bfgs` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the four properties above beside the seven shared ones.
+with the five properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties of every optimizer, a `Bfgs` carries four:
-`step` and `line_search`, shared with the other line-search methods, and
-`curv_tol` and `max_skip`, which are its own.
+Beyond the seven properties of every optimizer, a `Bfgs` carries five:
+`step`, `line_search` and `stop_decrement`, shared with the other
+line-search methods, and `curv_tol` and `max_skip`, which are its own.
 
 ## See also
 

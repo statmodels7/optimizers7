@@ -20,7 +20,8 @@ Lbfgs(
   step = integer(0),
   line_search = NULL,
   memory = integer(0),
-  curv_tol = integer(0)
+  curv_tol = integer(0),
+  stop_decrement = integer(0)
 )
 ```
 
@@ -41,17 +42,23 @@ Lbfgs(
 
   The curvature threshold below which a pair is not stored.
 
+- stop_decrement:
+
+  The largest decrease at which a stopping rule on a change may end the
+  run as converged; see
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
+
 ## Value
 
 An S7 object of class `Lbfgs` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the four properties above beside the seven shared ones.
+with the five properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties of every optimizer, an `Lbfgs` carries four:
-`step` and `line_search`, and `memory` and `curv_tol`, which are its
-own. It has no counterpart of `max_skip` of
+Beyond the seven properties of every optimizer, an `Lbfgs` carries five:
+`step`, `line_search` and `stop_decrement`, and `memory` and `curv_tol`,
+which are its own. It has no counterpart of `max_skip` of
 [Bfgs](https://statmodels7.github.io/optimizers7/reference/Bfgs-class.md):
 a pair that fails the curvature test is not stored (the trace records
 `lbfgs update skipped`), and there is no accumulated matrix to protect.

@@ -26,7 +26,8 @@ Bb(
   alpha_max = integer(0),
   curv_tol = integer(0),
   step = integer(0),
-  line_search = NULL
+  line_search = NULL,
+  stop_decrement = integer(0)
 )
 ```
 
@@ -55,18 +56,24 @@ Bb(
   object, as in
   [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md).
 
+- stop_decrement:
+
+  The largest decrease at which a stopping rule on a change may end the
+  run as converged; see
+  [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md).
+
 ## Value
 
 An S7 object of class `Bb` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the seven properties above beside the seven shared ones.
+with the eight properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties of every optimizer, a `Bb` carries seven of
+Beyond the seven properties of every optimizer, a `Bb` carries eight of
 its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curv_tol`
-for the step-length estimate, and `step` and `line_search` for the
-search along the direction.
+for the step-length estimate, `step` and `line_search` for the search
+along the direction, and `stop_decrement`.
 
 ## See also
 

@@ -18,7 +18,8 @@ cg(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 20,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 ```
 
@@ -71,6 +72,15 @@ cg(
 - keep_trace:
 
   Store the iteration path? Defaults to `FALSE`.
+
+- stop_decrement:
+
+  The largest decrease \\\tfrac12\lvert g^\top s\rvert\\ at which a
+  stopping rule on the change in the parameters or in the objective may
+  end the run as converged, as in
+  [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md). A
+  single positive number, in the units of the objective, or `Inf` to
+  accept every such stop. Defaults to `1e-3`. See below.
 
 ## Value
 
@@ -131,6 +141,15 @@ A direction that is not a descent direction is replaced by \\-g\\, and
 the trace records the replacement as `cg not descent`. A periodic
 restart set by `restart_every` is recorded as `cg restart`.
 
+## A stop on a change
+
+A stop on the change in the parameters or in the objective is not
+accepted where the decrease \\\tfrac12\lvert g^\top s\rvert\\ that the
+last step still predicts at the new point exceeds `stop_decrement`; the
+run then ends as not converged, as described in
+[`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md).
+`stop_decrement = Inf` accepts every such stop.
+
 ## References
 
 Hestenes, M. R. and Stiefel, E. (1952). Methods of conjugate gradients
@@ -162,12 +181,12 @@ cg()
 #> <optimizer> conjugate gradients (pr)
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 1000, evaluations Inf
-#>   settings  : beta = pr, restart_every = 0, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
+#>   settings  : beta = pr, restart_every = 0, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1), stop_decrement = 0.001
 cg(beta = "fr", restart_every = 10)
 #> <optimizer> conjugate gradients (fr)
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 1000, evaluations Inf
-#>   settings  : beta = fr, restart_every = 10, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1)
+#>   settings  : beta = fr, restart_every = 10, step = 1, line_search = strong Wolfe (c1 = 1e-04, c2 = 0.1), stop_decrement = 0.001
 
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),

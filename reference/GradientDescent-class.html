@@ -11,7 +11,7 @@ It is built by gd()."><meta property="og:image" content="https://statmodels7.git
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,8 @@ It is built by <code><a href="gd.html">gd()</a></code>.</p>
 <span>  refresh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  line_search <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  line_search <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stop_decrement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -73,18 +74,23 @@ It is built by <code><a href="gd.html">gd()</a></code>.</p>
 <dt id="arg-line-search">line_search<a class="anchor" aria-label="anchor" href="#arg-line-search"></a></dt>
 <dd><p>A <code><a href="line_search.html">line_search()</a></code> object.</p></dd>
 
+
+<dt id="arg-stop-decrement">stop_decrement<a class="anchor" aria-label="anchor" href="#arg-stop-decrement"></a></dt>
+<dd><p>The largest decrease at which a stopping rule on a
+change may end the run as converged; see <code><a href="gd.html">gd()</a></code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An S7 object of class <code>GradientDescent</code> inheriting from
-<code><a href="optimizer.html">optimizer()</a></code>, with <code>step</code> and <code>line_search</code> beside the seven shared
-properties.</p>
+<code><a href="optimizer.html">optimizer()</a></code>, with <code>step</code>, <code>line_search</code> and <code>stop_decrement</code> beside the
+seven shared properties.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Beyond the seven properties of every optimizer, a <code>GradientDescent</code>
-carries <code>step</code> and <code>line_search</code>, both shared with the other line-search
-methods.</p>
+carries <code>step</code>, <code>line_search</code> and <code>stop_decrement</code>, shared with the other
+line-search methods.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

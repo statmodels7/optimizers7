@@ -26,7 +26,8 @@ lbfgs(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 ```
 
@@ -57,6 +58,15 @@ lbfgs(
 
   As in
   [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
+
+- stop_decrement:
+
+  The largest decrease \\\tfrac12\lvert g^\top s\rvert\\ at which a
+  stopping rule on the change in the parameters or in the objective may
+  end the run as converged, as in
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
+  A single positive number, in the units of the objective, or `Inf` to
+  accept every such stop. Defaults to `1e-3`. See below.
 
 ## Value
 
@@ -98,6 +108,15 @@ iteration. Beyond a handful of pairs the number of iterations changes
 little while the arithmetic keeps rising; ten is the conventional
 choice.
 
+## A stop on a change
+
+A stop on the change in the parameters or in the objective is not
+accepted where the decrease \\\tfrac12\lvert g^\top s\rvert\\ that the
+last step still predicts at the new point exceeds `stop_decrement`; the
+run then ends as not converged, as described in
+[`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
+`stop_decrement = Inf` accepts every such stop.
+
 ## References
 
 Nocedal, J. (1980). Updating quasi-Newton matrices with limited storage.
@@ -124,7 +143,7 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 1.94698e-14
 #>   par        : 1 1
 #>   iterations : 36   evaluations: f 49, g 40
-#>   elapsed    : 3 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # The two-loop recursion is not an approximation to the full update: on

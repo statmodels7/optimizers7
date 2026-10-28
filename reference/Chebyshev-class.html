@@ -9,7 +9,7 @@ third-order correction. chebyshev() builds it."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.16.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,7 @@ third-order correction. <code><a href="chebyshev.html">chebyshev()</a></code> bu
 <span>  modify <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  max_length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  typical <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  stop_decrement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  ratio <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -84,6 +85,11 @@ indefinite Hessian; see <code><a href="newton.html">newton()</a></code>.</p></dd
 <dt id="arg-typical">typical<a class="anchor" aria-label="anchor" href="#arg-typical"></a></dt>
 <dd><p><code>NULL</code>, or the typical size of each parameter, in the
 units of which the step lengths are measured.</p></dd>
+
+
+<dt id="arg-stop-decrement">stop_decrement<a class="anchor" aria-label="anchor" href="#arg-stop-decrement"></a></dt>
+<dd><p>The largest Newton decrement at which a stopping rule
+on a change may end the run; see <code><a href="newton.html">newton()</a></code>.</p></dd>
 
 
 <dt id="arg-ratio">ratio<a class="anchor" aria-label="anchor" href="#arg-ratio"></a></dt>

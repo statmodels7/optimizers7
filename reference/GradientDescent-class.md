@@ -17,7 +17,8 @@ GradientDescent(
   refresh = integer(0),
   keep_trace = logical(0),
   step = integer(0),
-  line_search = NULL
+  line_search = NULL,
+  stop_decrement = integer(0)
 )
 ```
 
@@ -33,17 +34,24 @@ GradientDescent(
   [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
   object.
 
+- stop_decrement:
+
+  The largest decrease at which a stopping rule on a change may end the
+  run as converged; see
+  [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md).
+
 ## Value
 
 An S7 object of class `GradientDescent` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with `step` and `line_search` beside the seven shared properties.
+with `step`, `line_search` and `stop_decrement` beside the seven shared
+properties.
 
 ## Details
 
 Beyond the seven properties of every optimizer, a `GradientDescent`
-carries `step` and `line_search`, both shared with the other line-search
-methods.
+carries `step`, `line_search` and `stop_decrement`, shared with the
+other line-search methods.
 
 ## See also
 

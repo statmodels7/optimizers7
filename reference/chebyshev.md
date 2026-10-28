@@ -25,14 +25,15 @@ chebyshev(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL
+  typical = NULL,
+  stop_decrement = 0.001
 )
 ```
 
 ## Arguments
 
 - criterion, modify, step, line_search, maxit, max_eval, verbose,
-  refresh, keep_trace, max_length, typical:
+  refresh, keep_trace, max_length, typical, stop_decrement:
 
   As in
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
@@ -153,6 +154,6 @@ minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 0
 #>   par        : 1 1
 #>   iterations : 18   evaluations: f 30, g 53
-#>   elapsed    : 5 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```

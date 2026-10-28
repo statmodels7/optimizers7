@@ -18,7 +18,8 @@ newton(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL
+  typical = NULL,
+  stop_decrement = 0.001
 )
 ```
 
@@ -107,6 +108,18 @@ newton(
   by the curvature. With `NULL` the lengths are measured in the units of
   the parameters.
 
+- stop_decrement:
+
+  The largest Newton decrement \\\tfrac12 g^\top H^{-1} g\\ at which a
+  stopping rule on the change in the parameters or in the objective,
+  such as
+  [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md)
+  or
+  [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md),
+  may end the run as converged. A single positive number, in the units
+  of the objective, or `Inf` to accept every such stop. Defaults to
+  `1e-3`. See below.
+
 ## Value
 
 An S7 object of class
@@ -174,6 +187,32 @@ and near a minimum the Newton steps are short, so the quadratic
 convergence of the method is kept. A step shortened by the bound is
 recorded in the trace as `newton step capped`, except at an iteration at
 which the Hessian was repaired, which keeps the label of the repair.
+
+## Stopping on the change
+
+A rule on the change in the parameters or in the objective ends the run
+when the iterate stops moving, which near a minimum is the same as
+having arrived. Away from a minimum it is not. Where the Hessian has no
+Cholesky factor, the step that preceded the stop came from the repaired
+matrix and its length is the floor's, so that a Hessian with a very
+large eigenvalue and a negative one yields steps of the order of
+\\10^{-8}\\ while the objective is still falling. Where the Hessian is
+positive definite, a step that is short for another reason, such as a
+bound `max_length`, leaves the Newton decrement \\\tfrac12 g^\top H^{-1}
+g\\, the decrease that the quadratic model still predicts, above what a
+minimum would leave.
+
+A stop on the change is therefore not accepted at a point where the
+Hessian is not positive definite or where the Newton decrement exceeds
+`stop_decrement`. The run ends as not converged, with `criterion_met`
+reporting `"stopped without converging"` and the message giving the
+reason, and the trace records the safeguard `change stop refused`. A
+rule on the gradient, such as
+[`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md),
+is not affected, and neither is a point at which the Hessian is not
+finite. The check costs one Hessian evaluation at the point where such a
+stop would end the run. `stop_decrement = Inf` accepts every stop on a
+change, as in versions before 0.17.0.
 
 ## Parameters in different units
 
@@ -268,7 +307,7 @@ minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # The repair of an indefinite Hessian is an object, with its floor.
@@ -276,7 +315,7 @@ newton(modify = modify_ridge(floor = 1e-6))
 #> <optimizer> Newton
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 200, evaluations Inf
-#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), modify = ridge (floor = 1e-06), max_length = Inf, typical = <NULL>
+#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), modify = ridge (floor = 1e-06), max_length = Inf, typical = <NULL>, stop_decrement = 0.001
 
 # At a saddle the unrepaired step points the wrong way. The Hessian at
 # the start has eigenvalues 2 and -1.99; the repair is recorded in the
@@ -301,7 +340,7 @@ summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 2 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   safeguards :
 #>     step shortened: 4

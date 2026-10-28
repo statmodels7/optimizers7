@@ -18,7 +18,8 @@ bfgs(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 ```
 
@@ -54,6 +55,18 @@ bfgs(
   except that `line_search` defaults to
   [`wolfe()`](https://statmodels7.github.io/optimizers7/reference/wolfe.md)
   and `maxit` to 500. See below for the reason for the line search.
+
+- stop_decrement:
+
+  The largest decrease \\\tfrac12\lvert g^\top s\rvert\\, with \\s\\ the
+  last step and \\g\\ the gradient at the new point, at which a stopping
+  rule on the change in the parameters or in the objective, such as
+  [`crit_abs_par()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_par.md)
+  or
+  [`crit_abs_obj()`](https://statmodels7.github.io/optimizers7/reference/crit_abs_obj.md),
+  may end the run as converged. A single positive number, in the units
+  of the objective, or `Inf` to accept every such stop. Defaults to
+  `1e-3`. See below.
 
 ## Value
 
@@ -110,6 +123,23 @@ negative gradient multiplied by \\\min(1, 1/\lVert g\rVert\_\infty)\\,
 which gives a displacement of order one in the parameters and never
 lengthens the step.
 
+## A stop on a change
+
+A stopping rule on the change in the parameters or in the objective
+states that the iterate no longer moves, and near a minimum that is the
+same as being there. Away from one it is not: where the objective is
+steep, or the curvature has been learned along a few directions only, a
+step can be short while the objective is still falling. A stop on the
+change is therefore not accepted where the decrease \\\tfrac12\lvert
+g^\top s\rvert\\ that the last step still predicts at the new point
+exceeds `stop_decrement`. The run ends as not converged, with
+`criterion_met` reporting `"stopped without converging"` and the message
+giving the decrease, and the trace records the safeguard
+`change stop refused`. A rule on the gradient, such as
+[`crit_grad()`](https://statmodels7.github.io/optimizers7/reference/crit_grad.md),
+is not affected. The check uses quantities that the loop already holds.
+`stop_decrement = Inf` accepts every stop on a change.
+
 ## References
 
 Broyden, C. G. (1970). The convergence of a class of double-rank
@@ -140,7 +170,7 @@ minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 3.22826e-13
 #>   par        : 1 1
 #>   iterations : 35   evaluations: f 49, g 39
-#>   elapsed    : 2 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # With Armijo instead of Wolfe, the update is skipped once here, the trace

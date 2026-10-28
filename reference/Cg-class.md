@@ -20,7 +20,8 @@ Cg(
   beta = character(0),
   restart_every = integer(0),
   step = integer(0),
-  line_search = NULL
+  line_search = NULL,
+  stop_decrement = integer(0)
 )
 ```
 
@@ -45,18 +46,24 @@ Cg(
   [`line_search()`](https://statmodels7.github.io/optimizers7/reference/line_search.md)
   object.
 
+- stop_decrement:
+
+  The largest decrease at which a stopping rule on a change may end the
+  run as converged; see
+  [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md).
+
 ## Value
 
 An S7 object of class `Cg` inheriting from
 [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md),
-with the four properties above beside the seven shared ones.
+with the five properties above beside the seven shared ones.
 
 ## Details
 
-Beyond the seven properties of every optimizer, a `Cg` carries four:
-`step` and `line_search`, shared with the other line-search methods, and
-`beta` and `restart_every`, which are its own. The previous direction is
-not a property; it exists only inside the run.
+Beyond the seven properties of every optimizer, a `Cg` carries five:
+`step`, `line_search` and `stop_decrement`, shared with the other
+line-search methods, and `beta` and `restart_every`, which are its own.
+The previous direction is not a property; it exists only inside the run.
 
 ## See also
 

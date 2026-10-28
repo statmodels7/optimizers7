@@ -22,6 +22,7 @@ Chebyshev(
   modify = NULL,
   max_length = integer(0),
   typical = NULL,
+  stop_decrement = integer(0),
   ratio = integer(0)
 )
 ```
@@ -50,6 +51,12 @@ Chebyshev(
 
   `NULL`, or the typical size of each parameter, in the units of which
   the step lengths are measured.
+
+- stop_decrement:
+
+  The largest Newton decrement at which a stopping rule on a change may
+  end the run; see
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
 
 - ratio:
 
