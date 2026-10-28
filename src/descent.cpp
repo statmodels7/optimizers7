@@ -218,17 +218,33 @@ Rcpp::List descent_run(Rcpp::List spec,
       // A rule on the change does not close the run at a point where the
       // direction can tell from the curvature that the point is not a minimum
       // (newton(): a Hessian without a Cholesky factor, or a Newton decrement
-      // above stop_decrement). Only a gradient rule can then close it, and the
-      // rule is asked for that at the new point with no previous iterate.
+      // above stop_decrement), nor, for a direction without a Hessian, where
+      // the step just taken still predicts a decrease |g'dx| / 2 above
+      // stop_decrement at the new point. Only a gradient rule can then close
+      // the run, and the rule is asked for that at the new point with no
+      // previous iterate.
       std::string why;
-      if (dir->vets_change_stop() &&
-          !ask_criterion(crit_fn, criterion, it, f, f, x, x, g, true, false) &&
-          !dir->accepts_change_stop(*obj, x, g, why)) {
-        note = "the stopping rule was met on a change at a point that is not a minimum: " + why;
-        stopped_by = "failed";
-        guard = "change stop refused";
-        if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
-        break;
+      const double step_dec = dir->step_stop_decrement();
+      if ((dir->vets_change_stop() || std::isfinite(step_dec)) &&
+          !ask_criterion(crit_fn, criterion, it, f, f, x, x, g, true, false)) {
+        bool refused = false;
+        if (dir->vets_change_stop() &&
+            !dir->accepts_change_stop(*obj, x, g, why)) {
+          refused = true;
+        } else if (std::isfinite(step_dec) && 0.5 * moved > step_dec) {
+          std::ostringstream os;
+          os << "the last step predicts a decrease of " << 0.5 * moved
+             << ", above stop_decrement = " << step_dec;
+          why = os.str();
+          refused = true;
+        }
+        if (refused) {
+          note = "the stopping rule was met on a change at a point that is not a minimum: " + why;
+          stopped_by = "failed";
+          guard = "change stop refused";
+          if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
+          break;
+        }
       }
       if (keep_trace) tr.push(it, f, gnorm, res.step, guard);
       converged = true;

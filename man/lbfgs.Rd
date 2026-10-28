@@ -14,7 +14,8 @@ lbfgs(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 }
 \arguments{
@@ -33,6 +34,12 @@ negative value is rejected, for the reason given on the page of
 
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
 \code{\link[=bfgs]{bfgs()}}.}
+
+\item{stop_decrement}{The largest decrease
+\eqn{\tfrac12\lvert g^\top s\rvert} at which a stopping rule on the change
+in the parameters or in the objective may end the run as converged, as in
+\code{\link[=bfgs]{bfgs()}}. A single positive number, in the units of the objective, or
+\code{Inf} to accept every such stop. Defaults to \code{1e-3}. See below.}
 }
 \value{
 An S7 object of class \link{Lbfgs}, inheriting from \code{\link[=optimizer]{optimizer()}}, to
@@ -77,6 +84,14 @@ at points that the iterate has left, and each pair costs \eqn{O(p)} per
 iteration. Beyond a handful of pairs the number of iterations changes
 little while the arithmetic keeps rising; ten is the conventional
 choice.
+}
+
+\section{A stop on a change}{
+A stop on the change in the parameters or in the objective is not accepted
+where the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the last step
+still predicts at the new point exceeds \code{stop_decrement}; the run then ends
+as not converged, as described in \code{\link[=bfgs]{bfgs()}}. \code{stop_decrement = Inf} accepts
+every such stop.
 }
 
 \examples{

@@ -17,7 +17,8 @@ bb(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 20,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 }
 \arguments{
@@ -54,6 +55,12 @@ sets no evaluation budget, so the run stops on the criterion or on
 \item{refresh}{Report every this many iterations. Defaults to 20.}
 
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
+
+\item{stop_decrement}{The largest decrease
+\eqn{\tfrac12\lvert g^\top s\rvert} at which a stopping rule on the change
+in the parameters or in the objective may end the run as converged, as in
+\code{\link[=gd]{gd()}}. A single positive number, in the units of the objective, or \code{Inf}
+to accept every such stop. Defaults to \code{1e-3}. See below.}
 }
 \value{
 An S7 object of class \link{Bb}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
@@ -115,6 +122,14 @@ backtracking is unable to rescale. Steps outside \verb{[alpha_min, alpha_max]}
 are clamped. The reset and the clamp appear in the trace as
 \verb{bb curvature reset} and \verb{bb step clamped}, and a step shortened by the
 line search as \verb{step shortened}.
+}
+
+\section{A stop on a change}{
+A stop on the change in the parameters or in the objective is not accepted
+where the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the last step
+still predicts at the new point exceeds \code{stop_decrement}; the run then ends
+as not converged, as described in \code{\link[=gd]{gd()}}. \code{stop_decrement = Inf} accepts
+every such stop.
 }
 
 \examples{

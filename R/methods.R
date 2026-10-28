@@ -449,7 +449,8 @@ check_step <- function(step) {
 #'
 #' @description
 #' Checks that `stop_decrement` is a single positive number, or `Inf`, so that
-#' [newton()] and [chebyshev()] reject invalid values with the same message.
+#' [newton()], [chebyshev()], [gd()], [cg()], [bb()], [bfgs()] and [lbfgs()]
+#' reject invalid values with the same message.
 #'
 #' @param x The value supplied.
 #'

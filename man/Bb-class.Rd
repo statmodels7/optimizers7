@@ -19,7 +19,8 @@ Bb(
   alpha_max = integer(0),
   curv_tol = integer(0),
   step = integer(0),
-  line_search = NULL
+  line_search = NULL,
+  stop_decrement = integer(0)
 )
 }
 \arguments{
@@ -36,10 +37,13 @@ rejected.}
 
 \item{step, line_search}{The multiplier offered to the line search and the
 \code{\link[=line_search]{line_search()}} object, as in \code{\link[=bb]{bb()}}.}
+
+\item{stop_decrement}{The largest decrease at which a stopping rule on a
+change may end the run as converged; see \code{\link[=gd]{gd()}}.}
 }
 \value{
 An S7 object of class \code{Bb} inheriting from \code{\link[=optimizer]{optimizer()}}, with the
-seven properties above beside the seven shared ones.
+eight properties above beside the seven shared ones.
 }
 \description{
 A \code{Bb} object holds which of the two Rayleigh quotients gives the step
@@ -49,10 +53,10 @@ line search. It is built by \code{\link[=bb]{bb()}}. Its line search defaults to
 \code{\link[=nonmonotone]{nonmonotone()}}; it is the only shipped method with that default.
 }
 \details{
-Beyond the seven properties of every optimizer, a \code{Bb} carries seven of
+Beyond the seven properties of every optimizer, a \code{Bb} carries eight of
 its own: \code{variant}, \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curv_tol} for
-the step-length estimate, and \code{step} and \code{line_search} for the search
-along the direction.
+the step-length estimate, \code{step} and \code{line_search} for the search along the
+direction, and \code{stop_decrement}.
 }
 \seealso{
 \code{\link[=bb]{bb()}} for the constructor, \code{\link[=nonmonotone]{nonmonotone()}} for the acceptance

@@ -278,3 +278,84 @@ test_that("they carry bounds like everything else", {
     expect_equal(r@par[1], 1, tolerance = 1e-3, label = r@optimizer@name)
   }
 })
+
+
+# --- a stop on a change above stop_decrement ---------------------------------
+
+# A steep objective with a step so short that crit_abs_par() meets it at once,
+# while the step still predicts a decrease of 2 to 4 at the new point.
+steep_f  <- function(p) 1e9 * sum((p - 1)^2)
+steep_gr <- function(p) 2e9 * (p - 1)
+steep <- list(
+  gd    = function(...) gd(line_search = armijo(), step = 1e-18, ...),
+  cg    = function(...) cg(line_search = armijo(), step = 1e-18, ...),
+  bb    = function(...) bb(alpha0 = 1e-18, ...),
+  bfgs  = function(...) bfgs(line_search = armijo(), step = 1e-9, ...),
+  lbfgs = function(...) lbfgs(line_search = armijo(), step = 1e-9, ...))
+
+test_that("a stop on a change is not convergence above stop_decrement", {
+  for (nm in names(steep)) {
+    off <- minimize(steep[[nm]](stop_decrement = Inf), steep_f, c(0, 0),
+                    gr = steep_gr)
+    expect_true(off@converged, info = nm)
+
+    on <- minimize(steep[[nm]](keep_trace = TRUE), steep_f, c(0, 0),
+                   gr = steep_gr)
+    expect_false(on@converged, info = nm)
+    expect_identical(on@criterion_met, "stopped without converging", info = nm)
+    expect_match(on@message, "above stop_decrement = 0.001", info = nm)
+    expect_identical(on@trace$safeguard[nrow(on@trace)], "change stop refused",
+                     info = nm)
+    expect_identical(on@par, off@par, info = nm)
+    expect_identical(on@value, off@value, info = nm)
+
+    # a threshold above the decrease accepts the stop
+    wide <- minimize(steep[[nm]](stop_decrement = 100), steep_f, c(0, 0),
+                     gr = steep_gr)
+    expect_true(wide@converged, info = nm)
+  }
+})
+
+test_that("stop_decrement leaves a run that ends on the gradient or at a minimum alone", {
+  rosen <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
+  rosen_gr <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
+                            200 * (p[2] - p[1]^2))
+  makers <- list(gd = gd, cg = cg, bb = bb, bfgs = bfgs, lbfgs = lbfgs)
+  for (nm in names(makers)) {
+    a <- minimize(makers[[nm]](maxit = 5000), rosen, c(-1.2, 1), gr = rosen_gr)
+    b <- minimize(makers[[nm]](maxit = 5000, stop_decrement = Inf), rosen,
+                  c(-1.2, 1), gr = rosen_gr)
+    expect_identical(a@par, b@par, info = nm)
+    expect_identical(a@counts, b@counts, info = nm)
+    expect_identical(a@converged, b@converged, info = nm)
+  }
+  # a stop on the change near the minimum is accepted, with a tolerance that
+  # lets it end the run before the gradient rule does
+  for (nm in names(makers)) {
+    a <- minimize(makers[[nm]](criterion = crit_any(crit_abs_par(1e-3)),
+                               maxit = 5000), rosen, c(-1.2, 1), gr = rosen_gr)
+    b <- minimize(makers[[nm]](criterion = crit_any(crit_abs_par(1e-3)),
+                               maxit = 5000, stop_decrement = Inf), rosen,
+                  c(-1.2, 1), gr = rosen_gr)
+    expect_true(a@converged, info = nm)
+    expect_identical(a@par, b@par, info = nm)
+  }
+  # a run on a box reads the decrease on the scale it runs on
+  q  <- function(p) sum((p - 1)^2)
+  r <- minimize(bfgs(), q, c(0.5, 0.5), gr = function(p) 2 * (p - 1),
+                lower = 0, upper = 3)
+  expect_true(r@converged)
+})
+
+test_that("stop_decrement of the first-order and quasi-Newton methods is validated and printed", {
+  for (maker in list(gd, cg, bb, bfgs, lbfgs)) {
+    expect_error(maker(stop_decrement = 0), "single positive number")
+    expect_error(maker(stop_decrement = -1), "single positive number")
+    expect_error(maker(stop_decrement = NA_real_), "single positive number")
+    expect_error(maker(stop_decrement = c(1, 2)), "single positive number")
+    expect_identical(maker()@stop_decrement, 1e-3)
+    expect_identical(maker(stop_decrement = Inf)@stop_decrement, Inf)
+  }
+  expect_match(paste(capture.output(print(bfgs())), collapse = "\n"),
+               "stop_decrement = 0.001")
+})
