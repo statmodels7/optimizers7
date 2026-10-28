@@ -17,7 +17,7 @@ Newton(
   line_search = NULL,
   modify = NULL,
   max_length = integer(0),
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = integer(0)
 )
 }
@@ -30,7 +30,7 @@ indefinite Hessian; see \code{\link[=newton]{newton()}}.}
 
 \item{max_length}{The largest component that a step may have.}
 
-\item{typical}{\code{NULL}, or the typical size of each parameter, in the
+\item{typical_size}{\code{NULL}, or the typical size of each parameter, in the
 units of which the step lengths are measured.}
 
 \item{stop_decrement}{The largest Newton decrement at which a stopping rule
@@ -44,12 +44,12 @@ the six properties above beside the seven shared ones.
 This class is an optimizer that holds the initial step length, the line
 search, the \code{\link[=hessian_modification]{hessian_modification()}} that repairs an indefinite Hessian,
 and the two settings that bound and scale a step. \code{\link[=newton]{newton()}} builds it. Among the shipped methods, only this one and \code{\link[=chebyshev]{chebyshev()}}, which inherits from it,
-read the \code{he} argument of \code{\link[=minimize]{minimize()}}.
+read the \code{hess} argument of \code{\link[=minimize]{minimize()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Newton} carries six:
 \code{step} and \code{line_search}, shared with the other line-search methods, and
-\code{modify}, \code{max_length}, \code{typical} and \code{stop_decrement}, which are its own.
+\code{modify}, \code{max_length}, \code{typical_size} and \code{stop_decrement}, which are its own.
 }
 \seealso{
 \code{\link[=newton]{newton()}} for the constructor, \code{\link[=bfgs]{bfgs()}} for the method that

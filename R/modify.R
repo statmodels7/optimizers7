@@ -101,7 +101,7 @@ hessian_modification <- S7::new_class(
 #' eigen(h(c(0.05, 0.6)), only.values = TRUE)$values
 #'
 #' sapply(list(eigen = modify_eigen(), ridge = modify_ridge()), function(m) {
-#'   r <- minimize(newton(modify = m), f, c(0.05, 0.6), gr = g, he = h)
+#'   r <- minimize(newton(modify = m), f, c(0.05, 0.6), gr = g, hess = h)
 #'   c(value = r@value, iterations = r@iterations)
 #' })
 #'
@@ -191,7 +191,7 @@ ModifyRidge <- S7::new_class("ModifyRidge", parent = hessian_modification,
 #' g <- function(p) c(4 * p[1]^3 - 4 * p[1], 2 * p[2])
 #' h <- function(p) matrix(c(12 * p[1]^2 - 4, 0, 0, 2), 2, 2)
 #' minimize(newton(modify = modify_eigen(floor = 1e-6)), f, c(0.05, 0.6),
-#'          gr = g, he = h)
+#'          gr = g, hess = h)
 #'
 #' @seealso [modify_ridge()], [modifications] for the comparison,
 #'   [hessian_modify()], [newton()], [chebyshev()]
@@ -235,7 +235,7 @@ modify_eigen <- function(floor = 1e-8) {
 #' g <- function(p) c(4 * p[1]^3 - 4 * p[1], 2 * p[2])
 #' h <- function(p) matrix(c(12 * p[1]^2 - 4, 0, 0, 2), 2, 2)
 #' minimize(newton(modify = modify_ridge(floor = 1e-6)), f, c(0.05, 0.6),
-#'          gr = g, he = h)
+#'          gr = g, hess = h)
 #'
 #' @seealso [modify_eigen()], [modifications] for the comparison,
 #'   [hessian_modify()], [newton()], [chebyshev()]
@@ -348,9 +348,9 @@ check_modify <- function(x) {
 #' # The new object is passed to newton() like a shipped one, here on the
 #' # Himmelblau function, started where its Hessian is not positive definite.
 #' k <- test_problems("himmelblau")[[1]]
-#' eigen(k$he(c(0.5, 0.5)), only.values = TRUE)$values
+#' eigen(k$hess(c(0.5, 0.5)), only.values = TRUE)$values
 #' r <- minimize(newton(modify = modify_abs(), keep_trace = TRUE), k$fn,
-#'               c(0.5, 0.5), gr = k$gr, he = k$he)
+#'               c(0.5, 0.5), gr = k$gr, hess = k$hess)
 #' c(value = r@value, iterations = r@iterations, converged = r@converged)
 #' unique(r@trace$safeguard)
 #'

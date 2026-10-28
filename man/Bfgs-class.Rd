@@ -15,7 +15,7 @@ Bfgs(
   keep_trace = logical(0),
   step = integer(0),
   line_search = NULL,
-  curv_tol = integer(0),
+  curvature_tol = integer(0),
   max_skip = integer(0),
   stop_decrement = integer(0)
 )
@@ -24,7 +24,7 @@ Bfgs(
 \item{step, line_search}{The initial step length and the \code{\link[=line_search]{line_search()}}
 object, as in \code{\link[=bfgs]{bfgs()}}.}
 
-\item{curv_tol}{The curvature threshold below which the update is skipped.}
+\item{curvature_tol}{The curvature threshold below which the update is skipped.}
 
 \item{max_skip}{Consecutive skips before the approximation is reset to the
 identity.}
@@ -45,7 +45,7 @@ property: it is built inside the run and discarded at its end.
 \details{
 Beyond the seven properties of every optimizer, a \code{Bfgs} carries five:
 \code{step}, \code{line_search} and \code{stop_decrement}, shared with the other
-line-search methods, and \code{curv_tol} and \code{max_skip}, which are its own.
+line-search methods, and \code{curvature_tol} and \code{max_skip}, which are its own.
 }
 \seealso{
 \code{\link[=bfgs]{bfgs()}} for the constructor, \link{Lbfgs} for the limited-memory

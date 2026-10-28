@@ -9,7 +9,7 @@ minimize(
   fn,
   par,
   gr = NULL,
-  he = NULL,
+  hess = NULL,
   lower = -Inf,
   upper = Inf,
   ...
@@ -30,7 +30,7 @@ Starters below. With bounds it must lie strictly inside them.}
 default, has it differenced from \code{fn}. It is ignored when \code{fn} is an
 objective that carries its own gradient.}
 
-\item{he}{The Hessian, a function of the parameter vector. \code{NULL} is the
+\item{hess}{The Hessian, a function of the parameter vector. \code{NULL} is the
 default. \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read it; every other method
 accepts it and does not use it, so calling code need not branch on the
 algorithm.}

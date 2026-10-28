@@ -19,7 +19,7 @@ rejected when the run starts. Without this check the rule would test
 The measure is Corana's termination rule: at the end of each temperature
 level, the largest absolute difference between the value at which the
 walk stopped and both the best value found and the values at which it
-stopped at the last \code{n_eps} levels. It is read by \code{\link[=crit_stationary]{crit_stationary()}},
+stopped at the last \code{stationarity_levels} levels. It is read by \code{\link[=crit_stationary]{crit_stationary()}},
 which is the default rule of this method.
 }
 \examples{

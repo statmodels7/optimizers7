@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{Bfgs} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}}.

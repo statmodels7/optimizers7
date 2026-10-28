@@ -132,7 +132,7 @@ NULL
 #' @param gr The gradient, a function of the parameter vector. `NULL`, the
 #'   default, has it differenced from `fn`. It is ignored when `fn` is an
 #'   objective that carries its own gradient.
-#' @param he The Hessian, a function of the parameter vector. `NULL` is the
+#' @param hess The Hessian, a function of the parameter vector. `NULL` is the
 #'   default. [newton()] and [chebyshev()] read it; every other method
 #'   accepts it and does not use it, so calling code need not branch on the
 #'   algorithm.
@@ -186,7 +186,7 @@ NULL
 #'   the starters, [bounded_transform()] for the map that removes the bounds.
 #' @export
 minimize <- S7::new_generic("minimize", "optimizer",
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
     # A starter becomes an ordinary numeric vector here, before dispatch, so
     # that every method -- including one a user wrote -- receives what it always
@@ -240,14 +240,14 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #' @param gr The gradient of `fn` as written, a function of the parameter
 #'   vector, or `NULL` for a central difference. It is negated here, so a
 #'   caller supplies the gradient of the function being maximized.
-#' @param he The Hessian of `fn` as written, or `NULL`. It is negated here
+#' @param hess The Hessian of `fn` as written, or `NULL`. It is negated here
 #'   too, and only [newton()] and [chebyshev()] read it.
 #' @param lower,upper Box constraints, numeric of length 1 or of length `p`,
 #'   defaulting to `-Inf` and `Inf`. Passed through to [minimize()]
 #'   unchanged; the sign convention does not touch them.
 #' @param ... Passed to [minimize()], and from there to the method. A `t3`
 #'   argument for [chebyshev()] is the contraction of the third derivative of
-#'   `fn` as written, and is negated here like `gr` and `he`.
+#'   `fn` as written, and is negated here like `gr` and `hess`.
 #'
 #' @return An [optimizer_result()] with the same twelve properties that
 #'   [minimize()] returns, in which `value`, `gradient` and `trace$value`
@@ -269,7 +269,7 @@ minimize <- S7::new_generic("minimize", "optimizer",
 #'
 #' @seealso [minimize()]
 #' @export
-maximize <- function(optimizer, fn, par, gr = NULL, he = NULL,
+maximize <- function(optimizer, fn, par, gr = NULL, hess = NULL,
                      lower = -Inf, upper = Inf, ...) {
   if (!is.function(fn)) {
     stop("maximize() takes a plain function; negate other objectives yourself.",
@@ -277,7 +277,7 @@ maximize <- function(optimizer, fn, par, gr = NULL, he = NULL,
   }
   neg_fn <- function(p) -fn(p)
   neg_gr <- if (is.null(gr)) NULL else function(p) -gr(p)
-  neg_he <- if (is.null(he)) NULL else function(p) -he(p)
+  neg_he <- if (is.null(hess)) NULL else function(p) -hess(p)
   # the third-derivative contraction of chebyshev() arrives through `...` and
   # is a derivative of fn like the other two, so it is negated as well
   dots <- list(...)
@@ -287,7 +287,7 @@ maximize <- function(optimizer, fn, par, gr = NULL, he = NULL,
   }
 
   res <- do.call(minimize, c(list(optimizer, neg_fn, par, gr = neg_gr,
-                                  he = neg_he, lower = lower, upper = upper),
+                                  hess = neg_he, lower = lower, upper = upper),
                              dots))
 
   res@value <- -res@value

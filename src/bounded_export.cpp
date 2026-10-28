@@ -25,8 +25,8 @@ Rcpp::List bounded_transform_cpp(Rcpp::NumericVector b, arma::vec eta) {
   }
   return Rcpp::List::create(
     Rcpp::Named("h")  = as_r_vector(h),
-    Rcpp::Named("d1") = as_r_vector(d1),
-    Rcpp::Named("d2") = as_r_vector(d2)
+    Rcpp::Named("deriv1") = as_r_vector(d1),
+    Rcpp::Named("deriv2") = as_r_vector(d2)
   );
 }
 

@@ -10,7 +10,7 @@ bb(
   alpha0 = 0.01,
   alpha_min = 1e-10,
   alpha_max = 1e+10,
-  curv_tol = 1e-10,
+  curvature_tol = 1e-10,
   step = 1,
   line_search = nonmonotone(),
   maxit = 1000,
@@ -33,9 +33,9 @@ secant pair from which to estimate one. Defaults to \code{1e-2}.}
 \item{alpha_min, alpha_max}{Bounds on the step length. The defaults are
 \code{1e-10} and \code{1e10}.}
 
-\item{curv_tol}{The relative curvature threshold: a secant pair is rejected
+\item{curvature_tol}{The relative curvature threshold: a secant pair is rejected
 when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
-for \eqn{c} equal to \code{curv_tol}. Defaults to \code{1e-10}, which is
+for \eqn{c} equal to \code{curvature_tol}. Defaults to \code{1e-10}, which is
 the same relative test that \code{\link[=bfgs]{bfgs()}} applies to the same quantity.}
 
 \item{step}{Initial multiplier offered to the line search. Defaults to
@@ -112,7 +112,7 @@ of the two isolates the effect of the memory.
 \section{Rejected secant pairs}{
 A pair is used only if it reports positive curvature by a relative margin,
 \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
-\eqn{c} the \code{curv_tol} argument, the same test that \code{\link[=bfgs]{bfgs()}} applies. When a
+\eqn{c} the \code{curvature_tol} argument, the same test that \code{\link[=bfgs]{bfgs()}} applies. When a
 pair is rejected the step length is reset to
 \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, a trial displacement of order one
 in the parameters. The reset reads the current gradient and not the step

@@ -282,7 +282,7 @@ Rcpp::List compass_run(Rcpp::List spec,
                        SEXP crit_fn,
                        double step,
                        bool random_directions,
-                       bool opportunistic,
+                       bool first_improvement,
                        double expand,
                        double shrink,
                        int maxit,
@@ -375,8 +375,8 @@ Rcpp::List compass_run(Rcpp::List spec,
     double best_f = f;
     std::string guard = "none";
 
-    for (arma::uword j = 0; j < p && !(improved && opportunistic); ++j) {
-      for (int s = 0; s < 2 && !(improved && opportunistic); ++s) {
+    for (arma::uword j = 0; j < p && !(improved && first_improvement); ++j) {
+      for (int s = 0; s < 2 && !(improved && first_improvement); ++s) {
         const arma::vec trial = x + (s == 0 ? delta : -delta) * D.col(j);
         const double ft = safe_value(*obj, trial);
         if (ft < best_f) { best_f = ft; best_x = trial; improved = true; }

@@ -4,12 +4,12 @@
 \alias{run_descent}
 \title{Run the Shared Descent Loop}
 \usage{
-run_descent(optimizer, fn, par, gr, he, lower, upper, method)
+run_descent(optimizer, fn, par, gr, hess, lower, upper, method)
 }
 \arguments{
 \item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
-\item{fn, par, gr, he}{The problem, as the user supplied it.}
+\item{fn, par, gr, hess}{The problem, as the user supplied it.}
 
 \item{lower, upper}{Box constraints, as in \code{\link[=minimize]{minimize()}}.}
 

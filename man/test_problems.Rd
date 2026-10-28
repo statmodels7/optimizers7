@@ -21,7 +21,7 @@ list of nine components:
 \item{\code{fn}}{the objective, a function of a numeric vector of length
 \code{p} returning one number.}
 \item{\code{gr}}{its analytic gradient, returning a vector of length \code{p}.}
-\item{\code{he}}{its analytic Hessian, returning a \verb{p x p} matrix. For
+\item{\code{hess}}{its analytic Hessian, returning a \verb{p x p} matrix. For
 \code{abs_sum} it is the zero matrix, the Hessian wherever it exists.}
 \item{\code{par}}{numeric of length \code{p}, the customary starting point.}
 \item{\code{solution}}{numeric of length \code{p}, the minimizer. For

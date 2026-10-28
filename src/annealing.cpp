@@ -59,7 +59,7 @@ Rcpp::List sa_run(Rcpp::List spec,
                   double step,
                   double target_accept,
                   double adjust,
-                  int n_eps,
+                  int stationarity_levels,
                   int maxit,
                   int max_eval,
                   bool verbose,
@@ -209,7 +209,7 @@ Rcpp::List sa_run(Rcpp::List spec,
     }
 
     recent.push_back(f);
-    if (static_cast<int>(recent.size()) > n_eps) {
+    if (static_cast<int>(recent.size()) > stationarity_levels) {
       recent.erase(recent.begin());
       stat = std::abs(f - best_f);
       for (size_t k = 0; k < recent.size(); ++k) {

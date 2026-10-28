@@ -1,3 +1,14 @@
+# optimizers7 0.19.0
+
+* Renamed for readability: the argument `he` of `minimize()`, `maximize()`
+  and `as_objective()` is `hess`, and so is the element of the objective and
+  of the `test_problems()` entries; `curv_tol` of `bfgs()`, `lbfgs()` and
+  `bb()` is `curvature_tol`; `typical` of `newton()` and `chebyshev()` is
+  `typical_size`; `n_eps` and `visiting` of `sa()` are `stationarity_levels`
+  and `proposal`; `m_serious` of `bundle()` is `accept_fraction`;
+  `opportunistic` of `compass()` is `first_improvement`; the elements `d1`
+  and `d2` of `bounded_transform()` are `deriv1` and `deriv2`.
+
 # optimizers7 0.18.0
 
 * `gd()`, `cg()`, `bb()`, `bfgs()` and `lbfgs()` take `stop_decrement`

@@ -75,7 +75,7 @@ NULL
 #' @param gr The gradient, a function of the parameter vector returning a
 #'   numeric vector of the same length. `NULL`, the default, has the
 #'   gradient differenced from `fn` as above. Any other value is an error.
-#' @param he The Hessian, a function of the parameter vector returning a
+#' @param hess The Hessian, a function of the parameter vector returning a
 #'   `p x p` symmetric matrix. `NULL` is the default. [newton()] and
 #'   [chebyshev()] read it; every other method accepts it and does not use
 #'   it, so calling code can pass whatever it has without branching on the
@@ -89,9 +89,9 @@ NULL
 #'     \item{`kind`}{character, `"r"` for an ordinary R function.}
 #'     \item{`fn`}{the objective as supplied.}
 #'     \item{`gr`}{the gradient, or `NULL`.}
-#'     \item{`he`}{the Hessian, or `NULL`.}
+#'     \item{`hess`}{the Hessian, or `NULL`.}
 #'     \item{`has_gradient`}{logical, whether `gr` was supplied.}
-#'     \item{`has_hessian`}{logical, whether `he` was supplied.}
+#'     \item{`has_hessian`}{logical, whether `hess` was supplied.}
 #'   }
 #'
 #' @examples
@@ -123,7 +123,7 @@ NULL
 #'   quantities that a method supplies to a stopping rule.
 #' @export
 as_objective <- S7::new_generic("as_objective", "fn",
-                                function(fn, gr = NULL, he = NULL, ...)
+                                function(fn, gr = NULL, hess = NULL, ...)
                                   S7::S7_dispatch())
 
 
@@ -132,14 +132,14 @@ as_objective <- S7::new_generic("as_objective", "fn",
 #'
 #' @description
 #' The shipped method: `fn(par)` returns the number to be minimized, and
-#' `gr(par)` and `he(par)` return its gradient and Hessian when the caller
+#' `gr(par)` and `hess(par)` return its gradient and Hessian when the caller
 #' has them. Every evaluation is a callback into R. The compiled objective
 #' counts the evaluations, and the result reports them in `counts`.
 #'
 #' @param fn A function of the parameter vector returning a single number.
 #' @param gr A function of the parameter vector returning the gradient, or
 #'   `NULL` for a central difference of `fn`.
-#' @param he A function of the parameter vector returning the Hessian, or
+#' @param hess A function of the parameter vector returning the Hessian, or
 #'   `NULL`. It is read by [newton()] and [chebyshev()].
 #' @param ... Unused.
 #'
@@ -147,7 +147,7 @@ as_objective <- S7::new_generic("as_objective", "fn",
 #'   `kind = "r"`.
 #'
 #' @section Validation:
-#' `gr` and `he` are each checked to be a function or `NULL`, and any other
+#' `gr` and `hess` are each checked to be a function or `NULL`, and any other
 #' value raises an error before the run starts. `fn` is not checked here:
 #' dispatch has already established that it is a function, and the compiled
 #' objective checks at every evaluation that it returns a single number.
@@ -162,13 +162,13 @@ as_objective <- S7::new_generic("as_objective", "fn",
 #'
 #' @keywords internal
 S7::method(as_objective, S7::class_function) <-
-  function(fn, gr = NULL, he = NULL, ...) {
+  function(fn, gr = NULL, hess = NULL, ...) {
     if (!is.null(gr) && !is.function(gr)) {
       stop("'gr' must be a function or NULL.", call. = FALSE)
     }
-    if (!is.null(he) && !is.function(he)) {
-      stop("'he' must be a function or NULL.", call. = FALSE)
+    if (!is.null(hess) && !is.function(hess)) {
+      stop("'hess' must be a function or NULL.", call. = FALSE)
     }
-    list(kind = "r", fn = fn, gr = gr, he = he,
-         has_gradient = !is.null(gr), has_hessian = !is.null(he))
+    list(kind = "r", fn = fn, gr = gr, hess = hess,
+         has_gradient = !is.null(gr), has_hessian = !is.null(hess))
   }

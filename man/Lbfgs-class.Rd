@@ -16,7 +16,7 @@ Lbfgs(
   step = integer(0),
   line_search = NULL,
   memory = integer(0),
-  curv_tol = integer(0),
+  curvature_tol = integer(0),
   stop_decrement = integer(0)
 )
 }
@@ -26,7 +26,7 @@ object, as in \code{\link[=lbfgs]{lbfgs()}}.}
 
 \item{memory}{How many secant pairs to keep.}
 
-\item{curv_tol}{The curvature threshold below which a pair is not stored.}
+\item{curvature_tol}{The curvature threshold below which a pair is not stored.}
 
 \item{stop_decrement}{The largest decrease at which a stopping rule on a
 change may end the run as converged; see \code{\link[=bfgs]{bfgs()}}.}
@@ -43,7 +43,7 @@ exist only inside the run.
 }
 \details{
 Beyond the seven properties of every optimizer, an \code{Lbfgs} carries five:
-\code{step}, \code{line_search} and \code{stop_decrement}, and \code{memory} and \code{curv_tol},
+\code{step}, \code{line_search} and \code{stop_decrement}, and \code{memory} and \code{curvature_tol},
 which are its own.
 It has no counterpart of \code{max_skip} of \link{Bfgs}: a pair that fails the
 curvature test is not stored (the trace records \verb{lbfgs update skipped}),

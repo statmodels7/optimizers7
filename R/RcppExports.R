@@ -5,8 +5,8 @@ adam_run <- function(spec, par, criterion, crit_fn, alpha, beta1, beta2, eps, de
     .Call(`_optimizers7_adam_run`, spec, par, criterion, crit_fn, alpha, beta1, beta2, eps, decay, amsgrad, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 
-sa_run <- function(spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
-    .Call(`_optimizers7_sa_run`, spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit, max_eval, verbose, refresh, keep_trace, bounds)
+sa_run <- function(spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, stationarity_levels, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_sa_run`, spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, stationarity_levels, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 
 bounded_transform_cpp <- function(b, eta) {
@@ -17,8 +17,8 @@ bounded_forward_cpp <- function(b, theta) {
     .Call(`_optimizers7_bounded_forward_cpp`, b, theta)
 }
 
-bundle_run <- function(spec, par, criterion, crit_fn, t0, t_min, t_max, m_serious, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
-    .Call(`_optimizers7_bundle_run`, spec, par, criterion, crit_fn, t0, t_min, t_max, m_serious, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds)
+bundle_run <- function(spec, par, criterion, crit_fn, t0, t_min, t_max, accept_fraction, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_bundle_run`, spec, par, criterion, crit_fn, t0, t_min, t_max, accept_fraction, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 
 descent_run <- function(spec, par, criterion, crit_fn, method, line_search, maxit, max_eval, verbose, refresh, keep_trace, step, bounds) {
@@ -29,7 +29,7 @@ nelder_mead_run <- function(spec, par, criterion, crit_fn, step, adaptive, max_r
     .Call(`_optimizers7_nelder_mead_run`, spec, par, criterion, crit_fn, step, adaptive, max_restarts, degenerate_tol, start_simplex, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 
-compass_run <- function(spec, par, criterion, crit_fn, step, random_directions, opportunistic, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
-    .Call(`_optimizers7_compass_run`, spec, par, criterion, crit_fn, step, random_directions, opportunistic, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds)
+compass_run <- function(spec, par, criterion, crit_fn, step, random_directions, first_improvement, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds) {
+    .Call(`_optimizers7_compass_run`, spec, par, criterion, crit_fn, step, random_directions, first_improvement, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds)
 }
 

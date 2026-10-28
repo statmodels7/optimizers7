@@ -151,7 +151,7 @@ S7::method(optimizer_provides, Brent) <- function(optimizer) "stationarity"
 #' of the iterate.
 #'
 #' @param optimizer A `Brent` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `gr` and `hess` are
 #'   accepted and ignored, since the method uses no derivative. Bounds are taken
 #'   and removed by reparametrization.
 #'
@@ -162,9 +162,9 @@ S7::method(optimizer_provides, Brent) <- function(optimizer) "stationarity"
 #'
 #' @keywords internal
 S7::method(minimize, Brent) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     if (length(par) != 1L) {
       stop("brent() minimizes a function of one variable; 'par' has length ",
            length(par), ".", call. = FALSE)

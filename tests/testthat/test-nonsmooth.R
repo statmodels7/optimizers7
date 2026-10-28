@@ -98,9 +98,9 @@ test_that("a random poll is reproducible under set.seed", {
 })
 
 
-test_that("complete polling needs fewer iterations than opportunistic", {
-  a <- minimize(compass(opportunistic = TRUE), quad, c(0, 0))
-  b <- minimize(compass(opportunistic = FALSE), quad, c(0, 0))
+test_that("complete polling needs fewer iterations than first-improvement polling", {
+  a <- minimize(compass(first_improvement = TRUE), quad, c(0, 0))
+  b <- minimize(compass(first_improvement = FALSE), quad, c(0, 0))
   expect_lte(b@iterations, a@iterations)
 })
 
@@ -269,10 +269,10 @@ test_that("the constructors refuse nonsense", {
   expect_error(compass(directions = "diagonal"), "should be one of")
   expect_error(compass(expand = 0.5), "'expand'")
   expect_error(compass(shrink = 1), "'shrink'")
-  expect_error(compass(opportunistic = NA), "'opportunistic'")
+  expect_error(compass(first_improvement = NA), "'first_improvement'")
 
-  expect_error(bundle(m_serious = 0), "'m_serious'")
-  expect_error(bundle(m_serious = 1), "'m_serious'")
+  expect_error(bundle(accept_fraction = 0), "'accept_fraction'")
+  expect_error(bundle(accept_fraction = 1), "'accept_fraction'")
   expect_error(bundle(bundle_size = 1), "'bundle_size'")
   expect_error(bundle(t_min = 10, t_max = 1), "strictly below")
   expect_error(bundle(t0 = 1e20), "between")

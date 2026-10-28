@@ -39,8 +39,8 @@ test_that("the transforms agree with linkfunctions7 to machine precision", {
     got <- bounded_transform(b, eta)
 
     expect_equal(got$h,  ref_h,  tolerance = 1e-12, label = paste(nm, "h"))
-    expect_equal(got$d1, ref_d1, tolerance = 1e-12, label = paste(nm, "h'"))
-    expect_equal(got$d2, ref_d2, tolerance = 1e-12, label = paste(nm, "h''"))
+    expect_equal(got$deriv1, ref_d1, tolerance = 1e-12, label = paste(nm, "h'"))
+    expect_equal(got$deriv2, ref_d2, tolerance = 1e-12, label = paste(nm, "h''"))
   }
 })
 

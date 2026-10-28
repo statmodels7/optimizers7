@@ -7,7 +7,7 @@
 lbfgs(
   criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
   memory = 10,
-  curv_tol = 1e-10,
+  curvature_tol = 1e-10,
   step = 1,
   line_search = wolfe(),
   maxit = 500,
@@ -26,7 +26,7 @@ lbfgs(
 number. Defaults to 10. A fractional value is rejected instead of
 truncated, since the count is passed to the compiled code as an integer.}
 
-\item{curv_tol}{A pair is not stored when
+\item{curvature_tol}{A pair is not stored when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 Defaults to \code{1e-10}. Zero is admitted and gives \eqn{s^\top y > 0}; a
 negative value is rejected, for the reason given on the page of

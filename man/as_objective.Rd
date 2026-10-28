@@ -4,7 +4,7 @@
 \alias{as_objective}
 \title{Normalize an Objective for the Optimizers}
 \usage{
-as_objective(fn, gr = NULL, he = NULL, ...)
+as_objective(fn, gr = NULL, hess = NULL, ...)
 }
 \arguments{
 \item{fn}{The objective, a function of the parameter vector returning a
@@ -16,7 +16,7 @@ dispatch fails and reports the class that it was handed.}
 numeric vector of the same length. \code{NULL}, the default, has the
 gradient differenced from \code{fn} as above. Any other value is an error.}
 
-\item{he}{The Hessian, a function of the parameter vector returning a
+\item{hess}{The Hessian, a function of the parameter vector returning a
 \verb{p x p} symmetric matrix. \code{NULL} is the default. \code{\link[=newton]{newton()}} and
 \code{\link[=chebyshev]{chebyshev()}} read it; every other method accepts it and does not use
 it, so calling code can pass whatever it has without branching on the
@@ -32,9 +32,9 @@ compiled side:
 \item{\code{kind}}{character, \code{"r"} for an ordinary R function.}
 \item{\code{fn}}{the objective as supplied.}
 \item{\code{gr}}{the gradient, or \code{NULL}.}
-\item{\code{he}}{the Hessian, or \code{NULL}.}
+\item{\code{hess}}{the Hessian, or \code{NULL}.}
 \item{\code{has_gradient}}{logical, whether \code{gr} was supplied.}
-\item{\code{has_hessian}}{logical, whether \code{he} was supplied.}
+\item{\code{has_hessian}}{logical, whether \code{hess} was supplied.}
 }
 }
 \description{

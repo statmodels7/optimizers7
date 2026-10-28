@@ -16,8 +16,8 @@ bounded_transform(b, eta)
 A named list of three numeric vectors, each as long as \code{eta}:
 \describe{
 \item{\code{h}}{the parameter \eqn{\theta = h(\eta)}, inside the box.}
-\item{\code{d1}}{\eqn{h'(\eta)}, the chain-rule factor for a gradient.}
-\item{\code{d2}}{\eqn{h''(\eta)}, needed only for a Hessian.}
+\item{\code{deriv1}}{\eqn{h'(\eta)}, the chain-rule factor for a gradient.}
+\item{\code{deriv2}}{\eqn{h''(\eta)}, needed only for a Hessian.}
 }
 }
 \description{
@@ -43,7 +43,7 @@ Map the starting value with \code{\link[=bounded_forward]{bounded_forward()}}, r
 wrap the objective so that it maps back before evaluating. The Jacobian is
 diagonal, so the chain rule is one product per coordinate,
 \eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'},
-and \code{d2} is needed only when a Hessian is transformed, where it appears on
+and \code{deriv2} is needed only when a Hessian is transformed, where it appears on
 the diagonal alone. Report \code{par} on the caller's scale.
 }
 
@@ -75,11 +75,11 @@ theta <- c(0.1, 0.5, 0.9)
 all.equal(bounded_transform(c(0, 1), bounded_forward(c(0, 1), theta))$h,
           theta)
 
-# d1 is a derivative, and a central difference confirms it.
+# deriv1 is a derivative, and a central difference confirms it.
 h <- 1e-6
 (bounded_transform(c(0, 1), 0.3 + h)$h - bounded_transform(c(0, 1), 0.3 - h)$h) /
   (2 * h)
-bounded_transform(c(0, 1), 0.3)$d1
+bounded_transform(c(0, 1), 0.3)$deriv1
 
 }
 \seealso{

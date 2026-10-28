@@ -174,7 +174,7 @@ private:
 inline Objective* make_objective(Rcpp::List spec) {
   std::string kind = Rcpp::as<std::string>(spec["kind"]);
   if (kind == "r") {
-    return new RObjective(spec["fn"], spec["gr"], spec["he"]);
+    return new RObjective(spec["fn"], spec["gr"], spec["hess"]);
   }
   Rcpp::stop("Unknown objective kind '%s'.", kind);
   return nullptr;

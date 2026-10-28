@@ -21,7 +21,7 @@ modify_by_name <- function(mod) {
 
 test_that("all three solve Rosenbrock, and far faster than first order", {
   x0 <- c(-1.2, 1)
-  n <- minimize(newton(), rosen, x0, gr = rosen_gr, he = rosen_he)
+  n <- minimize(newton(), rosen, x0, gr = rosen_gr, hess = rosen_he)
   b <- minimize(bfgs(),   rosen, x0, gr = rosen_gr)
   l <- minimize(lbfgs(),  rosen, x0, gr = rosen_gr)
 
@@ -49,7 +49,7 @@ test_that("Newton repairs an indefinite Hessian and says that it did", {
 
   for (mod in c("eigen", "ridge")) {
     r <- minimize(newton(modify = modify_by_name(mod), keep_trace = TRUE),
-                  saddle, c(0.05, 0.6), gr = saddle_gr, he = saddle_he)
+                  saddle, c(0.05, 0.6), gr = saddle_gr, hess = saddle_he)
     expect_true(r@converged, label = mod)
     expect_equal(r@value, -1, tolerance = 1e-8, label = mod)
     expect_equal(abs(r@par[1]), 1, tolerance = 1e-6, label = mod)
@@ -77,7 +77,7 @@ test_that("a repaired Newton step is capped and an unrepaired one is not", {
 
   for (mod in c("eigen", "ridge")) {
     r <- minimize(newton(modify = modify_by_name(mod), keep_trace = TRUE),
-                  saddle, c(0.05, 0.6), gr = saddle_gr, he = saddle_he)
+                  saddle, c(0.05, 0.6), gr = saddle_gr, hess = saddle_he)
     expect_true(r@converged, label = mod)
     expect_equal(r@value, -1, tolerance = 1e-8, label = mod)
     expect_true("hessian modified (capped)" %in% r@trace$safeguard,
@@ -95,7 +95,7 @@ test_that("a repaired Newton step is capped and an unrepaired one is not", {
   #     the cap cannot fire and the guard stays the plain string. Measured
   #     identical either side of the change: 8 iterations, 9 evaluations.
   r1 <- minimize(newton(modify = modify_eigen(floor = 1), keep_trace = TRUE), saddle, c(0.05, 0.6),
-                 gr = saddle_gr, he = saddle_he)
+                 gr = saddle_gr, hess = saddle_he)
   expect_true(r1@converged)
   expect_true("hessian modified" %in% r1@trace$safeguard)
   expect_false("hessian modified (capped)" %in% r1@trace$safeguard)
@@ -107,7 +107,7 @@ test_that("a repaired Newton step is capped and an unrepaired one is not", {
   #     this start repairs nothing, and its counts are what they were before
   #     the cap existed: 21 iterations, 29 f, 22 g, 21 h.
   r2 <- minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1), gr = rosen_gr,
-                 he = rosen_he)
+                 hess = rosen_he)
   expect_false(any(startsWith(r2@trace$safeguard, "hessian modified")))
   expect_identical(r2@iterations, 21L)
   expect_identical(r2@counts[["f"]], 29L)
@@ -119,7 +119,7 @@ test_that("a repaired Newton step is capped and an unrepaired one is not", {
 test_that("Newton works with the Hessian differenced from the gradient", {
   # One numerical differentiation of an analytic gradient, which is the case
   # newton() is willing to stand behind.
-  with_he <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  with_he <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
   no_he   <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr)
 
   expect_true(no_he@converged)
@@ -130,9 +130,9 @@ test_that("Newton works with the Hessian differenced from the gradient", {
 
 
 test_that("BFGS and L-BFGS never ask for a Hessian", {
-  b <- minimize(bfgs(),  rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
-  l <- minimize(lbfgs(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
-  # he is accepted and ignored, so calling code need not branch on the method
+  b <- minimize(bfgs(),  rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
+  l <- minimize(lbfgs(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
+  # hess is accepted and ignored, so calling code need not branch on the method
   expect_equal(b@counts[["h"]], 0)
   expect_equal(l@counts[["h"]], 0)
   expect_true(b@converged)
@@ -143,7 +143,7 @@ test_that("BFGS and L-BFGS never ask for a Hessian", {
 test_that("the objective never increases, for any of the three", {
   for (o in list(newton(keep_trace = TRUE), bfgs(keep_trace = TRUE),
                  lbfgs(keep_trace = TRUE))) {
-    r <- minimize(o, rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+    r <- minimize(o, rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
     expect_true(all(diff(r@trace$value) <= 1e-12), label = r@optimizer@name)
   }
 })
@@ -198,11 +198,11 @@ test_that("the three constructors validate their own settings", {
 
 
 test_that("the quasi-Newton settings are validated at their own bounds", {
-  # curv_tol multiplies |s||y|, so a negative value makes the comparison hold
+  # curvature_tol multiplies |s||y|, so a negative value makes the comparison hold
   # for every pair and turns the skip protection off in silence.
-  expect_error(bfgs(curv_tol = -1), "'curv_tol'")
-  expect_error(lbfgs(curv_tol = -1e-16), "'curv_tol'")
-  expect_error(bfgs(curv_tol = Inf), "'curv_tol'")
+  expect_error(bfgs(curvature_tol = -1), "'curvature_tol'")
+  expect_error(lbfgs(curvature_tol = -1e-16), "'curvature_tol'")
+  expect_error(bfgs(curvature_tol = Inf), "'curvature_tol'")
 
   # max_skip is compared with `>=`, so a negative value behaves as zero.
   expect_error(bfgs(max_skip = -3), "'max_skip'")
@@ -213,13 +213,13 @@ test_that("the quasi-Newton settings are validated at their own bounds", {
 
   # The negative controls: the values either side of each bound still build,
   # and zero is a setting rather than a mistake in the two places it means
-  # something -- curv_tol = 0 is the textbook condition s'y > 0, and
+  # something -- curvature_tol = 0 is the textbook condition s'y > 0, and
   # max_skip = 0 resets on the first skip.
-  expect_s7_class(bfgs(curv_tol = 0), optimizers7:::Bfgs)
+  expect_s7_class(bfgs(curvature_tol = 0), optimizers7:::Bfgs)
   expect_s7_class(bfgs(max_skip = 0), optimizers7:::Bfgs)
-  expect_s7_class(bfgs(curv_tol = 1e10), optimizers7:::Bfgs)
+  expect_s7_class(bfgs(curvature_tol = 1e10), optimizers7:::Bfgs)
   expect_s7_class(lbfgs(memory = 1), optimizers7:::Lbfgs)
-  expect_s7_class(lbfgs(curv_tol = 0), optimizers7:::Lbfgs)
+  expect_s7_class(lbfgs(curvature_tol = 0), optimizers7:::Lbfgs)
 })
 
 
@@ -302,12 +302,12 @@ test_that("a Newton step longer than max_length is shortened to it", {
   # asymptote, where a long step lands in the flat region.
   f  <- function(p) sqrt(1 + p^2)
   gr <- function(p) p / sqrt(1 + p^2)
-  he <- function(p) matrix((1 + p^2)^(-3 / 2), 1, 1)
-  expect_equal(-gr(2) / he(2)[1, 1], -10)
+  hess <- function(p) matrix((1 + p^2)^(-3 / 2), 1, 1)
+  expect_equal(-gr(2) / hess(2)[1, 1], -10)
 
-  free <- minimize(newton(keep_trace = TRUE), f, 2, gr = gr, he = he)
+  free <- minimize(newton(keep_trace = TRUE), f, 2, gr = gr, hess = hess)
   capped <- minimize(newton(max_length = 1, keep_trace = TRUE), f, 2,
-                     gr = gr, he = he)
+                     gr = gr, hess = hess)
   for (r in list(free, capped)) {
     expect_true(r@converged)
     expect_equal(r@par, 0, tolerance = 1e-6)
@@ -322,9 +322,9 @@ test_that("a Newton step longer than max_length is shortened to it", {
   # A BOUND THAT DOES NOT BIND CHANGES NOTHING. Rosenbrock's Newton steps from
   # the customary start are all shorter than 10, and the run is the one
   # newton() gives without the argument, to the iteration and the evaluation.
-  a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
   b <- minimize(newton(max_length = 10), rosen, c(-1.2, 1), gr = rosen_gr,
-                he = rosen_he)
+                hess = rosen_he)
   expect_identical(b@par, a@par)
   expect_identical(b@counts, a@counts)
 })
@@ -340,27 +340,27 @@ test_that("max_length is validated", {
 
 
 test_that("typical sizes read every length in the parameters' own units", {
-  expect_null(newton()@typical)
-  expect_error(newton(typical = 0), "positive")
-  expect_error(newton(typical = c(1, NA)), "positive")
-  expect_error(newton(typical = Inf), "positive")
-  expect_error(minimize(newton(typical = c(1, 2, 3)), rosen, c(-1.2, 1),
-                        gr = rosen_gr, he = rosen_he), "one per parameter")
+  expect_null(newton()@typical_size)
+  expect_error(newton(typical_size = 0), "positive")
+  expect_error(newton(typical_size = c(1, NA)), "positive")
+  expect_error(newton(typical_size = Inf), "positive")
+  expect_error(minimize(newton(typical_size = c(1, 2, 3)), rosen, c(-1.2, 1),
+                        gr = rosen_gr, hess = rosen_he), "one per parameter")
   # two separate quadratics whose minima lie 1000 and 2 away: the Newton step
   # is (1000, -2). A bound of 5 in the parameters' own units shrinks the step
   # by 200; with typical sizes (1000, 1) the same bound leaves it whole, and
   # with (100, 1) it is halved, the first component reaching 5 typical sizes.
   f  <- function(p) (p[1] - 1000)^2 + (p[2] + 2)^2
   gr <- function(p) 2 * c(p[1] - 1000, p[2] + 2)
-  he <- function(p) diag(2, 2)
+  hess <- function(p) diag(2, 2)
   one  <- minimize(newton(max_length = 5, keep_trace = TRUE, maxit = 1),
-                   f, c(0, 0), gr = gr, he = he)
-  wide <- minimize(newton(max_length = 5, typical = c(1000, 1),
+                   f, c(0, 0), gr = gr, hess = hess)
+  wide <- minimize(newton(max_length = 5, typical_size = c(1000, 1),
                           keep_trace = TRUE, maxit = 1),
-                   f, c(0, 0), gr = gr, he = he)
-  half <- minimize(newton(max_length = 5, typical = c(100, 1),
+                   f, c(0, 0), gr = gr, hess = hess)
+  half <- minimize(newton(max_length = 5, typical_size = c(100, 1),
                           keep_trace = TRUE, maxit = 1),
-                   f, c(0, 0), gr = gr, he = he)
+                   f, c(0, 0), gr = gr, hess = hess)
   expect_equal(one@par, c(5, -0.01))
   expect_equal(wide@par, c(1000, -2))
   expect_equal(half@par, c(500, -1))
@@ -376,16 +376,16 @@ test_that("typical sizes read every length in the parameters' own units", {
   # at p = 250 the curvature cos(2.5)/100 is negative and the gradient
   # sin(2.5) positive, so the step is a repaired one pointing down
   a <- minimize(newton(maxit = 1, keep_trace = TRUE), g2, 250, gr = gr2,
-                he = he2)
-  b <- minimize(newton(maxit = 1, keep_trace = TRUE, typical = 100), g2, 250,
-                gr = gr2, he = he2)
+                hess = he2)
+  b <- minimize(newton(maxit = 1, keep_trace = TRUE, typical_size = 100), g2, 250,
+                gr = gr2, hess = he2)
   expect_equal(250 - a@par, 1)
   expect_equal(250 - b@par, 100)
 
   # AND NOTHING MOVES WITHOUT THEM, to the iteration and the evaluation
-  r1 <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
-  r2 <- minimize(newton(typical = 1), rosen, c(-1.2, 1), gr = rosen_gr,
-                 he = rosen_he)
+  r1 <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
+  r2 <- minimize(newton(typical_size = 1), rosen, c(-1.2, 1), gr = rosen_gr,
+                 hess = rosen_he)
   expect_identical(r2@par, r1@par)
   expect_identical(r2@counts, r1@counts)
 })
@@ -397,13 +397,13 @@ test_that("a stop on a change is not convergence where the Hessian is indefinite
   # meets it while the gradient is 500 and the objective is still falling.
   f  <- function(p) 0.5 * 1e19 * p[1]^2 + 500 * p[2] - 0.5 * 1e9 * p[2]^2
   gr <- function(p) c(1e19 * p[1], 500 - 1e9 * p[2])
-  he <- function(p) diag(c(1e19, -1e9))
+  hess <- function(p) diag(c(1e19, -1e9))
 
-  off <- minimize(newton(stop_decrement = Inf), f, c(0, 0), gr = gr, he = he)
+  off <- minimize(newton(stop_decrement = Inf), f, c(0, 0), gr = gr, hess = hess)
   expect_true(off@converged)
   expect_gt(max(abs(off@gradient)), 100)
 
-  on <- minimize(newton(keep_trace = TRUE), f, c(0, 0), gr = gr, he = he)
+  on <- minimize(newton(keep_trace = TRUE), f, c(0, 0), gr = gr, hess = hess)
   expect_false(on@converged)
   expect_identical(on@criterion_met, "stopped without converging")
   expect_match(on@message, "not positive definite")
@@ -420,20 +420,20 @@ test_that("a stop on a change is not convergence above stop_decrement", {
   qh <- function(p) diag(2, length(p))
 
   off <- minimize(newton(max_length = 1e-9, stop_decrement = Inf), q, c(0, 0),
-                  gr = qg, he = qh)
+                  gr = qg, hess = qh)
   expect_true(off@converged)
 
-  on <- minimize(newton(max_length = 1e-9), q, c(0, 0), gr = qg, he = qh)
+  on <- minimize(newton(max_length = 1e-9), q, c(0, 0), gr = qg, hess = qh)
   expect_false(on@converged)
   expect_match(on@message, "Newton decrement at the point is 2")
 
   # a threshold above the decrement accepts the stop
   wide <- minimize(newton(max_length = 1e-9, stop_decrement = 10), q, c(0, 0),
-                   gr = qg, he = qh)
+                   gr = qg, hess = qh)
   expect_true(wide@converged)
 
   # the chebyshev() method carries the setting
-  ch <- minimize(chebyshev(max_length = 1e-9), q, c(0, 0), gr = qg, he = qh)
+  ch <- minimize(chebyshev(max_length = 1e-9), q, c(0, 0), gr = qg, hess = qh)
   expect_false(ch@converged)
 })
 
@@ -443,18 +443,18 @@ test_that("stop_decrement leaves a run that ends on the gradient or at a minimum
                             200 * (p[2] - p[1]^2))
   rosen_he <- function(p) matrix(c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
                                    -400 * p[1], 200), 2, 2)
-  a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+  a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
   b <- minimize(newton(stop_decrement = Inf), rosen, c(-1.2, 1), gr = rosen_gr,
-                he = rosen_he)
+                hess = rosen_he)
   expect_true(a@converged)
   expect_identical(a@par, b@par)
   expect_identical(a@counts, b@counts)
 
   # a stop on the change at a minimum is accepted, at the cost of one Hessian
   c1 <- minimize(newton(crit_any(crit_abs_par(1e-3))), rosen, c(-1.2, 1),
-                 gr = rosen_gr, he = rosen_he)
+                 gr = rosen_gr, hess = rosen_he)
   c2 <- minimize(newton(crit_any(crit_abs_par(1e-3)), stop_decrement = Inf),
-                 rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+                 rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
   expect_true(c1@converged)
   expect_identical(c1@par, c2@par)
   expect_identical(unname(c1@counts[["h"]]), unname(c2@counts[["h"]]) + 1L)
@@ -462,7 +462,7 @@ test_that("stop_decrement leaves a run that ends on the gradient or at a minimum
   # a run on a box reads the decrement on the scale it runs on
   q  <- function(p) sum((p - 1)^2)
   r <- minimize(newton(), q, c(0.5, 0.5), gr = function(p) 2 * (p - 1),
-                he = function(p) diag(2, length(p)), lower = 0, upper = 3)
+                hess = function(p) diag(2, length(p)), lower = 0, upper = 3)
   expect_true(r@converged)
 })
 

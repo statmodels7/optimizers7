@@ -38,8 +38,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sa_run
-Rcpp::List sa_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, bool cauchy, double t0, double cooling, int cycles, int steps, double step, double target_accept, double adjust, int n_eps, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
-RcppExport SEXP _optimizers7_sa_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP cauchySEXP, SEXP t0SEXP, SEXP coolingSEXP, SEXP cyclesSEXP, SEXP stepsSEXP, SEXP stepSEXP, SEXP target_acceptSEXP, SEXP adjustSEXP, SEXP n_epsSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+Rcpp::List sa_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, bool cauchy, double t0, double cooling, int cycles, int steps, double step, double target_accept, double adjust, int stationarity_levels, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_sa_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP cauchySEXP, SEXP t0SEXP, SEXP coolingSEXP, SEXP cyclesSEXP, SEXP stepsSEXP, SEXP stepSEXP, SEXP target_acceptSEXP, SEXP adjustSEXP, SEXP stationarity_levelsSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -55,14 +55,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
     Rcpp::traits::input_parameter< double >::type target_accept(target_acceptSEXP);
     Rcpp::traits::input_parameter< double >::type adjust(adjustSEXP);
-    Rcpp::traits::input_parameter< int >::type n_eps(n_epsSEXP);
+    Rcpp::traits::input_parameter< int >::type stationarity_levels(stationarity_levelsSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     Rcpp::traits::input_parameter< int >::type max_eval(max_evalSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
-    rcpp_result_gen = Rcpp::wrap(sa_run(spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    rcpp_result_gen = Rcpp::wrap(sa_run(spec, par, criterion, crit_fn, cauchy, t0, cooling, cycles, steps, step, target_accept, adjust, stationarity_levels, maxit, max_eval, verbose, refresh, keep_trace, bounds));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -91,8 +91,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // bundle_run
-Rcpp::List bundle_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double t0, double t_min, double t_max, double m_serious, int bundle_size, int qp_iters, double qp_tol, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
-RcppExport SEXP _optimizers7_bundle_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP t0SEXP, SEXP t_minSEXP, SEXP t_maxSEXP, SEXP m_seriousSEXP, SEXP bundle_sizeSEXP, SEXP qp_itersSEXP, SEXP qp_tolSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+Rcpp::List bundle_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double t0, double t_min, double t_max, double accept_fraction, int bundle_size, int qp_iters, double qp_tol, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_bundle_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP t0SEXP, SEXP t_minSEXP, SEXP t_maxSEXP, SEXP accept_fractionSEXP, SEXP bundle_sizeSEXP, SEXP qp_itersSEXP, SEXP qp_tolSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -103,7 +103,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type t0(t0SEXP);
     Rcpp::traits::input_parameter< double >::type t_min(t_minSEXP);
     Rcpp::traits::input_parameter< double >::type t_max(t_maxSEXP);
-    Rcpp::traits::input_parameter< double >::type m_serious(m_seriousSEXP);
+    Rcpp::traits::input_parameter< double >::type accept_fraction(accept_fractionSEXP);
     Rcpp::traits::input_parameter< int >::type bundle_size(bundle_sizeSEXP);
     Rcpp::traits::input_parameter< int >::type qp_iters(qp_itersSEXP);
     Rcpp::traits::input_parameter< double >::type qp_tol(qp_tolSEXP);
@@ -113,7 +113,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
-    rcpp_result_gen = Rcpp::wrap(bundle_run(spec, par, criterion, crit_fn, t0, t_min, t_max, m_serious, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    rcpp_result_gen = Rcpp::wrap(bundle_run(spec, par, criterion, crit_fn, t0, t_min, t_max, accept_fraction, bundle_size, qp_iters, qp_tol, maxit, max_eval, verbose, refresh, keep_trace, bounds));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -166,8 +166,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // compass_run
-Rcpp::List compass_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double step, bool random_directions, bool opportunistic, double expand, double shrink, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
-RcppExport SEXP _optimizers7_compass_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP stepSEXP, SEXP random_directionsSEXP, SEXP opportunisticSEXP, SEXP expandSEXP, SEXP shrinkSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
+Rcpp::List compass_run(Rcpp::List spec, arma::vec par, SEXP criterion, SEXP crit_fn, double step, bool random_directions, bool first_improvement, double expand, double shrink, int maxit, int max_eval, bool verbose, int refresh, bool keep_trace, Rcpp::List bounds);
+RcppExport SEXP _optimizers7_compass_run(SEXP specSEXP, SEXP parSEXP, SEXP criterionSEXP, SEXP crit_fnSEXP, SEXP stepSEXP, SEXP random_directionsSEXP, SEXP first_improvementSEXP, SEXP expandSEXP, SEXP shrinkSEXP, SEXP maxitSEXP, SEXP max_evalSEXP, SEXP verboseSEXP, SEXP refreshSEXP, SEXP keep_traceSEXP, SEXP boundsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -177,7 +177,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< SEXP >::type crit_fn(crit_fnSEXP);
     Rcpp::traits::input_parameter< double >::type step(stepSEXP);
     Rcpp::traits::input_parameter< bool >::type random_directions(random_directionsSEXP);
-    Rcpp::traits::input_parameter< bool >::type opportunistic(opportunisticSEXP);
+    Rcpp::traits::input_parameter< bool >::type first_improvement(first_improvementSEXP);
     Rcpp::traits::input_parameter< double >::type expand(expandSEXP);
     Rcpp::traits::input_parameter< double >::type shrink(shrinkSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
@@ -186,7 +186,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type refresh(refreshSEXP);
     Rcpp::traits::input_parameter< bool >::type keep_trace(keep_traceSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type bounds(boundsSEXP);
-    rcpp_result_gen = Rcpp::wrap(compass_run(spec, par, criterion, crit_fn, step, random_directions, opportunistic, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds));
+    rcpp_result_gen = Rcpp::wrap(compass_run(spec, par, criterion, crit_fn, step, random_directions, first_improvement, expand, shrink, maxit, max_eval, verbose, refresh, keep_trace, bounds));
     return rcpp_result_gen;
 END_RCPP
 }

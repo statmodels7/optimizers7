@@ -6,8 +6,8 @@
 \arguments{
 \item{optimizer}{A \code{Bundle} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} should return
-a subgradient, not a difference taken across a kink; \code{he} is
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} should return
+a subgradient, not a difference taken across a kink; \code{hess} is
 accepted and ignored. Bounds are taken and removed by
 reparametrization.}
 }

@@ -9,7 +9,7 @@ bundle(
   t0 = 1,
   t_min = 1e-10,
   t_max = 1e+10,
-  m_serious = 0.1,
+  accept_fraction = 0.1,
   bundle_size = 20,
   qp_iters = 500,
   qp_tol = 1e-12,
@@ -32,7 +32,7 @@ see Details. Defaults to \code{1}.}
 serious ones cannot drive it to zero or to infinity. The defaults are
 \code{1e-10} and \code{1e10}.}
 
-\item{m_serious}{Fraction of the predicted decrease that a step must actually
+\item{accept_fraction}{Fraction of the predicted decrease that a step must actually
 deliver to be accepted, in \eqn{(0, 1)}. Defaults to \code{0.1}.}
 
 \item{bundle_size}{Largest number of linearizations kept; when a new one
@@ -108,7 +108,7 @@ parameter.
 
 \section{Serious steps and null steps}{
 A trial point is accepted, making a \emph{serious step}, only if the decrease
-that it delivers is at least the fraction \code{m_serious} of the predicted
+that it delivers is at least the fraction \code{accept_fraction} of the predicted
 decrease. This plays the role of the Armijo condition in a line search:
 without a required fraction, a sequence of ever smaller improvements could
 be accepted although it does not converge to a minimizer.

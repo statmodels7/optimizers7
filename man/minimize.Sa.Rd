@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{An \code{Sa} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{he} are
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{gr} and \code{hess} are
 accepted and ignored, since the method uses no derivative; rejecting
 them would force calling code to branch on the algorithm. Bounds are
 taken and removed by reparametrization, as in the other methods except

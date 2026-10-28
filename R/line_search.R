@@ -723,7 +723,7 @@ check_whole <- function(v, nm) {
 #'
 #' @description
 #' Checks that the value is a single finite number that is not negative.
-#' It is used for the curvature threshold `curv_tol` of [bfgs()] and
+#' It is used for the curvature threshold `curvature_tol` of [bfgs()] and
 #' [lbfgs()], which is compared as \eqn{s'y > \mathrm{curv\_tol} \, \lVert s \rVert
 #' \lVert y \rVert}. Zero is admitted and is the textbook curvature
 #' condition \eqn{s'y > 0}. A negative value is rejected because it admits

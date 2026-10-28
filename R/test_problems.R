@@ -90,7 +90,7 @@ NULL
 #'     \item{`fn`}{the objective, a function of a numeric vector of length
 #'       `p` returning one number.}
 #'     \item{`gr`}{its analytic gradient, returning a vector of length `p`.}
-#'     \item{`he`}{its analytic Hessian, returning a `p x p` matrix. For
+#'     \item{`hess`}{its analytic Hessian, returning a `p x p` matrix. For
 #'       `abs_sum` it is the zero matrix, the Hessian wherever it exists.}
 #'     \item{`par`}{numeric of length `p`, the customary starting point.}
 #'     \item{`solution`}{numeric of length `p`, the minimizer. For
@@ -145,7 +145,7 @@ test_problems <- function(which = NULL) {
       name = "sphere",
       fn = function(p) sum(p^2),
       gr = function(p) 2 * p,
-      he = function(p) diag(2, length(p)),
+      hess = function(p) diag(2, length(p)),
       par = c(1.3, -0.7, 0.8),
       solution = c(0, 0, 0), value = 0,
       multimodal = FALSE, smooth = TRUE),
@@ -155,7 +155,7 @@ test_problems <- function(which = NULL) {
       fn = function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2,
       gr = function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),
                          200 * (p[2] - p[1]^2)),
-      he = function(p) matrix(c(1200 * p[1]^2 - 400 * p[2] + 2, -400 * p[1],
+      hess = function(p) matrix(c(1200 * p[1]^2 - 400 * p[2] + 2, -400 * p[1],
                                 -400 * p[1], 200), 2, 2),
       par = c(-1.2, 1),
       solution = c(1, 1), value = 0,
@@ -168,7 +168,7 @@ test_problems <- function(which = NULL) {
         a <- p[1] + 2 * p[2] - 7; b <- 2 * p[1] + p[2] - 5
         c(2 * a + 4 * b, 4 * a + 2 * b)
       },
-      he = function(p) matrix(c(10, 8, 8, 10), 2, 2),
+      hess = function(p) matrix(c(10, 8, 8, 10), 2, 2),
       par = c(0, 0),
       solution = c(1, 3), value = 0,
       multimodal = FALSE, smooth = TRUE),
@@ -186,7 +186,7 @@ test_problems <- function(which = NULL) {
         c(2 * t1 * (y - 1) + 2 * t2 * (y^2 - 1) + 2 * t3 * (y^3 - 1),
           2 * t1 * x + 4 * t2 * x * y + 6 * t3 * x * y^2)
       },
-      he = function(p) {
+      hess = function(p) {
         x <- p[1]; y <- p[2]
         H <- matrix(0, 2, 2)
         for (i in 1:3) {
@@ -218,7 +218,7 @@ test_problems <- function(which = NULL) {
           10 * b - 8 * cc^3,
           -10 * b - 40 * d^3)
       },
-      he = function(p) {
+      hess = function(p) {
         cc <- p[2] - 2 * p[3]; d <- p[1] - p[4]
         2 * tcrossprod(c(1, 10, 0, 0)) + 10 * tcrossprod(c(0, 0, 1, -1)) +
           12 * cc^2 * tcrossprod(c(0, 1, -2, 0)) +
@@ -235,7 +235,7 @@ test_problems <- function(which = NULL) {
         a <- p[1]^2 + p[2] - 11; b <- p[1] + p[2]^2 - 7
         c(4 * p[1] * a + 2 * b, 2 * a + 4 * p[2] * b)
       },
-      he = function(p) {
+      hess = function(p) {
         a <- p[1]^2 + p[2] - 11; b <- p[1] + p[2]^2 - 7
         2 * (tcrossprod(c(2 * p[1], 1)) + a * diag(c(2, 0)) +
                tcrossprod(c(1, 2 * p[2])) + b * diag(c(0, 2)))
@@ -249,7 +249,7 @@ test_problems <- function(which = NULL) {
       name = "rastrigin",
       fn = function(p) 10 * length(p) + sum(p^2 - 10 * cos(2 * pi * p)),
       gr = function(p) 2 * p + 20 * pi * sin(2 * pi * p),
-      he = function(p) diag(2 + 40 * pi^2 * cos(2 * pi * p), length(p)),
+      hess = function(p) diag(2 + 40 * pi^2 * cos(2 * pi * p), length(p)),
       par = c(0.4, -0.4),
       solution = c(0, 0), value = 0,
       multimodal = TRUE, smooth = TRUE),
@@ -259,7 +259,7 @@ test_problems <- function(which = NULL) {
       fn = function(p) sum(abs(p - c(1, -2, 0.5))),
       gr = function(p) sign(p - c(1, -2, 0.5)),
       # zero wherever it exists, which is everywhere off the kinks
-      he = function(p) matrix(0, length(p), length(p)),
+      hess = function(p) matrix(0, length(p), length(p)),
       par = c(0, 0, 0),
       solution = c(1, -2, 0.5), value = 0,
       multimodal = FALSE, smooth = FALSE)

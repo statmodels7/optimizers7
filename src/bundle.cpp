@@ -105,7 +105,7 @@ Rcpp::List bundle_run(Rcpp::List spec,
                       double t0,
                       double t_min,
                       double t_max,
-                      double m_serious,
+                      double accept_fraction,
                       int bundle_size,
                       int qp_iters,
                       double qp_tol,
@@ -274,7 +274,7 @@ Rcpp::List bundle_run(Rcpp::List spec,
       // model promised -- the same bargain as an Armijo condition, and for the
       // same reason: accepting any decrease at all lets a sequence of ever
       // tinier improvements masquerade as progress.
-      if (fy <= fhat + m_serious * v) {
+      if (fy <= fhat + accept_fraction * v) {
         xhat = y;
         fhat = fy;
         ++serious;

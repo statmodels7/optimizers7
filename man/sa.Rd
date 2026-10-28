@@ -6,7 +6,7 @@
 \usage{
 sa(
   criterion = crit_stationary(),
-  visiting = c("uniform", "cauchy"),
+  proposal = c("uniform", "cauchy"),
   t0 = NULL,
   cooling = 0.85,
   cycles = 3,
@@ -14,7 +14,7 @@ sa(
   step = 1,
   target_accept = 0.5,
   adjust = 2,
-  n_eps = 4,
+  stationarity_levels = 4,
   maxit = 100,
   max_eval = Inf,
   verbose = FALSE,
@@ -28,7 +28,7 @@ sa(
 reads a gradient is rejected when the run starts, because this method
 computes none.}
 
-\item{visiting}{\code{"uniform"} (default) or \code{"cauchy"}. Partial matching
+\item{proposal}{\code{"uniform"} (default) or \code{"cauchy"}. Partial matching
 applies, and any other string is rejected by \code{\link[=match.arg]{match.arg()}}.}
 
 \item{t0}{The initial temperature, a single positive number, or \code{NULL}
@@ -62,7 +62,7 @@ around it would reach 0 or 1. Defaults to \code{0.5}.}
 \item{adjust}{How strongly the step is moved towards that rate, a single
 positive number. Defaults to \code{2}, which is Corana's constant.}
 
-\item{n_eps}{How many temperature levels the stationarity measure covers,
+\item{stationarity_levels}{How many temperature levels the stationarity measure covers,
 a positive whole number. Defaults to \code{4}.}
 
 \item{maxit}{Maximum temperature levels. Defaults to 100. The number of
@@ -161,8 +161,8 @@ The end of the schedule does not mean convergence. The stationarity
 measure is Corana's termination rule. At the end of each temperature level
 it is the largest absolute difference between the value at which the walk
 stopped and each of two references: the best value found so far, and the
-values at which the walk stopped at the last \code{n_eps} levels. It is
-infinite until \code{n_eps + 1} levels have run, and \code{\link[=crit_stationary]{crit_stationary()}} reads
+values at which the walk stopped at the last \code{stationarity_levels} levels. It is
+infinite until \code{stationarity_levels + 1} levels have run, and \code{\link[=crit_stationary]{crit_stationary()}} reads
 it. A run that exhausts \code{maxit} reports \code{converged = FALSE}, which for a
 global search is the ordinary outcome.
 
@@ -184,9 +184,9 @@ minimize(bfgs(), rastrigin, c(4.4, -3.6))@value  # 7.96
 # The heavy-tailed proposal leaves a basin in one move, and on this surface
 # that gives a value about two orders of magnitude lower.
 set.seed(2)
-minimize(sa(visiting = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
+minimize(sa(proposal = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
 set.seed(2)
-minimize(sa(visiting = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
+minimize(sa(proposal = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
 
 # The reported value is the best seen, and the trace records the same:
 # it never rises, though the walk itself does.

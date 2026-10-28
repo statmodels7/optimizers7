@@ -15,7 +15,7 @@ newton(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = 0.001
 )
 }
@@ -58,7 +58,7 @@ positive number. A direction longer than this in the infinity norm is
 scaled down to this length before the line search. Defaults to \code{Inf},
 which leaves every step as it is. See below.}
 
-\item{typical}{\code{NULL} (the default), or the typical size of each
+\item{typical_size}{\code{NULL} (the default), or the typical size of each
 parameter: one positive number, or one per parameter. Every length used
 by the method is then measured in these units, as the largest
 \eqn{\lvert d_i\rvert / t_i} in place of the largest
@@ -162,7 +162,7 @@ accepts every stop on a change, as in versions before 0.17.0.
 A length in the units of the parameters has different meanings for
 parameters on different scales: a displacement of one is a long step for
 a parameter on the log scale and a short one for a variance of several
-hundred. \code{typical} gives the typical size \eqn{t_i} of each parameter, as
+hundred. \code{typical_size} gives the typical size \eqn{t_i} of each parameter, as
 in the scaled norm of Dennis and Schnabel (1983): every length is then the
 largest \eqn{\lvert d_i\rvert / t_i}, for the bound \code{max_length} and for
 the scaling of a repaired direction or of a gradient fallback.
@@ -189,7 +189,7 @@ a marginal criterion.
 }
 
 \section{The Hessian by differences}{
-When \code{he} is not supplied to \code{\link[=minimize]{minimize()}} the Hessian is obtained by
+When \code{hess} is not supplied to \code{\link[=minimize]{minimize()}} the Hessian is obtained by
 differencing the gradient. With an analytic gradient that is one numerical
 differentiation. When the gradient is \emph{also} differenced, the Hessian is a
 difference of differences, which happens only in \code{\link[=newton]{newton()}} and
@@ -207,7 +207,7 @@ rosen_he <- function(p) matrix(
   c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
     -400 * p[1], 200), 2, 2)
 
-minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 
 # The repair of an indefinite Hessian is an object, with its floor.
 newton(modify = modify_ridge(floor = 1e-6))
@@ -220,13 +220,13 @@ sg  <- function(p) c(2 * p[1], -2 * p[2] + 0.4 * p[2]^3)
 sh  <- function(p) matrix(c(2, 0, 0, -2 + 1.2 * p[2]^2), 2, 2)
 eigen(sh(c(0.5, 0.1)), only.values = TRUE)$values
 
-r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, he = sh)
+r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, hess = sh)
 c(value = r@value, iterations = r@iterations)
 unique(r@trace$safeguard)
 
 # summary() counts the safeguards that fired during the run.
 summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
-                 gr = rosen_gr, he = rosen_he))
+                 gr = rosen_gr, hess = rosen_he))
 
 }
 \references{

@@ -15,11 +15,11 @@ NULL
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, an `Sa` carries nine of
-#' its own. They fall into three groups: the proposal (`visiting`, `step`),
+#' its own. They fall into three groups: the proposal (`proposal`, `step`),
 #' the schedule (`t0`, `cooling`, `cycles`, `steps`), and the adaptation and
-#' its stopping rule (`target_accept`, `adjust`, `n_eps`).
+#' its stopping rule (`target_accept`, `adjust`, `stationarity_levels`).
 #'
-#' @param visiting `"uniform"` or `"cauchy"`, the proposal from which the
+#' @param proposal `"uniform"` or `"cauchy"`, the proposal from which the
 #'   walk draws its moves.
 #' @param t0 The initial temperature, or `NULL` to calibrate it from the
 #'   objective.
@@ -29,7 +29,7 @@ NULL
 #' @param step The initial step, relative to the starting value.
 #' @param target_accept The target acceptance rate of the step adaptation.
 #' @param adjust How strongly the step is adjusted towards that rate.
-#' @param n_eps How many temperature levels the stationarity measure covers.
+#' @param stationarity_levels How many temperature levels the stationarity measure covers.
 #'
 #' @return An S7 object of class `Sa` inheriting from [optimizer()], with the
 #'   nine properties above beside the seven shared ones.
@@ -41,7 +41,7 @@ NULL
 #' @keywords internal
 Sa <- S7::new_class("Sa", parent = optimizer,
   properties = list(
-    visiting       = S7::class_character,
+    proposal       = S7::class_character,
     t0             = S7::class_any,
     cooling        = S7::class_numeric,
     cycles         = S7::class_numeric,
@@ -49,7 +49,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
     step           = S7::class_numeric,
     target_accept  = S7::class_numeric,
     adjust         = S7::class_numeric,
-    n_eps          = S7::class_numeric
+    stationarity_levels          = S7::class_numeric
   ))
 
 
@@ -134,8 +134,8 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' measure is Corana's termination rule. At the end of each temperature level
 #' it is the largest absolute difference between the value at which the walk
 #' stopped and each of two references: the best value found so far, and the
-#' values at which the walk stopped at the last `n_eps` levels. It is
-#' infinite until `n_eps + 1` levels have run, and [crit_stationary()] reads
+#' values at which the walk stopped at the last `stationarity_levels` levels. It is
+#' infinite until `stationarity_levels + 1` levels have run, and [crit_stationary()] reads
 #' it. A run that exhausts `maxit` reports `converged = FALSE`, which for a
 #' global search is the ordinary outcome.
 #'
@@ -147,7 +147,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #'   `crit_stationary(1e-8)`, read on Corana's measure above. A rule that
 #'   reads a gradient is rejected when the run starts, because this method
 #'   computes none.
-#' @param visiting `"uniform"` (default) or `"cauchy"`. Partial matching
+#' @param proposal `"uniform"` (default) or `"cauchy"`. Partial matching
 #'   applies, and any other string is rejected by [match.arg()].
 #' @param t0 The initial temperature, a single positive number, or `NULL`
 #'   (the default) to calibrate it from the objective at a cost of
@@ -173,7 +173,7 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #'   around it would reach 0 or 1. Defaults to `0.5`.
 #' @param adjust How strongly the step is moved towards that rate, a single
 #'   positive number. Defaults to `2`, which is Corana's constant.
-#' @param n_eps How many temperature levels the stationarity measure covers,
+#' @param stationarity_levels How many temperature levels the stationarity measure covers,
 #'   a positive whole number. Defaults to `4`.
 #' @param maxit Maximum temperature levels. Defaults to 100. The number of
 #'   levels sets how close to the minimizer the run finishes, because the
@@ -213,9 +213,9 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #' # The heavy-tailed proposal leaves a basin in one move, and on this surface
 #' # that gives a value about two orders of magnitude lower.
 #' set.seed(2)
-#' minimize(sa(visiting = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
+#' minimize(sa(proposal = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
 #' set.seed(2)
-#' minimize(sa(visiting = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
+#' minimize(sa(proposal = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
 #'
 #' # The reported value is the best seen, and the trace records the same:
 #' # it never rises, though the walk itself does.
@@ -241,12 +241,12 @@ Sa <- S7::new_class("Sa", parent = optimizer,
 #'   method.
 #' @export
 sa <- function(criterion = crit_stationary(),
-               visiting = c("uniform", "cauchy"),
+               proposal = c("uniform", "cauchy"),
                t0 = NULL, cooling = 0.85, cycles = 3, steps = 10,
-               step = 1, target_accept = 0.5, adjust = 2, n_eps = 4,
+               step = 1, target_accept = 0.5, adjust = 2, stationarity_levels = 4,
                maxit = 100, max_eval = Inf,
                verbose = FALSE, refresh = 10, keep_trace = FALSE) {
-  visiting <- match.arg(visiting)
+  proposal <- match.arg(proposal)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   if (!is.null(t0) && (length(t0) != 1L || !is.numeric(t0) || is.na(t0) ||
@@ -266,7 +266,7 @@ sa <- function(criterion = crit_stationary(),
   }
   whole(cycles, "cycles")
   whole(steps, "steps")
-  whole(n_eps, "n_eps")
+  whole(stationarity_levels, "stationarity_levels")
   if (length(target_accept) != 1L || !is.numeric(target_accept) ||
       is.na(target_accept) || target_accept <= 0.1 || target_accept >= 0.9) {
     stop("'target_accept' must be a single number in (0.1, 0.9).",
@@ -276,12 +276,12 @@ sa <- function(criterion = crit_stationary(),
       adjust <= 0) {
     stop("'adjust' must be a single positive number.", call. = FALSE)
   }
-  Sa(name = paste0("simulated annealing (", visiting, ")"),
+  Sa(name = paste0("simulated annealing (", proposal, ")"),
      criterion = criterion, maxit = maxit, max_eval = max_eval,
      verbose = verbose, refresh = refresh, keep_trace = keep_trace,
-     visiting = visiting, t0 = t0, cooling = cooling, cycles = cycles,
+     proposal = proposal, t0 = t0, cooling = cooling, cycles = cycles,
      steps = steps, step = step, target_accept = target_accept,
-     adjust = adjust, n_eps = n_eps)
+     adjust = adjust, stationarity_levels = stationarity_levels)
 }
 
 
@@ -298,7 +298,7 @@ sa <- function(criterion = crit_stationary(),
 #' The measure is Corana's termination rule: at the end of each temperature
 #' level, the largest absolute difference between the value at which the
 #' walk stopped and both the best value found and the values at which it
-#' stopped at the last `n_eps` levels. It is read by [crit_stationary()],
+#' stopped at the last `stationarity_levels` levels. It is read by [crit_stationary()],
 #' which is the default rule of this method.
 #'
 #' @param optimizer An `Sa` object.
@@ -327,7 +327,7 @@ S7::method(optimizer_provides, Sa) <- function(optimizer) "stationarity"
 #' be repeated.
 #'
 #' @param optimizer An `Sa` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `gr` and `hess` are
 #'   accepted and ignored, since the method uses no derivative; rejecting
 #'   them would force calling code to branch on the algorithm. Bounds are
 #'   taken and removed by reparametrization, as in the other methods except
@@ -339,9 +339,9 @@ S7::method(optimizer_provides, Sa) <- function(optimizer) "stationarity"
 #'
 #' @keywords internal
 S7::method(minimize, Sa) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     bounds <- check_bounds(lower, upper, par)
 
     # Every proposal is drawn from R's generator, so the run is reproducible
@@ -353,7 +353,7 @@ S7::method(minimize, Sa) <-
     out <- sa_run(
       spec = spec, par = as.numeric(par),
       criterion = optimizer@criterion, crit_fn = crit_met,
-      cauchy = identical(optimizer@visiting, "cauchy"),
+      cauchy = identical(optimizer@proposal, "cauchy"),
       t0 = if (is.null(optimizer@t0)) -1 else as.numeric(optimizer@t0),
       cooling = optimizer@cooling,
       cycles = as.integer(optimizer@cycles),
@@ -361,7 +361,7 @@ S7::method(minimize, Sa) <-
       step = optimizer@step,
       target_accept = optimizer@target_accept,
       adjust = optimizer@adjust,
-      n_eps = as.integer(optimizer@n_eps),
+      stationarity_levels = as.integer(optimizer@stationarity_levels),
       maxit = as.integer(optimizer@maxit),
       max_eval = budget_int(optimizer@max_eval),
       verbose = optimizer@verbose,
@@ -394,7 +394,7 @@ S7::method(minimize, Sa) <-
 #' @param cauchy `TRUE` for the Cauchy proposal, `FALSE` for the uniform one.
 #' @param t0 The initial temperature, or a non-positive value to calibrate
 #'   it. [minimize.Sa()] passes `-1` for `t0 = NULL`.
-#' @param cooling,cycles,steps,step,target_accept,adjust,n_eps,maxit As in
+#' @param cooling,cycles,steps,step,target_accept,adjust,stationarity_levels,maxit As in
 #'   [sa()].
 #'
 #' @return A list with `par` (the best point seen), `value` (the objective
@@ -404,7 +404,7 @@ S7::method(minimize, Sa) <-
 #' @keywords internal
 sa_run_r <- function(fn, par, cauchy = FALSE, t0 = -1, cooling = 0.85,
                      cycles = 3, steps = 10, step = 1, target_accept = 0.5,
-                     adjust = 2, n_eps = 4, maxit = 100) {
+                     adjust = 2, stationarity_levels = 4, maxit = 100) {
   n_value <- 0L
   safe <- function(x) {
     n_value <<- n_value + 1L
@@ -468,7 +468,7 @@ sa_run_r <- function(fn, par, cauchy = FALSE, t0 = -1, cooling = 0.85,
       }
     }
     recent <- c(recent, f)
-    if (length(recent) > n_eps) {
+    if (length(recent) > stationarity_levels) {
       recent <- recent[-1L]
       stat <- max(abs(f - best_f), max(abs(f - recent)))
     }

@@ -993,7 +993,7 @@ S7::method(print, criterion) <- function(x, ...) {
 #'
 #' @details
 #' It is also called by [bundle()] for `t0`, `t_min`, `t_max` and `qp_tol`,
-#' by [bb()] for `alpha0`, `alpha_min`, `alpha_max` and `curv_tol`, by
+#' by [bb()] for `alpha0`, `alpha_min`, `alpha_max` and `curvature_tol`, by
 #' [nelder_mead()] for `degenerate_tol` and by [multistart()] for `spread`
 #' and `distinct_tol`. These callers pass the name of their own argument in
 #' `nm`, so that the message names the argument that was supplied.

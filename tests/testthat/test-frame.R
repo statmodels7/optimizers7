@@ -105,7 +105,7 @@ test_that("a criterion the method cannot evaluate is refused, not ignored", {
   # The signature must include every named argument of the generic, bounds
   # among them, or S7 refuses to register the method.
   S7::method(minimize, NoGrad) <-
-    function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
+    function(optimizer, fn, par, gr = NULL, hess = NULL, lower = -Inf, upper = Inf, ...) {
       prepare_objective(optimizer, fn, par, gr)
       "unreachable"
     }
@@ -153,7 +153,7 @@ test_that("a step that the objective does not resolve is not convergence", {
   set.seed(3)
   runs <- lapply(1:50, function(i)
     minimize(newton(keep_trace = TRUE), f, c(1, 1) + 1e-3 * rnorm(2),
-             gr = g, he = h))
+             gr = g, hess = h))
   options(old)
   expect_false(any(vapply(runs, function(r) r@converged, logical(1))))
   msg <- vapply(runs, function(r) r@message, character(1))
@@ -177,7 +177,7 @@ test_that("a change rule is not met on a step with a large first-order change", 
   f <- function(p) if (p < 1 - 2e-9) 5 else 10
   old <- options(optimizers7.check_gradient = FALSE)
   r <- minimize(newton(keep_trace = TRUE, criterion = crit_abs_par(1e-8)),
-                f, 1, gr = function(p) 1e12, he = function(p) matrix(2e20))
+                f, 1, gr = function(p) 1e12, hess = function(p) matrix(2e20))
   options(old)
   expect_false(r@converged)
   expect_identical(r@criterion_met, "stopped without converging")
@@ -256,9 +256,9 @@ test_that("maximize() negates the third-derivative contraction too", {
   t3 <- function(x, d) {
     c(2400 * x[1] * d[1]^2 - 800 * d[1] * d[2], -400 * d[1]^2)
   }
-  mn <- minimize(chebyshev(), rp$fn, rp$par, gr = rp$gr, he = rp$he, t3 = t3)
+  mn <- minimize(chebyshev(), rp$fn, rp$par, gr = rp$gr, hess = rp$hess, t3 = t3)
   mx <- maximize(chebyshev(), function(p) -rp$fn(p), rp$par,
-                 gr = function(p) -rp$gr(p), he = function(p) -rp$he(p),
+                 gr = function(p) -rp$gr(p), hess = function(p) -rp$hess(p),
                  t3 = function(x, d) -t3(x, d))
   expect_identical(mx@iterations, mn@iterations)
   expect_equal(mx@par, mn@par, tolerance = 0)

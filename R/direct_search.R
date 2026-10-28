@@ -224,12 +224,12 @@ nelder_mead <- function(criterion = crit_stationary(),
 #' @details
 #' Beyond the seven properties of every optimizer, a `Compass` carries five
 #' of its own: `step`, `expand` and `shrink` govern the poll radius,
-#' `directions` selects the set that is polled, and `opportunistic` controls
+#' `directions` selects the set that is polled, and `first_improvement` controls
 #' when the poll stops.
 #'
 #' @param step Initial poll size, relative to the starting value.
 #' @param directions Either `"mads"` or `"coordinate"`.
-#' @param opportunistic Logical; whether the poll stops at the first
+#' @param first_improvement Logical; whether the poll stops at the first
 #'   improvement that it finds.
 #' @param expand,shrink Factors applied to the poll size after a success and
 #'   after a failure. After a success the poll size is capped at \eqn{10^4}
@@ -247,7 +247,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
   properties = list(
     step          = S7::class_numeric,
     directions    = S7::class_character,
-    opportunistic = S7::class_logical,
+    first_improvement = S7::class_logical,
     expand        = S7::class_numeric,
     shrink        = S7::class_numeric
   ))
@@ -273,7 +273,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #'   single positive number and defaults to `0.1`.
 #' @param directions `"mads"` (default) or `"coordinate"`. Partial matching
 #'   applies, and any other string is rejected by [match.arg()].
-#' @param opportunistic Move to the first improvement found instead of
+#' @param first_improvement Move to the first improvement found instead of
 #'   polling every direction? The value is `TRUE` or `FALSE` and defaults to
 #'   `TRUE`.
 #' @param expand Factor applied to the poll size after a success. The value
@@ -374,7 +374,7 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 #' # Polling every direction costs more evaluations for the same answer.
 #' q <- function(p) sum((p - c(1, 2))^2)
 #' set.seed(5); first <- minimize(compass(), q, c(0, 0))
-#' set.seed(5); every <- minimize(compass(opportunistic = FALSE), q, c(0, 0))
+#' set.seed(5); every <- minimize(compass(first_improvement = FALSE), q, c(0, 0))
 #' c(first = first@counts[["f"]], every = every@counts[["f"]])
 #'
 #' @seealso [nelder_mead()] for the simplex, [bundle()] when subgradients are
@@ -383,15 +383,15 @@ Compass <- S7::new_class("Compass", parent = optimizer,
 compass <- function(criterion = crit_stationary(),
                     step = 0.1,
                     directions = c("mads", "coordinate"),
-                    opportunistic = TRUE, expand = 2, shrink = 0.5,
+                    first_improvement = TRUE, expand = 2, shrink = 0.5,
                     maxit = 2000, max_eval = Inf,
                     verbose = FALSE, refresh = 50, keep_trace = FALSE) {
   directions <- match.arg(directions)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
-  if (length(opportunistic) != 1L || !is.logical(opportunistic) ||
-      is.na(opportunistic)) {
-    stop("'opportunistic' must be TRUE or FALSE.", call. = FALSE)
+  if (length(first_improvement) != 1L || !is.logical(first_improvement) ||
+      is.na(first_improvement)) {
+    stop("'first_improvement' must be TRUE or FALSE.", call. = FALSE)
   }
   if (length(expand) != 1L || !is.numeric(expand) || is.na(expand) ||
       expand < 1) {
@@ -405,7 +405,7 @@ compass <- function(criterion = crit_stationary(),
     name = paste0("pattern search (", directions, ")"), criterion = criterion,
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
-    step = step, directions = directions, opportunistic = opportunistic,
+    step = step, directions = directions, first_improvement = first_improvement,
     expand = expand, shrink = shrink
   )
 }
@@ -467,7 +467,7 @@ S7::method(optimizer_provides, Compass) <- function(optimizer)
 #' and columns.
 #'
 #' @param optimizer A `NelderMead` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `gr` and `hess` are
 #'   accepted and ignored, since the method uses no derivative; rejecting
 #'   them would force calling code to branch on the algorithm. Bounds are
 #'   taken and removed by reparametrization.
@@ -480,9 +480,9 @@ S7::method(optimizer_provides, Compass) <- function(optimizer)
 #'
 #' @keywords internal
 S7::method(minimize, NelderMead) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     bounds <- check_bounds(lower, upper, par)
 
     sx <- optimizer@simplex
@@ -522,7 +522,7 @@ S7::method(minimize, NelderMead) <-
 #' direction.
 #'
 #' @param optimizer A `Compass` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` and `he` are
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `gr` and `hess` are
 #'   accepted and ignored, since the method uses no derivative. Bounds are
 #'   taken and removed by reparametrization.
 #'
@@ -534,9 +534,9 @@ S7::method(minimize, NelderMead) <-
 #'
 #' @keywords internal
 S7::method(minimize, Compass) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     bounds <- check_bounds(lower, upper, par)
 
     # A mads poll draws a fresh basis at every iteration, so the run is
@@ -552,7 +552,7 @@ S7::method(minimize, Compass) <-
       criterion = optimizer@criterion, crit_fn = crit_met,
       step = optimizer@step,
       random_directions = mads,
-      opportunistic = optimizer@opportunistic,
+      first_improvement = optimizer@first_improvement,
       expand = optimizer@expand, shrink = optimizer@shrink,
       maxit = as.integer(optimizer@maxit),
       max_eval = budget_int(optimizer@max_eval),

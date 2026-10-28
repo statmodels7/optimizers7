@@ -16,12 +16,12 @@ chebyshev(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = 0.001
 )
 }
 \arguments{
-\item{criterion, modify, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical, stop_decrement}{As in \code{\link[=newton]{newton()}}. \code{modify} takes a \code{\link[=hessian_modification]{hessian_modification()}} object
+\item{criterion, modify, step, line_search, maxit, max_eval, verbose, refresh, keep_trace, max_length, typical_size, stop_decrement}{As in \code{\link[=newton]{newton()}}. \code{modify} takes a \code{\link[=hessian_modification]{hessian_modification()}} object
 (\code{\link[=modify_eigen]{modify_eigen()}} by default, or \code{\link[=modify_ridge]{modify_ridge()}}); see \link{modifications}.}
 
 \item{ratio}{The largest relative change of the Newton step that the
@@ -99,13 +99,13 @@ rosen_he <- function(p) matrix(
 rosen_t3 <- function(p, d) c(2400 * p[1] * d[1]^2 - 800 * d[1] * d[2],
                              -400 * d[1]^2)
 
-a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
-b <- minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he,
+a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
+b <- minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he,
               t3 = rosen_t3)
 c(newton = a@iterations, chebyshev = b@iterations)
 
 # Without t3 the contraction is a second difference of the gradient.
-minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 
 }
 \references{

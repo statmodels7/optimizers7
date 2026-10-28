@@ -6,8 +6,8 @@
 \arguments{
 \item{optimizer}{A \code{ProxGrad} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. A finite \code{lower}
-or \code{upper} raises an error; \code{he} is accepted and ignored.}
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. A finite \code{lower}
+or \code{upper} raises an error; \code{hess} is accepted and ignored.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} whose \code{value} is the total objective

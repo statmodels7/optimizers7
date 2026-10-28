@@ -281,7 +281,7 @@ adam <- function(criterion = crit_never(),
 #' taken with no line search and no test that the objective fell.
 #'
 #' @param optimizer An `Adam` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `hess` is accepted
 #'   and ignored. Bounds are taken and removed by reparametrization.
 #'
 #' @return An [optimizer_result()]. Under the default [crit_never()] it
@@ -290,9 +290,9 @@ adam <- function(criterion = crit_never(),
 #'
 #' @keywords internal
 S7::method(minimize, Adam) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     bounds <- check_bounds(lower, upper, par)
 
     t0 <- proc.time()[["elapsed"]]

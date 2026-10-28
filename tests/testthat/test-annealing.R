@@ -14,7 +14,7 @@ test_that("it satisfies the optimizer contract", {
   expect_true(all(out$checks),
               info = paste(names(out$checks)[!out$checks], collapse = ", "))
   set.seed(7)
-  out2 <- check_optimizer(sa(visiting = "cauchy"), verbose = FALSE)
+  out2 <- check_optimizer(sa(proposal = "cauchy"), verbose = FALSE)
   expect_true(all(out2$checks),
               info = paste(names(out2$checks)[!out2$checks], collapse = ", "))
 })
@@ -83,13 +83,13 @@ test_that("the temperature is calibrated to the objective's own scale", {
 })
 
 test_that("a heavy-tailed proposal is available and is not the default", {
-  expect_identical(sa()@visiting, "uniform")
-  expect_identical(sa(visiting = "cauchy")@visiting, "cauchy")
-  expect_match(sa(visiting = "cauchy")@name, "cauchy")
+  expect_identical(sa()@proposal, "uniform")
+  expect_identical(sa(proposal = "cauchy")@proposal, "cauchy")
+  expect_match(sa(proposal = "cauchy")@name, "cauchy")
   # both reach the answer on a unimodal problem
   for (v in c("uniform", "cauchy")) {
     set.seed(5)
-    r <- minimize(sa(visiting = v), sphere, c(4, -4))
+    r <- minimize(sa(proposal = v), sphere, c(4, -4))
     expect_lt(max(abs(r@par)), 1e-2, label = v)
   }
 })
@@ -130,7 +130,7 @@ test_that("the compiled loop and the R twin are the same run", {
   for (cau in c(FALSE, TRUE)) {
     set.seed(21)
     a <- minimize(sa(maxit = 12, criterion = crit_stationary(1e-300),
-                     visiting = if (cau) "cauchy" else "uniform"),
+                     proposal = if (cau) "cauchy" else "uniform"),
                   cheap, c(2, -1, 0.5))
     set.seed(21)
     b <- sa_run_r(cheap, c(2, -1, 0.5), cauchy = cau, maxit = 12)

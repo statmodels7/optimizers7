@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{An \code{Adam} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{he} is accepted
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. \code{hess} is accepted
 and ignored. Bounds are taken and removed by reparametrization.}
 }
 \value{

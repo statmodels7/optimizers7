@@ -17,7 +17,7 @@ Bb(
   alpha0 = integer(0),
   alpha_min = integer(0),
   alpha_max = integer(0),
-  curv_tol = integer(0),
+  curvature_tol = integer(0),
   step = integer(0),
   line_search = NULL,
   stop_decrement = integer(0)
@@ -32,7 +32,7 @@ Bb(
 \item{alpha_min, alpha_max}{The bounds to which the step length is
 clamped.}
 
-\item{curv_tol}{The relative threshold below which a secant pair is
+\item{curvature_tol}{The relative threshold below which a secant pair is
 rejected.}
 
 \item{step, line_search}{The multiplier offered to the line search and the
@@ -54,7 +54,7 @@ line search. It is built by \code{\link[=bb]{bb()}}. Its line search defaults to
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{Bb} carries eight of
-its own: \code{variant}, \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curv_tol} for
+its own: \code{variant}, \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curvature_tol} for
 the step-length estimate, \code{step} and \code{line_search} for the search along the
 direction, and \code{stop_decrement}.
 }

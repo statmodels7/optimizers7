@@ -14,13 +14,13 @@ NULL
 #' @details
 #' Beyond the seven properties of every optimizer, a `Bundle` carries seven
 #' of its own, in three groups: the proximal parameter (`t0`, `t_min`,
-#' `t_max`), the acceptance test (`m_serious`), and the model and its
+#' `t_max`), the acceptance test (`accept_fraction`), and the model and its
 #' subproblem (`bundle_size`, `qp_iters`, `qp_tol`).
 #'
 #' @param t0 Initial value of the proximal parameter \eqn{t}, as a step
 #'   length on the parameter scale.
 #' @param t_min,t_max Bounds on \eqn{t}.
-#' @param m_serious Fraction of the predicted decrease that a serious step
+#' @param accept_fraction Fraction of the predicted decrease that a serious step
 #'   must achieve.
 #' @param bundle_size Largest number of linearizations kept.
 #' @param qp_iters,qp_tol Effort spent on the subproblem.
@@ -38,7 +38,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
     t0          = S7::class_numeric,
     t_min       = S7::class_numeric,
     t_max       = S7::class_numeric,
-    m_serious   = S7::class_numeric,
+    accept_fraction   = S7::class_numeric,
     bundle_size = S7::class_numeric,
     qp_iters    = S7::class_numeric,
     qp_tol      = S7::class_numeric
@@ -64,7 +64,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @param t_min,t_max Bounds on it, so that a run of null steps or a run of
 #'   serious ones cannot drive it to zero or to infinity. The defaults are
 #'   `1e-10` and `1e10`.
-#' @param m_serious Fraction of the predicted decrease that a step must actually
+#' @param accept_fraction Fraction of the predicted decrease that a step must actually
 #'   deliver to be accepted, in \eqn{(0, 1)}. Defaults to `0.1`.
 #' @param bundle_size Largest number of linearizations kept; when a new one
 #'   would exceed it, the oldest are replaced by the aggregate. Defaults to
@@ -122,7 +122,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' # Serious steps and null steps
 #'
 #' A trial point is accepted, making a *serious step*, only if the decrease
-#' that it delivers is at least the fraction `m_serious` of the predicted
+#' that it delivers is at least the fraction `accept_fraction` of the predicted
 #' decrease. This plays the role of the Armijo condition in a line search:
 #' without a required fraction, a sequence of ever smaller improvements could
 #' be accepted although it does not converge to a minimizer.
@@ -237,7 +237,7 @@ Bundle <- S7::new_class("Bundle", parent = optimizer,
 #' @export
 bundle <- function(criterion = crit_stationary(),
                    t0 = 1, t_min = 1e-10, t_max = 1e10,
-                   m_serious = 0.1, bundle_size = 20,
+                   accept_fraction = 0.1, bundle_size = 20,
                    qp_iters = 500, qp_tol = 1e-12,
                    maxit = 500, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE) {
@@ -252,9 +252,9 @@ bundle <- function(criterion = crit_stationary(),
   if (t0 < t_min || t0 > t_max) {
     stop("'t0' must lie between 't_min' and 't_max'.", call. = FALSE)
   }
-  if (length(m_serious) != 1L || !is.numeric(m_serious) || is.na(m_serious) ||
-      m_serious <= 0 || m_serious >= 1) {
-    stop("'m_serious' must be a single number in (0, 1).", call. = FALSE)
+  if (length(accept_fraction) != 1L || !is.numeric(accept_fraction) || is.na(accept_fraction) ||
+      accept_fraction <= 0 || accept_fraction >= 1) {
+    stop("'accept_fraction' must be a single number in (0, 1).", call. = FALSE)
   }
   if (length(bundle_size) != 1L || !is.numeric(bundle_size) ||
       is.na(bundle_size) || bundle_size < 2 ||
@@ -270,7 +270,7 @@ bundle <- function(criterion = crit_stationary(),
     name = "proximal bundle", criterion = criterion,
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
-    t0 = t0, t_min = t_min, t_max = t_max, m_serious = m_serious,
+    t0 = t0, t_min = t_min, t_max = t_max, accept_fraction = accept_fraction,
     bundle_size = bundle_size, qp_iters = qp_iters, qp_tol = qp_tol
   )
 }
@@ -322,8 +322,8 @@ S7::method(optimizer_provides, Bundle) <- function(optimizer)
 #' one.
 #'
 #' @param optimizer A `Bundle` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `gr` should return
-#'   a subgradient, not a difference taken across a kink; `he` is
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `gr` should return
+#'   a subgradient, not a difference taken across a kink; `hess` is
 #'   accepted and ignored. Bounds are taken and removed by
 #'   reparametrization.
 #'
@@ -333,9 +333,9 @@ S7::method(optimizer_provides, Bundle) <- function(optimizer)
 #'
 #' @keywords internal
 S7::method(minimize, Bundle) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     bounds <- check_bounds(lower, upper, par)
 
     t0 <- proc.time()[["elapsed"]]
@@ -343,7 +343,7 @@ S7::method(minimize, Bundle) <-
       spec = spec, par = as.numeric(par),
       criterion = optimizer@criterion, crit_fn = crit_met,
       t0 = optimizer@t0, t_min = optimizer@t_min, t_max = optimizer@t_max,
-      m_serious = optimizer@m_serious,
+      accept_fraction = optimizer@accept_fraction,
       bundle_size = as.integer(optimizer@bundle_size),
       qp_iters = as.integer(optimizer@qp_iters), qp_tol = optimizer@qp_tol,
       maxit = as.integer(optimizer@maxit),

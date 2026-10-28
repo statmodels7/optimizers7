@@ -270,7 +270,7 @@ S7::method(with_maxit, Chain) <- function(optimizer, maxit) {
 #' the caller; without that, the same warning would be printed once per stage.
 #'
 #' @param optimizer A `Chain` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. They are passed to
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. They are passed to
 #'   every stage as given, except that `par` is replaced by the answer of the
 #'   previous stage.
 #'
@@ -282,7 +282,7 @@ S7::method(with_maxit, Chain) <- function(optimizer, maxit) {
 #'
 #' @keywords internal
 S7::method(minimize, Chain) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
     stages <- optimizer@stages
     # Every stage's rule is checked before any of them runs, so a chain whose
@@ -303,7 +303,7 @@ S7::method(minimize, Chain) <-
         cat(sprintf("  stage %d/%d: %s\n", k, length(stages),
                     stages[[k]]@name))
       }
-      res <- minimize(stages[[k]], fn, x, gr = gr, he = he,
+      res <- minimize(stages[[k]], fn, x, gr = gr, hess = hess,
                       lower = lower, upper = upper, ...)
       results[[k]] <- res
       x <- res@par

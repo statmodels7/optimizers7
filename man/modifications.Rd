@@ -56,7 +56,7 @@ h <- function(p) matrix(c(12 * p[1]^2 - 4, 0, 0, 2), 2, 2)
 eigen(h(c(0.05, 0.6)), only.values = TRUE)$values
 
 sapply(list(eigen = modify_eigen(), ridge = modify_ridge()), function(m) {
-  r <- minimize(newton(modify = m), f, c(0.05, 0.6), gr = g, he = h)
+  r <- minimize(newton(modify = m), f, c(0.05, 0.6), gr = g, hess = h)
   c(value = r@value, iterations = r@iterations)
 })
 

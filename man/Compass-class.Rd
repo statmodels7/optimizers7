@@ -15,7 +15,7 @@ Compass(
   keep_trace = logical(0),
   step = integer(0),
   directions = character(0),
-  opportunistic = logical(0),
+  first_improvement = logical(0),
   expand = integer(0),
   shrink = integer(0)
 )
@@ -25,7 +25,7 @@ Compass(
 
 \item{directions}{Either \code{"mads"} or \code{"coordinate"}.}
 
-\item{opportunistic}{Logical; whether the poll stops at the first
+\item{first_improvement}{Logical; whether the poll stops at the first
 improvement that it finds.}
 
 \item{expand, shrink}{Factors applied to the poll size after a success and
@@ -46,7 +46,7 @@ deterministic and records none.
 \details{
 Beyond the seven properties of every optimizer, a \code{Compass} carries five
 of its own: \code{step}, \code{expand} and \code{shrink} govern the poll radius,
-\code{directions} selects the set that is polled, and \code{opportunistic} controls
+\code{directions} selects the set that is polled, and \code{first_improvement} controls
 when the poll stops.
 }
 \seealso{

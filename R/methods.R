@@ -20,17 +20,17 @@ NULL
 #' names the missing quantity and the method.
 #'
 #' @param optimizer The [optimizer()].
-#' @param fn,gr,he The objective and its optional derivatives, as supplied.
+#' @param fn,gr,hess The objective and its optional derivatives, as supplied.
 #' @param par The starting value.
 #'
 #' @return The objective handle from [as_objective()].
 #'
 #' @keywords internal
-prepare_objective <- function(optimizer, fn, par, gr = NULL, he = NULL) {
+prepare_objective <- function(optimizer, fn, par, gr = NULL, hess = NULL) {
   if (!is.numeric(par) || !length(par) || anyNA(par)) {
     stop("'par' must be a numeric vector of starting values.", call. = FALSE)
   }
-  spec <- as_objective(fn, gr, he)
+  spec <- as_objective(fn, gr, hess)
 
   check_criterion(optimizer)
   spec
@@ -396,15 +396,15 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
 #' this kind needs a `Direction` in C++ and a constructor in R.
 #'
 #' @param optimizer The [optimizer()].
-#' @param fn,par,gr,he The problem, as the user supplied it.
+#' @param fn,par,gr,hess The problem, as the user supplied it.
 #' @param lower,upper Box constraints, as in [minimize()].
 #' @param method A list describing the direction to the compiled loop.
 #'
 #' @return An [optimizer_result()].
 #'
 #' @keywords internal
-run_descent <- function(optimizer, fn, par, gr, he, lower, upper, method) {
-  spec <- prepare_objective(optimizer, fn, par, gr, he)
+run_descent <- function(optimizer, fn, par, gr, hess, lower, upper, method) {
+  spec <- prepare_objective(optimizer, fn, par, gr, hess)
   bounds <- check_bounds(lower, upper, par)
 
   t0 <- proc.time()[["elapsed"]]
@@ -599,7 +599,7 @@ check_bounds <- function(lower, upper, par) {
 #' wrap the objective so that it maps back before evaluating. The Jacobian is
 #' diagonal, so the chain rule is one product per coordinate,
 #' \eqn{\partial f/\partial \eta_i = (\partial f/\partial \theta_i)\, h_i'},
-#' and `d2` is needed only when a Hessian is transformed, where it appears on
+#' and `deriv2` is needed only when a Hessian is transformed, where it appears on
 #' the diagonal alone. Report `par` on the caller's scale.
 #'
 #' # Relation to linkfunctions7
@@ -613,8 +613,8 @@ check_bounds <- function(lower, upper, par) {
 #' @return A named list of three numeric vectors, each as long as `eta`:
 #'   \describe{
 #'     \item{`h`}{the parameter \eqn{\theta = h(\eta)}, inside the box.}
-#'     \item{`d1`}{\eqn{h'(\eta)}, the chain-rule factor for a gradient.}
-#'     \item{`d2`}{\eqn{h''(\eta)}, needed only for a Hessian.}
+#'     \item{`deriv1`}{\eqn{h'(\eta)}, the chain-rule factor for a gradient.}
+#'     \item{`deriv2`}{\eqn{h''(\eta)}, needed only for a Hessian.}
 #'   }
 #'
 #' @examples
@@ -637,11 +637,11 @@ check_bounds <- function(lower, upper, par) {
 #' all.equal(bounded_transform(c(0, 1), bounded_forward(c(0, 1), theta))$h,
 #'           theta)
 #'
-#' # d1 is a derivative, and a central difference confirms it.
+#' # deriv1 is a derivative, and a central difference confirms it.
 #' h <- 1e-6
 #' (bounded_transform(c(0, 1), 0.3 + h)$h - bounded_transform(c(0, 1), 0.3 - h)$h) /
 #'   (2 * h)
-#' bounded_transform(c(0, 1), 0.3)$d1
+#' bounded_transform(c(0, 1), 0.3)$deriv1
 #'
 #' @seealso [bounded_forward()] for the inverse, [check_bounds()] for the
 #'   shape in which `b` is supplied, [minimize()] for the run that uses both.

@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{MultiStart} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. Unless \code{starts}
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. Unless \code{starts}
 was given, \code{par} is the first starting point and is used as given, and
 the others are generated around it. When \code{starts} was given, \code{par} is
 used only to check the objective and the bounds and to fix the number of

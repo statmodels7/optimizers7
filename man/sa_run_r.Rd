@@ -15,7 +15,7 @@ sa_run_r(
   step = 1,
   target_accept = 0.5,
   adjust = 2,
-  n_eps = 4,
+  stationarity_levels = 4,
   maxit = 100
 )
 }
@@ -29,7 +29,7 @@ sa_run_r(
 \item{t0}{The initial temperature, or a non-positive value to calibrate
 it. \code{\link[=minimize.Sa]{minimize.Sa()}} passes \code{-1} for \code{t0 = NULL}.}
 
-\item{cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit}{As in
+\item{cooling, cycles, steps, step, target_accept, adjust, stationarity_levels, maxit}{As in
 \code{\link[=sa]{sa()}}.}
 }
 \value{

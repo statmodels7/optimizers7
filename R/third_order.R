@@ -49,7 +49,7 @@ Chebyshev <- S7::new_class("Chebyshev", parent = Newton,
 #'   not a descent direction, indicates that the cubic model does not
 #'   describe the objective over the length of the step, and the Newton step
 #'   is used instead. Defaults to `0.5`.
-#' @param criterion,modify,step,line_search,maxit,max_eval,verbose,refresh,keep_trace,max_length,typical,stop_decrement
+#' @param criterion,modify,step,line_search,maxit,max_eval,verbose,refresh,keep_trace,max_length,typical_size,stop_decrement
 #'   As in [newton()]. `modify` takes a [hessian_modification()] object
 #'   ([modify_eigen()] by default, or [modify_ridge()]); see [modifications].
 #'
@@ -110,13 +110,13 @@ Chebyshev <- S7::new_class("Chebyshev", parent = Newton,
 #' rosen_t3 <- function(p, d) c(2400 * p[1] * d[1]^2 - 800 * d[1] * d[2],
 #'                              -400 * d[1]^2)
 #'
-#' a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
-#' b <- minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he,
+#' a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
+#' b <- minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he,
 #'               t3 = rosen_t3)
 #' c(newton = a@iterations, chebyshev = b@iterations)
 #'
 #' # Without t3 the contraction is a second difference of the gradient.
-#' minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+#' minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 #'
 #' @seealso [newton()], whose settings this method shares.
 #' @references
@@ -135,11 +135,11 @@ chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs
                       step = 1, line_search = armijo(),
                       maxit = 200, max_eval = Inf,
                       verbose = FALSE, refresh = 10, keep_trace = FALSE,
-                      max_length = Inf, typical = NULL, stop_decrement = 1e-3) {
+                      max_length = Inf, typical_size = NULL, stop_decrement = 1e-3) {
   base <- newton(criterion = criterion, modify = modify, step = step, line_search = line_search,
                  maxit = maxit, max_eval = max_eval, verbose = verbose,
                  refresh = refresh, keep_trace = keep_trace,
-                 max_length = max_length, typical = typical,
+                 max_length = max_length, typical_size = typical_size,
                  stop_decrement = stop_decrement)
   if (length(ratio) != 1L || !is.numeric(ratio) || is.na(ratio) ||
       ratio <= 0) {
@@ -152,7 +152,7 @@ chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs
             keep_trace = base@keep_trace, step = base@step,
             line_search = base@line_search, modify = base@modify,
             max_length = base@max_length,
-            typical = base@typical, stop_decrement = base@stop_decrement,
+            typical_size = base@typical_size, stop_decrement = base@stop_decrement,
             ratio = ratio)
 }
 
@@ -160,14 +160,14 @@ chebyshev <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs
 #' @title Minimize by Chebyshev's Method
 #' @name minimize.Chebyshev
 #' @param optimizer A `Chebyshev` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()].
 #' @param t3 `NULL`, or a function of the parameters and a direction
 #'   returning the third derivative of `fn` contracted twice with the
 #'   direction, a vector as long as the parameters.
 #' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Chebyshev) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, t3 = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL, t3 = NULL,
            lower = -Inf, upper = Inf, ...) {
     if (!is.null(t3) && !is.function(t3)) {
       stop("'t3' must be a function of the parameters and a direction, or NULL.",
@@ -179,19 +179,19 @@ S7::method(minimize, Chebyshev) <-
                   "scale, where it does not apply. Drop 't3' (a difference ",
                   "of the gradient is used) or the bounds."), call. = FALSE)
     }
-    typ <- optimizer@typical
+    typ <- optimizer@typical_size
     if (!is.null(typ)) {
       if (length(typ) == 1L) typ <- rep(typ, length(par))
       if (length(typ) != length(par)) {
-        stop(sprintf(paste0("'typical' has %d sizes and 'par' has %d ",
+        stop(sprintf(paste0("'typical_size' has %d sizes and 'par' has %d ",
                             "values; give one size, or one per parameter."),
                      length(typ), length(par)), call. = FALSE)
       }
     }
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
                 c(list(type = "chebyshev"), modify_spec(optimizer@modify),
                   list(max_length = optimizer@max_length,
-                       typical = if (is.null(typ)) numeric(0) else typ,
+                       typical_size = if (is.null(typ)) numeric(0) else typ,
                        ratio = optimizer@ratio, t3 = t3,
                        stop_decrement = optimizer@stop_decrement)))
   }

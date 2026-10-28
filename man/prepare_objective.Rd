@@ -4,12 +4,12 @@
 \alias{prepare_objective}
 \title{Prepare an Objective for an Algorithm}
 \usage{
-prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
+prepare_objective(optimizer, fn, par, gr = NULL, hess = NULL)
 }
 \arguments{
 \item{optimizer}{The \code{\link[=optimizer]{optimizer()}}.}
 
-\item{fn, gr, he}{The objective and its optional derivatives, as supplied.}
+\item{fn, gr, hess}{The objective and its optional derivatives, as supplied.}
 
 \item{par}{The starting value.}
 }

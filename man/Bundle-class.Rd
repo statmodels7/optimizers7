@@ -16,7 +16,7 @@ Bundle(
   t0 = integer(0),
   t_min = integer(0),
   t_max = integer(0),
-  m_serious = integer(0),
+  accept_fraction = integer(0),
   bundle_size = integer(0),
   qp_iters = integer(0),
   qp_tol = integer(0)
@@ -28,7 +28,7 @@ length on the parameter scale.}
 
 \item{t_min, t_max}{Bounds on \eqn{t}.}
 
-\item{m_serious}{Fraction of the predicted decrease that a serious step
+\item{accept_fraction}{Fraction of the predicted decrease that a serious step
 must achieve.}
 
 \item{bundle_size}{Largest number of linearizations kept.}
@@ -48,7 +48,7 @@ the subproblem. It is built by \code{\link[=bundle]{bundle()}}.
 \details{
 Beyond the seven properties of every optimizer, a \code{Bundle} carries seven
 of its own, in three groups: the proximal parameter (\code{t0}, \code{t_min},
-\code{t_max}), the acceptance test (\code{m_serious}), and the model and its
+\code{t_max}), the acceptance test (\code{accept_fraction}), and the model and its
 subproblem (\code{bundle_size}, \code{qp_iters}, \code{qp_tol}).
 }
 \seealso{

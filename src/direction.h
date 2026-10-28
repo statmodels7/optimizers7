@@ -244,9 +244,9 @@ private:
 class BarzilaiBorwein : public Direction {
 public:
   BarzilaiBorwein(std::string variant, double alpha0,
-                  double alpha_min, double alpha_max, double curv_tol)
+                  double alpha_min, double alpha_max, double curvature_tol)
     : variant_(std::move(variant)), alpha_(alpha0), alpha0_(alpha0),
-      alpha_min_(alpha_min), alpha_max_(alpha_max), curv_tol_(curv_tol) {}
+      alpha_min_(alpha_min), alpha_max_(alpha_max), curv_tol_(curvature_tol) {}
 
   arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
                     std::string&) {
@@ -348,13 +348,13 @@ class NewtonDirection : public Direction {
 public:
   NewtonDirection(std::string mod, double floor_value, SEXP modify_fn,
                   double max_length = arma::datum::inf,
-                  arma::vec typical = arma::vec(),
+                  arma::vec typical_size = arma::vec(),
                   int order = 2, double ratio = 0.5,
                   SEXP t3 = R_NilValue,
                   double stop_decrement = arma::datum::inf)
     : mod_(mod), floor_(floor_value), modify_fn_(modify_fn),
       max_length_(max_length),
-      typ_(typical), order_(order), ratio_(ratio), t3_(t3),
+      typ_(typical_size), order_(order), ratio_(ratio), t3_(t3),
       stop_dec_(stop_decrement) {}
 
   bool needs_hessian() const { return true; }
@@ -520,7 +520,7 @@ private:
   // flat at -65.40 against a maximum of -53.30 near lambda = 91.5. With the
   // default of Inf nothing is touched.
   //
-  // Every length here is read in units of `typical`, the typical size of each
+  // Every length here is read in units of `typical_size`, the typical size of each
   // parameter of Dennis and Schnabel's scaled norm: the largest |d_i| / t_i.
   // With no typical sizes it is the infinity norm and the functions are the
   // ones every other direction uses, so an unscaled run is unchanged.
@@ -602,8 +602,8 @@ private:
 
 class BfgsDirection : public Direction {
 public:
-  BfgsDirection(arma::uword p, double curv_tol, int max_skip)
-    : Binv_(arma::eye(p, p)), curv_tol_(curv_tol), max_skip_(max_skip) {}
+  BfgsDirection(arma::uword p, double curvature_tol, int max_skip)
+    : Binv_(arma::eye(p, p)), curv_tol_(curvature_tol), max_skip_(max_skip) {}
 
   arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
                     std::string& guard) {
@@ -670,8 +670,8 @@ private:
 
 class LbfgsDirection : public Direction {
 public:
-  LbfgsDirection(arma::uword m, double curv_tol)
-    : m_(m), curv_tol_(curv_tol) {}
+  LbfgsDirection(arma::uword m, double curvature_tol)
+    : m_(m), curv_tol_(curvature_tol) {}
 
   arma::vec compute(Objective&, const arma::vec&, const arma::vec& g, double,
                     std::string& guard) {
@@ -751,13 +751,13 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                          Rcpp::as<double>(method["alpha0"]),
                                          Rcpp::as<double>(method["alpha_min"]),
                                          Rcpp::as<double>(method["alpha_max"]),
-                                         Rcpp::as<double>(method["curv_tol"])));
+                                         Rcpp::as<double>(method["curvature_tol"])));
   } else if (type == "newton") {
     return new NewtonDirection(Rcpp::as<std::string>(method["modify_type"]),
                                Rcpp::as<double>(method["floor"]),
                                method["modify_fn"],
                                Rcpp::as<double>(method["max_length"]),
-                               Rcpp::as<arma::vec>(method["typical"]),
+                               Rcpp::as<arma::vec>(method["typical_size"]),
                                2, 0.5, R_NilValue,
                                Rcpp::as<double>(method["stop_decrement"]));
   } else if (type == "chebyshev") {
@@ -765,16 +765,16 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                Rcpp::as<double>(method["floor"]),
                                method["modify_fn"],
                                Rcpp::as<double>(method["max_length"]),
-                               Rcpp::as<arma::vec>(method["typical"]),
+                               Rcpp::as<arma::vec>(method["typical_size"]),
                                3, Rcpp::as<double>(method["ratio"]),
                                method["t3"],
                                Rcpp::as<double>(method["stop_decrement"]));
   } else if (type == "bfgs") {
-    return with_stop(new BfgsDirection(p, Rcpp::as<double>(method["curv_tol"]),
+    return with_stop(new BfgsDirection(p, Rcpp::as<double>(method["curvature_tol"]),
                                        Rcpp::as<int>(method["max_skip"])));
   } else if (type == "lbfgs") {
     return with_stop(new LbfgsDirection(Rcpp::as<arma::uword>(method["memory"]),
-                                        Rcpp::as<double>(method["curv_tol"])));
+                                        Rcpp::as<double>(method["curvature_tol"])));
   }
   Rcpp::stop("Unknown method '%s'.", type);
   return nullptr;

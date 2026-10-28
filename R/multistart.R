@@ -350,7 +350,7 @@ make_starts <- function(par, n, spread, bounds) {
 #' same warning would be printed once per start.
 #'
 #' @param optimizer A `MultiStart` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. Unless `starts`
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. Unless `starts`
 #'   was given, `par` is the first starting point and is used as given, and
 #'   the others are generated around it. When `starts` was given, `par` is
 #'   used only to check the objective and the bounds and to fix the number of
@@ -364,12 +364,12 @@ make_starts <- function(par, n, spread, bounds) {
 #'
 #' @keywords internal
 S7::method(minimize, MultiStart) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
     inner <- optimizer@optimizer
     # Validate once, here, so that a bad criterion or a start outside its bounds
     # is refused before n runs are launched rather than n times over.
-    prepare_objective(inner, fn, par, gr, he)
+    prepare_objective(inner, fn, par, gr, hess)
     bx <- check_bounds(lower, upper, par)
 
     seed <- capture_seed()
@@ -388,7 +388,7 @@ S7::method(minimize, MultiStart) <-
     old_opt <- options(optimizers7.check_gradient = FALSE)
     on.exit(options(old_opt), add = TRUE)
     one <- function(i) {
-      tryCatch(minimize(inner, fn, S[i, ], gr = gr, he = he,
+      tryCatch(minimize(inner, fn, S[i, ], gr = gr, hess = hess,
                         lower = lower, upper = upper),
                error = function(e) conditionMessage(e))
     }

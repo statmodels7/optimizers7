@@ -5,7 +5,7 @@ saddle_gr <- function(p) c(4 * p[1]^3 - 4 * p[1], 2 * p[2])
 saddle_he <- function(p) matrix(c(12 * p[1]^2 - 4, 0, 0, 2), 2, 2)
 
 run_saddle <- function(opt, start = c(0.05, 0.6)) {
-  minimize(opt, saddle, start, gr = saddle_gr, he = saddle_he)
+  minimize(opt, saddle, start, gr = saddle_gr, hess = saddle_he)
 }
 
 
@@ -66,7 +66,7 @@ test_that("both shipped modifications reproduce recorded numbers", {
       c(1.0000000134451885, 0), 5, c(6, 6, 5), start = c(0.3, -2))
 
   k <- test_problems("himmelblau")[[1]]
-  r <- minimize(newton(), k$fn, k$par, gr = k$gr, he = k$he)
+  r <- minimize(newton(), k$fn, k$par, gr = k$gr, hess = k$hess)
   expect_equal(r@par, c(3, 2), tolerance = 1e-12)
   expect_identical(r@iterations, 8L)
 })
@@ -149,7 +149,7 @@ test_that("a user-defined modification is passed to newton() and chebyshev()", {
   # a Hessian that is positive definite never reaches the method
   calls <- 0L
   k <- test_problems("rosenbrock")[[1]]
-  rr <- minimize(newton(modify = m), k$fn, k$par, gr = k$gr, he = k$he)
+  rr <- minimize(newton(modify = m), k$fn, k$par, gr = k$gr, hess = k$hess)
   expect_true(rr@converged)
   expect_identical(calls, 0L)
 })

@@ -13,7 +13,7 @@ Sa(
   verbose = logical(0),
   refresh = integer(0),
   keep_trace = logical(0),
-  visiting = character(0),
+  proposal = character(0),
   t0 = NULL,
   cooling = integer(0),
   cycles = integer(0),
@@ -21,11 +21,11 @@ Sa(
   step = integer(0),
   target_accept = integer(0),
   adjust = integer(0),
-  n_eps = integer(0)
+  stationarity_levels = integer(0)
 )
 }
 \arguments{
-\item{visiting}{\code{"uniform"} or \code{"cauchy"}, the proposal from which the
+\item{proposal}{\code{"uniform"} or \code{"cauchy"}, the proposal from which the
 walk draws its moves.}
 
 \item{t0}{The initial temperature, or \code{NULL} to calibrate it from the
@@ -42,7 +42,7 @@ objective.}
 
 \item{adjust}{How strongly the step is adjusted towards that rate.}
 
-\item{n_eps}{How many temperature levels the stationarity measure covers.}
+\item{stationarity_levels}{How many temperature levels the stationarity measure covers.}
 }
 \value{
 An S7 object of class \code{Sa} inheriting from \code{\link[=optimizer]{optimizer()}}, with the
@@ -58,9 +58,9 @@ records in \code{seed}.
 }
 \details{
 Beyond the seven properties of every optimizer, an \code{Sa} carries nine of
-its own. They fall into three groups: the proposal (\code{visiting}, \code{step}),
+its own. They fall into three groups: the proposal (\code{proposal}, \code{step}),
 the schedule (\code{t0}, \code{cooling}, \code{cycles}, \code{steps}), and the adaptation and
-its stopping rule (\code{target_accept}, \code{adjust}, \code{n_eps}).
+its stopping rule (\code{target_accept}, \code{adjust}, \code{stationarity_levels}).
 }
 \seealso{
 \code{\link[=sa]{sa()}} for the constructor, \code{\link[=chain]{chain()}} for handing its answer to a

@@ -22,7 +22,7 @@ never fire.
 }
 \details{
 It is also called by \code{\link[=bundle]{bundle()}} for \code{t0}, \code{t_min}, \code{t_max} and \code{qp_tol},
-by \code{\link[=bb]{bb()}} for \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curv_tol}, by
+by \code{\link[=bb]{bb()}} for \code{alpha0}, \code{alpha_min}, \code{alpha_max} and \code{curvature_tol}, by
 \code{\link[=nelder_mead]{nelder_mead()}} for \code{degenerate_tol} and by \code{\link[=multistart]{multistart()}} for \code{spread}
 and \code{distinct_tol}. These callers pass the name of their own argument in
 \code{nm}, so that the message names the argument that was supplied.

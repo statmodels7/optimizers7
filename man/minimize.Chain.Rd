@@ -6,7 +6,7 @@
 \arguments{
 \item{optimizer}{A \code{Chain} object.}
 
-\item{fn, par, gr, he, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. They are passed to
+\item{fn, par, gr, hess, lower, upper, ...}{As in \code{\link[=minimize]{minimize()}}. They are passed to
 every stage as given, except that \code{par} is replaced by the answer of the
 previous stage.}
 }

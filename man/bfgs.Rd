@@ -6,7 +6,7 @@
 \usage{
 bfgs(
   criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-  curv_tol = 1e-10,
+  curvature_tol = 1e-10,
   max_skip = 5,
   step = 1,
   line_search = wolfe(),
@@ -22,7 +22,7 @@ bfgs(
 \item{criterion}{The stopping rule, a \code{\link[=criterion]{criterion()}} object. Defaults to
 \code{crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())}.}
 
-\item{curv_tol}{The update is skipped when
+\item{curvature_tol}{The update is skipped when
 \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 Defaults to \code{1e-10}. A larger value skips more often. Zero is admitted
 and gives the textbook condition \eqn{s^\top y > 0}. A negative value is
@@ -129,7 +129,7 @@ c(iterations = a@iterations, skips = sum(a@trace$safeguard == "bfgs update skipp
 # A curvature threshold that every pair fails to meet forces every update
 # to be skipped; the run exhausts its budget, and the trace names both
 # safeguards.
-b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
+b <- minimize(bfgs(curvature_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
               gr = rg)
 c(converged = b@converged, value = b@value)
 unique(b@trace$safeguard)

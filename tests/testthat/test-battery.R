@@ -45,14 +45,14 @@ test_that("every analytic Hessian matches the gradient it belongs to", {
       xp <- x; xm <- x; xp[j] <- x[j] + h; xm[j] <- x[j] - h
       (p$gr(xp) - p$gr(xm)) / (2 * h)
     }, numeric(length(x)))
-    H <- p$he(x)
+    H <- p$hess(x)
     expect_equal(dim(H), c(length(x), length(x)), label = p$name)
     expect_equal(H, t(H), label = paste(p$name, "symmetry"))
     expect_equal(H, fd, tolerance = 1e-6, label = p$name)
   }
   # beale's Hessian at y = 0, where y^(i - 2) is infinite for i = 1
   b <- test_problems("beale")[[1]]
-  H0 <- b$he(c(3, 0))
+  H0 <- b$hess(c(3, 0))
   expect_true(all(is.finite(H0)))
   fd0 <- vapply(1:2, function(j) {
     e <- c(0, 0); e[j] <- 1e-6
@@ -65,11 +65,11 @@ test_that("every analytic Hessian matches the gradient it belongs to", {
 test_that("a method that requires a Hessian is checked like the others", {
   NeedsHessian <- S7::new_class("NeedsHessian", parent = optimizer)
   S7::method(minimize, NeedsHessian) <-
-    function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
-      if (is.null(he)) stop("this method needs a Hessian", call. = FALSE)
+    function(optimizer, fn, par, gr = NULL, hess = NULL, lower = -Inf, upper = Inf, ...) {
+      if (is.null(hess)) stop("this method needs a Hessian", call. = FALSE)
       minimize(newton(criterion = optimizer@criterion, maxit = optimizer@maxit,
                       keep_trace = optimizer@keep_trace),
-               fn, par, gr = gr, he = he, lower = lower, upper = upper)
+               fn, par, gr = gr, hess = hess, lower = lower, upper = upper)
     }
   o <- NeedsHessian(name = "needs a Hessian", criterion = crit_grad(1e-8),
                     maxit = 200, max_eval = 10000, verbose = FALSE,
@@ -218,11 +218,11 @@ Liar <- S7::new_class("Liar", parent = optimizer,
                       properties = list(lie = S7::class_character))
 
 S7::method(minimize, Liar) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
+  function(optimizer, fn, par, gr = NULL, hess = NULL, lower = -Inf, upper = Inf, ...) {
     r <- minimize(bfgs(criterion = optimizer@criterion,
                        maxit = optimizer@maxit,
                        keep_trace = optimizer@keep_trace),
-                  fn, par, gr = gr, he = he, lower = lower, upper = upper)
+                  fn, par, gr = gr, hess = hess, lower = lower, upper = upper)
     switch(optimizer@lie,
       value     = r@value <- r@value + 1,
       converged = { r@converged <- TRUE
@@ -282,10 +282,10 @@ test_that("an honest optimizer of the same shape passes, so the checks are not t
   # replaced for whatever ran after it.
   Honest <- S7::new_class("Honest", parent = optimizer)
   S7::method(minimize, Honest) <-
-    function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
+    function(optimizer, fn, par, gr = NULL, hess = NULL, lower = -Inf, upper = Inf, ...) {
       minimize(bfgs(criterion = optimizer@criterion, maxit = optimizer@maxit,
                     keep_trace = optimizer@keep_trace),
-               fn, par, gr = gr, he = he, lower = lower, upper = upper)
+               fn, par, gr = gr, hess = hess, lower = lower, upper = upper)
     }
   honest <- Honest(name = "honest", criterion = crit_grad(1e-8), maxit = 200,
                    max_eval = 10000, verbose = FALSE, refresh = 10,

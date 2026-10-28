@@ -15,17 +15,17 @@ NULL
 #' This class is an optimizer that holds the initial step length, the line
 #' search, the [hessian_modification()] that repairs an indefinite Hessian,
 #' and the two settings that bound and scale a step. [newton()] builds it. Among the shipped methods, only this one and [chebyshev()], which inherits from it,
-#' read the `he` argument of [minimize()].
+#' read the `hess` argument of [minimize()].
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `Newton` carries six:
 #' `step` and `line_search`, shared with the other line-search methods, and
-#' `modify`, `max_length`, `typical` and `stop_decrement`, which are its own.
+#' `modify`, `max_length`, `typical_size` and `stop_decrement`, which are its own.
 #'
 #' @param modify The [hessian_modification()] object that repairs an
 #'   indefinite Hessian; see [newton()].
 #' @param max_length The largest component that a step may have.
-#' @param typical `NULL`, or the typical size of each parameter, in the
+#' @param typical_size `NULL`, or the typical size of each parameter, in the
 #'   units of which the step lengths are measured.
 #' @param stop_decrement The largest Newton decrement at which a stopping rule
 #'   on a change may end the run; see [newton()].
@@ -44,7 +44,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     modify = S7::class_any,
                     max_length = S7::class_numeric,
-                    typical = S7::class_any,
+                    typical_size = S7::class_any,
                     stop_decrement = S7::class_numeric))
 
 
@@ -85,7 +85,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   positive number. A direction longer than this in the infinity norm is
 #'   scaled down to this length before the line search. Defaults to `Inf`,
 #'   which leaves every step as it is. See below.
-#' @param typical `NULL` (the default), or the typical size of each
+#' @param typical_size `NULL` (the default), or the typical size of each
 #'   parameter: one positive number, or one per parameter. Every length used
 #'   by the method is then measured in these units, as the largest
 #'   \eqn{\lvert d_i\rvert / t_i} in place of the largest
@@ -181,7 +181,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' A length in the units of the parameters has different meanings for
 #' parameters on different scales: a displacement of one is a long step for
 #' a parameter on the log scale and a short one for a variance of several
-#' hundred. `typical` gives the typical size \eqn{t_i} of each parameter, as
+#' hundred. `typical_size` gives the typical size \eqn{t_i} of each parameter, as
 #' in the scaled norm of Dennis and Schnabel (1983): every length is then the
 #' largest \eqn{\lvert d_i\rvert / t_i}, for the bound `max_length` and for
 #' the scaling of a repaired direction or of a gradient fallback.
@@ -208,7 +208,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'
 #' # The Hessian by differences
 #'
-#' When `he` is not supplied to [minimize()] the Hessian is obtained by
+#' When `hess` is not supplied to [minimize()] the Hessian is obtained by
 #' differencing the gradient. With an analytic gradient that is one numerical
 #' differentiation. When the gradient is *also* differenced, the Hessian is a
 #' difference of differences, which happens only in [newton()] and
@@ -228,7 +228,7 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #'   c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
 #'     -400 * p[1], 200), 2, 2)
 #'
-#' minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+#' minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 #'
 #' # The repair of an indefinite Hessian is an object, with its floor.
 #' newton(modify = modify_ridge(floor = 1e-6))
@@ -241,13 +241,13 @@ Newton <- S7::new_class("Newton", parent = optimizer,
 #' sh  <- function(p) matrix(c(2, 0, 0, -2 + 1.2 * p[2]^2), 2, 2)
 #' eigen(sh(c(0.5, 0.1)), only.values = TRUE)$values
 #'
-#' r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, he = sh)
+#' r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, hess = sh)
 #' c(value = r@value, iterations = r@iterations)
 #' unique(r@trace$safeguard)
 #'
 #' # summary() counts the safeguards that fired during the run.
 #' summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
-#'                  gr = rosen_gr, he = rosen_he))
+#'                  gr = rosen_gr, hess = rosen_he))
 #'
 #' @seealso [modifications] for the repairs of the Hessian, [modify_eigen()],
 #'   [modify_ridge()] and [hessian_modify()] to write another,
@@ -271,7 +271,7 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
                    step = 1, line_search = armijo(),
                    maxit = 200, max_eval = Inf,
                    verbose = FALSE, refresh = 10, keep_trace = FALSE,
-                   max_length = Inf, typical = NULL, stop_decrement = 1e-3) {
+                   max_length = Inf, typical_size = NULL, stop_decrement = 1e-3) {
   check_modify(modify)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
@@ -281,10 +281,10 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
     stop("'max_length' must be a single positive number (Inf for no bound).",
          call. = FALSE)
   }
-  if (!is.null(typical) &&
-      (!length(typical) || !is.numeric(typical) || anyNA(typical) ||
-       any(!is.finite(typical)) || any(typical <= 0))) {
-    stop(paste0("'typical' must be NULL, or positive finite numbers: one, ",
+  if (!is.null(typical_size) &&
+      (!length(typical_size) || !is.numeric(typical_size) || anyNA(typical_size) ||
+       any(!is.finite(typical_size)) || any(typical_size <= 0))) {
+    stop(paste0("'typical_size' must be NULL, or positive finite numbers: one, ",
                 "or one per parameter."), call. = FALSE)
   }
   check_stop_decrement(stop_decrement)
@@ -292,7 +292,7 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
          max_eval = max_eval, verbose = verbose, refresh = refresh,
          keep_trace = keep_trace, step = step, line_search = line_search,
          modify = modify, max_length = max_length,
-         typical = typical, stop_decrement = stop_decrement)
+         typical_size = typical_size, stop_decrement = stop_decrement)
 }
 
 
@@ -307,9 +307,9 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
 #' @details
 #' Beyond the seven properties of every optimizer, a `Bfgs` carries five:
 #' `step`, `line_search` and `stop_decrement`, shared with the other
-#' line-search methods, and `curv_tol` and `max_skip`, which are its own.
+#' line-search methods, and `curvature_tol` and `max_skip`, which are its own.
 #'
-#' @param curv_tol The curvature threshold below which the update is skipped.
+#' @param curvature_tol The curvature threshold below which the update is skipped.
 #' @param max_skip Consecutive skips before the approximation is reset to the
 #'   identity.
 #' @param step,line_search The initial step length and the [line_search()]
@@ -327,7 +327,7 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
 #' @keywords internal
 Bfgs <- S7::new_class("Bfgs", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
-                    curv_tol = S7::class_numeric,
+                    curvature_tol = S7::class_numeric,
                     max_skip = S7::class_numeric,
                     stop_decrement = S7::class_numeric))
 
@@ -342,7 +342,7 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'
 #' @param criterion The stopping rule, a [criterion()] object. Defaults to
 #'   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`.
-#' @param curv_tol The update is skipped when
+#' @param curvature_tol The update is skipped when
 #'   \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 #'   Defaults to `1e-10`. A larger value skips more often. Zero is admitted
 #'   and gives the textbook condition \eqn{s^\top y > 0}. A negative value is
@@ -441,7 +441,7 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' # A curvature threshold that every pair fails to meet forces every update
 #' # to be skipped; the run exhausts its budget, and the trace names both
 #' # safeguards.
-#' b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
+#' b <- minimize(bfgs(curvature_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
 #'               gr = rg)
 #' c(converged = b@converged, value = b@value)
 #' unique(b@trace$safeguard)
@@ -459,7 +459,7 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #'
 #' @export
 bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-                 curv_tol = 1e-10, max_skip = 5,
+                 curvature_tol = 1e-10, max_skip = 5,
                  step = 1, line_search = wolfe(),
                  maxit = 500, max_eval = Inf,
                  verbose = FALSE, refresh = 10, keep_trace = FALSE,
@@ -467,13 +467,13 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
-  check_nonneg(curv_tol, "curv_tol")
+  check_nonneg(curvature_tol, "curvature_tol")
   check_whole(max_skip, "max_skip")
   check_stop_decrement(stop_decrement)
   Bfgs(name = "BFGS", criterion = criterion, maxit = maxit,
        max_eval = max_eval, verbose = verbose, refresh = refresh,
        keep_trace = keep_trace, step = step, line_search = line_search,
-       curv_tol = curv_tol, max_skip = max_skip,
+       curvature_tol = curvature_tol, max_skip = max_skip,
        stop_decrement = stop_decrement)
 }
 
@@ -488,7 +488,7 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, an `Lbfgs` carries five:
-#' `step`, `line_search` and `stop_decrement`, and `memory` and `curv_tol`,
+#' `step`, `line_search` and `stop_decrement`, and `memory` and `curvature_tol`,
 #' which are its own.
 #' It has no counterpart of `max_skip` of [Bfgs]: a pair that fails the
 #' curvature test is not stored (the trace records `lbfgs update skipped`),
@@ -496,7 +496,7 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 #' descent direction, the stored pairs are cleared (`lbfgs reset`).
 #'
 #' @param memory How many secant pairs to keep.
-#' @param curv_tol The curvature threshold below which a pair is not stored.
+#' @param curvature_tol The curvature threshold below which a pair is not stored.
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [lbfgs()].
 #' @param stop_decrement The largest decrease at which a stopping rule on a
@@ -513,7 +513,7 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     memory = S7::class_numeric,
-                    curv_tol = S7::class_numeric,
+                    curvature_tol = S7::class_numeric,
                     stop_decrement = S7::class_numeric))
 
 
@@ -535,7 +535,7 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' @param memory How many secant pairs to keep, a single positive whole
 #'   number. Defaults to 10. A fractional value is rejected instead of
 #'   truncated, since the count is passed to the compiled code as an integer.
-#' @param curv_tol A pair is not stored when
+#' @param curvature_tol A pair is not stored when
 #'   \eqn{s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert}.
 #'   Defaults to `1e-10`. Zero is admitted and gives \eqn{s^\top y > 0}; a
 #'   negative value is rejected, for the reason given on the page of
@@ -639,7 +639,7 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #'
 #' @export
 lbfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-                  memory = 10, curv_tol = 1e-10,
+                  memory = 10, curvature_tol = 1e-10,
                   step = 1, line_search = wolfe(),
                   maxit = 500, max_eval = Inf,
                   verbose = FALSE, refresh = 10, keep_trace = FALSE,
@@ -648,12 +648,12 @@ lbfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par
   check_step(step)
   check_line_search(line_search)
   check_count(memory, "memory")
-  check_nonneg(curv_tol, "curv_tol")
+  check_nonneg(curvature_tol, "curvature_tol")
   check_stop_decrement(stop_decrement)
   Lbfgs(name = "L-BFGS", criterion = criterion, maxit = maxit,
         max_eval = max_eval, verbose = verbose, refresh = refresh,
         keep_trace = keep_trace, step = step, line_search = line_search,
-        memory = memory, curv_tol = curv_tol,
+        memory = memory, curvature_tol = curvature_tol,
         stop_decrement = stop_decrement)
 }
 
@@ -666,11 +666,11 @@ lbfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par
 #' @title Minimize by Newton's Method
 #' @name minimize.Newton
 #' @param optimizer A `Newton` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()].
 #' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Newton) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
     # A numerical Hessian differences the gradient once per coordinate and
     # direction; without an analytic gradient each of those is itself 2p
@@ -678,47 +678,47 @@ S7::method(minimize, Newton) <-
     # evaluation budget admits fewer than two such iterations the run can only
     # end on the budget, so that is said here rather than discovered from a
     # one-iteration result.
-    if (is.null(he) && is.function(fn)) {
+    if (is.null(hess) && is.function(fn)) {
       p <- length(par)
       per_iter <- if (is.null(gr)) 4 * p^2 + 2 * p else 0
       if (per_iter > 0 && 2 * per_iter > optimizer@max_eval) {
-        warning("newton() without 'gr' and 'he' costs about 4*p^2 + 2*p = ",
+        warning("newton() without 'gr' and 'hess' costs about 4*p^2 + 2*p = ",
                 format(per_iter), " objective evaluations per iteration at p = ",
                 p, ",
   and max_eval = ", format(optimizer@max_eval),
-                " admits fewer than two iterations. Supply 'gr' (or 'he'),
+                " admits fewer than two iterations. Supply 'gr' (or 'hess'),
 ",
                 "  raise 'max_eval', or use bfgs(), which needs no Hessian.",
                 call. = FALSE)
       }
     }
-    typ <- optimizer@typical
+    typ <- optimizer@typical_size
     if (!is.null(typ)) {
       if (length(typ) == 1L) typ <- rep(typ, length(par))
       if (length(typ) != length(par)) {
-        stop(sprintf(paste0("'typical' has %d sizes and 'par' has %d ",
+        stop(sprintf(paste0("'typical_size' has %d sizes and 'par' has %d ",
                             "values; give one size, or one per parameter."),
                      length(typ), length(par)), call. = FALSE)
       }
     }
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
                 c(list(type = "newton"), modify_spec(optimizer@modify),
                   list(max_length = optimizer@max_length,
-                       typical = if (is.null(typ)) numeric(0) else typ,
+                       typical_size = if (is.null(typ)) numeric(0) else typ,
                        stop_decrement = optimizer@stop_decrement)))
   }
 
 #' @title Minimize by BFGS
 #' @name minimize.Bfgs
 #' @param optimizer A `Bfgs` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()].
 #' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Bfgs) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
-                list(type = "bfgs", curv_tol = optimizer@curv_tol,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
+                list(type = "bfgs", curvature_tol = optimizer@curvature_tol,
                      max_skip = as.integer(optimizer@max_skip),
                      stop_decrement = optimizer@stop_decrement))
   }
@@ -726,14 +726,14 @@ S7::method(minimize, Bfgs) <-
 #' @title Minimize by Limited-Memory BFGS
 #' @name minimize.Lbfgs
 #' @param optimizer An `Lbfgs` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()].
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()].
 #' @return An [optimizer_result()].
 #' @keywords internal
 S7::method(minimize, Lbfgs) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
                 list(type = "lbfgs", memory = as.integer(optimizer@memory),
-                     curv_tol = optimizer@curv_tol,
+                     curvature_tol = optimizer@curvature_tol,
                      stop_decrement = optimizer@stop_decrement))
   }

@@ -17,7 +17,7 @@ Chebyshev(
   line_search = NULL,
   modify = NULL,
   max_length = integer(0),
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = integer(0),
   ratio = integer(0)
 )
@@ -31,7 +31,7 @@ indefinite Hessian; see \code{\link[=newton]{newton()}}.}
 
 \item{max_length}{The largest component that a step may have.}
 
-\item{typical}{\code{NULL}, or the typical size of each parameter, in the
+\item{typical_size}{\code{NULL}, or the typical size of each parameter, in the
 units of which the step lengths are measured.}
 
 \item{stop_decrement}{The largest Newton decrement at which a stopping rule

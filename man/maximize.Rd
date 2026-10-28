@@ -9,7 +9,7 @@ maximize(
   fn,
   par,
   gr = NULL,
-  he = NULL,
+  hess = NULL,
   lower = -Inf,
   upper = Inf,
   ...
@@ -32,7 +32,7 @@ as \code{\link[=start_zeros]{start_zeros()}}. With bounds it must lie strictly i
 vector, or \code{NULL} for a central difference. It is negated here, so a
 caller supplies the gradient of the function being maximized.}
 
-\item{he}{The Hessian of \code{fn} as written, or \code{NULL}. It is negated here
+\item{hess}{The Hessian of \code{fn} as written, or \code{NULL}. It is negated here
 too, and only \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} read it.}
 
 \item{lower, upper}{Box constraints, numeric of length 1 or of length \code{p},
@@ -41,7 +41,7 @@ unchanged; the sign convention does not touch them.}
 
 \item{...}{Passed to \code{\link[=minimize]{minimize()}}, and from there to the method. A \code{t3}
 argument for \code{\link[=chebyshev]{chebyshev()}} is the contraction of the third derivative of
-\code{fn} as written, and is negated here like \code{gr} and \code{he}.}
+\code{fn} as written, and is negated here like \code{gr} and \code{hess}.}
 }
 \value{
 An \code{\link[=optimizer_result]{optimizer_result()}} with the same twelve properties that

@@ -76,9 +76,9 @@ hessian_modify(modify_abs(), H)
 # The new object is passed to newton() like a shipped one, here on the
 # Himmelblau function, started where its Hessian is not positive definite.
 k <- test_problems("himmelblau")[[1]]
-eigen(k$he(c(0.5, 0.5)), only.values = TRUE)$values
+eigen(k$hess(c(0.5, 0.5)), only.values = TRUE)$values
 r <- minimize(newton(modify = modify_abs(), keep_trace = TRUE), k$fn,
-              c(0.5, 0.5), gr = k$gr, he = k$he)
+              c(0.5, 0.5), gr = k$gr, hess = k$hess)
 c(value = r@value, iterations = r@iterations, converged = r@converged)
 unique(r@trace$safeguard)
 

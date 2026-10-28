@@ -272,8 +272,8 @@ S7::method(optimizer_bounded, ProxGrad) <- function(optimizer) FALSE
 #' message that names `prox` as the place for the constraint.
 #'
 #' @param optimizer A `ProxGrad` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. A finite `lower`
-#'   or `upper` raises an error; `he` is accepted and ignored.
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. A finite `lower`
+#'   or `upper` raises an error; `hess` is accepted and ignored.
 #'
 #' @return An [optimizer_result()] whose `value` is the total objective
 #'   \eqn{f(x) + g(x)}, which is why `g` is required alongside `prox`, and
@@ -282,9 +282,9 @@ S7::method(optimizer_bounded, ProxGrad) <- function(optimizer) FALSE
 #'
 #' @keywords internal
 S7::method(minimize, ProxGrad) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    spec <- prepare_objective(optimizer, fn, par, gr, he)
+    spec <- prepare_objective(optimizer, fn, par, gr, hess)
     if (any(is.finite(c(lower, upper)))) {
       stop(paste0("prox_grad() takes its constraint through the proximal ",
                   "operator, not through box bounds:\n  compose the ",

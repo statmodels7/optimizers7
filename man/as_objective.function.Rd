@@ -9,7 +9,7 @@
 \item{gr}{A function of the parameter vector returning the gradient, or
 \code{NULL} for a central difference of \code{fn}.}
 
-\item{he}{A function of the parameter vector returning the Hessian, or
+\item{hess}{A function of the parameter vector returning the Hessian, or
 \code{NULL}. It is read by \code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}}.}
 
 \item{...}{Unused.}
@@ -20,13 +20,13 @@ The six-component list described under \code{\link[=as_objective]{as_objective()
 }
 \description{
 The shipped method: \code{fn(par)} returns the number to be minimized, and
-\code{gr(par)} and \code{he(par)} return its gradient and Hessian when the caller
+\code{gr(par)} and \code{hess(par)} return its gradient and Hessian when the caller
 has them. Every evaluation is a callback into R. The compiled objective
 counts the evaluations, and the result reports them in \code{counts}.
 }
 \section{Validation}{
 
-\code{gr} and \code{he} are each checked to be a function or \code{NULL}, and any other
+\code{gr} and \code{hess} are each checked to be a function or \code{NULL}, and any other
 value raises an error before the run starts. \code{fn} is not checked here:
 dispatch has already established that it is a function, and the compiled
 objective checks at every evaluation that it returns a single number.

@@ -152,7 +152,7 @@ gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #' and [bb()], which differ from it only in the direction.
 #'
 #' @param optimizer A `GradientDescent` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `hess` is accepted
 #'   and ignored. Bounds are taken and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose `gradient` is \eqn{\nabla f} at
@@ -160,9 +160,9 @@ gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #'
 #' @keywords internal
 S7::method(minimize, GradientDescent) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
                 list(type = "gd", stop_decrement = optimizer@stop_decrement))
   }
 
@@ -369,7 +369,7 @@ cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #' the step length. It shares the descent loop with [gd()] and [bb()].
 #'
 #' @param optimizer A `Cg` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `hess` is accepted
 #'   and ignored. Bounds are taken and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose trace, when kept, reports
@@ -380,9 +380,9 @@ cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #'
 #' @keywords internal
 S7::method(minimize, Cg) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
                 list(type = "cg", beta = optimizer@beta,
                      restart_every = as.integer(optimizer@restart_every),
                      stop_decrement = optimizer@stop_decrement))
@@ -402,7 +402,7 @@ S7::method(minimize, Cg) <-
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `Bb` carries eight of
-#' its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curv_tol` for
+#' its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curvature_tol` for
 #' the step-length estimate, `step` and `line_search` for the search along the
 #' direction, and `stop_decrement`.
 #'
@@ -411,7 +411,7 @@ S7::method(minimize, Cg) <-
 #' @param alpha0 The step length used before there is a secant pair.
 #' @param alpha_min,alpha_max The bounds to which the step length is
 #'   clamped.
-#' @param curv_tol The relative threshold below which a secant pair is
+#' @param curvature_tol The relative threshold below which a secant pair is
 #'   rejected.
 #' @param step,line_search The multiplier offered to the line search and the
 #'   [line_search()] object, as in [bb()].
@@ -432,7 +432,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
     alpha0      = S7::class_numeric,
     alpha_min   = S7::class_numeric,
     alpha_max   = S7::class_numeric,
-    curv_tol    = S7::class_numeric,
+    curvature_tol    = S7::class_numeric,
     step        = S7::class_numeric,
     line_search = S7::class_any,
     stop_decrement = S7::class_numeric
@@ -453,9 +453,9 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'   secant pair from which to estimate one. Defaults to `1e-2`.
 #' @param alpha_min,alpha_max Bounds on the step length. The defaults are
 #'   `1e-10` and `1e10`.
-#' @param curv_tol The relative curvature threshold: a secant pair is rejected
+#' @param curvature_tol The relative curvature threshold: a secant pair is rejected
 #'   when \eqn{s^\top y \le c \lVert s \rVert \lVert y \rVert}{s'y <= c |s| |y|}
-#'   for \eqn{c} equal to `curv_tol`. Defaults to `1e-10`, which is
+#'   for \eqn{c} equal to `curvature_tol`. Defaults to `1e-10`, which is
 #'   the same relative test that [bfgs()] applies to the same quantity.
 #' @param step Initial multiplier offered to the line search. Defaults to
 #'   `1`, so the Barzilai-Borwein step is tried unaltered first.
@@ -516,7 +516,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #'
 #' A pair is used only if it reports positive curvature by a relative margin,
 #' \eqn{s^\top y > c \lVert s \rVert \lVert y \rVert}{s'y > c |s| |y|} with
-#' \eqn{c} the `curv_tol` argument, the same test that [bfgs()] applies. When a
+#' \eqn{c} the `curvature_tol` argument, the same test that [bfgs()] applies. When a
 #' pair is rejected the step length is reset to
 #' \eqn{1/\lVert g \rVert_\infty}{1/max|g|}, a trial displacement of order one
 #' in the parameters. The reset reads the current gradient and not the step
@@ -575,7 +575,7 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                variant = c("alternate", "bb1", "bb2"),
                alpha0 = 1e-2, alpha_min = 1e-10, alpha_max = 1e10,
-               curv_tol = 1e-10,
+               curvature_tol = 1e-10,
                step = 1, line_search = nonmonotone(),
                maxit = 1000, max_eval = Inf,
                verbose = FALSE, refresh = 20, keep_trace = FALSE,
@@ -588,7 +588,7 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
   check_tol(alpha0, "alpha0")
   check_tol(alpha_min, "alpha_min")
   check_tol(alpha_max, "alpha_max")
-  check_tol(curv_tol, "curv_tol")
+  check_tol(curvature_tol, "curvature_tol")
   if (alpha_min >= alpha_max) {
     stop("'alpha_min' must be strictly below 'alpha_max'.", call. = FALSE)
   }
@@ -597,7 +597,7 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
     variant = variant, alpha0 = alpha0,
-    alpha_min = alpha_min, alpha_max = alpha_max, curv_tol = curv_tol,
+    alpha_min = alpha_min, alpha_max = alpha_max, curvature_tol = curvature_tol,
     step = step, line_search = line_search,
     stop_decrement = stop_decrement
   )
@@ -614,7 +614,7 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #' and [cg()].
 #'
 #' @param optimizer A `Bb` object.
-#' @param fn,par,gr,he,lower,upper,... As in [minimize()]. `he` is accepted
+#' @param fn,par,gr,hess,lower,upper,... As in [minimize()]. `hess` is accepted
 #'   and ignored. Bounds are taken and removed by reparametrization.
 #'
 #' @return An [optimizer_result()] whose trace, when kept, reports
@@ -625,13 +625,13 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 #'
 #' @keywords internal
 S7::method(minimize, Bb) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL,
+  function(optimizer, fn, par, gr = NULL, hess = NULL,
            lower = -Inf, upper = Inf, ...) {
-    run_descent(optimizer, fn, par, gr, he, lower, upper,
+    run_descent(optimizer, fn, par, gr, hess, lower, upper,
                 list(type = "bb", variant = optimizer@variant,
                      alpha0 = optimizer@alpha0,
                      alpha_min = optimizer@alpha_min,
                      alpha_max = optimizer@alpha_max,
-                     curv_tol = optimizer@curv_tol,
+                     curvature_tol = optimizer@curvature_tol,
                      stop_decrement = optimizer@stop_decrement))
   }
