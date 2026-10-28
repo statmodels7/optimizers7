@@ -16,7 +16,8 @@ Lbfgs(
   step = integer(0),
   line_search = NULL,
   memory = integer(0),
-  curv_tol = integer(0)
+  curv_tol = integer(0),
+  stop_decrement = integer(0)
 )
 }
 \arguments{
@@ -26,10 +27,13 @@ object, as in \code{\link[=lbfgs]{lbfgs()}}.}
 \item{memory}{How many secant pairs to keep.}
 
 \item{curv_tol}{The curvature threshold below which a pair is not stored.}
+
+\item{stop_decrement}{The largest decrease at which a stopping rule on a
+change may end the run as converged; see \code{\link[=bfgs]{bfgs()}}.}
 }
 \value{
 An S7 object of class \code{Lbfgs} inheriting from \code{\link[=optimizer]{optimizer()}}, with
-the four properties above beside the seven shared ones.
+the five properties above beside the seven shared ones.
 }
 \description{
 This class is an optimizer that holds the number of secant pairs to keep,
@@ -38,8 +42,9 @@ length and the line search. \code{\link[=lbfgs]{lbfgs()}} builds it. The pairs t
 exist only inside the run.
 }
 \details{
-Beyond the seven properties of every optimizer, an \code{Lbfgs} carries four:
-\code{step} and \code{line_search}, and \code{memory} and \code{curv_tol}, which are its own.
+Beyond the seven properties of every optimizer, an \code{Lbfgs} carries five:
+\code{step}, \code{line_search} and \code{stop_decrement}, and \code{memory} and \code{curv_tol},
+which are its own.
 It has no counterpart of \code{max_skip} of \link{Bfgs}: a pair that fails the
 curvature test is not stored (the trace records \verb{lbfgs update skipped}),
 and there is no accumulated matrix to protect. When the direction is not a

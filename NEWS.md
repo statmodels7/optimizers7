@@ -1,3 +1,20 @@
+# optimizers7 0.18.0
+
+* `gd()`, `cg()`, `bb()`, `bfgs()` and `lbfgs()` take `stop_decrement`
+  (default `1e-3`), the last argument of each. A stopping rule on the change
+  in the parameters or in the objective, such as `crit_abs_par()` or
+  `crit_abs_obj()`, no longer ends a run as converged where the decrease
+  |g'dx| / 2 that the last step still predicts at the new point exceeds
+  `stop_decrement`: the run ends as not converged, with the reason in the
+  message and the safeguard `change stop refused` in the trace. The check
+  uses quantities that the loop already holds. `stop_decrement = Inf` restores
+  the earlier behavior. A run that ends on the gradient rule is unchanged.
+  `bfgs()` and `lbfgs()` from the start of a joint beta filter on Seatbelts
+  ended at -171.51 with `converged = TRUE`, 0.02 of predicted decrease still
+  left; they now end as not converged. Over 1032 `gas()` fits of the
+  statmodels7 battery with `bfgs()` as the inner optimizer, the rule refuses 8
+  intermediate runs and changes no flag and no point.
+
 # optimizers7 0.17.0
 
 * `newton()` and `chebyshev()` take `stop_decrement` (default `1e-3`). A

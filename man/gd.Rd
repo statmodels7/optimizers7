@@ -12,7 +12,8 @@ gd(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 }
 \arguments{
@@ -36,6 +37,14 @@ sets no evaluation budget, so the run stops on the criterion or on
 \item{refresh}{Report every this many iterations. Defaults to 10.}
 
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
+
+\item{stop_decrement}{The largest decrease
+\eqn{\tfrac12\lvert g^\top s\rvert}, with \eqn{s} the last step and
+\eqn{g} the gradient at the new point, at which a stopping rule on the
+change in the parameters or in the objective, such as \code{\link[=crit_abs_par]{crit_abs_par()}} or
+\code{\link[=crit_abs_obj]{crit_abs_obj()}}, may end the run as converged. A single positive
+number, in the units of the objective, or \code{Inf} to accept every such
+stop. Defaults to \code{1e-3}. See below.}
 }
 \value{
 An S7 object of class \link{GradientDescent}, inheriting from
@@ -51,12 +60,28 @@ Euclidean length. Under an exact line search consecutive directions are
 orthogonal, so on an ill-conditioned objective the iterates zigzag and
 converge slowly. \code{\link[=cg]{cg()}} corrects this by combining each direction with
 the previous one, at no extra cost per iteration.
+}
+\section{A stop on a change}{
+A stopping rule on the change in the parameters or in the objective states
+that the iterate no longer moves, and near a minimum that is the same as
+being there. Away from one it is not: a step can be short because the
+objective is steep, or because the direction came from a poor model of the
+surface, and the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the
+step still predicts at the new point is then above what a minimum leaves.
+A stop on the change is therefore not accepted where that decrease exceeds
+\code{stop_decrement}. The run ends as not converged, with \code{criterion_met}
+reporting \code{"stopped without converging"} and the message giving the
+decrease, and the trace records the safeguard \verb{change stop refused}. A
+rule on the gradient, such as \code{\link[=crit_grad]{crit_grad()}}, is not affected. The check
+uses quantities that the loop already holds. \code{stop_decrement = Inf}
+accepts every stop on a change.
 
 Gradient descent serves as a baseline for the other methods. On the
 Rosenbrock function from the usual start it does not converge within its
 default budget of 500 iterations, while \code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}} and \code{\link[=bfgs]{bfgs()}}
 converge in far fewer (the last example).
 }
+
 \examples{
 gd()
 gd(criterion = crit_grad(1e-10), maxit = 2000)

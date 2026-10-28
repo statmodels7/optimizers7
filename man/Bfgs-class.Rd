@@ -16,7 +16,8 @@ Bfgs(
   step = integer(0),
   line_search = NULL,
   curv_tol = integer(0),
-  max_skip = integer(0)
+  max_skip = integer(0),
+  stop_decrement = integer(0)
 )
 }
 \arguments{
@@ -27,10 +28,13 @@ object, as in \code{\link[=bfgs]{bfgs()}}.}
 
 \item{max_skip}{Consecutive skips before the approximation is reset to the
 identity.}
+
+\item{stop_decrement}{The largest decrease at which a stopping rule on a
+change may end the run as converged; see \code{\link[=gd]{gd()}}.}
 }
 \value{
 An S7 object of class \code{Bfgs} inheriting from \code{\link[=optimizer]{optimizer()}}, with
-the four properties above beside the seven shared ones.
+the five properties above beside the seven shared ones.
 }
 \description{
 This class is an optimizer that holds the initial step length, the line
@@ -39,9 +43,9 @@ curvature. \code{\link[=bfgs]{bfgs()}} builds it. The inverse-Hessian approximat
 property: it is built inside the run and discarded at its end.
 }
 \details{
-Beyond the seven properties of every optimizer, a \code{Bfgs} carries four:
-\code{step} and \code{line_search}, shared with the other line-search methods, and
-\code{curv_tol} and \code{max_skip}, which are its own.
+Beyond the seven properties of every optimizer, a \code{Bfgs} carries five:
+\code{step}, \code{line_search} and \code{stop_decrement}, shared with the other
+line-search methods, and \code{curv_tol} and \code{max_skip}, which are its own.
 }
 \seealso{
 \code{\link[=bfgs]{bfgs()}} for the constructor, \link{Lbfgs} for the limited-memory

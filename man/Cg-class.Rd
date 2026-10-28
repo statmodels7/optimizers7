@@ -16,7 +16,8 @@ Cg(
   beta = character(0),
   restart_every = integer(0),
   step = integer(0),
-  line_search = NULL
+  line_search = NULL,
+  stop_decrement = integer(0)
 )
 }
 \arguments{
@@ -28,10 +29,13 @@ descent; \code{0} means never.}
 \item{step}{The initial step length offered to the line search.}
 
 \item{line_search}{A \code{\link[=line_search]{line_search()}} object.}
+
+\item{stop_decrement}{The largest decrease at which a stopping rule on a
+change may end the run as converged; see \code{\link[=gd]{gd()}}.}
 }
 \value{
 An S7 object of class \code{Cg} inheriting from \code{\link[=optimizer]{optimizer()}}, with the
-four properties above beside the seven shared ones.
+five properties above beside the seven shared ones.
 }
 \description{
 A \code{Cg} object holds which of the four \eqn{\beta} formulas combines the
@@ -40,10 +44,10 @@ at steepest descent, and the step length and the line search. It is built
 by \code{\link[=cg]{cg()}}.
 }
 \details{
-Beyond the seven properties of every optimizer, a \code{Cg} carries four:
-\code{step} and \code{line_search}, shared with the other line-search methods, and
-\code{beta} and \code{restart_every}, which are its own. The previous direction is
-not a property; it exists only inside the run.
+Beyond the seven properties of every optimizer, a \code{Cg} carries five:
+\code{step}, \code{line_search} and \code{stop_decrement}, shared with the other
+line-search methods, and \code{beta} and \code{restart_every}, which are its own. The
+previous direction is not a property; it exists only inside the run.
 }
 \seealso{
 \code{\link[=cg]{cg()}} for the constructor, \link{GradientDescent} for steepest

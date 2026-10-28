@@ -305,18 +305,20 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
 #' property: it is built inside the run and discarded at its end.
 #'
 #' @details
-#' Beyond the seven properties of every optimizer, a `Bfgs` carries four:
-#' `step` and `line_search`, shared with the other line-search methods, and
-#' `curv_tol` and `max_skip`, which are its own.
+#' Beyond the seven properties of every optimizer, a `Bfgs` carries five:
+#' `step`, `line_search` and `stop_decrement`, shared with the other
+#' line-search methods, and `curv_tol` and `max_skip`, which are its own.
 #'
 #' @param curv_tol The curvature threshold below which the update is skipped.
 #' @param max_skip Consecutive skips before the approximation is reset to the
 #'   identity.
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [bfgs()].
+#' @param stop_decrement The largest decrease at which a stopping rule on a
+#'   change may end the run as converged; see [gd()].
 #'
 #' @return An S7 object of class `Bfgs` inheriting from [optimizer()], with
-#'   the four properties above beside the seven shared ones.
+#'   the five properties above beside the seven shared ones.
 #'
 #' @seealso [bfgs()] for the constructor, [Lbfgs] for the limited-memory
 #'   version.
@@ -326,7 +328,8 @@ newton <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_pa
 Bfgs <- S7::new_class("Bfgs", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     curv_tol = S7::class_numeric,
-                    max_skip = S7::class_numeric))
+                    max_skip = S7::class_numeric,
+                    stop_decrement = S7::class_numeric))
 
 
 #' @title BFGS
@@ -353,6 +356,13 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' @param step,line_search,maxit,max_eval,verbose,refresh,keep_trace As in
 #'   [newton()], except that `line_search` defaults to [wolfe()] and `maxit`
 #'   to 500. See below for the reason for the line search.
+#' @param stop_decrement The largest decrease
+#'   \eqn{\tfrac12\lvert g^\top s\rvert}, with \eqn{s} the last step and
+#'   \eqn{g} the gradient at the new point, at which a stopping rule on the
+#'   change in the parameters or in the objective, such as [crit_abs_par()] or
+#'   [crit_abs_obj()], may end the run as converged. A single positive
+#'   number, in the units of the objective, or `Inf` to accept every such
+#'   stop. Defaults to `1e-3`. See below.
 #'
 #' @details
 #' # Notation
@@ -397,6 +407,22 @@ Bfgs <- S7::new_class("Bfgs", parent = optimizer,
 #' displacement of order one in the parameters and never lengthens the
 #' step.
 #'
+#' # A stop on a change
+#'
+#' A stopping rule on the change in the parameters or in the objective states
+#' that the iterate no longer moves, and near a minimum that is the same as
+#' being there. Away from one it is not: where the objective is steep, or the
+#' curvature has been learned along a few directions only, a step can be
+#' short while the objective is still falling. A stop on the change is
+#' therefore not accepted where the decrease
+#' \eqn{\tfrac12\lvert g^\top s\rvert} that the last step still predicts at the
+#' new point exceeds `stop_decrement`. The run ends as not converged, with
+#' `criterion_met` reporting `"stopped without converging"` and the message
+#' giving the decrease, and the trace records the safeguard `change stop
+#' refused`. A rule on the gradient, such as [crit_grad()], is not affected.
+#' The check uses quantities that the loop already holds.
+#' `stop_decrement = Inf` accepts every stop on a change.
+#'
 #' @return An S7 object of class [Bfgs], inheriting from [optimizer()], to be
 #'   handed to [minimize()].
 #'
@@ -436,16 +462,19 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
                  curv_tol = 1e-10, max_skip = 5,
                  step = 1, line_search = wolfe(),
                  maxit = 500, max_eval = Inf,
-                 verbose = FALSE, refresh = 10, keep_trace = FALSE) {
+                 verbose = FALSE, refresh = 10, keep_trace = FALSE,
+                 stop_decrement = 1e-3) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
   check_nonneg(curv_tol, "curv_tol")
   check_whole(max_skip, "max_skip")
+  check_stop_decrement(stop_decrement)
   Bfgs(name = "BFGS", criterion = criterion, maxit = maxit,
        max_eval = max_eval, verbose = verbose, refresh = refresh,
        keep_trace = keep_trace, step = step, line_search = line_search,
-       curv_tol = curv_tol, max_skip = max_skip)
+       curv_tol = curv_tol, max_skip = max_skip,
+       stop_decrement = stop_decrement)
 }
 
 
@@ -458,8 +487,9 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 #' exist only inside the run.
 #'
 #' @details
-#' Beyond the seven properties of every optimizer, an `Lbfgs` carries four:
-#' `step` and `line_search`, and `memory` and `curv_tol`, which are its own.
+#' Beyond the seven properties of every optimizer, an `Lbfgs` carries five:
+#' `step`, `line_search` and `stop_decrement`, and `memory` and `curv_tol`,
+#' which are its own.
 #' It has no counterpart of `max_skip` of [Bfgs]: a pair that fails the
 #' curvature test is not stored (the trace records `lbfgs update skipped`),
 #' and there is no accumulated matrix to protect. When the direction is not a
@@ -469,9 +499,11 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 #' @param curv_tol The curvature threshold below which a pair is not stored.
 #' @param step,line_search The initial step length and the [line_search()]
 #'   object, as in [lbfgs()].
+#' @param stop_decrement The largest decrease at which a stopping rule on a
+#'   change may end the run as converged; see [bfgs()].
 #'
 #' @return An S7 object of class `Lbfgs` inheriting from [optimizer()], with
-#'   the four properties above beside the seven shared ones.
+#'   the five properties above beside the seven shared ones.
 #'
 #' @seealso [lbfgs()] for the constructor, [Bfgs] for the full-matrix
 #'   version.
@@ -481,7 +513,8 @@ bfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par(
 Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
   properties = list(step = S7::class_numeric, line_search = S7::class_any,
                     memory = S7::class_numeric,
-                    curv_tol = S7::class_numeric))
+                    curv_tol = S7::class_numeric,
+                    stop_decrement = S7::class_numeric))
 
 
 #' @title Limited-Memory BFGS
@@ -509,6 +542,11 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #'   [bfgs()].
 #' @param step,line_search,maxit,max_eval,verbose,refresh,keep_trace As in
 #'   [bfgs()].
+#' @param stop_decrement The largest decrease
+#'   \eqn{\tfrac12\lvert g^\top s\rvert} at which a stopping rule on the change
+#'   in the parameters or in the objective may end the run as converged, as in
+#'   [bfgs()]. A single positive number, in the units of the objective, or
+#'   `Inf` to accept every such stop. Defaults to `1e-3`. See below.
 #'
 #' @details
 #' # Notation
@@ -540,6 +578,14 @@ Lbfgs <- S7::new_class("Lbfgs", parent = optimizer,
 #' iteration. Beyond a handful of pairs the number of iterations changes
 #' little while the arithmetic keeps rising; ten is the conventional
 #' choice.
+#'
+#' # A stop on a change
+#'
+#' A stop on the change in the parameters or in the objective is not accepted
+#' where the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the last step
+#' still predicts at the new point exceeds `stop_decrement`; the run then ends
+#' as not converged, as described in [bfgs()]. `stop_decrement = Inf` accepts
+#' every such stop.
 #'
 #' @return An S7 object of class [Lbfgs], inheriting from [optimizer()], to
 #'   be handed to [minimize()].
@@ -596,16 +642,19 @@ lbfgs <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par
                   memory = 10, curv_tol = 1e-10,
                   step = 1, line_search = wolfe(),
                   maxit = 500, max_eval = Inf,
-                  verbose = FALSE, refresh = 10, keep_trace = FALSE) {
+                  verbose = FALSE, refresh = 10, keep_trace = FALSE,
+                  stop_decrement = 1e-3) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
   check_count(memory, "memory")
   check_nonneg(curv_tol, "curv_tol")
+  check_stop_decrement(stop_decrement)
   Lbfgs(name = "L-BFGS", criterion = criterion, maxit = maxit,
         max_eval = max_eval, verbose = verbose, refresh = refresh,
         keep_trace = keep_trace, step = step, line_search = line_search,
-        memory = memory, curv_tol = curv_tol)
+        memory = memory, curv_tol = curv_tol,
+        stop_decrement = stop_decrement)
 }
 
 
@@ -670,7 +719,8 @@ S7::method(minimize, Bfgs) <-
            lower = -Inf, upper = Inf, ...) {
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "bfgs", curv_tol = optimizer@curv_tol,
-                     max_skip = as.integer(optimizer@max_skip)))
+                     max_skip = as.integer(optimizer@max_skip),
+                     stop_decrement = optimizer@stop_decrement))
   }
 
 #' @title Minimize by Limited-Memory BFGS
@@ -684,5 +734,6 @@ S7::method(minimize, Lbfgs) <-
            lower = -Inf, upper = Inf, ...) {
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "lbfgs", memory = as.integer(optimizer@memory),
-                     curv_tol = optimizer@curv_tol))
+                     curv_tol = optimizer@curv_tol,
+                     stop_decrement = optimizer@stop_decrement))
   }

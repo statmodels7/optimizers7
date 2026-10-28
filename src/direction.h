@@ -44,6 +44,18 @@ public:
   // Whether accepts_change_stop() can ever refuse, so that the loop does not
   // ask the gradient rule for a direction that accepts every stop.
   virtual bool vets_change_stop() const { return false; }
+
+  // The directions that carry no Hessian (steepest descent, conjugate
+  // gradients, Barzilai-Borwein, BFGS and L-BFGS) refuse a stop on a change by
+  // the decrease that the step just taken still predicts at the new point,
+  // |g'dx| / 2, in the units of the objective: a step that is short because the
+  // surface is steep and not because the iterate has arrived leaves it large.
+  // Infinity accepts every stop.
+  void set_step_stop_decrement(double v) { step_stop_dec_ = v; }
+  double step_stop_decrement() const { return step_stop_dec_; }
+
+private:
+  double step_stop_dec_ = arma::datum::inf;
 };
 
 
@@ -724,17 +736,22 @@ private:
 
 inline Direction* make_direction(Rcpp::List method, arma::uword p) {
   std::string type = Rcpp::as<std::string>(method["type"]);
+  // the five directions without a Hessian take the threshold of the step
+  auto with_stop = [&method](Direction* d) {
+    d->set_step_stop_decrement(Rcpp::as<double>(method["stop_decrement"]));
+    return d;
+  };
   if (type == "gd") {
-    return new SteepestDescent();
+    return with_stop(new SteepestDescent());
   } else if (type == "cg") {
-    return new ConjugateGradient(Rcpp::as<std::string>(method["beta"]),
-                                 Rcpp::as<int>(method["restart_every"]));
+    return with_stop(new ConjugateGradient(Rcpp::as<std::string>(method["beta"]),
+                                           Rcpp::as<int>(method["restart_every"])));
   } else if (type == "bb") {
-    return new BarzilaiBorwein(Rcpp::as<std::string>(method["variant"]),
-                               Rcpp::as<double>(method["alpha0"]),
-                               Rcpp::as<double>(method["alpha_min"]),
-                               Rcpp::as<double>(method["alpha_max"]),
-                               Rcpp::as<double>(method["curv_tol"]));
+    return with_stop(new BarzilaiBorwein(Rcpp::as<std::string>(method["variant"]),
+                                         Rcpp::as<double>(method["alpha0"]),
+                                         Rcpp::as<double>(method["alpha_min"]),
+                                         Rcpp::as<double>(method["alpha_max"]),
+                                         Rcpp::as<double>(method["curv_tol"])));
   } else if (type == "newton") {
     return new NewtonDirection(Rcpp::as<std::string>(method["modify_type"]),
                                Rcpp::as<double>(method["floor"]),
@@ -753,11 +770,11 @@ inline Direction* make_direction(Rcpp::List method, arma::uword p) {
                                method["t3"],
                                Rcpp::as<double>(method["stop_decrement"]));
   } else if (type == "bfgs") {
-    return new BfgsDirection(p, Rcpp::as<double>(method["curv_tol"]),
-                             Rcpp::as<int>(method["max_skip"]));
+    return with_stop(new BfgsDirection(p, Rcpp::as<double>(method["curv_tol"]),
+                                       Rcpp::as<int>(method["max_skip"])));
   } else if (type == "lbfgs") {
-    return new LbfgsDirection(Rcpp::as<arma::uword>(method["memory"]),
-                              Rcpp::as<double>(method["curv_tol"]));
+    return with_stop(new LbfgsDirection(Rcpp::as<arma::uword>(method["memory"]),
+                                        Rcpp::as<double>(method["curv_tol"])));
   }
   Rcpp::stop("Unknown method '%s'.", type);
   return nullptr;

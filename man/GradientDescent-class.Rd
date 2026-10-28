@@ -14,18 +14,22 @@ GradientDescent(
   refresh = integer(0),
   keep_trace = logical(0),
   step = integer(0),
-  line_search = NULL
+  line_search = NULL,
+  stop_decrement = integer(0)
 )
 }
 \arguments{
 \item{step}{The initial step length offered to the line search.}
 
 \item{line_search}{A \code{\link[=line_search]{line_search()}} object.}
+
+\item{stop_decrement}{The largest decrease at which a stopping rule on a
+change may end the run as converged; see \code{\link[=gd]{gd()}}.}
 }
 \value{
 An S7 object of class \code{GradientDescent} inheriting from
-\code{\link[=optimizer]{optimizer()}}, with \code{step} and \code{line_search} beside the seven shared
-properties.
+\code{\link[=optimizer]{optimizer()}}, with \code{step}, \code{line_search} and \code{stop_decrement} beside the
+seven shared properties.
 }
 \description{
 A \code{GradientDescent} object holds the initial step length and the line
@@ -34,8 +38,8 @@ It is built by \code{\link[=gd]{gd()}}.
 }
 \details{
 Beyond the seven properties of every optimizer, a \code{GradientDescent}
-carries \code{step} and \code{line_search}, both shared with the other line-search
-methods.
+carries \code{step}, \code{line_search} and \code{stop_decrement}, shared with the other
+line-search methods.
 }
 \seealso{
 \code{\link[=gd]{gd()}} for the constructor, \link{Cg} and \link{Bb} for the two other

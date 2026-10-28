@@ -14,6 +14,7 @@ Invisibly \code{TRUE}. Raises an error naming \code{stop_decrement} otherwise.
 }
 \description{
 Checks that \code{stop_decrement} is a single positive number, or \code{Inf}, so that
-\code{\link[=newton]{newton()}} and \code{\link[=chebyshev]{chebyshev()}} reject invalid values with the same message.
+\code{\link[=newton]{newton()}}, \code{\link[=chebyshev]{chebyshev()}}, \code{\link[=gd]{gd()}}, \code{\link[=cg]{cg()}}, \code{\link[=bb]{bb()}}, \code{\link[=bfgs]{bfgs()}} and \code{\link[=lbfgs]{lbfgs()}}
+reject invalid values with the same message.
 }
 \keyword{internal}

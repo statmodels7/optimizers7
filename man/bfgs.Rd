@@ -14,7 +14,8 @@ bfgs(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 10,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 }
 \arguments{
@@ -37,6 +38,14 @@ rejected, because the comparison \code{>=} would treat it as zero.}
 \item{step, line_search, maxit, max_eval, verbose, refresh, keep_trace}{As in
 \code{\link[=newton]{newton()}}, except that \code{line_search} defaults to \code{\link[=wolfe]{wolfe()}} and \code{maxit}
 to 500. See below for the reason for the line search.}
+
+\item{stop_decrement}{The largest decrease
+\eqn{\tfrac12\lvert g^\top s\rvert}, with \eqn{s} the last step and
+\eqn{g} the gradient at the new point, at which a stopping rule on the
+change in the parameters or in the objective, such as \code{\link[=crit_abs_par]{crit_abs_par()}} or
+\code{\link[=crit_abs_obj]{crit_abs_obj()}}, may end the run as converged. A single positive
+number, in the units of the objective, or \code{Inf} to accept every such
+stop. Defaults to \code{1e-3}. See below.}
 }
 \value{
 An S7 object of class \link{Bfgs}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
@@ -88,6 +97,21 @@ Until a pair has been accepted, the direction is the negative gradient
 multiplied by \eqn{\min(1, 1/\lVert g\rVert_\infty)}, which gives a
 displacement of order one in the parameters and never lengthens the
 step.
+}
+
+\section{A stop on a change}{
+A stopping rule on the change in the parameters or in the objective states
+that the iterate no longer moves, and near a minimum that is the same as
+being there. Away from one it is not: where the objective is steep, or the
+curvature has been learned along a few directions only, a step can be
+short while the objective is still falling. A stop on the change is
+therefore not accepted where the decrease
+\eqn{\tfrac12\lvert g^\top s\rvert} that the last step still predicts at the
+new point exceeds \code{stop_decrement}. The run ends as not converged, with
+\code{criterion_met} reporting \code{"stopped without converging"} and the message
+giving the decrease, and the trace records the safeguard \verb{change stop refused}. A rule on the gradient, such as \code{\link[=crit_grad]{crit_grad()}}, is not affected.
+The check uses quantities that the loop already holds.
+\code{stop_decrement = Inf} accepts every stop on a change.
 }
 
 \examples{

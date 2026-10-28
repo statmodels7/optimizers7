@@ -17,15 +17,17 @@ NULL
 #'
 #' @details
 #' Beyond the seven properties of every optimizer, a `GradientDescent`
-#' carries `step` and `line_search`, both shared with the other line-search
-#' methods.
+#' carries `step`, `line_search` and `stop_decrement`, shared with the other
+#' line-search methods.
 #'
 #' @param step The initial step length offered to the line search.
 #' @param line_search A [line_search()] object.
+#' @param stop_decrement The largest decrease at which a stopping rule on a
+#'   change may end the run as converged; see [gd()].
 #'
 #' @return An S7 object of class `GradientDescent` inheriting from
-#'   [optimizer()], with `step` and `line_search` beside the seven shared
-#'   properties.
+#'   [optimizer()], with `step`, `line_search` and `stop_decrement` beside the
+#'   seven shared properties.
 #'
 #' @seealso [gd()] for the constructor, [Cg] and [Bb] for the two other
 #'   first-order methods.
@@ -35,7 +37,8 @@ NULL
 GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
   properties = list(
     step        = S7::class_numeric,
-    line_search = S7::class_any
+    line_search = S7::class_any,
+    stop_decrement = S7::class_numeric
   ))
 
 
@@ -58,6 +61,13 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 10.
 #' @param keep_trace Store the iteration path? Defaults to `FALSE`.
+#' @param stop_decrement The largest decrease
+#'   \eqn{\tfrac12\lvert g^\top s\rvert}, with \eqn{s} the last step and
+#'   \eqn{g} the gradient at the new point, at which a stopping rule on the
+#'   change in the parameters or in the objective, such as [crit_abs_par()] or
+#'   [crit_abs_obj()], may end the run as converged. A single positive
+#'   number, in the units of the objective, or `Inf` to accept every such
+#'   stop. Defaults to `1e-3`. See below.
 #'
 #' @details
 #' The direction \eqn{-g} minimizes \eqn{g^\top d} over directions of a given
@@ -65,6 +75,22 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 #' orthogonal, so on an ill-conditioned objective the iterates zigzag and
 #' converge slowly. [cg()] corrects this by combining each direction with
 #' the previous one, at no extra cost per iteration.
+#'
+#' # A stop on a change
+#'
+#' A stopping rule on the change in the parameters or in the objective states
+#' that the iterate no longer moves, and near a minimum that is the same as
+#' being there. Away from one it is not: a step can be short because the
+#' objective is steep, or because the direction came from a poor model of the
+#' surface, and the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the
+#' step still predicts at the new point is then above what a minimum leaves.
+#' A stop on the change is therefore not accepted where that decrease exceeds
+#' `stop_decrement`. The run ends as not converged, with `criterion_met`
+#' reporting `"stopped without converging"` and the message giving the
+#' decrease, and the trace records the safeguard `change stop refused`. A
+#' rule on the gradient, such as [crit_grad()], is not affected. The check
+#' uses quantities that the loop already holds. `stop_decrement = Inf`
+#' accepts every stop on a change.
 #'
 #' Gradient descent serves as a baseline for the other methods. On the
 #' Rosenbrock function from the usual start it does not converge within its
@@ -101,15 +127,18 @@ GradientDescent <- S7::new_class("GradientDescent", parent = optimizer,
 gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
                step = 1, line_search = armijo(),
                maxit = 500, max_eval = Inf,
-               verbose = FALSE, refresh = 10, keep_trace = FALSE) {
+               verbose = FALSE, refresh = 10, keep_trace = FALSE,
+               stop_decrement = 1e-3) {
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
+  check_stop_decrement(stop_decrement)
   GradientDescent(
     name = "gradient descent", criterion = criterion,
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
-    step = step, line_search = line_search
+    step = step, line_search = line_search,
+    stop_decrement = stop_decrement
   )
 }
 
@@ -133,7 +162,8 @@ gd <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
 S7::method(minimize, GradientDescent) <-
   function(optimizer, fn, par, gr = NULL, he = NULL,
            lower = -Inf, upper = Inf, ...) {
-    run_descent(optimizer, fn, par, gr, he, lower, upper, list(type = "gd"))
+    run_descent(optimizer, fn, par, gr, he, lower, upper,
+                list(type = "gd", stop_decrement = optimizer@stop_decrement))
   }
 
 
@@ -148,19 +178,21 @@ S7::method(minimize, GradientDescent) <-
 #' by [cg()].
 #'
 #' @details
-#' Beyond the seven properties of every optimizer, a `Cg` carries four:
-#' `step` and `line_search`, shared with the other line-search methods, and
-#' `beta` and `restart_every`, which are its own. The previous direction is
-#' not a property; it exists only inside the run.
+#' Beyond the seven properties of every optimizer, a `Cg` carries five:
+#' `step`, `line_search` and `stop_decrement`, shared with the other
+#' line-search methods, and `beta` and `restart_every`, which are its own. The
+#' previous direction is not a property; it exists only inside the run.
 #'
 #' @param beta Which update formula, one of `"pr"`, `"fr"`, `"hs"`, `"dy"`.
 #' @param restart_every How often the method is restarted at steepest
 #'   descent; `0` means never.
 #' @param step The initial step length offered to the line search.
 #' @param line_search A [line_search()] object.
+#' @param stop_decrement The largest decrease at which a stopping rule on a
+#'   change may end the run as converged; see [gd()].
 #'
 #' @return An S7 object of class `Cg` inheriting from [optimizer()], with the
-#'   four properties above beside the seven shared ones.
+#'   five properties above beside the seven shared ones.
 #'
 #' @seealso [cg()] for the constructor, [GradientDescent] for steepest
 #'   descent.
@@ -172,7 +204,8 @@ Cg <- S7::new_class("Cg", parent = optimizer,
     beta          = S7::class_character,
     restart_every = S7::class_numeric,
     step          = S7::class_numeric,
-    line_search   = S7::class_any
+    line_search   = S7::class_any,
+    stop_decrement = S7::class_numeric
   ))
 
 
@@ -202,6 +235,11 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 20.
 #' @param keep_trace Store the iteration path? Defaults to `FALSE`.
+#' @param stop_decrement The largest decrease
+#'   \eqn{\tfrac12\lvert g^\top s\rvert} at which a stopping rule on the change
+#'   in the parameters or in the objective may end the run as converged, as in
+#'   [gd()]. A single positive number, in the units of the objective, or `Inf`
+#'   to accept every such stop. Defaults to `1e-3`. See below.
 #'
 #' @details
 #' The direction is
@@ -246,6 +284,14 @@ Cg <- S7::new_class("Cg", parent = optimizer,
 #' A direction that is not a descent direction is replaced by \eqn{-g}, and
 #' the trace records the replacement as `cg not descent`. A periodic restart
 #' set by `restart_every` is recorded as `cg restart`.
+#'
+#' # A stop on a change
+#'
+#' A stop on the change in the parameters or in the objective is not accepted
+#' where the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the last step
+#' still predicts at the new point exceeds `stop_decrement`; the run then ends
+#' as not converged, as described in [gd()]. `stop_decrement = Inf` accepts
+#' every such stop.
 #'
 #' @return An S7 object of class [Cg], inheriting from [optimizer()], to be
 #'   handed to [minimize()].
@@ -292,11 +338,13 @@ cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
                beta = c("pr", "fr", "hs", "dy"), restart_every = 0,
                step = 1, line_search = wolfe(c2 = 0.1),
                maxit = 1000, max_eval = Inf,
-               verbose = FALSE, refresh = 20, keep_trace = FALSE) {
+               verbose = FALSE, refresh = 20, keep_trace = FALSE,
+               stop_decrement = 1e-3) {
   beta <- match.arg(beta)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
+  check_stop_decrement(stop_decrement)
   if (length(restart_every) != 1L || !is.numeric(restart_every) ||
       is.na(restart_every) || restart_every < 0) {
     stop("'restart_every' must be a single non-negative number.", call. = FALSE)
@@ -306,7 +354,8 @@ cg <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
     maxit = maxit, max_eval = max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
     beta = beta, restart_every = restart_every,
-    step = step, line_search = line_search
+    step = step, line_search = line_search,
+    stop_decrement = stop_decrement
   )
 }
 
@@ -335,7 +384,8 @@ S7::method(minimize, Cg) <-
            lower = -Inf, upper = Inf, ...) {
     run_descent(optimizer, fn, par, gr, he, lower, upper,
                 list(type = "cg", beta = optimizer@beta,
-                     restart_every = as.integer(optimizer@restart_every)))
+                     restart_every = as.integer(optimizer@restart_every),
+                     stop_decrement = optimizer@stop_decrement))
   }
 
 
@@ -351,10 +401,10 @@ S7::method(minimize, Cg) <-
 #' [nonmonotone()]; it is the only shipped method with that default.
 #'
 #' @details
-#' Beyond the seven properties of every optimizer, a `Bb` carries seven of
+#' Beyond the seven properties of every optimizer, a `Bb` carries eight of
 #' its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curv_tol` for
-#' the step-length estimate, and `step` and `line_search` for the search
-#' along the direction.
+#' the step-length estimate, `step` and `line_search` for the search along the
+#' direction, and `stop_decrement`.
 #'
 #' @param variant Which step-length formula, one of `"alternate"`, `"bb1"`,
 #'   `"bb2"`.
@@ -365,9 +415,11 @@ S7::method(minimize, Cg) <-
 #'   rejected.
 #' @param step,line_search The multiplier offered to the line search and the
 #'   [line_search()] object, as in [bb()].
+#' @param stop_decrement The largest decrease at which a stopping rule on a
+#'   change may end the run as converged; see [gd()].
 #'
 #' @return An S7 object of class `Bb` inheriting from [optimizer()], with the
-#'   seven properties above beside the seven shared ones.
+#'   eight properties above beside the seven shared ones.
 #'
 #' @seealso [bb()] for the constructor, [nonmonotone()] for the acceptance
 #'   test that is its default.
@@ -382,7 +434,8 @@ Bb <- S7::new_class("Bb", parent = optimizer,
     alpha_max   = S7::class_numeric,
     curv_tol    = S7::class_numeric,
     step        = S7::class_numeric,
-    line_search = S7::class_any
+    line_search = S7::class_any,
+    stop_decrement = S7::class_numeric
   ))
 
 
@@ -415,6 +468,11 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' @param verbose Report progress? Defaults to `FALSE`.
 #' @param refresh Report every this many iterations. Defaults to 20.
 #' @param keep_trace Store the iteration path? Defaults to `FALSE`.
+#' @param stop_decrement The largest decrease
+#'   \eqn{\tfrac12\lvert g^\top s\rvert} at which a stopping rule on the change
+#'   in the parameters or in the objective may end the run as converged, as in
+#'   [gd()]. A single positive number, in the units of the objective, or `Inf`
+#'   to accept every such stop. Defaults to `1e-3`. See below.
 #'
 #' @details
 #' Take the direction \eqn{-\alpha g} with
@@ -469,6 +527,14 @@ Bb <- S7::new_class("Bb", parent = optimizer,
 #' `bb curvature reset` and `bb step clamped`, and a step shortened by the
 #' line search as `step shortened`.
 #'
+#' # A stop on a change
+#'
+#' A stop on the change in the parameters or in the objective is not accepted
+#' where the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the last step
+#' still predicts at the new point exceeds `stop_decrement`; the run then ends
+#' as not converged, as described in [gd()]. `stop_decrement = Inf` accepts
+#' every such stop.
+#'
 #' @return An S7 object of class [Bb], inheriting from [optimizer()], to be
 #'   handed to [minimize()].
 #'
@@ -512,11 +578,13 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
                curv_tol = 1e-10,
                step = 1, line_search = nonmonotone(),
                maxit = 1000, max_eval = Inf,
-               verbose = FALSE, refresh = 20, keep_trace = FALSE) {
+               verbose = FALSE, refresh = 20, keep_trace = FALSE,
+               stop_decrement = 1e-3) {
   variant <- match.arg(variant)
   check_optimizer_args(criterion, maxit, max_eval, verbose, refresh, keep_trace)
   check_step(step)
   check_line_search(line_search)
+  check_stop_decrement(stop_decrement)
   check_tol(alpha0, "alpha0")
   check_tol(alpha_min, "alpha_min")
   check_tol(alpha_max, "alpha_max")
@@ -530,7 +598,8 @@ bb <- function(criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())
     refresh = refresh, keep_trace = keep_trace,
     variant = variant, alpha0 = alpha0,
     alpha_min = alpha_min, alpha_max = alpha_max, curv_tol = curv_tol,
-    step = step, line_search = line_search
+    step = step, line_search = line_search,
+    stop_decrement = stop_decrement
   )
 }
 
@@ -563,5 +632,6 @@ S7::method(minimize, Bb) <-
                      alpha0 = optimizer@alpha0,
                      alpha_min = optimizer@alpha_min,
                      alpha_max = optimizer@alpha_max,
-                     curv_tol = optimizer@curv_tol))
+                     curv_tol = optimizer@curv_tol,
+                     stop_decrement = optimizer@stop_decrement))
   }

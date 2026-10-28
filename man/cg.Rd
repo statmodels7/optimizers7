@@ -14,7 +14,8 @@ cg(
   max_eval = Inf,
   verbose = FALSE,
   refresh = 20,
-  keep_trace = FALSE
+  keep_trace = FALSE,
+  stop_decrement = 0.001
 )
 }
 \arguments{
@@ -45,6 +46,12 @@ sets no evaluation budget, so the run stops on the criterion or on
 \item{refresh}{Report every this many iterations. Defaults to 20.}
 
 \item{keep_trace}{Store the iteration path? Defaults to \code{FALSE}.}
+
+\item{stop_decrement}{The largest decrease
+\eqn{\tfrac12\lvert g^\top s\rvert} at which a stopping rule on the change
+in the parameters or in the objective may end the run as converged, as in
+\code{\link[=gd]{gd()}}. A single positive number, in the units of the objective, or \code{Inf}
+to accept every such stop. Defaults to \code{1e-3}. See below.}
 }
 \value{
 An S7 object of class \link{Cg}, inheriting from \code{\link[=optimizer]{optimizer()}}, to be
@@ -98,6 +105,14 @@ line search, so the default here is \code{wolfe(c2 = 0.1)}.
 A direction that is not a descent direction is replaced by \eqn{-g}, and
 the trace records the replacement as \verb{cg not descent}. A periodic restart
 set by \code{restart_every} is recorded as \verb{cg restart}.
+}
+
+\section{A stop on a change}{
+A stop on the change in the parameters or in the objective is not accepted
+where the decrease \eqn{\tfrac12\lvert g^\top s\rvert} that the last step
+still predicts at the new point exceeds \code{stop_decrement}; the run then ends
+as not converged, as described in \code{\link[=gd]{gd()}}. \code{stop_decrement = Inf} accepts
+every such stop.
 }
 
 \examples{
