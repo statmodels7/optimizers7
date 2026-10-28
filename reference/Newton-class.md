@@ -8,7 +8,7 @@ scale a step.
 [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
 builds it. Among the shipped methods, only this one and
 [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md),
-which inherits from it, read the `he` argument of
+which inherits from it, read the `hess` argument of
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
 
 ## Usage
@@ -26,7 +26,7 @@ Newton(
   line_search = NULL,
   modify = NULL,
   max_length = integer(0),
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = integer(0)
 )
 ```
@@ -51,7 +51,7 @@ Newton(
 
   The largest component that a step may have.
 
-- typical:
+- typical_size:
 
   `NULL`, or the typical size of each parameter, in the units of which
   the step lengths are measured.
@@ -72,8 +72,8 @@ with the six properties above beside the seven shared ones.
 
 Beyond the seven properties of every optimizer, a `Newton` carries six:
 `step` and `line_search`, shared with the other line-search methods, and
-`modify`, `max_length`, `typical` and `stop_decrement`, which are its
-own.
+`modify`, `max_length`, `typical_size` and `stop_decrement`, which are
+its own.
 
 ## See also
 

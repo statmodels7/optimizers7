@@ -31,7 +31,7 @@ It is also called by
 [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
 for `t0`, `t_min`, `t_max` and `qp_tol`, by
 [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) for
-`alpha0`, `alpha_min`, `alpha_max` and `curv_tol`, by
+`alpha0`, `alpha_min`, `alpha_max` and `curvature_tol`, by
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md)
 for `degenerate_tol` and by
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)

@@ -20,7 +20,7 @@ Lbfgs(
   step = integer(0),
   line_search = NULL,
   memory = integer(0),
-  curv_tol = integer(0),
+  curvature_tol = integer(0),
   stop_decrement = integer(0)
 )
 ```
@@ -38,7 +38,7 @@ Lbfgs(
 
   How many secant pairs to keep.
 
-- curv_tol:
+- curvature_tol:
 
   The curvature threshold below which a pair is not stored.
 
@@ -57,8 +57,9 @@ with the five properties above beside the seven shared ones.
 ## Details
 
 Beyond the seven properties of every optimizer, an `Lbfgs` carries five:
-`step`, `line_search` and `stop_decrement`, and `memory` and `curv_tol`,
-which are its own. It has no counterpart of `max_skip` of
+`step`, `line_search` and `stop_decrement`, and `memory` and
+`curvature_tol`, which are its own. It has no counterpart of `max_skip`
+of
 [Bfgs](https://statmodels7.github.io/optimizers7/reference/Bfgs-class.md):
 a pair that fails the curvature test is not stored (the trace records
 `lbfgs update skipped`), and there is no accumulated matrix to protect.

@@ -11,7 +11,7 @@ inner optimizer from each, and assembles the result from the best run.
 
   A `MultiStart` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).

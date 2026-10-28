@@ -15,7 +15,7 @@ bundle(
   t0 = 1,
   t_min = 1e-10,
   t_max = 1e+10,
-  m_serious = 0.1,
+  accept_fraction = 0.1,
   bundle_size = 20,
   qp_iters = 500,
   qp_tol = 1e-12,
@@ -46,7 +46,7 @@ bundle(
   cannot drive it to zero or to infinity. The defaults are `1e-10` and
   `1e10`.
 
-- m_serious:
+- accept_fraction:
 
   Fraction of the predicted decrease that a step must actually deliver
   to be accepted, in \\(0, 1)\\. Defaults to `0.1`.
@@ -135,10 +135,11 @@ factor \\t\\ and does not depend on the size of the trust parameter.
 ## Serious steps and null steps
 
 A trial point is accepted, making a *serious step*, only if the decrease
-that it delivers is at least the fraction `m_serious` of the predicted
-decrease. This plays the role of the Armijo condition in a line search:
-without a required fraction, a sequence of ever smaller improvements
-could be accepted although it does not converge to a minimizer.
+that it delivers is at least the fraction `accept_fraction` of the
+predicted decrease. This plays the role of the Armijo condition in a
+line search: without a required fraction, a sequence of ever smaller
+improvements could be accepted although it does not converge to a
+minimizer.
 
 A rejected trial point still contributes its subgradient to the bundle,
 which improves the model at the next iteration. Such an iteration is a
@@ -224,7 +225,7 @@ bundle()
 #> <optimizer> proximal bundle
 #>   stop when : stationarity < 1e-08
 #>   budgets   : maxit 500, evaluations Inf
-#>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12
+#>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, accept_fraction = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12
 
 # The median is the minimizer of a sum of absolute deviations: the
 # objective has a kink at every observation, and one of them is the answer.

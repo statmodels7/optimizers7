@@ -31,11 +31,11 @@ A named list of three numeric vectors, each as long as `eta`:
 
   the parameter \\\theta = h(\eta)\\, inside the box.
 
-- `d1`:
+- `deriv1`:
 
   \\h'(\eta)\\, the chain-rule factor for a gradient.
 
-- `d2`:
+- `deriv2`:
 
   \\h''(\eta)\\, needed only for a Hessian.
 
@@ -61,7 +61,7 @@ Map the starting value with
 run unconstrained, and wrap the objective so that it maps back before
 evaluating. The Jacobian is diagonal, so the chain rule is one product
 per coordinate, \\\partial f/\partial \eta_i = (\partial f/\partial
-\theta_i)\\ h_i'\\, and `d2` is needed only when a Hessian is
+\theta_i)\\ h_i'\\, and `deriv2` is needed only when a Hessian is
 transformed, where it appears on the diagonal alone. Report `par` on the
 caller's scale.
 
@@ -97,9 +97,9 @@ bounded_transform(c(0, Inf), c(-500, 500))$h > 0
 # gradient across.
 str(bounded_transform(c(0, 1), c(-1, 0, 1)))
 #> List of 3
-#>  $ h : num [1:3] 0.269 0.5 0.731
-#>  $ d1: num [1:3] 0.197 0.25 0.197
-#>  $ d2: num [1:3] 0.0909 0 -0.0909
+#>  $ h     : num [1:3] 0.269 0.5 0.731
+#>  $ deriv1: num [1:3] 0.197 0.25 0.197
+#>  $ deriv2: num [1:3] 0.0909 0 -0.0909
 
 # Zero maps to the middle of the box, whatever the box. For this reason
 # start_zeros() gives a sensible start for every kind of parameter.
@@ -113,11 +113,11 @@ all.equal(bounded_transform(c(0, 1), bounded_forward(c(0, 1), theta))$h,
           theta)
 #> [1] TRUE
 
-# d1 is a derivative, and a central difference confirms it.
+# deriv1 is a derivative, and a central difference confirms it.
 h <- 1e-6
 (bounded_transform(c(0, 1), 0.3 + h)$h - bounded_transform(c(0, 1), 0.3 - h)$h) /
   (2 * h)
 #> [1] 0.2444583
-bounded_transform(c(0, 1), 0.3)$d1
+bounded_transform(c(0, 1), 0.3)$deriv1
 #> [1] 0.2444583
 ```

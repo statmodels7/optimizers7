@@ -11,7 +11,7 @@ accepts that objective.
 ## Usage
 
 ``` r
-as_objective(fn, gr = NULL, he = NULL, ...)
+as_objective(fn, gr = NULL, hess = NULL, ...)
 ```
 
 ## Arguments
@@ -29,7 +29,7 @@ as_objective(fn, gr = NULL, he = NULL, ...)
   vector of the same length. `NULL`, the default, has the gradient
   differenced from `fn` as above. Any other value is an error.
 
-- he:
+- hess:
 
   The Hessian, a function of the parameter vector returning a `p x p`
   symmetric matrix. `NULL` is the default.
@@ -61,7 +61,7 @@ side:
 
   the gradient, or `NULL`.
 
-- `he`:
+- `hess`:
 
   the Hessian, or `NULL`.
 
@@ -71,7 +71,7 @@ side:
 
 - `has_hessian`:
 
-  logical, whether `he` was supplied.
+  logical, whether `hess` was supplied.
 
 ## Dispatch of the two generics
 
@@ -137,7 +137,7 @@ str(as_objective(function(p) sum(p^2)))
 #>  $ kind        : chr "r"
 #>  $ fn          :function (p)  
 #>  $ gr          : NULL
-#>  $ he          : NULL
+#>  $ hess        : NULL
 #>  $ has_gradient: logi FALSE
 #>  $ has_hessian : logi FALSE
 str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
@@ -145,7 +145,7 @@ str(as_objective(function(p) sum(p^2), gr = function(p) 2 * p))
 #>  $ kind        : chr "r"
 #>  $ fn          :function (p)  
 #>  $ gr          :function (p)  
-#>  $ he          : NULL
+#>  $ hess        : NULL
 #>  $ has_gradient: logi TRUE
 #>  $ has_hessian : logi FALSE
 

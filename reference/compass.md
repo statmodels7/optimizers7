@@ -13,7 +13,7 @@ compass(
   criterion = crit_stationary(),
   step = 0.1,
   directions = c("mads", "coordinate"),
-  opportunistic = TRUE,
+  first_improvement = TRUE,
   expand = 2,
   shrink = 0.5,
   maxit = 2000,
@@ -49,7 +49,7 @@ compass(
   any other string is rejected by
   [`match.arg()`](https://rdrr.io/r/base/match.arg.html).
 
-- opportunistic:
+- first_improvement:
 
   Move to the first improvement found instead of polling every
   direction? The value is `TRUE` or `FALSE` and defaults to `TRUE`.
@@ -172,7 +172,7 @@ compass()
 #> <optimizer> pattern search (mads)
 #>   stop when : stationarity < 1e-08
 #>   budgets   : maxit 2000, evaluations Inf
-#>   settings  : step = 0.1, directions = mads, opportunistic = TRUE, expand = 2, shrink = 0.5
+#>   settings  : step = 0.1, directions = mads, first_improvement = TRUE, expand = 2, shrink = 0.5
 
 # The kink lies along a diagonal, and every coordinate direction fails to
 # descend it. The
@@ -202,7 +202,7 @@ c(identical(m1@par, m2@par), length(m1@seed) > 0)
 # Polling every direction costs more evaluations for the same answer.
 q <- function(p) sum((p - c(1, 2))^2)
 set.seed(5); first <- minimize(compass(), q, c(0, 0))
-set.seed(5); every <- minimize(compass(opportunistic = FALSE), q, c(0, 0))
+set.seed(5); every <- minimize(compass(first_improvement = FALSE), q, c(0, 0))
 c(first = first@counts[["f"]], every = every@counts[["f"]])
 #> first every 
 #>   332   393 

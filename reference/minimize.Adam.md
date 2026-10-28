@@ -12,11 +12,11 @@ no line search and no test that the objective fell.
 
   An `Adam` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `he` is accepted and ignored. Bounds are taken and removed by
+  `hess` is accepted and ignored. Bounds are taken and removed by
   reparametrization.
 
 ## Value

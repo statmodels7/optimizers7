@@ -55,11 +55,11 @@ f <- function(p) p[1]^4 - 2 * p[1]^2 + p[2]^2
 g <- function(p) c(4 * p[1]^3 - 4 * p[1], 2 * p[2])
 h <- function(p) matrix(c(12 * p[1]^2 - 4, 0, 0, 2), 2, 2)
 minimize(newton(modify = modify_ridge(floor = 1e-6)), f, c(0.05, 0.6),
-         gr = g, he = h)
+         gr = g, hess = h)
 #> <optimizer_result> Newton
 #>   value      : -1
 #>   par        : 1 0
 #>   iterations : 4   evaluations: f 5, g 5
-#>   elapsed    : 0 us
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```

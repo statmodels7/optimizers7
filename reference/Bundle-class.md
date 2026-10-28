@@ -20,7 +20,7 @@ Bundle(
   t0 = integer(0),
   t_min = integer(0),
   t_max = integer(0),
-  m_serious = integer(0),
+  accept_fraction = integer(0),
   bundle_size = integer(0),
   qp_iters = integer(0),
   qp_tol = integer(0)
@@ -38,7 +38,7 @@ Bundle(
 
   Bounds on \\t\\.
 
-- m_serious:
+- accept_fraction:
 
   Fraction of the predicted decrease that a serious step must achieve.
 
@@ -60,7 +60,7 @@ with the seven properties above beside the seven shared ones.
 
 Beyond the seven properties of every optimizer, a `Bundle` carries seven
 of its own, in three groups: the proximal parameter (`t0`, `t_min`,
-`t_max`), the acceptance test (`m_serious`), and the model and its
+`t_max`), the acceptance test (`accept_fraction`), and the model and its
 subproblem (`bundle_size`, `qp_iters`, `qp_tol`).
 
 ## See also

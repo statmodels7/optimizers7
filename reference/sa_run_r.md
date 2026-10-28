@@ -18,7 +18,7 @@ sa_run_r(
   step = 1,
   target_accept = 0.5,
   adjust = 2,
-  n_eps = 4,
+  stationarity_levels = 4,
   maxit = 100
 )
 ```
@@ -43,7 +43,8 @@ sa_run_r(
   [`minimize.Sa()`](https://statmodels7.github.io/optimizers7/reference/minimize.Sa.md)
   passes `-1` for `t0 = NULL`.
 
-- cooling, cycles, steps, step, target_accept, adjust, n_eps, maxit:
+- cooling, cycles, steps, step, target_accept, adjust,
+  stationarity_levels, maxit:
 
   As in
   [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md).

@@ -20,7 +20,7 @@ minimize(
   fn,
   par,
   gr = NULL,
-  he = NULL,
+  hess = NULL,
   lower = -Inf,
   upper = Inf,
   ...
@@ -54,7 +54,7 @@ minimize(
   has it differenced from `fn`. It is ignored when `fn` is an objective
   that carries its own gradient.
 
-- he:
+- hess:
 
   The Hessian, a function of the parameter vector. `NULL` is the
   default.

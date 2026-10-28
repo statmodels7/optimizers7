@@ -13,11 +13,11 @@ length. It shares the descent loop with
 
   A `Cg` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `he` is accepted and ignored. Bounds are taken and removed by
+  `hess` is accepted and ignored. Bounds are taken and removed by
   reparametrization.
 
 ## Value

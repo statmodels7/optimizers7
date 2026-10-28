@@ -19,7 +19,7 @@ kink."><meta property="og:image" content="https://statmodels7.github.io/optimize
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@ kink.</p>
 <span>  t0 <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  t_min <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  t_max <span class="op">=</span> <span class="fl">1e+10</span>,</span>
-<span>  m_serious <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  accept_fraction <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  bundle_size <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  qp_iters <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  qp_tol <span class="op">=</span> <span class="fl">1e-12</span>,</span>
@@ -99,7 +99,7 @@ serious ones cannot drive it to zero or to infinity. The defaults are
 <code>1e-10</code> and <code>1e10</code>.</p></dd>
 
 
-<dt id="arg-m-serious">m_serious<a class="anchor" aria-label="anchor" href="#arg-m-serious"></a></dt>
+<dt id="arg-accept-fraction">accept_fraction<a class="anchor" aria-label="anchor" href="#arg-accept-fraction"></a></dt>
 <dd><p>Fraction of the predicted decrease that a step must actually
 deliver to be accepted, in \((0, 1)\). Defaults to <code>0.1</code>.</p></dd>
 
@@ -181,7 +181,7 @@ parameter.</p>
     <div class="section level2">
     <h2 id="serious-steps-and-null-steps">Serious steps and null steps<a class="anchor" aria-label="anchor" href="#serious-steps-and-null-steps"></a></h2>
     <p>A trial point is accepted, making a <em>serious step</em>, only if the decrease
-that it delivers is at least the fraction <code>m_serious</code> of the predicted
+that it delivers is at least the fraction <code>accept_fraction</code> of the predicted
 decrease. This plays the role of the Armijo condition in a line search:
 without a required fraction, a sequence of ever smaller improvements could
 be accepted although it does not converge to a minimizer.</p>
@@ -260,7 +260,7 @@ methods, <code><a href="crit_stationary.html">crit_stationary()</a></code> for t
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; proximal bundle</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : stationarity &lt; 1e-08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 500, evaluations Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, m_serious = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : t0 = 1, t_min = 1e-10, t_max = 1e+10, accept_fraction = 0.1, bundle_size = 20, qp_iters = 500, qp_tol = 1e-12</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The median is the minimizer of a sum of absolute deviations: the</span></span></span>
 <span class="r-in"><span><span class="co"># objective has a kink at every observation, and one of them is the answer.</span></span></span>

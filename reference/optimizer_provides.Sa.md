@@ -20,7 +20,7 @@ The character vector `"stationarity"`.
 The measure is Corana's termination rule: at the end of each temperature
 level, the largest absolute difference between the value at which the
 walk stopped and both the best value found and the values at which it
-stopped at the last `n_eps` levels. It is read by
+stopped at the last `stationarity_levels` levels. It is read by
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md),
 which is the default rule of this method.
 

@@ -15,7 +15,7 @@ deterministic and records none."><meta property="og:image" content="https://stat
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,7 @@ deterministic and records none.</p>
 <span>  keep_trace <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  directions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  opportunistic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  first_improvement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  shrink <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -83,7 +83,7 @@ deterministic and records none.</p>
 <dd><p>Either <code>"mads"</code> or <code>"coordinate"</code>.</p></dd>
 
 
-<dt id="arg-opportunistic">opportunistic<a class="anchor" aria-label="anchor" href="#arg-opportunistic"></a></dt>
+<dt id="arg-first-improvement">first_improvement<a class="anchor" aria-label="anchor" href="#arg-first-improvement"></a></dt>
 <dd><p>Logical; whether the poll stops at the first
 improvement that it finds.</p></dd>
 
@@ -103,7 +103,7 @@ with the five properties above beside the seven shared ones.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Beyond the seven properties of every optimizer, a <code>Compass</code> carries five
 of its own: <code>step</code>, <code>expand</code> and <code>shrink</code> govern the poll radius,
-<code>directions</code> selects the set that is polled, and <code>opportunistic</code> controls
+<code>directions</code> selects the set that is polled, and <code>first_improvement</code> controls
 when the poll stops.</p>
     </div>
     <div class="section level2">

@@ -44,7 +44,7 @@ nine components:
 
   its analytic gradient, returning a vector of length `p`.
 
-- `he`:
+- `hess`:
 
   its analytic Hessian, returning a `p x p` matrix. For `abs_sum` it is
   the zero matrix, the Hessian wherever it exists.

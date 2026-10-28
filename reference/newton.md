@@ -18,7 +18,7 @@ newton(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = 0.001
 )
 ```
@@ -98,7 +98,7 @@ newton(
   this length before the line search. Defaults to `Inf`, which leaves
   every step as it is. See below.
 
-- typical:
+- typical_size:
 
   `NULL` (the default), or the typical size of each parameter: one
   positive number, or one per parameter. Every length used by the method
@@ -219,10 +219,11 @@ change, as in versions before 0.17.0.
 A length in the units of the parameters has different meanings for
 parameters on different scales: a displacement of one is a long step for
 a parameter on the log scale and a short one for a variance of several
-hundred. `typical` gives the typical size \\t_i\\ of each parameter, as
-in the scaled norm of Dennis and Schnabel (1983): every length is then
-the largest \\\lvert d_i\rvert / t_i\\, for the bound `max_length` and
-for the scaling of a repaired direction or of a gradient fallback.
+hundred. `typical_size` gives the typical size \\t_i\\ of each
+parameter, as in the scaled norm of Dennis and Schnabel (1983): every
+length is then the largest \\\lvert d_i\rvert / t_i\\, for the bound
+`max_length` and for the scaling of a repaired direction or of a
+gradient fallback.
 
 ## The length of a repaired step
 
@@ -249,7 +250,7 @@ objective is a marginal criterion.
 
 ## The Hessian by differences
 
-When `he` is not supplied to
+When `hess` is not supplied to
 [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md)
 the Hessian is obtained by differencing the gradient. With an analytic
 gradient that is one numerical differentiation. When the gradient is
@@ -302,12 +303,12 @@ rosen_he <- function(p) matrix(
   c(2 - 400 * (p[2] - 3 * p[1]^2), -400 * p[1],
     -400 * p[1], 200), 2, 2)
 
-minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 #> <optimizer_result> Newton
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 2 ms
+#>   elapsed    : 1 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # The repair of an indefinite Hessian is an object, with its floor.
@@ -315,7 +316,7 @@ newton(modify = modify_ridge(floor = 1e-6))
 #> <optimizer> Newton
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 200, evaluations Inf
-#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), modify = ridge (floor = 1e-06), max_length = Inf, typical = <NULL>, stop_decrement = 0.001
+#>   settings  : step = 1, line_search = Armijo backtracking (c1 = 1e-04), modify = ridge (floor = 1e-06), max_length = Inf, typical_size = <NULL>, stop_decrement = 0.001
 
 # At a saddle the unrepaired step points the wrong way. The Hessian at
 # the start has eigenvalues 2 and -1.99; the repair is recorded in the
@@ -326,7 +327,7 @@ sh  <- function(p) matrix(c(2, 0, 0, -2 + 1.2 * p[2]^2), 2, 2)
 eigen(sh(c(0.5, 0.1)), only.values = TRUE)$values
 #> [1]  2.000 -1.988
 
-r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, he = sh)
+r <- minimize(newton(keep_trace = TRUE), sad, c(0.5, 0.1), gr = sg, hess = sh)
 c(value = r@value, iterations = r@iterations)
 #>      value iterations 
 #>       -2.5        5.0 
@@ -335,12 +336,12 @@ unique(r@trace$safeguard)
 
 # summary() counts the safeguards that fired during the run.
 summary(minimize(newton(keep_trace = TRUE), rosen, c(-1.2, 1),
-                 gr = rosen_gr, he = rosen_he))
+                 gr = rosen_gr, hess = rosen_he))
 #> <optimizer_result> Newton
 #>   value      : 3.74398e-21
 #>   par        : 1 1
 #>   iterations : 21   evaluations: f 29, g 22
-#>   elapsed    : 1 ms
+#>   elapsed    : 3 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   safeguards :
 #>     step shortened: 4

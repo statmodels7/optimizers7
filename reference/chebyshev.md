@@ -25,7 +25,7 @@ chebyshev(
   refresh = 10,
   keep_trace = FALSE,
   max_length = Inf,
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = 0.001
 )
 ```
@@ -33,7 +33,7 @@ chebyshev(
 ## Arguments
 
 - criterion, modify, step, line_search, maxit, max_eval, verbose,
-  refresh, keep_trace, max_length, typical, stop_decrement:
+  refresh, keep_trace, max_length, typical_size, stop_decrement:
 
   As in
   [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md).
@@ -141,15 +141,15 @@ rosen_he <- function(p) matrix(
 rosen_t3 <- function(p, d) c(2400 * p[1] * d[1]^2 - 800 * d[1] * d[2],
                              -400 * d[1]^2)
 
-a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
-b <- minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he,
+a <- minimize(newton(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
+b <- minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he,
               t3 = rosen_t3)
 c(newton = a@iterations, chebyshev = b@iterations)
 #>    newton chebyshev 
 #>        21        18 
 
 # Without t3 the contraction is a second difference of the gradient.
-minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, he = rosen_he)
+minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 #> <optimizer_result> Chebyshev
 #>   value      : 0
 #>   par        : 1 1

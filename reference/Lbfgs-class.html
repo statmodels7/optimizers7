@@ -13,7 +13,7 @@ exist only inside the run."><meta property="og:image" content="https://statmodel
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@ exist only inside the run.</p>
 <span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  memory <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  curv_tol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  curvature_tol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  stop_decrement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -81,7 +81,7 @@ object, as in <code><a href="lbfgs.html">lbfgs()</a></code>.</p></dd>
 <dd><p>How many secant pairs to keep.</p></dd>
 
 
-<dt id="arg-curv-tol">curv_tol<a class="anchor" aria-label="anchor" href="#arg-curv-tol"></a></dt>
+<dt id="arg-curvature-tol">curvature_tol<a class="anchor" aria-label="anchor" href="#arg-curvature-tol"></a></dt>
 <dd><p>The curvature threshold below which a pair is not stored.</p></dd>
 
 
@@ -98,7 +98,7 @@ the five properties above beside the seven shared ones.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Beyond the seven properties of every optimizer, an <code>Lbfgs</code> carries five:
-<code>step</code>, <code>line_search</code> and <code>stop_decrement</code>, and <code>memory</code> and <code>curv_tol</code>,
+<code>step</code>, <code>line_search</code> and <code>stop_decrement</code>, and <code>memory</code> and <code>curvature_tol</code>,
 which are its own.
 It has no counterpart of <code>max_skip</code> of <a href="Bfgs-class.html">Bfgs</a>: a pair that fails the
 curvature test is not stored (the trace records <code>lbfgs update skipped</code>),

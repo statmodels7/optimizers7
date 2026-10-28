@@ -13,7 +13,7 @@ the subproblem. It is built by bundle()."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@ the subproblem. It is built by <code><a href="bundle.html">bundle()</a></code>.<
 <span>  t0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  t_min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  t_max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  m_serious <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  accept_fraction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  bundle_size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  qp_iters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  qp_tol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
@@ -83,7 +83,7 @@ length on the parameter scale.</p></dd>
 <dd><p>Bounds on \(t\).</p></dd>
 
 
-<dt id="arg-m-serious">m_serious<a class="anchor" aria-label="anchor" href="#arg-m-serious"></a></dt>
+<dt id="arg-accept-fraction">accept_fraction<a class="anchor" aria-label="anchor" href="#arg-accept-fraction"></a></dt>
 <dd><p>Fraction of the predicted decrease that a serious step
 must achieve.</p></dd>
 
@@ -105,7 +105,7 @@ the seven properties above beside the seven shared ones.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Beyond the seven properties of every optimizer, a <code>Bundle</code> carries seven
 of its own, in three groups: the proximal parameter (<code>t0</code>, <code>t_min</code>,
-<code>t_max</code>), the acceptance test (<code>m_serious</code>), and the model and its
+<code>t_max</code>), the acceptance test (<code>accept_fraction</code>), and the model and its
 subproblem (<code>bundle_size</code>, <code>qp_iters</code>, <code>qp_tol</code>).</p>
     </div>
     <div class="section level2">

@@ -13,7 +13,7 @@ that coordinate near a target."><meta property="og:image" content="https://statm
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ that coordinate near a target.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sa</span><span class="op">(</span></span>
 <span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_stationary.html">crit_stationary</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  visiting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"cauchy"</span><span class="op">)</span>,</span>
+<span>  proposal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"cauchy"</span><span class="op">)</span>,</span>
 <span>  t0 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cooling <span class="op">=</span> <span class="fl">0.85</span>,</span>
 <span>  cycles <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -62,7 +62,7 @@ that coordinate near a target.</p>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  target_accept <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  adjust <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  n_eps <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  stationarity_levels <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  maxit <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  max_eval <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -82,7 +82,7 @@ reads a gradient is rejected when the run starts, because this method
 computes none.</p></dd>
 
 
-<dt id="arg-visiting">visiting<a class="anchor" aria-label="anchor" href="#arg-visiting"></a></dt>
+<dt id="arg-proposal">proposal<a class="anchor" aria-label="anchor" href="#arg-proposal"></a></dt>
 <dd><p><code>"uniform"</code> (default) or <code>"cauchy"</code>. Partial matching
 applies, and any other string is rejected by <code><a href="https://rdrr.io/r/base/match.arg.html" class="external-link">match.arg()</a></code>.</p></dd>
 
@@ -132,7 +132,7 @@ around it would reach 0 or 1. Defaults to <code>0.5</code>.</p></dd>
 positive number. Defaults to <code>2</code>, which is Corana's constant.</p></dd>
 
 
-<dt id="arg-n-eps">n_eps<a class="anchor" aria-label="anchor" href="#arg-n-eps"></a></dt>
+<dt id="arg-stationarity-levels">stationarity_levels<a class="anchor" aria-label="anchor" href="#arg-stationarity-levels"></a></dt>
 <dd><p>How many temperature levels the stationarity measure covers,
 a positive whole number. Defaults to <code>4</code>.</p></dd>
 
@@ -235,8 +235,8 @@ monotone non-increasing.</p>
 measure is Corana's termination rule. At the end of each temperature level
 it is the largest absolute difference between the value at which the walk
 stopped and each of two references: the best value found so far, and the
-values at which the walk stopped at the last <code>n_eps</code> levels. It is
-infinite until <code>n_eps + 1</code> levels have run, and <code><a href="crit_stationary.html">crit_stationary()</a></code> reads
+values at which the walk stopped at the last <code>stationarity_levels</code> levels. It is
+infinite until <code>stationarity_levels + 1</code> levels have run, and <code><a href="crit_stationary.html">crit_stationary()</a></code> reads
 it. A run that exhausts <code>maxit</code> reports <code>converged = FALSE</code>, which for a
 global search is the ordinary outcome.</p>
 <p>The run is stochastic, so <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> governs it, and the state from
@@ -268,7 +268,7 @@ method.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer&gt; simulated annealing (uniform)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   stop when : stationarity &lt; 1e-08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   budgets   : maxit 100, evaluations Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : visiting = uniform, t0 = &lt;NULL&gt;, cooling = 0.85, cycles = 3, steps = 10, step = 1, target_accept = 0.5, adjust = 2, n_eps = 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   settings  : proposal = uniform, t0 = &lt;NULL&gt;, cooling = 0.85, cycles = 3, steps = 10, step = 1, target_accept = 0.5, adjust = 2, stationarity_levels = 4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Rastrigin has many local minima (121 in the box [-5.12, 5.12]^2). A</span></span></span>
 <span class="r-in"><span><span class="co"># local method stops in the basin in which it started; this one leaves it.</span></span></span>
@@ -282,10 +282,10 @@ method.</p></div>
 <span class="r-in"><span><span class="co"># The heavy-tailed proposal leaves a basin in one move, and on this surface</span></span></span>
 <span class="r-in"><span><span class="co"># that gives a value about two orders of magnitude lower.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>visiting <span class="op">=</span> <span class="st">"cauchy"</span>, maxit <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>proposal <span class="op">=</span> <span class="st">"cauchy"</span>, maxit <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.002005912</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>visiting <span class="op">=</span> <span class="st">"uniform"</span>, maxit <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">sa</span><span class="op">(</span>proposal <span class="op">=</span> <span class="st">"uniform"</span>, maxit <span class="op">=</span> <span class="fl">40</span><span class="op">)</span>, <span class="va">rastrigin</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.4</span>, <span class="op">-</span><span class="fl">3.6</span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">value</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5458509</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The reported value is the best seen, and the trace records the same:</span></span></span>

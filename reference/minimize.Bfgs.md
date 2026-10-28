@@ -8,7 +8,7 @@ Minimize by BFGS
 
   A `Bfgs` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).

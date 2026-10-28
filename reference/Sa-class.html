@@ -17,7 +17,7 @@ records in seed."><meta property="og:image" content="https://statmodels7.github.
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,7 @@ records in <code>seed</code>.</p>
 <span>  verbose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  refresh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  keep_trace <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/logical.html" class="external-link">logical</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  visiting <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  proposal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  t0 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cooling <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  cycles <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
@@ -74,7 +74,7 @@ records in <code>seed</code>.</p>
 <span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  target_accept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  adjust <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  n_eps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span>  stationarity_levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -82,7 +82,7 @@ records in <code>seed</code>.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-visiting">visiting<a class="anchor" aria-label="anchor" href="#arg-visiting"></a></dt>
+<dl><dt id="arg-proposal">proposal<a class="anchor" aria-label="anchor" href="#arg-proposal"></a></dt>
 <dd><p><code>"uniform"</code> or <code>"cauchy"</code>, the proposal from which the
 walk draws its moves.</p></dd>
 
@@ -113,7 +113,7 @@ objective.</p></dd>
 <dd><p>How strongly the step is adjusted towards that rate.</p></dd>
 
 
-<dt id="arg-n-eps">n_eps<a class="anchor" aria-label="anchor" href="#arg-n-eps"></a></dt>
+<dt id="arg-stationarity-levels">stationarity_levels<a class="anchor" aria-label="anchor" href="#arg-stationarity-levels"></a></dt>
 <dd><p>How many temperature levels the stationarity measure covers.</p></dd>
 
 </dl></div>
@@ -125,9 +125,9 @@ nine properties above beside the seven shared ones.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Beyond the seven properties of every optimizer, an <code>Sa</code> carries nine of
-its own. They fall into three groups: the proposal (<code>visiting</code>, <code>step</code>),
+its own. They fall into three groups: the proposal (<code>proposal</code>, <code>step</code>),
 the schedule (<code>t0</code>, <code>cooling</code>, <code>cycles</code>, <code>steps</code>), and the adaptation and
-its stopping rule (<code>target_accept</code>, <code>adjust</code>, <code>n_eps</code>).</p>
+its stopping rule (<code>target_accept</code>, <code>adjust</code>, <code>stationarity_levels</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

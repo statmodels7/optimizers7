@@ -24,7 +24,7 @@ Bb(
   alpha0 = integer(0),
   alpha_min = integer(0),
   alpha_max = integer(0),
-  curv_tol = integer(0),
+  curvature_tol = integer(0),
   step = integer(0),
   line_search = NULL,
   stop_decrement = integer(0)
@@ -45,7 +45,7 @@ Bb(
 
   The bounds to which the step length is clamped.
 
-- curv_tol:
+- curvature_tol:
 
   The relative threshold below which a secant pair is rejected.
 
@@ -71,9 +71,9 @@ with the eight properties above beside the seven shared ones.
 ## Details
 
 Beyond the seven properties of every optimizer, a `Bb` carries eight of
-its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and `curv_tol`
-for the step-length estimate, `step` and `line_search` for the search
-along the direction, and `stop_decrement`.
+its own: `variant`, `alpha0`, `alpha_min`, `alpha_max` and
+`curvature_tol` for the step-length estimate, `step` and `line_search`
+for the search along the direction, and `stop_decrement`.
 
 ## See also
 

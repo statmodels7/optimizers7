@@ -19,7 +19,7 @@ Sa(
   verbose = logical(0),
   refresh = integer(0),
   keep_trace = logical(0),
-  visiting = character(0),
+  proposal = character(0),
   t0 = NULL,
   cooling = integer(0),
   cycles = integer(0),
@@ -27,13 +27,13 @@ Sa(
   step = integer(0),
   target_accept = integer(0),
   adjust = integer(0),
-  n_eps = integer(0)
+  stationarity_levels = integer(0)
 )
 ```
 
 ## Arguments
 
-- visiting:
+- proposal:
 
   `"uniform"` or `"cauchy"`, the proposal from which the walk draws its
   moves.
@@ -63,7 +63,7 @@ Sa(
 
   How strongly the step is adjusted towards that rate.
 
-- n_eps:
+- stationarity_levels:
 
   How many temperature levels the stationarity measure covers.
 
@@ -76,9 +76,10 @@ with the nine properties above beside the seven shared ones.
 ## Details
 
 Beyond the seven properties of every optimizer, an `Sa` carries nine of
-its own. They fall into three groups: the proposal (`visiting`, `step`),
+its own. They fall into three groups: the proposal (`proposal`, `step`),
 the schedule (`t0`, `cooling`, `cycles`, `steps`), and the adaptation
-and its stopping rule (`target_accept`, `adjust`, `n_eps`).
+and its stopping rule (`target_accept`, `adjust`,
+`stationarity_levels`).
 
 ## See also
 

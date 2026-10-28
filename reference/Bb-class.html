@@ -15,7 +15,7 @@ nonmonotone(); it is the only shipped method with that default."><meta property=
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@ line search. It is built by <code><a href="bb.html">bb()</a></code>. Its line se
 <span>  alpha0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  alpha_min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  alpha_max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
-<span>  curv_tol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  curvature_tol <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  stop_decrement <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">integer</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
@@ -92,7 +92,7 @@ line search. It is built by <code><a href="bb.html">bb()</a></code>. Its line se
 clamped.</p></dd>
 
 
-<dt id="arg-curv-tol">curv_tol<a class="anchor" aria-label="anchor" href="#arg-curv-tol"></a></dt>
+<dt id="arg-curvature-tol">curvature_tol<a class="anchor" aria-label="anchor" href="#arg-curvature-tol"></a></dt>
 <dd><p>The relative threshold below which a secant pair is
 rejected.</p></dd>
 
@@ -115,7 +115,7 @@ eight properties above beside the seven shared ones.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Beyond the seven properties of every optimizer, a <code>Bb</code> carries eight of
-its own: <code>variant</code>, <code>alpha0</code>, <code>alpha_min</code>, <code>alpha_max</code> and <code>curv_tol</code> for
+its own: <code>variant</code>, <code>alpha0</code>, <code>alpha_min</code>, <code>alpha_max</code> and <code>curvature_tol</code> for
 the step-length estimate, <code>step</code> and <code>line_search</code> for the search along the
 direction, and <code>stop_decrement</code>.</p>
     </div>

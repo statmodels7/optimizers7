@@ -1,5 +1,33 @@
 # Changelog
 
+## optimizers7 0.19.0
+
+- Renamed for readability: the argument `he` of
+  [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md),
+  [`maximize()`](https://statmodels7.github.io/optimizers7/reference/maximize.md)
+  and
+  [`as_objective()`](https://statmodels7.github.io/optimizers7/reference/as_objective.md)
+  is `hess`, and so is the element of the objective and of the
+  [`test_problems()`](https://statmodels7.github.io/optimizers7/reference/test_problems.md)
+  entries; `curv_tol` of
+  [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md),
+  [`lbfgs()`](https://statmodels7.github.io/optimizers7/reference/lbfgs.md)
+  and
+  [`bb()`](https://statmodels7.github.io/optimizers7/reference/bb.md) is
+  `curvature_tol`; `typical` of
+  [`newton()`](https://statmodels7.github.io/optimizers7/reference/newton.md)
+  and
+  [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
+  is `typical_size`; `n_eps` and `visiting` of
+  [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md)
+  are `stationarity_levels` and `proposal`; `m_serious` of
+  [`bundle()`](https://statmodels7.github.io/optimizers7/reference/bundle.md)
+  is `accept_fraction`; `opportunistic` of
+  [`compass()`](https://statmodels7.github.io/optimizers7/reference/compass.md)
+  is `first_improvement`; the elements `d1` and `d2` of
+  [`bounded_transform()`](https://statmodels7.github.io/optimizers7/reference/bounded_transform.md)
+  are `deriv1` and `deriv2`.
+
 ## optimizers7 0.18.0
 
 - [`gd()`](https://statmodels7.github.io/optimizers7/reference/gd.md),

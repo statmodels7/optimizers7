@@ -35,7 +35,7 @@ modification is used."><meta property="og:image" content="https://statmodels7.gi
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,12 +127,12 @@ absolute value when that value exceeds one.</p></dd>
 <span class="r-in"><span><span class="va">g</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">3</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">2</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">h</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span> <span class="op">*</span> <span class="va">p</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu"><a href="newton.html">newton</a></span><span class="op">(</span>modify <span class="op">=</span> <span class="fu">modify_eigen</span><span class="op">(</span>floor <span class="op">=</span> <span class="fl">1e-6</span><span class="op">)</span><span class="op">)</span>, <span class="va">f</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.6</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>         gr <span class="op">=</span> <span class="va">g</span>, he <span class="op">=</span> <span class="va">h</span><span class="op">)</span></span></span>
+<span class="r-in"><span>         gr <span class="op">=</span> <span class="va">g</span>, hess <span class="op">=</span> <span class="va">h</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;optimizer_result&gt; Newton</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : -1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 4   evaluations: f 5, g 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 0 us</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -13,11 +13,11 @@ names `prox` as the place for the constraint.
 
   A `ProxGrad` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  A finite `lower` or `upper` raises an error; `he` is accepted and
+  A finite `lower` or `upper` raises an error; `hess` is accepted and
   ignored.
 
 ## Value

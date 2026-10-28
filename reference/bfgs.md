@@ -10,7 +10,7 @@ problem of moderate size.
 ``` r
 bfgs(
   criterion = crit_any(crit_grad(), crit_abs_obj(), crit_abs_par()),
-  curv_tol = 1e-10,
+  curvature_tol = 1e-10,
   max_skip = 5,
   step = 1,
   line_search = wolfe(),
@@ -32,7 +32,7 @@ bfgs(
   object. Defaults to
   `crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())`.
 
-- curv_tol:
+- curvature_tol:
 
   The update is skipped when \\s^\top y \le \texttt{curv\\tol}\\\lVert
   s\rVert\lVert y\rVert\\. Defaults to `1e-10`. A larger value skips
@@ -170,7 +170,7 @@ minimize(bfgs(), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 3.22826e-13
 #>   par        : 1 1
 #>   iterations : 35   evaluations: f 49, g 39
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # With Armijo instead of Wolfe, the update is skipped once here, the trace
@@ -184,7 +184,7 @@ c(iterations = a@iterations, skips = sum(a@trace$safeguard == "bfgs update skipp
 # A curvature threshold that every pair fails to meet forces every update
 # to be skipped; the run exhausts its budget, and the trace names both
 # safeguards.
-b <- minimize(bfgs(curv_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
+b <- minimize(bfgs(curvature_tol = 1e10, keep_trace = TRUE), rosen, c(-1.2, 1),
               gr = rg)
 c(converged = b@converged, value = b@value)
 #>    converged        value 

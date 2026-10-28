@@ -6,7 +6,7 @@ stopping rule, and checks the starting value.
 ## Usage
 
 ``` r
-prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
+prepare_objective(optimizer, fn, par, gr = NULL, hess = NULL)
 ```
 
 ## Arguments
@@ -16,7 +16,7 @@ prepare_objective(optimizer, fn, par, gr = NULL, he = NULL)
   The
   [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
 
-- fn, gr, he:
+- fn, gr, hess:
 
   The objective and its optional derivatives, as supplied.
 

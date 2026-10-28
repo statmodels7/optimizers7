@@ -1,9 +1,10 @@
 # An Ordinary R Function as an Objective
 
 The shipped method: `fn(par)` returns the number to be minimized, and
-`gr(par)` and `he(par)` return its gradient and Hessian when the caller
-has them. Every evaluation is a callback into R. The compiled objective
-counts the evaluations, and the result reports them in `counts`.
+`gr(par)` and `hess(par)` return its gradient and Hessian when the
+caller has them. Every evaluation is a callback into R. The compiled
+objective counts the evaluations, and the result reports them in
+`counts`.
 
 ## Arguments
 
@@ -16,7 +17,7 @@ counts the evaluations, and the result reports them in `counts`.
   A function of the parameter vector returning the gradient, or `NULL`
   for a central difference of `fn`.
 
-- he:
+- hess:
 
   A function of the parameter vector returning the Hessian, or `NULL`.
   It is read by
@@ -36,10 +37,11 @@ with `kind = "r"`.
 
 ## Validation
 
-`gr` and `he` are each checked to be a function or `NULL`, and any other
-value raises an error before the run starts. `fn` is not checked here:
-dispatch has already established that it is a function, and the compiled
-objective checks at every evaluation that it returns a single number.
+`gr` and `hess` are each checked to be a function or `NULL`, and any
+other value raises an error before the run starts. `fn` is not checked
+here: dispatch has already established that it is a function, and the
+compiled objective checks at every evaluation that it returns a single
+number.
 
 ## Examples
 

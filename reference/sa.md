@@ -10,7 +10,7 @@ of that coordinate near a target.
 ``` r
 sa(
   criterion = crit_stationary(),
-  visiting = c("uniform", "cauchy"),
+  proposal = c("uniform", "cauchy"),
   t0 = NULL,
   cooling = 0.85,
   cycles = 3,
@@ -18,7 +18,7 @@ sa(
   step = 1,
   target_accept = 0.5,
   adjust = 2,
-  n_eps = 4,
+  stationarity_levels = 4,
   maxit = 100,
   max_eval = Inf,
   verbose = FALSE,
@@ -37,7 +37,7 @@ sa(
   above. A rule that reads a gradient is rejected when the run starts,
   because this method computes none.
 
-- visiting:
+- proposal:
 
   `"uniform"` (default) or `"cauchy"`. Partial matching applies, and any
   other string is rejected by
@@ -88,7 +88,7 @@ sa(
   How strongly the step is moved towards that rate, a single positive
   number. Defaults to `2`, which is Corana's constant.
 
-- n_eps:
+- stationarity_levels:
 
   How many temperature levels the stationarity measure covers, a
   positive whole number. Defaults to `4`.
@@ -205,8 +205,9 @@ The end of the schedule does not mean convergence. The stationarity
 measure is Corana's termination rule. At the end of each temperature
 level it is the largest absolute difference between the value at which
 the walk stopped and each of two references: the best value found so
-far, and the values at which the walk stopped at the last `n_eps`
-levels. It is infinite until `n_eps + 1` levels have run, and
+far, and the values at which the walk stopped at the last
+`stationarity_levels` levels. It is infinite until
+`stationarity_levels + 1` levels have run, and
 [`crit_stationary()`](https://statmodels7.github.io/optimizers7/reference/crit_stationary.md)
 reads it. A run that exhausts `maxit` reports `converged = FALSE`, which
 for a global search is the ordinary outcome.
@@ -245,7 +246,7 @@ sa()
 #> <optimizer> simulated annealing (uniform)
 #>   stop when : stationarity < 1e-08
 #>   budgets   : maxit 100, evaluations Inf
-#>   settings  : visiting = uniform, t0 = <NULL>, cooling = 0.85, cycles = 3, steps = 10, step = 1, target_accept = 0.5, adjust = 2, n_eps = 4
+#>   settings  : proposal = uniform, t0 = <NULL>, cooling = 0.85, cycles = 3, steps = 10, step = 1, target_accept = 0.5, adjust = 2, stationarity_levels = 4
 
 # Rastrigin has many local minima (121 in the box [-5.12, 5.12]^2). A
 # local method stops in the basin in which it started; this one leaves it.
@@ -259,10 +260,10 @@ minimize(bfgs(), rastrigin, c(4.4, -3.6))@value  # 7.96
 # The heavy-tailed proposal leaves a basin in one move, and on this surface
 # that gives a value about two orders of magnitude lower.
 set.seed(2)
-minimize(sa(visiting = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
+minimize(sa(proposal = "cauchy", maxit = 40), rastrigin, c(4.4, -3.6))@value
 #> [1] 0.002005912
 set.seed(2)
-minimize(sa(visiting = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
+minimize(sa(proposal = "uniform", maxit = 40), rastrigin, c(4.4, -3.6))@value
 #> [1] 0.5458509
 
 # The reported value is the best seen, and the trace records the same:

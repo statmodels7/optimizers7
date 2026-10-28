@@ -7,7 +7,7 @@ its direction to the compiled loop, and assembles the result.
 ## Usage
 
 ``` r
-run_descent(optimizer, fn, par, gr, he, lower, upper, method)
+run_descent(optimizer, fn, par, gr, hess, lower, upper, method)
 ```
 
 ## Arguments
@@ -17,7 +17,7 @@ run_descent(optimizer, fn, par, gr, he, lower, upper, method)
   The
   [`optimizer()`](https://statmodels7.github.io/optimizers7/reference/optimizer.md).
 
-- fn, par, gr, he:
+- fn, par, gr, hess:
 
   The problem, as the user supplied it.
 

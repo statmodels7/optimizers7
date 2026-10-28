@@ -21,7 +21,7 @@ Chebyshev(
   line_search = NULL,
   modify = NULL,
   max_length = integer(0),
-  typical = NULL,
+  typical_size = NULL,
   stop_decrement = integer(0),
   ratio = integer(0)
 )
@@ -47,7 +47,7 @@ Chebyshev(
 
   The largest component that a step may have.
 
-- typical:
+- typical_size:
 
   `NULL`, or the typical size of each parameter, in the units of which
   the step lengths are measured.

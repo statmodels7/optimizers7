@@ -15,7 +15,7 @@ negated back."><meta property="og:image" content="https://statmodels7.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@ negated back.</p>
 <span>  <span class="va">fn</span>,</span>
 <span>  <span class="va">par</span>,</span>
 <span>  gr <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  he <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hess <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower <span class="op">=</span> <span class="op">-</span><span class="cn">Inf</span>,</span>
 <span>  upper <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -95,7 +95,7 @@ vector, or <code>NULL</code> for a central difference. It is negated here, so a
 caller supplies the gradient of the function being maximized.</p></dd>
 
 
-<dt id="arg-he">he<a class="anchor" aria-label="anchor" href="#arg-he"></a></dt>
+<dt id="arg-hess">hess<a class="anchor" aria-label="anchor" href="#arg-hess"></a></dt>
 <dd><p>The Hessian of <code>fn</code> as written, or <code>NULL</code>. It is negated here
 too, and only <code><a href="newton.html">newton()</a></code> and <code><a href="chebyshev.html">chebyshev()</a></code> read it.</p></dd>
 
@@ -109,7 +109,7 @@ unchanged; the sign convention does not touch them.</p></dd>
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Passed to <code><a href="minimize.html">minimize()</a></code>, and from there to the method. A <code>t3</code>
 argument for <code><a href="chebyshev.html">chebyshev()</a></code> is the contraction of the third derivative of
-<code>fn</code> as written, and is negated here like <code>gr</code> and <code>he</code>.</p></dd>
+<code>fn</code> as written, and is negated here like <code>gr</code> and <code>hess</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

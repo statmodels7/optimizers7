@@ -77,7 +77,7 @@ eigen(h(c(0.05, 0.6)), only.values = TRUE)$values
 #> [1]  2.00 -3.97
 
 sapply(list(eigen = modify_eigen(), ridge = modify_ridge()), function(m) {
-  r <- minimize(newton(modify = m), f, c(0.05, 0.6), gr = g, he = h)
+  r <- minimize(newton(modify = m), f, c(0.05, 0.6), gr = g, hess = h)
   c(value = r@value, iterations = r@iterations)
 })
 #>            eigen ridge

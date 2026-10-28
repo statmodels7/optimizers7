@@ -13,11 +13,11 @@ repeated.
 
   An `Sa` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `gr` and `he` are accepted and ignored, since the method uses no
+  `gr` and `hess` are accepted and ignored, since the method uses no
   derivative; rejecting them would force calling code to branch on the
   algorithm. Bounds are taken and removed by reparametrization, as in
   the other methods except

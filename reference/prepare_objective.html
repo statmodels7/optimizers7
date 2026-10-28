@@ -9,7 +9,7 @@ stopping rule, and checks the starting value."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ stopping rule, and checks the starting value.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">prepare_objective</span><span class="op">(</span><span class="va">optimizer</span>, <span class="va">fn</span>, <span class="va">par</span>, gr <span class="op">=</span> <span class="cn">NULL</span>, he <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">prepare_objective</span><span class="op">(</span><span class="va">optimizer</span>, <span class="va">fn</span>, <span class="va">par</span>, gr <span class="op">=</span> <span class="cn">NULL</span>, hess <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -57,7 +57,7 @@ stopping rule, and checks the starting value.</p>
 <dd><p>The <code><a href="optimizer.html">optimizer()</a></code>.</p></dd>
 
 
-<dt id="arg-fn-gr-he">fn, gr, he<a class="anchor" aria-label="anchor" href="#arg-fn-gr-he"></a></dt>
+<dt id="arg-fn-gr-hess">fn, gr, hess<a class="anchor" aria-label="anchor" href="#arg-fn-gr-hess"></a></dt>
 <dd><p>The objective and its optional derivatives, as supplied.</p></dd>
 
 

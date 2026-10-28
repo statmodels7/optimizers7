@@ -12,12 +12,12 @@ acceptance test that turns each trial into a serious step or a null one.
 
   A `Bundle` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
   `gr` should return a subgradient, not a difference taken across a
-  kink; `he` is accepted and ignored. Bounds are taken and removed by
+  kink; `hess` is accepted and ignored. Bounds are taken and removed by
   reparametrization.
 
 ## Value

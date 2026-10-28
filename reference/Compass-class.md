@@ -20,7 +20,7 @@ Compass(
   keep_trace = logical(0),
   step = integer(0),
   directions = character(0),
-  opportunistic = logical(0),
+  first_improvement = logical(0),
   expand = integer(0),
   shrink = integer(0)
 )
@@ -36,7 +36,7 @@ Compass(
 
   Either `"mads"` or `"coordinate"`.
 
-- opportunistic:
+- first_improvement:
 
   Logical; whether the poll stops at the first improvement that it
   finds.
@@ -57,7 +57,7 @@ with the five properties above beside the seven shared ones.
 
 Beyond the seven properties of every optimizer, a `Compass` carries five
 of its own: `step`, `expand` and `shrink` govern the poll radius,
-`directions` selects the set that is polled, and `opportunistic`
+`directions` selects the set that is polled, and `first_improvement`
 controls when the poll stops.
 
 ## See also

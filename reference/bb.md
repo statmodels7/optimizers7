@@ -13,7 +13,7 @@ bb(
   alpha0 = 0.01,
   alpha_min = 1e-10,
   alpha_max = 1e+10,
-  curv_tol = 1e-10,
+  curvature_tol = 1e-10,
   step = 1,
   line_search = nonmonotone(),
   maxit = 1000,
@@ -45,11 +45,12 @@ bb(
 
   Bounds on the step length. The defaults are `1e-10` and `1e10`.
 
-- curv_tol:
+- curvature_tol:
 
   The relative curvature threshold: a secant pair is rejected when
   \\s^\top y \le c \lVert s \rVert \lVert y \rVert\\ for \\c\\ equal to
-  `curv_tol`. Defaults to `1e-10`, which is the same relative test that
+  `curvature_tol`. Defaults to `1e-10`, which is the same relative test
+  that
   [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
   applies to the same quantity.
 
@@ -152,7 +153,7 @@ memory.
 
 A pair is used only if it reports positive curvature by a relative
 margin, \\s^\top y \> c \lVert s \rVert \lVert y \rVert\\ with \\c\\ the
-`curv_tol` argument, the same test that
+`curvature_tol` argument, the same test that
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 applies. When a pair is rejected the step length is reset to \\1/\lVert
 g \rVert\_\infty\\, a trial displacement of order one in the parameters.
@@ -194,7 +195,7 @@ bb()
 #> <optimizer> barzilai-borwein (alternate)
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 1000, evaluations Inf
-#>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, curv_tol = 1e-10, step = 1, line_search = nonmonotone backtracking (memory = 10), stop_decrement = 0.001
+#>   settings  : variant = alternate, alpha0 = 0.01, alpha_min = 1e-10, alpha_max = 1e+10, curvature_tol = 1e-10, step = 1, line_search = nonmonotone backtracking (memory = 10), stop_decrement = 0.001
 
 f  <- function(p) 100 * (p[2] - p[1]^2)^2 + (1 - p[1])^2
 gr <- function(p) c(-400 * p[1] * (p[2] - p[1]^2) - 2 * (1 - p[1]),

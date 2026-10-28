@@ -13,11 +13,11 @@ iterate.
 
   A `Brent` object.
 
-- fn, par, gr, he, lower, upper, ...:
+- fn, par, gr, hess, lower, upper, ...:
 
   As in
   [`minimize()`](https://statmodels7.github.io/optimizers7/reference/minimize.md).
-  `gr` and `he` are accepted and ignored, since the method uses no
+  `gr` and `hess` are accepted and ignored, since the method uses no
   derivative. Bounds are taken and removed by reparametrization.
 
 ## Value

@@ -174,11 +174,11 @@ package accepts the object:
 
 ``` r
 
-S7::method(as_objective, MyModel) <- function(fn, gr = NULL, he = NULL, ...) {
+S7::method(as_objective, MyModel) <- function(fn, gr = NULL, hess = NULL, ...) {
   list(kind = "r",
        fn = function(par) -loglik(fn, par),
        gr = function(par) -score(fn, par),
-       he = NULL,
+       hess = NULL,
        has_gradient = TRUE, has_hessian = FALSE)
 }
 ```
@@ -263,7 +263,7 @@ hb_run <- function(o, fn, par, gr) {
 }
 
 S7::method(minimize, HeavyBall) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
+  function(optimizer, fn, par, gr = NULL, hess = NULL, lower = -Inf, upper = Inf, ...) {
     if (is.null(gr)) stop("heavy_ball() needs a gradient.", call. = FALSE)
     hb_run(optimizer, fn, par, gr)
   }
@@ -355,7 +355,7 @@ does the rest:
 
 suppressMessages(
 S7::method(minimize, HeavyBall) <-
-  function(optimizer, fn, par, gr = NULL, he = NULL, lower = -Inf, upper = Inf, ...) {
+  function(optimizer, fn, par, gr = NULL, hess = NULL, lower = -Inf, upper = Inf, ...) {
     if (is.null(gr)) stop("heavy_ball() needs a gradient.", call. = FALSE)
     check_criterion(optimizer)                                     # (2)
 
@@ -367,7 +367,7 @@ S7::method(minimize, HeavyBall) <-
     hh <- function(e) vapply(seq_along(e),
             function(j) bounded_transform(bx[[j]], e[j])$h, 0)
     dd <- function(e) vapply(seq_along(e),
-            function(j) bounded_transform(bx[[j]], e[j])$d1, 0)
+            function(j) bounded_transform(bx[[j]], e[j])$deriv1, 0)
     eta0 <- vapply(seq_along(par),
                    function(j) bounded_forward(bx[[j]], par[j]), 0)
 
@@ -429,7 +429,7 @@ str(p, max.level = 1)
 #>  $ name      : chr "beale"
 #>  $ fn        :function (p)  
 #>  $ gr        :function (p)  
-#>  $ he        :function (p)  
+#>  $ hess      :function (p)  
 #>  $ par       : num [1:2] 1 1
 #>  $ solution  : num [1:2] 3 0.5
 #>  $ value     : num 0

@@ -20,7 +20,7 @@ Bfgs(
   keep_trace = logical(0),
   step = integer(0),
   line_search = NULL,
-  curv_tol = integer(0),
+  curvature_tol = integer(0),
   max_skip = integer(0),
   stop_decrement = integer(0)
 )
@@ -35,7 +35,7 @@ Bfgs(
   object, as in
   [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md).
 
-- curv_tol:
+- curvature_tol:
 
   The curvature threshold below which the update is skipped.
 
@@ -59,7 +59,8 @@ with the five properties above beside the seven shared ones.
 
 Beyond the seven properties of every optimizer, a `Bfgs` carries five:
 `step`, `line_search` and `stop_decrement`, shared with the other
-line-search methods, and `curv_tol` and `max_skip`, which are its own.
+line-search methods, and `curvature_tol` and `max_skip`, which are its
+own.
 
 ## See also
 

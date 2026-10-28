@@ -15,7 +15,7 @@ maximize(
   fn,
   par,
   gr = NULL,
-  he = NULL,
+  hess = NULL,
   lower = -Inf,
   upper = Inf,
   ...
@@ -52,7 +52,7 @@ maximize(
   or `NULL` for a central difference. It is negated here, so a caller
   supplies the gradient of the function being maximized.
 
-- he:
+- hess:
 
   The Hessian of `fn` as written, or `NULL`. It is negated here too, and
   only
@@ -75,7 +75,7 @@ maximize(
   and from there to the method. A `t3` argument for
   [`chebyshev()`](https://statmodels7.github.io/optimizers7/reference/chebyshev.md)
   is the contraction of the third derivative of `fn` as written, and is
-  negated here like `gr` and `he`.
+  negated here like `gr` and `hess`.
 
 ## Value
 

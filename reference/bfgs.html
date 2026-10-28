@@ -13,7 +13,7 @@ size."><meta property="og:image" content="https://statmodels7.github.io/optimize
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.18.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.19.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ size.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">bfgs</span><span class="op">(</span></span>
 <span>  criterion <span class="op">=</span> <span class="fu"><a href="crit_any.html">crit_any</a></span><span class="op">(</span><span class="fu"><a href="crit_grad.html">crit_grad</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_abs_obj.html">crit_abs_obj</a></span><span class="op">(</span><span class="op">)</span>, <span class="fu"><a href="crit_abs_par.html">crit_abs_par</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  curv_tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
+<span>  curvature_tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  max_skip <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  step <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  line_search <span class="op">=</span> <span class="fu"><a href="wolfe.html">wolfe</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -76,7 +76,7 @@ size.</p>
 <code>crit_any(crit_grad(), crit_abs_obj(), crit_abs_par())</code>.</p></dd>
 
 
-<dt id="arg-curv-tol">curv_tol<a class="anchor" aria-label="anchor" href="#arg-curv-tol"></a></dt>
+<dt id="arg-curvature-tol">curvature_tol<a class="anchor" aria-label="anchor" href="#arg-curvature-tol"></a></dt>
 <dd><p>The update is skipped when
 \(s^\top y \le \texttt{curv\_tol}\,\lVert s\rVert\lVert y\rVert\).
 Defaults to <code>1e-10</code>. A larger value skips more often. Zero is admitted
@@ -194,7 +194,7 @@ available, <code><a href="wolfe.html">wolfe()</a></code> for the default line se
 <span class="r-out co"><span class="r-pr">#&gt;</span>   value      : 3.22826e-13</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   par        : 1 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterations : 35   evaluations: f 49, g 39</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 1 ms</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   elapsed    : 2 ms</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   converged  : yes (gradient (max-norm) &lt; 1e-06 or |df| &lt; 1e-10 or |dx| &lt; 1e-08)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With Armijo instead of Wolfe, the update is skipped once here, the trace</span></span></span>
@@ -208,7 +208,7 @@ available, <code><a href="wolfe.html">wolfe()</a></code> for the default line se
 <span class="r-in"><span><span class="co"># A curvature threshold that every pair fails to meet forces every update</span></span></span>
 <span class="r-in"><span><span class="co"># to be skipped; the run exhausts its budget, and the trace names both</span></span></span>
 <span class="r-in"><span><span class="co"># safeguards.</span></span></span>
-<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bfgs</span><span class="op">(</span>curv_tol <span class="op">=</span> <span class="fl">1e10</span>, keep_trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">rosen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="minimize.html">minimize</a></span><span class="op">(</span><span class="fu">bfgs</span><span class="op">(</span>curvature_tol <span class="op">=</span> <span class="fl">1e10</span>, keep_trace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="va">rosen</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.2</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>              gr <span class="op">=</span> <span class="va">rg</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>converged <span class="op">=</span> <span class="va">b</span><span class="op">@</span><span class="va">converged</span>, value <span class="op">=</span> <span class="va">b</span><span class="op">@</span><span class="va">value</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    converged        value </span>
