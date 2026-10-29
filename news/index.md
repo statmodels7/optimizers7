@@ -1,5 +1,14 @@
 # Changelog
 
+## optimizers7 0.20.0
+
+- The argument `ncores` of
+  [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
+  is `cores`, and `resolve_ncores()` is
+  [`resolve_cores()`](https://statmodels7.github.io/optimizers7/reference/resolve_cores.md).
+  The name is the one used by every function of the toolkit that starts
+  separate R processes; `threads` counts threads inside one process.
+
 ## optimizers7 0.19.0
 
 - Renamed for readability: the argument `he` of

@@ -154,6 +154,6 @@ minimize(chebyshev(), rosen, c(-1.2, 1), gr = rosen_gr, hess = rosen_he)
 #>   value      : 0
 #>   par        : 1 1
 #>   iterations : 18   evaluations: f 30, g 53
-#>   elapsed    : 1 ms
+#>   elapsed    : 2 ms
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```

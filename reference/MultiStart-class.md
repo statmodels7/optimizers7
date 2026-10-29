@@ -25,7 +25,7 @@ MultiStart(
   n = integer(0),
   starts = NULL,
   spread = integer(0),
-  ncores = NULL,
+  cores = NULL,
   distinct_tol = integer(0)
 )
 ```
@@ -50,9 +50,9 @@ MultiStart(
 
   How widely the random starts are scattered.
 
-- ncores:
+- cores:
 
-  The number of processes over which the starts are spread.
+  The number of separate R processes over which the starts are spread.
 
 - distinct_tol:
 
@@ -68,7 +68,7 @@ with the six properties above beside the seven shared ones.
 
 Beyond the seven shared properties a `MultiStart` carries six of its
 own: `optimizer` is the wrapped optimizer, `n`, `starts` and `spread`
-describe where the runs begin, `ncores` how they are distributed over
+describe where the runs begin, `cores` how they are distributed over
 processes, and `distinct_tol` how close two values must be to count as
 one optimum.
 

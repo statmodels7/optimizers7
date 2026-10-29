@@ -1,12 +1,12 @@
 # Run the Starts, in Parallel or Not
 
-Evaluates `one(i)` for `i` in `1:n`, over `ncores` processes, and cleans
+Evaluates `one(i)` for `i` in `1:n`, over `cores` processes, and cleans
 up after itself.
 
 ## Usage
 
 ``` r
-run_starts(one, n, ncores, verbose, refresh)
+run_starts(one, n, cores, verbose, refresh)
 ```
 
 ## Arguments
@@ -19,7 +19,7 @@ run_starts(one, n, ncores, verbose, refresh)
 
   How many starts.
 
-- ncores:
+- cores:
 
   How many processes, already resolved.
 
@@ -43,7 +43,7 @@ have to.
 One process is the sequential loop, and it is the only route that
 reports progress during the run, since a worker has no output that the
 caller would see. When optimizers7 was loaded with pkgload, this route
-is used whatever `ncores` is.
+is used whatever `cores` is.
 
 On a Unix-alike the workers are forks, through
 [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html). A
@@ -59,7 +59,7 @@ and runs the starts sequentially instead of failing.
 Both parallel routes seed their workers from the stream of this session,
 so [`set.seed()`](https://rdrr.io/r/base/Random.html) reproduces the
 run. For a deterministic inner optimizer the result is the same for
-every `ncores`; for one that draws random numbers, such as
+every `cores`; for one that draws random numbers, such as
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md), it
 depends on the assignment of the streams to the workers. The generator
 is set to `"L'Ecuyer-CMRG"` for the duration and restored afterwards,

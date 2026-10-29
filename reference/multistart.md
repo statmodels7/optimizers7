@@ -16,7 +16,7 @@ multistart(
   n = 10,
   starts = NULL,
   spread = 1,
-  ncores = NULL,
+  cores = NULL,
   distinct_tol = 1e-06,
   verbose = FALSE,
   refresh = 1,
@@ -54,12 +54,14 @@ multistart(
   How widely the random starts are scattered, in units of the
   unconstrained scale. Defaults to `1`.
 
-- ncores:
+- cores:
 
-  The number of processes over which to spread the starts. Defaults to
-  `NULL`, meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass
-  `1` for a sequential run. For a deterministic inner optimizer the
-  answer does not depend on the value; for a stochastic one, such as
+  The number of separate R processes over which to spread the starts; it
+  does not set threads inside a process, which is the `threads` argument
+  of the fitting functions. Defaults to `NULL`, meaning
+  `min(n, max(1, parallel::detectCores() - 2))`. Pass `1` for a
+  sequential run. For a deterministic inner optimizer the answer does
+  not depend on the value; for a stochastic one, such as
   [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md),
   it does.
 
@@ -123,7 +125,7 @@ failed start.
 
 ## Parallel execution
 
-The starts are independent and are run over `ncores` processes. The
+The starts are independent and are run over `cores` processes. The
 function creates the workers, loads the package, assigns the random
 streams and shuts the workers down internally: on Unix-alikes the
 workers are forks, on Windows they form a socket cluster. If the workers
@@ -143,11 +145,11 @@ reproduces the run. When the inner optimizer is deterministic, such as
 [`bfgs()`](https://statmodels7.github.io/optimizers7/reference/bfgs.md)
 or
 [`nelder_mead()`](https://statmodels7.github.io/optimizers7/reference/nelder_mead.md),
-the result is the same for every value of `ncores`. When the inner
+the result is the same for every value of `cores`. When the inner
 optimizer draws random numbers, such as
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md), the
 result depends on the assignment of the streams to the workers, and
-therefore on `ncores`.
+therefore on `cores`.
 
 ## Failed starts
 
@@ -178,7 +180,7 @@ multistart(bfgs())
 #> <optimizer> multistart (BFGS)
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 10, evaluations Inf
-#>   settings  : optimizer = BFGS, n = 10, starts = <NULL>, spread = 1, ncores = <NULL>, distinct_tol = 1e-06
+#>   settings  : optimizer = BFGS, n = 10, starts = <NULL>, spread = 1, cores = <NULL>, distinct_tol = 1e-06
 
 # The surface has two minima, and one of them is lower. A single run from the
 # origin finds the lower one; the count shows that there is another.
@@ -196,26 +198,26 @@ r@par
 
 # With a deterministic inner optimizer the answer does not depend on the
 # number of processes.
-set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, ncores = 1), f, c(0, 0))
-set.seed(11); many <- minimize(multistart(bfgs(), n = 8, ncores = 2), f, c(0, 0))
+set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, cores = 1), f, c(0, 0))
+set.seed(11); many <- minimize(multistart(bfgs(), n = 8, cores = 2), f, c(0, 0))
 identical(one@value, many@value)
 #> [1] TRUE
 
 # A start where the objective is undefined is recorded, not fatal.
 g <- function(p) if (p[1] > 0.5) stop("undefined here") else sum(p^2)
 set.seed(3)
-minimize(multistart(bfgs(), n = 8, ncores = 1), g, c(0, 0))@message
+minimize(multistart(bfgs(), n = 8, cores = 1), g, c(0, 0))@message
 #> [1] "8 starts, 5 succeeded, 5 converged, 1 distinct optimum; the best was found 5 times. First failure: undefined here. Best run: gradient obtained by finite differences"
 
 # If every start fails, the run raises an error that quotes the first
 # failure.
-try(minimize(multistart(bfgs(), n = 4, ncores = 1),
+try(minimize(multistart(bfgs(), n = 4, cores = 1),
              function(p) stop("never works"), c(0, 0)))
 #> Error : Every start failed. The first error was: never works
 
 # Starting points may be given outright, and then n is the row count.
 S <- rbind(c(-2, 0), c(2, 0), c(0, 3))
-minimize(multistart(bfgs(), starts = S, ncores = 1), f, c(0, 0))@trace
+minimize(multistart(bfgs(), starts = S, cores = 1), f, c(0, 0))@trace
 #>   start      value converged iterations
 #> 1     1 -0.3054285      TRUE          5
 #> 2     2  0.2941465      TRUE          6

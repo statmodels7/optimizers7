@@ -54,5 +54,5 @@ multistart(bfgs(), n = 4)
 #> <optimizer> multistart (BFGS)
 #>   stop when : gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08
 #>   budgets   : maxit 4, evaluations Inf
-#>   settings  : optimizer = BFGS, n = 4, starts = <NULL>, spread = 1, ncores = <NULL>, distinct_tol = 1e-06
+#>   settings  : optimizer = BFGS, n = 4, starts = <NULL>, spread = 1, cores = <NULL>, distinct_tol = 1e-06
 ```

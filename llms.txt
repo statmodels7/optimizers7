@@ -208,7 +208,7 @@ its stopping rule (or on the resolution of the objective), never because
 a budget ran out.
 
 [`multistart()`](https://statmodels7.github.io/optimizers7/reference/multistart.md)
-runs its starts in parallel without any setup: `ncores` is a number, by
+runs its starts in parallel without any setup: `cores` is a number, by
 default as many processes as there are starts and at most the number of
 cores minus two. The call itself starts the workers, loads the package
 on them, gives each of them an independent random stream and shuts them
@@ -218,7 +218,7 @@ cluster on Windows. For a deterministic optimizer such as
 [`set.seed()`](https://rdrr.io/r/base/Random.html) reproduces the run
 identically however many cores were used; for a stochastic one such as
 [`sa()`](https://statmodels7.github.io/optimizers7/reference/sa.md) the
-result depends on `ncores`.
+result depends on `cores`.
 
 ## Validating an optimizer
 
