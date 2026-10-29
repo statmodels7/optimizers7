@@ -209,7 +209,7 @@ safeguards that fired, and sets `converged` only when the run ended on
 its stopping rule (or on the resolution of the objective), never because
 a budget ran out.
 
-`multistart()` runs its starts in parallel without any setup: `ncores`
+`multistart()` runs its starts in parallel without any setup: `cores`
 is a number, by default as many processes as there are starts and at
 most the number of cores minus two. The call itself starts the workers,
 loads the package on them, gives each of them an independent random
@@ -217,7 +217,7 @@ stream and shuts them down. The implementation uses forks on Linux and
 macOS and a socket cluster on Windows. For a deterministic optimizer
 such as `bfgs()`, `set.seed()` reproduces the run identically however
 many cores were used; for a stochastic one such as `sa()` the result
-depends on `ncores`.
+depends on `cores`.
 
 ## Validating an optimizer
 

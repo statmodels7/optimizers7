@@ -283,7 +283,7 @@ test_that("constructors refuse settings that are not settings", {
   expect_error(nonmonotone(memory = Inf), "'memory'")
   expect_error(sa(cycles = Inf), "'cycles'")
   expect_error(bundle(bundle_size = Inf), "'bundle_size'")
-  expect_error(multistart(bfgs(), ncores = Inf), "'ncores'")
+  expect_error(multistart(bfgs(), cores = Inf), "'cores'")
 })
 
 
@@ -434,7 +434,7 @@ test_that("a gradient that does not belong to the objective draws a warning", {
   # multistart warns once, not once per start
   w <- 0
   withCallingHandlers(
-    minimize(multistart(bfgs(maxit = 2), n = 5, ncores = 1),
+    minimize(multistart(bfgs(maxit = 2), n = 5, cores = 1),
              f_const, c(0, 0), gr = g_lin),
     warning = function(x) { w <<- w + 1; invokeRestart("muffleWarning") })
   expect_equal(w, 1)

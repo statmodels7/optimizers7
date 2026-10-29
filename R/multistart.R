@@ -17,7 +17,7 @@ NULL
 #' @details
 #' Beyond the seven shared properties a `MultiStart` carries six of its own:
 #' `optimizer` is the wrapped optimizer, `n`, `starts` and `spread` describe
-#' where the runs begin, `ncores` how they are distributed over processes,
+#' where the runs begin, `cores` how they are distributed over processes,
 #' and `distinct_tol` how close two values must be to count as one optimum.
 #'
 #' Because the rule that is evaluated belongs to the inner optimizer,
@@ -28,7 +28,8 @@ NULL
 #' @param n How many starts.
 #' @param starts An optional matrix of starting points, one per row.
 #' @param spread How widely the random starts are scattered.
-#' @param ncores The number of processes over which the starts are spread.
+#' @param cores The number of separate R processes over which the starts are
+#'   spread.
 #' @param distinct_tol Objective values closer than this count as one
 #'   optimum.
 #'
@@ -47,7 +48,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
     n            = S7::class_numeric,
     starts       = S7::class_any,
     spread       = S7::class_numeric,
-    ncores       = S7::class_any,
+    cores       = S7::class_any,
     distinct_tol = S7::class_numeric
   ))
 
@@ -75,7 +76,9 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'   gives the required number of columns.
 #' @param spread How widely the random starts are scattered, in units of the
 #'   unconstrained scale. Defaults to `1`.
-#' @param ncores The number of processes over which to spread the starts. Defaults to
+#' @param cores The number of separate R processes over which to spread the
+#'   starts; it does not set threads inside a process, which is the `threads`
+#'   argument of the fitting functions. Defaults to
 #'   `NULL`, meaning `min(n, max(1, parallel::detectCores() - 2))`. Pass `1`
 #'   for a sequential run. For a deterministic inner optimizer the answer
 #'   does not depend on the value; for a stochastic one, such as [sa()], it
@@ -124,7 +127,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'
 #' # Parallel execution
 #'
-#' The starts are independent and are run over `ncores` processes. The
+#' The starts are independent and are run over `cores` processes. The
 #' function creates the workers, loads the package, assigns the random
 #' streams and shuts the workers down internally: on Unix-alikes the
 #' workers are forks, on Windows they form a socket cluster. If the workers
@@ -141,9 +144,9 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #' each worker receives a random stream derived from the seed of the session,
 #' so [set.seed()] reproduces the run. When the inner optimizer is
 #' deterministic, such as [bfgs()] or [nelder_mead()], the result is the same
-#' for every value of `ncores`. When the inner optimizer draws random
+#' for every value of `cores`. When the inner optimizer draws random
 #' numbers, such as [sa()], the result depends on the assignment of the
-#' streams to the workers, and therefore on `ncores`.
+#' streams to the workers, and therefore on `cores`.
 #'
 #' # Failed starts
 #'
@@ -169,23 +172,23 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'
 #' # With a deterministic inner optimizer the answer does not depend on the
 #' # number of processes.
-#' set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, ncores = 1), f, c(0, 0))
-#' set.seed(11); many <- minimize(multistart(bfgs(), n = 8, ncores = 2), f, c(0, 0))
+#' set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, cores = 1), f, c(0, 0))
+#' set.seed(11); many <- minimize(multistart(bfgs(), n = 8, cores = 2), f, c(0, 0))
 #' identical(one@value, many@value)
 #'
 #' # A start where the objective is undefined is recorded, not fatal.
 #' g <- function(p) if (p[1] > 0.5) stop("undefined here") else sum(p^2)
 #' set.seed(3)
-#' minimize(multistart(bfgs(), n = 8, ncores = 1), g, c(0, 0))@message
+#' minimize(multistart(bfgs(), n = 8, cores = 1), g, c(0, 0))@message
 #'
 #' # If every start fails, the run raises an error that quotes the first
 #' # failure.
-#' try(minimize(multistart(bfgs(), n = 4, ncores = 1),
+#' try(minimize(multistart(bfgs(), n = 4, cores = 1),
 #'              function(p) stop("never works"), c(0, 0)))
 #'
 #' # Starting points may be given outright, and then n is the row count.
 #' S <- rbind(c(-2, 0), c(2, 0), c(0, 3))
-#' minimize(multistart(bfgs(), starts = S, ncores = 1), f, c(0, 0))@trace
+#' minimize(multistart(bfgs(), starts = S, cores = 1), f, c(0, 0))@trace
 #'
 #' @seealso [chain()] for running optimizers in sequence instead of in
 #'   parallel, [sa()] for a global search that needs no restarts,
@@ -198,7 +201,7 @@ MultiStart <- S7::new_class("MultiStart", parent = optimizer,
 #'
 #' @export
 multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
-                       ncores = NULL, distinct_tol = 1e-6,
+                       cores = NULL, distinct_tol = 1e-6,
                        verbose = FALSE, refresh = 1, keep_trace = TRUE) {
   if (!S7::S7_inherits(optimizer, optimizer_class())) {
     stop("'optimizer' must be an optimizer object, e.g. bfgs().", call. = FALSE)
@@ -215,13 +218,13 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
                        refresh, keep_trace)
   check_tol(spread, "spread")
   check_tol(distinct_tol, "distinct_tol")
-  if (!is.null(ncores)) {
-    if (!is.numeric(ncores) || length(ncores) != 1L || is.na(ncores) ||
-        ncores < 1 || !is.finite(ncores) || ncores != round(ncores)) {
-      stop("'ncores' must be a single positive whole number, or NULL.",
+  if (!is.null(cores)) {
+    if (!is.numeric(cores) || length(cores) != 1L || is.na(cores) ||
+        cores < 1 || !is.finite(cores) || cores != round(cores)) {
+      stop("'cores' must be a single positive whole number, or NULL.",
            call. = FALSE)
     }
-    ncores <- as.integer(ncores)
+    cores <- as.integer(cores)
   }
 
   MultiStart(
@@ -230,7 +233,7 @@ multistart <- function(optimizer, n = 10, starts = NULL, spread = 1,
     maxit = n, max_eval = optimizer@max_eval, verbose = verbose,
     refresh = refresh, keep_trace = keep_trace,
     optimizer = optimizer, n = n, starts = starts, spread = spread,
-    ncores = ncores, distinct_tol = distinct_tol
+    cores = cores, distinct_tol = distinct_tol
   )
 }
 
@@ -394,7 +397,7 @@ S7::method(minimize, MultiStart) <-
     }
 
     t0 <- proc.time()[["elapsed"]]
-    res <- run_starts(one, n, resolve_ncores(optimizer@ncores, n),
+    res <- run_starts(one, n, resolve_cores(optimizer@cores, n),
                       optimizer@verbose, optimizer@refresh)
     elapsed <- proc.time()[["elapsed"]] - t0
 
@@ -431,7 +434,7 @@ capture_seed <- function() {
 #' How Many Processes to Use
 #'
 #' @description
-#' Turns `ncores = NULL` into a number: as many processes as there are
+#' Turns `cores = NULL` into a number: as many processes as there are
 #' starts, but not more than the number of cores minus two.
 #'
 #' @details
@@ -445,28 +448,28 @@ capture_seed <- function() {
 #' `_R_CHECK_LIMIT_CORES_` and fails a package that ignores it, and it
 #' falls back to one process where `detectCores()` returns `NA`.
 #'
-#' @param ncores The value given by the caller, possibly `NULL`.
+#' @param cores The value given by the caller, possibly `NULL`.
 #' @param n The number of starts.
 #'
 #' @return A single integer, at least one.
 #'
 #' @keywords internal
-resolve_ncores <- function(ncores, n) {
-  if (is.null(ncores)) {
+resolve_cores <- function(cores, n) {
+  if (is.null(cores)) {
     avail <- suppressWarnings(parallel::detectCores())
     if (!is.finite(avail)) avail <- 1L
-    ncores <- min(n, max(1L, avail - 2L))
+    cores <- min(n, max(1L, avail - 2L))
   }
-  ncores <- min(as.integer(ncores), n)
-  if (nzchar(Sys.getenv("_R_CHECK_LIMIT_CORES_"))) ncores <- min(ncores, 2L)
-  max(1L, ncores)
+  cores <- min(as.integer(cores), n)
+  if (nzchar(Sys.getenv("_R_CHECK_LIMIT_CORES_"))) cores <- min(cores, 2L)
+  max(1L, cores)
 }
 
 
 #' Run the Starts, in Parallel or Not
 #'
 #' @description
-#' Evaluates `one(i)` for `i` in `1:n`, over `ncores`
+#' Evaluates `one(i)` for `i` in `1:n`, over `cores`
 #' processes, and cleans up after itself.
 #'
 #' @details
@@ -476,7 +479,7 @@ resolve_ncores <- function(ncores, n) {
 #' One process is the sequential loop, and it is the only route that reports
 #' progress during the run, since a worker has no output that the caller
 #' would see. When \pkg{optimizers7} was loaded with \pkg{pkgload}, this
-#' route is used whatever `ncores` is.
+#' route is used whatever `cores` is.
 #'
 #' On a Unix-alike the workers are forks, through `parallel::mclapply()`.
 #' A fork starts in microseconds and inherits the whole session, so the
@@ -490,7 +493,7 @@ resolve_ncores <- function(ncores, n) {
 #'
 #' Both parallel routes seed their workers from the stream of this session,
 #' so `set.seed()` reproduces the run. For a deterministic inner optimizer
-#' the result is the same for every `ncores`; for one that draws random
+#' the result is the same for every `cores`; for one that draws random
 #' numbers, such as [sa()], it depends on the assignment of the streams to
 #' the workers. The generator is set to `"L'Ecuyer-CMRG"` for the duration
 #' and restored afterwards, since it is the only kind that \R can split into
@@ -499,14 +502,14 @@ resolve_ncores <- function(ncores, n) {
 #' @param one A function of the index of the start, returning a result or a
 #'   message.
 #' @param n How many starts.
-#' @param ncores How many processes, already resolved.
+#' @param cores How many processes, already resolved.
 #' @param verbose Report each start as it finishes?
 #' @param refresh Report every this many.
 #'
 #' @return A list of `n` results.
 #'
 #' @keywords internal
-run_starts <- function(one, n, ncores, verbose, refresh) {
+run_starts <- function(one, n, cores, verbose, refresh) {
   sequential <- function() {
     res <- vector("list", n)
     for (i in seq_len(n)) {
@@ -519,7 +522,7 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
     }
     res
   }
-  if (ncores <= 1L) return(sequential())
+  if (cores <= 1L) return(sequential())
 
   # Independent streams for the workers, derived from the caller's seed so that
   # set.seed() still governs everything.
@@ -540,13 +543,13 @@ run_starts <- function(one, n, ncores, verbose, refresh) {
 
   if (.Platform$OS.type != "windows") {
     set.seed(iseed)
-    return(parallel::mclapply(seq_len(n), one, mc.cores = ncores,
+    return(parallel::mclapply(seq_len(n), one, mc.cores = cores,
                               mc.set.seed = TRUE))
   }
 
-  cl <- try(parallel::makePSOCKcluster(ncores), silent = TRUE)
+  cl <- try(parallel::makePSOCKcluster(cores), silent = TRUE)
   if (inherits(cl, "try-error")) {
-    warning("Could not start ", ncores, " worker processes; running the ",
+    warning("Could not start ", cores, " worker processes; running the ",
             "starts sequentially.", call. = FALSE)
     return(sequential())
   }

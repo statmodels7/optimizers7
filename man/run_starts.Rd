@@ -4,7 +4,7 @@
 \alias{run_starts}
 \title{Run the Starts, in Parallel or Not}
 \usage{
-run_starts(one, n, ncores, verbose, refresh)
+run_starts(one, n, cores, verbose, refresh)
 }
 \arguments{
 \item{one}{A function of the index of the start, returning a result or a
@@ -12,7 +12,7 @@ message.}
 
 \item{n}{How many starts.}
 
-\item{ncores}{How many processes, already resolved.}
+\item{cores}{How many processes, already resolved.}
 
 \item{verbose}{Report each start as it finishes?}
 
@@ -22,7 +22,7 @@ message.}
 A list of \code{n} results.
 }
 \description{
-Evaluates \code{one(i)} for \code{i} in \code{1:n}, over \code{ncores}
+Evaluates \code{one(i)} for \code{i} in \code{1:n}, over \code{cores}
 processes, and cleans up after itself.
 }
 \details{
@@ -32,7 +32,7 @@ have to.
 One process is the sequential loop, and it is the only route that reports
 progress during the run, since a worker has no output that the caller
 would see. When \pkg{optimizers7} was loaded with \pkg{pkgload}, this
-route is used whatever \code{ncores} is.
+route is used whatever \code{cores} is.
 
 On a Unix-alike the workers are forks, through \code{parallel::mclapply()}.
 A fork starts in microseconds and inherits the whole session, so the
@@ -46,7 +46,7 @@ and runs the starts sequentially instead of failing.
 
 Both parallel routes seed their workers from the stream of this session,
 so \code{set.seed()} reproduces the run. For a deterministic inner optimizer
-the result is the same for every \code{ncores}; for one that draws random
+the result is the same for every \code{cores}; for one that draws random
 numbers, such as \code{\link[=sa]{sa()}}, it depends on the assignment of the streams to
 the workers. The generator is set to \code{"L'Ecuyer-CMRG"} for the duration
 and restored afterwards, since it is the only kind that \R can split into

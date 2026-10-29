@@ -17,7 +17,7 @@ MultiStart(
   n = integer(0),
   starts = NULL,
   spread = integer(0),
-  ncores = NULL,
+  cores = NULL,
   distinct_tol = integer(0)
 )
 }
@@ -30,7 +30,8 @@ MultiStart(
 
 \item{spread}{How widely the random starts are scattered.}
 
-\item{ncores}{The number of processes over which the starts are spread.}
+\item{cores}{The number of separate R processes over which the starts are
+spread.}
 
 \item{distinct_tol}{Objective values closer than this count as one
 optimum.}
@@ -50,7 +51,7 @@ arguments of \code{\link[=multistart]{multistart()}}; and \code{maxit} counts st
 \details{
 Beyond the seven shared properties a \code{MultiStart} carries six of its own:
 \code{optimizer} is the wrapped optimizer, \code{n}, \code{starts} and \code{spread} describe
-where the runs begin, \code{ncores} how they are distributed over processes,
+where the runs begin, \code{cores} how they are distributed over processes,
 and \code{distinct_tol} how close two values must be to count as one optimum.
 
 Because the rule that is evaluated belongs to the inner optimizer,

@@ -9,7 +9,7 @@ multistart(
   n = 10,
   starts = NULL,
   spread = 1,
-  ncores = NULL,
+  cores = NULL,
   distinct_tol = 1e-06,
   verbose = FALSE,
   refresh = 1,
@@ -34,7 +34,9 @@ gives the required number of columns.}
 \item{spread}{How widely the random starts are scattered, in units of the
 unconstrained scale. Defaults to \code{1}.}
 
-\item{ncores}{The number of processes over which to spread the starts. Defaults to
+\item{cores}{The number of separate R processes over which to spread the
+starts; it does not set threads inside a process, which is the \code{threads}
+argument of the fitting functions. Defaults to
 \code{NULL}, meaning \code{min(n, max(1, parallel::detectCores() - 2))}. Pass \code{1}
 for a sequential run. For a deterministic inner optimizer the answer
 does not depend on the value; for a stochastic one, such as \code{\link[=sa]{sa()}}, it
@@ -96,7 +98,7 @@ failed start.
 }
 
 \section{Parallel execution}{
-The starts are independent and are run over \code{ncores} processes. The
+The starts are independent and are run over \code{cores} processes. The
 function creates the workers, loads the package, assigns the random
 streams and shuts the workers down internally: on Unix-alikes the
 workers are forks, on Windows they form a socket cluster. If the workers
@@ -113,9 +115,9 @@ The starting points are drawn in the calling session before dispatch, and
 each worker receives a random stream derived from the seed of the session,
 so \code{\link[=set.seed]{set.seed()}} reproduces the run. When the inner optimizer is
 deterministic, such as \code{\link[=bfgs]{bfgs()}} or \code{\link[=nelder_mead]{nelder_mead()}}, the result is the same
-for every value of \code{ncores}. When the inner optimizer draws random
+for every value of \code{cores}. When the inner optimizer draws random
 numbers, such as \code{\link[=sa]{sa()}}, the result depends on the assignment of the
-streams to the workers, and therefore on \code{ncores}.
+streams to the workers, and therefore on \code{cores}.
 }
 
 \section{Failed starts}{
@@ -139,23 +141,23 @@ r@par
 
 # With a deterministic inner optimizer the answer does not depend on the
 # number of processes.
-set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, ncores = 1), f, c(0, 0))
-set.seed(11); many <- minimize(multistart(bfgs(), n = 8, ncores = 2), f, c(0, 0))
+set.seed(11); one  <- minimize(multistart(bfgs(), n = 8, cores = 1), f, c(0, 0))
+set.seed(11); many <- minimize(multistart(bfgs(), n = 8, cores = 2), f, c(0, 0))
 identical(one@value, many@value)
 
 # A start where the objective is undefined is recorded, not fatal.
 g <- function(p) if (p[1] > 0.5) stop("undefined here") else sum(p^2)
 set.seed(3)
-minimize(multistart(bfgs(), n = 8, ncores = 1), g, c(0, 0))@message
+minimize(multistart(bfgs(), n = 8, cores = 1), g, c(0, 0))@message
 
 # If every start fails, the run raises an error that quotes the first
 # failure.
-try(minimize(multistart(bfgs(), n = 4, ncores = 1),
+try(minimize(multistart(bfgs(), n = 4, cores = 1),
              function(p) stop("never works"), c(0, 0)))
 
 # Starting points may be given outright, and then n is the row count.
 S <- rbind(c(-2, 0), c(2, 0), c(0, 3))
-minimize(multistart(bfgs(), starts = S, ncores = 1), f, c(0, 0))@trace
+minimize(multistart(bfgs(), starts = S, cores = 1), f, c(0, 0))@trace
 
 }
 \references{

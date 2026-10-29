@@ -172,7 +172,7 @@ test_that("starters work with every optimizer, including multistart", {
   for (o in list(gd(maxit = 3), cg(maxit = 3), bb(maxit = 3), bfgs(maxit = 3),
                  lbfgs(maxit = 3), newton(maxit = 3), adam(maxit = 3),
                  nelder_mead(maxit = 3), compass(maxit = 3),
-                 multistart(bfgs(maxit = 3), n = 2, ncores = 1))) {
+                 multistart(bfgs(maxit = 3), n = 2, cores = 1))) {
     r <- minimize(o, quad, start_zeros(3), gr = quad_g)
     expect_length(r@par, 3)
     expect_true(is.finite(r@value))
