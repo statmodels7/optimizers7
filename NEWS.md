@@ -1,3 +1,13 @@
+# optimizers7 0.21.0
+
+* The graph of an `optimizer_result` is drawn with ggplot2, which is
+  suggested. `autoplot()` returns the graph and `plot()` prints it and
+  returns it invisibly, where it returned `NULL`. A legend below the panel
+  names the objective and the iterations at which a safeguard fired, and
+  `legend = FALSE` removes it. The graphical arguments that `plot()` passed
+  to `graphics::plot()` are removed: a logarithmic axis is added to the
+  returned graph with `+ ggplot2::scale_y_log10()`.
+
 # optimizers7 0.20.0
 
 * The argument `ncores` of `multistart()` is `cores`, and `resolve_ncores()`

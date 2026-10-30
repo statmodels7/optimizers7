@@ -1,6 +1,6 @@
 Package: optimizers7
 Title: An S7 Framework for Optimization Algorithms
-Version: 0.20.0
+Version: 0.21.0
 Authors@R:
     person("Giovanni", "Tinervia", , "giovannitinervia9@gmail.com", role = c("aut", "cre"))
 Description: Optimization algorithms as objects, built on the S7 object
@@ -31,6 +31,7 @@ Imports:
     S7
 Collate:
     'RcppExports.R'
+    'ggplot.R'
     'criterion.R'
     'optimizer_class.R'
     'result_class.R'
@@ -58,6 +59,7 @@ Collate:
 Remotes:
     statmodels7/linkfunctions7
 Suggests:
+    ggplot2 (>= 3.5.0),
     linkfunctions7,
     pkgdown,
     testthat (>= 3.0.0),

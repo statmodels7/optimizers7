@@ -1,4 +1,4 @@
-#' @include optimizer_class.R
+#' @include optimizer_class.R ggplot.R
 NULL
 
 #' @title S7 Class for the Result of an Optimization
@@ -320,58 +320,94 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 #' @name plot.optimizer_result
 #'
 #' @description
-#' Draws the objective against the iteration number as a line, with a filled
-#' point at every iteration where a safeguard fired and a legend for the
-#' points. The title is the name of the method. The marks show the
-#' iterations at which the algorithm repaired its step and how the objective
-#' moved there.
+#' `autoplot()` returns a graph of the objective against the iteration
+#' number, drawn as a line, with a point at every iteration where a safeguard
+#' fired; `plot()` prints that graph. The title is the name of the method.
+#' The points show the iterations at which the algorithm repaired its step
+#' and how the objective moved there. A legend below the panel names the line
+#' and the points.
 #'
 #' @details
-#' The plot is built from the `trace`, so the optimizer must have been
+#' The graph is built from the `trace`, so the optimizer must have been
 #' created with `keep_trace = TRUE`. Without a trace the method stops with an
 #' error that names that argument.
 #'
-#' The vertical axis is the objective on its own scale; for a run whose
-#' objective falls over several orders of magnitude, `log = "y"` is more
-#' readable, and it is passed to [graphics::plot()] like any other
-#' argument.
+#' The vertical axis is the objective on its own scale. For a run whose
+#' objective falls over several orders of magnitude, a logarithmic axis is
+#' more readable, and it is added to the returned graph with
+#' `+ ggplot2::scale_y_log10()`.
 #'
-#' @param x An [optimizer_result()].
-#' @param ... Passed to [graphics::plot()]. `type`, `lwd`, `las`, `xlab`,
-#'   `ylab` and `main` are already set and passing them again is an error, as
-#'   it is for any duplicated argument.
+#' The graph is drawn with \pkg{ggplot2}, which is suggested; the methods
+#' signal an error that names it when it is not installed.
 #'
-#' @return `NULL`, invisibly. Called for the plot.
+#' @param x,object An [optimizer_result()].
+#' @param legend Whether the graph draws the legend below the panel,
+#'   `TRUE` (the default) or `FALSE`.
+#' @param ... Unused; an argument passed here signals an error.
 #'
-#' @examples
+#' @return `autoplot()` returns a ggplot2 object; `plot()` prints the same
+#'   object and returns it invisibly.
+#'
+#' @examplesIf requireNamespace("ggplot2", quietly = TRUE)
 #' f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 #' g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
 #'                    200 * (p[2] - p[1]^2))
+#' res <- minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g)
 #'
-#' # The marked iterations are those at which a step was repaired.
-#' plot(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g), log = "y")
+#' # The points mark the iterations at which a step was repaired.
+#' p <- plot(res)
+#'
+#' # The objective falls by twenty orders of magnitude, so a logarithmic
+#' # axis shows the last iterations.
+#' p + ggplot2::scale_y_log10()
 #'
 #' # Without a trace there is nothing to draw, and the error names the
 #' # missing argument.
 #' try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
 #'
-#' @importFrom graphics plot points grid legend
 #' @keywords internal
-S7::method(plot, optimizer_result) <- function(x, ...) {
-  tr <- x@trace
+S7::method(plot, optimizer_result) <- function(x, legend = TRUE, ...) {
+  p <- autoplot_optimizer_result(x, legend = legend, ...)
+  print(p)
+  invisible(p)
+}
+
+#' @rdname plot.optimizer_result
+autoplot_optimizer_result <- function(object, legend = TRUE, ...) {
+  if (...length()) {
+    stop("The graph of an optimization result takes no further arguments; ",
+         "modify the returned object instead.", call. = FALSE)
+  }
+  if (!is.logical(legend) || length(legend) != 1L || is.na(legend)) {
+    stop("'legend' must be TRUE or FALSE.", call. = FALSE)
+  }
+  tr <- object@trace
   if (is.null(tr) || !nrow(tr)) {
     stop("Plotting needs a trace; build the optimizer with keep_trace = TRUE.",
          call. = FALSE)
   }
-  graphics::plot(tr$iteration, tr$value, type = "l", lwd = 2, las = 1,
-                 xlab = "iteration", ylab = "objective",
-                 main = x@optimizer@name, ...)
-  graphics::grid()
-  hit <- tr$safeguard != "none"
-  if (any(hit)) {
-    graphics::points(tr$iteration[hit], tr$value[hit], pch = 19, col = "#9C3E11")
-    graphics::legend("topright", pch = 19, col = "#9C3E11", bty = "n",
-                     legend = "safeguard fired")
+  need_ggplot()
+  .data <- ggplot2::.data
+  path <- data.frame(iteration = tr$iteration, value = tr$value)
+  hit <- path[tr$safeguard != "none", , drop = FALSE]
+  k_line <- "objective"
+  k_hit <- "iteration at which a safeguard fired"
+  p <- ggplot2::ggplot(path, ggplot2::aes(x = .data$iteration,
+                                          y = .data$value)) +
+    ggplot2::geom_line(ggplot2::aes(colour = k_line), linewidth = 0.9) +
+    ggplot2::scale_colour_manual(
+      name = NULL, values = stats::setNames(c("#1f5fa8", "#b2182b"),
+                                            c(k_line, k_hit)),
+      breaks = c(k_line, if (nrow(hit)) k_hit)) +
+    ggplot2::labs(title = object@optimizer@name, x = "iteration",
+                  y = "objective") +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = if (legend) "bottom" else "none")
+  if (nrow(hit)) {
+    p <- p + ggplot2::geom_point(data = hit, ggplot2::aes(colour = k_hit),
+                                 size = 2)
   }
-  invisible(NULL)
+  p
 }
+
+S7::method(autoplot, optimizer_result) <- autoplot_optimizer_result

@@ -2,45 +2,61 @@
 % Please edit documentation in R/result_class.R
 \name{plot.optimizer_result}
 \alias{plot.optimizer_result}
+\alias{autoplot_optimizer_result}
 \title{Plot Method for an Optimization Result}
+\usage{
+autoplot_optimizer_result(object, legend = TRUE, ...)
+}
 \arguments{
-\item{x}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
+\item{legend}{Whether the graph draws the legend below the panel,
+\code{TRUE} (the default) or \code{FALSE}.}
 
-\item{...}{Passed to \code{\link[graphics:plot.default]{graphics::plot()}}. \code{type}, \code{lwd}, \code{las}, \code{xlab},
-\code{ylab} and \code{main} are already set and passing them again is an error, as
-it is for any duplicated argument.}
+\item{...}{Unused; an argument passed here signals an error.}
+
+\item{x, object}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 }
 \value{
-\code{NULL}, invisibly. Called for the plot.
+\code{autoplot()} returns a ggplot2 object; \code{plot()} prints the same
+object and returns it invisibly.
 }
 \description{
-Draws the objective against the iteration number as a line, with a filled
-point at every iteration where a safeguard fired and a legend for the
-points. The title is the name of the method. The marks show the
-iterations at which the algorithm repaired its step and how the objective
-moved there.
+\code{autoplot()} returns a graph of the objective against the iteration
+number, drawn as a line, with a point at every iteration where a safeguard
+fired; \code{plot()} prints that graph. The title is the name of the method.
+The points show the iterations at which the algorithm repaired its step
+and how the objective moved there. A legend below the panel names the line
+and the points.
 }
 \details{
-The plot is built from the \code{trace}, so the optimizer must have been
+The graph is built from the \code{trace}, so the optimizer must have been
 created with \code{keep_trace = TRUE}. Without a trace the method stops with an
 error that names that argument.
 
-The vertical axis is the objective on its own scale; for a run whose
-objective falls over several orders of magnitude, \code{log = "y"} is more
-readable, and it is passed to \code{\link[graphics:plot.default]{graphics::plot()}} like any other
-argument.
+The vertical axis is the objective on its own scale. For a run whose
+objective falls over several orders of magnitude, a logarithmic axis is
+more readable, and it is added to the returned graph with
+\code{+ ggplot2::scale_y_log10()}.
+
+The graph is drawn with \pkg{ggplot2}, which is suggested; the methods
+signal an error that names it when it is not installed.
 }
 \examples{
+\dontshow{if (requireNamespace("ggplot2", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 f <- function(p) (1 - p[1])^2 + 100 * (p[2] - p[1]^2)^2
 g <- function(p) c(-2 * (1 - p[1]) - 400 * p[1] * (p[2] - p[1]^2),
                    200 * (p[2] - p[1]^2))
+res <- minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g)
 
-# The marked iterations are those at which a step was repaired.
-plot(minimize(newton(keep_trace = TRUE), f, c(-1.2, 1), gr = g), log = "y")
+# The points mark the iterations at which a step was repaired.
+p <- plot(res)
+
+# The objective falls by twenty orders of magnitude, so a logarithmic
+# axis shows the last iterations.
+p + ggplot2::scale_y_log10()
 
 # Without a trace there is nothing to draw, and the error names the
 # missing argument.
 try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
-
+\dontshow{\}) # examplesIf}
 }
 \keyword{internal}
