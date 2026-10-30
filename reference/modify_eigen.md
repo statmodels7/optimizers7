@@ -70,6 +70,6 @@ minimize(newton(modify = modify_eigen(floor = 1e-6)), f, c(0.05, 0.6),
 #>   value      : -1
 #>   par        : 1 0
 #>   iterations : 4   evaluations: f 5, g 5
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 ```

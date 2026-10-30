@@ -40,6 +40,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/armijo.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/as_objective.function.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/as_objective.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/autoplot.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bb.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bfgs.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/bounded_forward.html</loc></url>
@@ -123,6 +124,7 @@
 <url><loc>https://statmodels7.github.io/optimizers7/reference/modify_ridge.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/modify_spec.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/multistart.html</loc></url>
+<url><loc>https://statmodels7.github.io/optimizers7/reference/need_ggplot.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/nelder_mead.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/newton.html</loc></url>
 <url><loc>https://statmodels7.github.io/optimizers7/reference/nonmonotone.html</loc></url>

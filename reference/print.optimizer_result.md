@@ -43,7 +43,7 @@ res
 #>   value      : 2.80957e-22
 #>   par        : 1 2
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 print(res, digits = 2, max_par = 1)
@@ -51,7 +51,7 @@ print(res, digits = 2, max_par = 1)
 #>   value      : 2.80957e-22
 #>   par        : 1 ... (1 of 2 shown)
 #>   iterations : 1   evaluations: f 11, g 0
-#>   elapsed    : 1 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 #>   note       : gradient obtained by finite differences
 
@@ -62,7 +62,7 @@ print(minimize(gd(maxit = 5), rosen, c(-1.2, 1)))
 #>   value      : 4.10215
 #>   par        : -1.0203  1.0553
 #>   iterations : 5   evaluations: f 77, g 0
-#>   elapsed    : 0 us
+#>   elapsed    : 1 ms
 #>   converged  : NO (iteration budget reached)
 #>   note       : gradient obtained by finite differences
 ```

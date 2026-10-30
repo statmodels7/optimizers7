@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">optimizers7</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.20.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.21.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,6 +36,10 @@
       <small>Source: <a href="https://github.com/statmodels7/optimizers7/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.21.0" id="optimizers7-0210">optimizers7 0.21.0<a class="anchor" aria-label="anchor" href="#optimizers7-0210"></a></h2>
+<ul><li>The graph of an <code>optimizer_result</code> is drawn with ggplot2, which is suggested. <code><a href="../reference/autoplot.html">autoplot()</a></code> returns the graph and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> prints it and returns it invisibly, where it returned <code>NULL</code>. A legend below the panel names the objective and the iterations at which a safeguard fired, and <code>legend = FALSE</code> removes it. The graphical arguments that <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> passed to <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">graphics::plot()</a></code> are removed: a logarithmic axis is added to the returned graph with <code>+ ggplot2::scale_y_log10()</code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.20.0" id="optimizers7-0200">optimizers7 0.20.0<a class="anchor" aria-label="anchor" href="#optimizers7-0200"></a></h2>
 <ul><li>The argument <code>ncores</code> of <code><a href="../reference/multistart.html">multistart()</a></code> is <code>cores</code>, and <code>resolve_ncores()</code> is <code><a href="../reference/resolve_cores.html">resolve_cores()</a></code>. The name is the one used by every function of the toolkit that starts separate R processes; <code>threads</code> counts threads inside one process.</li>
