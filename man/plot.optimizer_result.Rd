@@ -5,15 +5,17 @@
 \alias{autoplot_optimizer_result}
 \title{Plot Method for an Optimization Result}
 \usage{
+\method{plot}{optimizer_result}(x, legend = TRUE, ...)
+
 autoplot_optimizer_result(object, legend = TRUE, ...)
 }
 \arguments{
+\item{x, object}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
+
 \item{legend}{Whether the graph draws the legend below the panel,
 \code{TRUE} (the default) or \code{FALSE}.}
 
 \item{...}{Unused; an argument passed here signals an error.}
-
-\item{x, object}{An \code{\link[=optimizer_result]{optimizer_result()}}.}
 }
 \value{
 \code{autoplot()} returns a ggplot2 object; \code{plot()} prints the same

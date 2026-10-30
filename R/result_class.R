@@ -366,11 +366,13 @@ S7::method(summary, optimizer_result) <- function(object, ...) {
 #' try(plot(minimize(newton(), f, c(-1.2, 1), gr = g)))
 #'
 #' @keywords internal
-S7::method(plot, optimizer_result) <- function(x, legend = TRUE, ...) {
+#' @export
+plot.optimizer_result <- function(x, legend = TRUE, ...) {
   p <- autoplot_optimizer_result(x, legend = legend, ...)
   print(p)
   invisible(p)
 }
+S7::method(plot, optimizer_result) <- plot.optimizer_result
 
 #' @rdname plot.optimizer_result
 autoplot_optimizer_result <- function(object, legend = TRUE, ...) {
