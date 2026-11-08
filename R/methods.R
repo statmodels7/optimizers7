@@ -404,6 +404,19 @@ build_result <- function(out, optimizer, spec, elapsed, seed = NULL) {
 #'
 #' @keywords internal
 run_descent <- function(optimizer, fn, par, gr, hess, lower, upper, method) {
+  if (isTRUE(descent_capture$on)) {
+    # descent_settings(): the arguments of the compiled loop, without a run
+    settings <- list(
+      method = method, line_search = line_search_spec(optimizer@line_search),
+      maxit = as.integer(optimizer@maxit),
+      max_eval = budget_int(optimizer@max_eval),
+      verbose = optimizer@verbose, refresh = as.integer(optimizer@refresh),
+      keep_trace = optimizer@keep_trace, step = optimizer@step,
+      rule_spec = criterion_spec(optimizer@criterion))
+    stop(structure(class = c("descent_settings", "condition"),
+                   list(message = "descent settings", call = NULL,
+                        settings = settings)))
+  }
   spec <- prepare_objective(optimizer, fn, par, gr, hess)
   bounds <- check_bounds(lower, upper, par)
 
@@ -419,7 +432,9 @@ run_descent <- function(optimizer, fn, par, gr, hess, lower, upper, method) {
     refresh = as.integer(optimizer@refresh),
     keep_trace = optimizer@keep_trace,
     step = optimizer@step,
-    bounds = bounds
+    bounds = bounds,
+    rule_spec = if (isTRUE(getOption("optimizers7.compiled_rules", TRUE)))
+      criterion_spec(optimizer@criterion) else NULL
   )
   elapsed <- proc.time()[["elapsed"]] - t0
 
@@ -687,3 +702,54 @@ bounded_transform <- function(b, eta) bounded_transform_cpp(b, as.numeric(eta))
 #'   [check_bounds()] for the validation.
 #' @export
 bounded_forward <- function(b, theta) bounded_forward_cpp(b, as.numeric(theta))
+
+
+#' The Settings of a Descent Method for the Compiled Loop
+#'
+#' @description
+#' `descent_settings()` returns the arguments that a descent method passes to
+#' the compiled loop for a problem with `npar` parameters, without running it,
+#' for another package that runs the loop through the headers in
+#' `inst/include/optimizers7` (`descent_loop()` in `descent_loop.h`).
+#'
+#' @details
+#' The settings are produced by the method's own [minimize()] method, which
+#' stops before the run, so they are the ones a call of [minimize()] with the
+#' same optimizer would use: the description of the direction (`method`), the
+#' line search as `line_search_spec()` describes it (`line_search`), `maxit`,
+#' `max_eval` (`.Machine$integer.max` for an unlimited budget), `verbose`,
+#' `refresh`, `keep_trace`, `step`, and the stopping rule as
+#' [criterion_spec()] describes it (`rule_spec`, `NULL` where the rule has no
+#' compiled form). The result is `NULL` for an optimizer whose method does not
+#' run the descent loop, and for [chebyshev()], whose direction reads a third
+#' derivative supplied as an R function.
+#'
+#' @param optimizer An [optimizer()].
+#' @param npar The number of parameters.
+#'
+#' @return A list, or `NULL`.
+#'
+#' @examples
+#' str(descent_settings(lbfgs(), 2)$method)
+#' descent_settings(nelder_mead(), 2)
+#'
+#' @seealso [criterion_spec()], [minimize()]
+#' @export
+descent_settings <- function(optimizer, npar) {
+  if (S7::S7_inherits(optimizer, Chebyshev)) return(NULL)
+  descent_capture$on <- TRUE
+  on.exit(descent_capture$on <- FALSE)
+  tryCatch({
+    minimize(optimizer, function(x) 0, rep(0, npar),
+             hess = function(x) diag(length(x)))
+    NULL
+  }, descent_settings = function(c) c$settings,
+  error = function(e) NULL)
+}
+
+#' @rdname descent_settings
+#' @format `descent_capture`: an environment whose flag `on` makes
+#'   `run_descent()` return its settings instead of running.
+#' @keywords internal
+descent_capture <- new.env(parent = emptyenv())
+descent_capture$on <- FALSE

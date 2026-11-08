@@ -10,6 +10,7 @@
 // this; only the direction they hand it differs.
 
 #include <RcppArmadillo.h>
+#include <functional>
 #include "objective.h"
 
 namespace optimizers7 {
@@ -286,6 +287,9 @@ struct LineSearchSpec {
   // whose resolution improves as a fit settles is the case: read once at the
   // start it would be the reading from the worst-located point of the run.
   Rcpp::RObject resolution_fn;
+  // The same, for a compiled caller: a function of no arguments that the
+  // search asks once per invocation, before resolution_fn and resolution.
+  std::function<double()> resolution_cb;
 
   static LineSearchSpec from_list(Rcpp::List ls) {
     LineSearchSpec s;
@@ -309,6 +313,10 @@ struct LineSearchSpec {
   // Whatever a non-finite or non-positive answer is, it is not a resolution,
   // and 0 is how this class says the question is not being asked.
   double current_resolution() const {
+    if (resolution_cb) {
+      const double d = resolution_cb();
+      return (std::isfinite(d) && d > 0.0) ? d : 0.0;
+    }
     if (resolution_fn.isNULL()) return resolution;
     Rcpp::Function f(resolution_fn);
     const double d = Rcpp::as<double>(f());

@@ -3,3 +3,6 @@
 ## decompositions Newton will need are worse. R supplies the right flags for
 ## whichever libraries this installation was built against.
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+## The headers of the descent loop live in inst/include/optimizers7 so that
+## other packages reach them with LinkingTo: optimizers7.
+PKG_CPPFLAGS = -I../inst/include

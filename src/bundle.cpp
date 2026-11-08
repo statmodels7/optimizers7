@@ -23,9 +23,9 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
-#include "objective.h"
-#include "bounded.h"
-#include "loop_support.h"
+#include <optimizers7/objective.h>
+#include <optimizers7/bounded.h>
+#include <optimizers7/loop_support.h>
 
 using namespace optimizers7;
 

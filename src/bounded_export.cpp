@@ -6,7 +6,7 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
-#include "bounded.h"
+#include <optimizers7/bounded.h>
 
 using namespace optimizers7;
 

@@ -1010,3 +1010,61 @@ check_tol <- function(tol, nm = "tol") {
   }
   invisible(TRUE)
 }
+
+
+#' The Compiled Form of a Stopping Rule
+#'
+#' @description
+#' Returns a description of a stopping rule as nested lists, from which the
+#' compiled descent loop builds the same rule in C++, or `NULL` where the rule
+#' or one of its members has no compiled form.
+#'
+#' @details
+#' The rules with a compiled form are those built by [crit_grad()],
+#' [crit_abs_obj()], [crit_rel_obj()], [crit_abs_par()], [crit_rel_par()],
+#' [crit_never()], [crit_any()] and [crit_all()]. The class is read exactly, so
+#' that a subclass with a method of its own for [crit_met()] is evaluated in R.
+#' Each element of the result has `type` (`"grad"`, `"abs_obj"`, `"rel_obj"`,
+#' `"abs_par"`, `"rel_par"`, `"never"`, `"any"` or `"all"`), and `tol`, `norm`
+#' or `criteria` where the rule has them. The compiled rules compute the same
+#' quantities as the methods of [crit_met()], with the same arithmetic, and
+#' combine missing values as [any()] and [all()] do. The descent methods
+#' ([newton()], [bfgs()], [lbfgs()], [gd()], [cg()], [bb()], [chebyshev()]) ask
+#' the compiled form where one exists; `options(optimizers7.compiled_rules =
+#' FALSE)` makes them ask [crit_met()] in R instead. Another package that runs
+#' the descent loop through the headers in `inst/include/optimizers7` passes
+#' this list to `make_compiled_rule()` in `rules.h`.
+#'
+#' @param criterion A [criterion()] object.
+#'
+#' @return A list, or `NULL`.
+#'
+#' @examples
+#' str(criterion_spec(crit_any(crit_grad(), crit_abs_obj(1e-8))))
+#'
+#' Tiny <- S7::new_class("Tiny", parent = criterion,
+#'                       properties = list(tol = S7::class_numeric))
+#' S7::method(crit_met, Tiny) <- function(criterion, state)
+#'   abs(state$f_new) < criterion@tol
+#' criterion_spec(Tiny(label = "tiny", tol = 1e-3))
+#'
+#' @seealso [crit_met()], [crit_any()]
+#' @export
+criterion_spec <- function(criterion) {
+  cl <- class(criterion)[1L]
+  switch(cl,
+    "optimizers7::CritGrad" = list(type = "grad", tol = criterion@tol,
+                                   norm = criterion@norm),
+    "optimizers7::CritAbsObj" = list(type = "abs_obj", tol = criterion@tol),
+    "optimizers7::CritRelObj" = list(type = "rel_obj", tol = criterion@tol),
+    "optimizers7::CritAbsPar" = list(type = "abs_par", tol = criterion@tol),
+    "optimizers7::CritRelPar" = list(type = "rel_par", tol = criterion@tol),
+    "optimizers7::CritNever" = list(type = "never"),
+    "optimizers7::CritCombine" = {
+      parts <- lapply(criterion@criteria, criterion_spec)
+      if (any(vapply(parts, is.null, logical(1)))) return(NULL)
+      list(type = if (identical(criterion@how, "all")) "all" else "any",
+           criteria = parts)
+    },
+    NULL)
+}

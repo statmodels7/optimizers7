@@ -116,6 +116,8 @@ reference:
   - crit_never
   - crit_any
   - crit_all
+  - criterion_spec
+  - descent_settings
 
 - title: Line searches
   desc: >
