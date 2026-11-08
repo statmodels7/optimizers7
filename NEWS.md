@@ -1,3 +1,13 @@
+# optimizers7 0.22.0
+
+* The descent loop, its line searches and the stopping rules are exported as
+  C++ headers in `inst/include/optimizers7` (`descent_loop.h`, `rules.h`), so
+  that a package can run the loop from compiled code.
+* The stopping rules have a compiled form, used by default (option
+  `optimizers7.compiled_rules`).
+* `criterion_spec()` and `descent_settings()` return the description of a
+  stopping rule and of a descent method that the compiled loop reads.
+
 # optimizers7 0.21.0
 
 * The graph of an `optimizer_result` is drawn with ggplot2, which is
