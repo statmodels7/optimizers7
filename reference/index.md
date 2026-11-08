@@ -125,6 +125,11 @@ cannot evaluate instead of accepting one that never fires.
   : Stop When Any of Several Rules Fires
 - [`crit_all()`](https://statmodels7.github.io/optimizers7/reference/crit_all.md)
   : Stop Only When Every Rule Fires
+- [`criterion_spec()`](https://statmodels7.github.io/optimizers7/reference/criterion_spec.md)
+  : The Compiled Form of a Stopping Rule
+- [`descent_settings()`](https://statmodels7.github.io/optimizers7/reference/descent_settings.md)
+  [`descent_capture`](https://statmodels7.github.io/optimizers7/reference/descent_settings.md)
+  : The Settings of a Descent Method for the Compiled Loop
 
 ## Line searches
 

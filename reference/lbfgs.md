@@ -143,7 +143,7 @@ minimize(lbfgs(memory = 5), rosen, c(-1.2, 1), gr = rg)
 #>   value      : 1.94698e-14
 #>   par        : 1 1
 #>   iterations : 36   evaluations: f 49, g 40
-#>   elapsed    : 3 ms
+#>   elapsed    : 0 us
 #>   converged  : yes (gradient (max-norm) < 1e-06 or |df| < 1e-10 or |dx| < 1e-08)
 
 # The two-loop recursion is not an approximation to the full update: on
